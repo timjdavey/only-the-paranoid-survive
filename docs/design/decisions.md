@@ -181,7 +181,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 
 **Question.** Underneath, this is a changepoint problem on ten streams. What makes it a test of telling change from weather rather than another bandit paper?
 
-Prior drifting-bandit work, [Zhang](../prior/worlds-that-change.md#zhang-et-al-2025-llms-in-a-drifting-bandit), [Mellor and Shapiro](../prior/further-work.md#quickest-detection-and-drifting-bandits) and [BanditBench](../prior/worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration), has memoryless noise, unstructured arms and a change that is only a mean moving. Four things here are different, and each is a decision on this page:
+Prior drifting-bandit work, [Zhang](../prior/worlds-that-change.md#zhang-et-al-2025-llms-in-a-drifting-bandit), [Mellor and Shapiro](../prior/people.md#mellor-and-shapiro-2013-thompson-sampling-with-a-change-detector) and [BanditBench](../prior/worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration), has memoryless noise, unstructured arms and a change that is only a mean moving. Four things here are different, and each is a decision on this page:
 
 | Difference | Why it matters | Decision |
 |---|---|---|
@@ -511,7 +511,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | Reference bot | A filter on the generator's family: a belief per unit over its level, a belief over whether it is in a dip or has shifted, and a belief over how long ago a change began (Adams and MacKay). Each round it samples from the belief and takes the best split under saturation and the threshold for that sample | The yardstick for performance, discernment and every disposition |
 | Retune bot | The same code with sides pooled, so each kind is one belief | Whether the agent retuned or rethought |
 
-- **It values information because sampling does.** A unit the bot is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/further-work.md#quickest-detection-and-drifting-bandits) handle a world that switches, and what Denrell and March's hot stove effect says a fair yardstick needs: a learner that stops trying an option that starts badly never learns it has improved (Organization Science 12(5): 523 to 538, 2001, [doi:10.1287/orsc.12.5.523.10092](https://doi.org/10.1287/orsc.12.5.523.10092)).
+- **It values information because sampling does.** A unit the bot is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/people.md#mellor-and-shapiro-2013-thompson-sampling-with-a-change-detector) handle a world that switches, and what Denrell and March's hot stove effect says a fair yardstick needs: a learner that stops trying an option that starts badly never learns it has improved (Organization Science 12(5): 523 to 538, 2001, [doi:10.1287/orsc.12.5.523.10092](https://doi.org/10.1287/orsc.12.5.523.10092)).
 - **It wrote the record.** Damped, so the record's experiments are the yardstick's own, at the right rate by definition.
 - **It is the best bot we can build, not the best possible.** A model may beat it, and then performance passes 1. That is a finding, not a bug.
 - **Should complacency rise at all?** A long past lowers the hazard but sharpens the bot's view of the old levels. Which wins is computed, not assumed.

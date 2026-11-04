@@ -62,7 +62,7 @@ The Inspect `.eval` log is the transcript, for reading and review. `runs.jsonl` 
 | Used by | METR and UK AISI | Neither | Terminal-bench style evals |
 | Cost control | Message and token limits | Build it ourselves | Hard |
 
-The briefing is its own solver step: one model call with `read_record`, `compute` and `write_notes`, run once per seed and cached, so the change run and the no-change run share the notes. The live solver is a custom loop, not the default `react()`. It ends when the game says the horizon is over, and if the model stops calling tools it sends a neutral continue message from `assets/continue.md`. The threshold is stated in the `allocate` tool's description, so it is a rule the agent reads, not a cut-off in the scorer. The CLI form is a later rung on the [realism ladder](future.md#future-work): the same engine behind a `paranoid-cli` binary, run inside a coding agent.
+The briefing is its own solver step: one model call with `read_record`, `compute` and `write_notes`, run once per seed and cached, so the change run and the no-change run share the notes. The live solver is a custom loop, not the default `react()`. It ends when the game says the horizon is over, and if the model stops calling tools it sends a neutral continue message from `assets/continue.md`. The threshold is stated in the `allocate` tool's description, so it is a rule the agent reads, not a cut-off in the scorer. The CLI form is a later rung on the [realism ladder](future.md): the same engine behind a `paranoid-cli` binary, run inside a coding agent.
 
 We use Inspect's own nouns rather than inventing ours:
 

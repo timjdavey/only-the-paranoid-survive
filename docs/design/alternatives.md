@@ -54,7 +54,7 @@ Power wasn't the only problem:
 
 **The coin flip game repaired with batches.** The smallest change. It fixes power, but a test and a hedge still need stake cut-offs the agent never knew about, and it keeps Kelly and a cap against ruin. It stays the fallback if the reference bot for the budget split proves too hard to build.
 
-Pricing and the supplier split are candidates for a second game, once the proof of concept shows the core measure works. See [Future work](future.md#future-work).
+Pricing and the supplier split are candidates for a second game, once the proof of concept shows the core measure works. See [Future work](future.md).
 
 ## Why the budget split won
 
