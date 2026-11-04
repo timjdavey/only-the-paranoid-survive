@@ -48,16 +48,16 @@ The reference bot is the best player we can build. It keeps a belief about every
 
 | Trait | The question it answers | Kind | Where it is read | Headline at |
 |---|---|---|---|---|
-| **Edge captured** | How much of the gain on offer did it take? | Ability | Every run, pooled by output | Proof of concept |
+| **Performance** | How much of the gain on offer did it take? | Ability | Every run, pooled by output | Proof of concept |
 | **Discernment** | How faint a change does it profit from? | Ability | Change runs by amplitude, less the no-change run's loss | Full study |
 | **Insight** | Did it rewrite what it believed, and act on it? | Ability | Change runs, the last rounds and the notes | |
 | **Paranoia** | How much does it doubt notes that are working? | Disposition | No-change run only, sharpest at the yoked dip | |
 | **Caution** | How much evidence does it need before it switches? | Disposition | Change runs, at the switch | |
 | **Conviction** | Once it switches, how fully does it act? | Disposition | Change runs, after the switch | |
 
-Edge captured is the arbiter at both tiers: it decides which amplitudes and traits stay. Discernment needs the five-amplitude grid, so the proof of concept reports it only as the two points it has. Curiosity is a diagnostic, since a small look looks the same as the spread saturation calls for. See [Why curiosity is a diagnostic, not a trait](decisions.md#why-curiosity-is-a-diagnostic-not-a-trait). Where a disposition has both a plain reading and an evidence reading, [next step 2](../../TODO.md#next-steps) decides which leads.
+Performance is the arbiter at both tiers: it decides which amplitudes and traits stay. Discernment needs the five-amplitude grid, so the proof of concept reports it only as the two points it has. Curiosity is a diagnostic, since a small look looks the same as the spread saturation calls for. See [Why curiosity is a diagnostic, not a trait](decisions.md#why-curiosity-is-a-diagnostic-not-a-trait). Where a disposition has both a plain reading and an evidence reading, [next step 2](../../TODO.md#next-steps) decides which leads.
 
-## Edge captured, the proof of concept headline
+## Performance, the proof of concept headline
 
 The share of the reference bot's gain that the model also made. 0 means it did no better than holding the standing split. 1 means it did as well as the reference bot.
 
@@ -68,7 +68,7 @@ The share of the reference bot's gain that the model also made. 0 means it did n
 
 Every amplitude counts by what was on offer in it, and the no-change run counts once. Each run adds what it won, so an early switch beats a late one and a timid switch earns less than a full one. There is no switch cut-off and no rule that throws out a seed after a false alarm: a false alarm counts through the output it cost.
 
-| Edge captured | Reading |
+| Performance | Reading |
 |---|---|
 | 1 | As good as the reference bot |
 | Above 1 | Better than the reference bot |
@@ -77,20 +77,20 @@ Every amplitude counts by what was on offer in it, and the no-change run counts 
 
 It splits in two over the same denominator. **Gain** is what the change runs added over the no-update bot, and **loss** what the no-change run took away. A high gain with a large loss is paranoid, and a small gain with no loss is complacent. Real output is reported beside both.
 
-It tops out at 1, so it will saturate once a model matches the reference bot. No model will be near that in the proof of concept, which is why it leads there and discernment, which has no such ceiling short of the bot's own, leads the full study. See [Why edge captured is the proof of concept headline](decisions.md#why-edge-captured-is-the-proof-of-concept-headline).
+It tops out at 1, so it will saturate once a model matches the reference bot. No model will be near that in the proof of concept, which is why it leads there and discernment, which has no such ceiling short of the bot's own, leads the full study. See [Why performance is the proof of concept headline](decisions.md#why-performance-is-the-proof-of-concept-headline).
 
-Edge captured is the arbiter through two rules:
+Performance is the arbiter through two rules:
 
 1. **Every amplitude must be worth catching.** The reference bot's pooled gain over the no-update bot there must beat a margin set in `params.yaml`, or [next step 1](../../TODO.md#next-steps) moves it.
-2. **Every trait must predict edge captured.** Across the disposition bots, built to be too jumpy, too cautious or too hedged, and then across models, a trait that doesn't track edge captured becomes a diagnostic.
+2. **Every trait must predict performance.** Across the disposition bots, built to be too jumpy, too cautious or too hedged, and then across models, a trait that doesn't track performance becomes a diagnostic.
 
 ## Discernment, the full study headline
 
 The smallest drop in level the model acts on, in points. Smaller is better. A score of 6 means it moves budget once a unit yielding 70 in 100 has slipped to 64.
 
 1. **At each amplitude, pool the seeds.** Take the model's gain over the no-update bot in the change runs at that amplitude, and subtract what it lost against that bot in the no-change runs.
-2. **Divide** by the same figure for the reference bot. That is edge captured at that amplitude.
-3. **Fit a smooth S-shaped curve** of edge captured against amplitude, and read off where it crosses a set level. Resampling the seeds gives the error bar.
+2. **Divide** by the same figure for the reference bot. That is performance at that amplitude.
+3. **Fit a smooth S-shaped curve** of performance against amplitude, and read off where it crosses a set level. Resampling the seeds gives the error bar.
 
 It works like a hearing test, which finds the quietest beep you still hear. The beep is the fall: the unit that rises sits under the threshold at the standing split, so its rise is never heard for free, and the test is of how faint a slip makes the model look and move. METR's time horizon has the same shape: a curve of success against one natural unit, read off at a set level and plotted against release date. The proof of concept's two amplitudes are two points on this curve, in the same unit against the same bot, so nothing is thrown away when the full grid is run.
 
@@ -217,7 +217,7 @@ A made up results table. The top block is what the proof of concept reports, and
 
 | Trait | Model P | Model Q | Reference bot |
 |---|---|---|---|
-| Edge captured | 0.62 | 0.41 | 1 |
+| Performance | 0.62 | 0.41 | 1 |
 | Gain in the change runs | 0.70 | 0.42 | 1.03 |
 | Loss in the no-change run | −0.08 | −0.01 | −0.03 |
 | Insight, shares | 0.80 | 0.55 | 0.95 |

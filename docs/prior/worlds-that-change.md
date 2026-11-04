@@ -81,7 +81,7 @@ Rui Wang et al. "AdaExploreBench: Benchmarking LLM Agents for Proactive Explorat
 - Forcing the agent to probe did nothing.
 - The abstract implies GPT-6-Sol (61.9) is the best model, but its own table puts Gemini-3.8-Flash higher.
 
-**What it means for us.** It is the closest benchmark in shape. Calibrated accuracy runs from a floor to an oracle, as edge captured runs from the no-update bot to the reference bot. Swaps being noticed far more than reversals bears on the [later kinds of change](../design/future.md#how-the-world-changes), and forced probing doing nothing says experiments have to be the agent's own idea. But the oracle knows the true rule rather than seeing what the agent sees, feedback is exact, and false alarms aren't counted.
+**What it means for us.** It is the closest benchmark in shape. Calibrated accuracy runs from a floor to an oracle, as performance runs from the no-update bot to the reference bot. Swaps being noticed far more than reversals bears on the [later kinds of change](../design/future.md#how-the-world-changes), and forced probing doing nothing says experiments have to be the agent's own idea. But the oracle knows the true rule rather than seeing what the agent sees, feedback is exact, and false alarms aren't counted.
 
 ## STOCKTAKE 2026: a fair oracle for supply chains
 
@@ -110,7 +110,7 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 - Knowing didn't mean acting. Even after naming the problem, an agent ran out of stock in a third or more of those weeks.
 - Failures ran both ways. Claude froze through a port jam, GPT-5.4 never locked in freight in 87% of freight spikes, and DeepSeek flailed. The two worst models overbought protection against problems that were real.
 
-**What it means for us.** It is the closest study in method: their oracle is our reference bot, their 0 to 1 skill is the shape of edge captured, and their event tape is our shared luck. Its week-long false alarm is the nearest thing in the literature to noise with a run in it, and the shape of our yoked dip, yet calm-week overreactions "are excluded from every reported metric by construction", so false alarms go uncounted. Their split between knowing and acting is what our [doubt question](../design/future.md#how-the-agent-can-act) would measure, and their supplier story is close to our planned second game.
+**What it means for us.** It is the closest study in method: their oracle is our reference bot, their 0 to 1 skill is the shape of performance, and their event tape is our shared luck. Its week-long false alarm is the nearest thing in the literature to noise with a run in it, and the shape of our yoked dip, yet calm-week overreactions "are excluded from every reported metric by construction", so false alarms go uncounted. Their split between knowing and acting is what our [doubt question](../design/future.md#how-the-agent-can-act) would measure, and their supplier story is close to our planned second game.
 
 ## Gupta et al. 2025: coin flips and Bayes
 

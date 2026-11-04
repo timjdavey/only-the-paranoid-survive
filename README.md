@@ -33,23 +33,14 @@ This study specifically tests:
 
 ## Reported
 
-The benchmark comes in two tiers. The proof of concept is what gets built and run first. The full study is the funded version, with more runs per model.
+The benchmark comes in two tiers. The proof of concept is built and run first. The full study is the funded version, with more runs per model.
 
-**Proof of concept.**
+- **Performance**, how well an agent performed against a perfect bot with complete information. This bundles both noticing the change and ability to update strategy to act on this new suspicion.
+- **Discernment**, the full study headline. The smallest change the agent profits from. Smaller is better.
+- **Insight.** Whether it worked out what changed, rather than just shuffling its bets.
+- **Paranoia, caution and conviction.** Whether it doubts too readily, waits too long for evidence, or holds back once it switches. Each is read against our best bot, and zero is ideal.
 
-| Measure | What it says | Reading |
-|---|---|---|
-| **Edge captured** | The share of the gain on offer that the model took, pooled over every run it played. The gain on offer is what the best bot we can build won over a player that never changed the split | 1 matches the bot, 0 is no better than never changing, below 0 means doubt cost more than it gained |
-| **Insight** | Whether it rewrote what it believed and acted on it, finding that one unit now behaves differently on one side, rather than nudging the old numbers | Nearer 1 is better. Moving share among the old units scores about a half |
-| **Profile** | Paranoia, caution and conviction as signed gaps from the bot. Does it doubt notes that are working, how much evidence does it need before it switches, and how fully does it act once it has | Zero is ideal for each, and the sign says which way the model leans |
-
-**Full study.**
-
-| Measure | What it says | Reading |
-|---|---|---|
-| **Discernment** | The smallest drop in level the model acts on. A score of 6 means it moves budget once a unit yielding 70 in 100 has slipped to 64 | Smaller is better. It works like a hearing test, which finds the quietest beep you still hear, and is plotted against release date the way [METR's time horizon](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/) is |
-
-How each measure is worked out is in [Measures](docs/design/measures.md).
+How each is worked out is in [Measures](docs/design/measures.md).
 
 ## Results
 

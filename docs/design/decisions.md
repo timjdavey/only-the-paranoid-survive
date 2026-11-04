@@ -38,9 +38,9 @@ Each decision starts with the question it answers and the options we weighed. Th
 | [How a round is scored](#why-each-round-is-scored-on-expected-output) | Expected output at the true levels | Real output |
 | [How lags are reported](#why-first-doubt-and-the-switch-are-read-as-curves) | Diagnostic curves by round | Mean round |
 | [Curiosity](#why-curiosity-is-a-diagnostic-not-a-trait) | A diagnostic, not a trait | Score it from experiments |
-| [The proof of concept headline](#why-edge-captured-is-the-proof-of-concept-headline) | Edge captured, pooled by output | A threshold from two amplitudes |
-| [The full study headline](#why-discernment-is-the-full-study-headline) | The amplitude where edge captured crosses a set level | The amplitude caught half the time |
-| [What the arbiter is](#why-edge-captured-is-the-arbiter) | Edge captured | Discernment alone |
+| [The proof of concept headline](#why-performance-is-the-proof-of-concept-headline) | Performance, pooled by output | A threshold from two amplitudes |
+| [The full study headline](#why-discernment-is-the-full-study-headline) | The amplitude where performance crosses a set level | The amplitude caught half the time |
+| [What the arbiter is](#why-performance-is-the-arbiter) | Performance | Discernment alone |
 | [Efficiency](#why-efficiency-is-in-game-spend) | Output given up to experiments | Token cost |
 | [Stopping a trivial solve](#how-we-avoid-it-simply-being-solved) | Weather, a split that still works, no hint in the prompt | Tell it change may come |
 | [Stopping gaming](#why-the-game-is-hard-to-game) | A no-change run, private seeds, fixed bots, scans | Trust the public seeds |
@@ -92,7 +92,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | Option | Problem |
 |---|---|
 | Ten independent arms with a mean each | The only change possible is a mean shift, so a tracker that updates ten means wins and nothing has to be rethought |
-| An open simulator, as rich as we like | No principled bot can model it, so the yardstick stops being the best we can build and edge captured loses its meaning |
+| An open simulator, as rich as we like | No principled bot can model it, so the yardstick stops being the best we can build and performance loses its meaning |
 | **A linear Gaussian state per unit, a coupling matrix, an observation step and a regime switch** ✓ | |
 
 | Block | Holds | A change here |
@@ -394,11 +394,11 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 |---|---|
 | One funded edition, with the full grid and the threshold headline | Several hundred dollars a model before we know the measure separates models at all, and a curve fitted over five amplitudes on ten seeds is too noisy to read |
 | A proof of concept with no path to the full study | A headline that can't be plotted over releases |
-| **A proof of concept that leads with edge captured, then a full study that leads with discernment** ✓ | |
+| **A proof of concept that leads with performance, then a full study that leads with discernment** ✓ | |
 
 | | Proof of concept | Full study |
 |---|---|---|
-| Headline | Edge captured, pooled, gain and loss split | Discernment: the threshold from a fitted curve |
+| Headline | Performance, pooled, gain and loss split | Discernment: the threshold from a fitted curve |
 | Grid per seed | One no-change run and two amplitudes | One no-change run and five amplitudes |
 | Kind of change | Level | Level, then coupling, gain and observation |
 | Seeds | 20 | About 30, with extra runs where a model starts to miss |
@@ -422,7 +422,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | A list of the game's mechanics: experiment, switch and the gap between them | Each rests on a cut-off the agent never knew about, and none maps onto a trait a reader cares about |
 | **Six traits, split into abilities and dispositions** ✓ | |
 
-- **Abilities are things more of is better.** Edge captured, discernment and insight. Each is a plain score, and a model may pass the reference bot on any of them.
+- **Abilities are things more of is better.** Performance, discernment and insight. Each is a plain score, and a model may pass the reference bot on any of them.
 - **Dispositions have a right amount.** Paranoia, caution and conviction. Each is a signed gap from the reference bot on the same seed, so zero is ideal and the sign says which way the model leans. Grove and Kodak needed to move, and Shopify and Hopin moved on a change that reversed.
 - **A reader can name the failure.** "Cautious but calm" says more than "switch lag 8".
 - **Cost.** Every disposition and both headlines lean on the reference bot, so a flaw in that bot moves them all. Insight and the catch rate backup stand without it.
@@ -476,7 +476,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 - **It is fed the weather model.** A CUSUM on raw yield fires on every dip. Ours sums evidence for a shift over a dip, given the memory and spread in `params.yaml`, so a dip adds little.
 - **It needs almost no model beyond that.** The CUSUM bot takes a reference amplitude and the weather settings. The reference bot's odds of change at the switch, the evidence backup, depend on the hazard prior we chose, so the line is the main reading and the odds the backup.
 - **Rounds stay beside it**, because anyone can read them, and the experiment count and price stay as diagnostics.
-- **Cost.** A run with no switch has no line, so caution is read only on switches. Discernment and edge captured carry the misses.
+- **Cost.** A run with no switch has no line, so caution is read only on switches. Discernment and performance carry the misses.
 
 ### Why insight reads the notes
 
@@ -484,7 +484,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 
 | Option | Problem |
 |---|---|
-| The shares alone | An agent that moves A0's share to B0 scores on edge captured without ever finding C0, and the shares can't say whether it knew why |
+| The shares alone | An agent that moves A0's share to B0 scores on performance without ever finding C0, and the shares can't say whether it knew why |
 | A judge reading the notes | Scoring needs a model |
 | **The largest share on the changed side, and a simple check that the rewritten notes state the new rule** ✓ | |
 
@@ -506,12 +506,12 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 
 | Bot | What it is | What it settles |
 |---|---|---|
-| Reference bot | A filter on the generator's family: a belief per unit over its level, a belief over whether it is in a dip or has shifted, and a belief over how long ago a change began (Adams and MacKay). Each round it samples from the belief and takes the best split under saturation and the threshold for that sample | The yardstick for edge captured, discernment and every disposition |
+| Reference bot | A filter on the generator's family: a belief per unit over its level, a belief over whether it is in a dip or has shifted, and a belief over how long ago a change began (Adams and MacKay). Each round it samples from the belief and takes the best split under saturation and the threshold for that sample | The yardstick for performance, discernment and every disposition |
 | Retune bot | The same code with sides pooled, so each kind is one belief | Whether the agent retuned or rethought |
 
 - **It values information because sampling does.** A unit the bot is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/further-work.md#quickest-detection-and-drifting-bandits) handle a world that switches, and what [Denrell and March](../prior/further-work.md#the-new-ceo) say a fair yardstick needs.
 - **It wrote the record.** Damped, so the record's experiments are the yardstick's own, at the right rate by definition.
-- **It is the best bot we can build, not the best possible.** A model may beat it, and then edge captured passes 1. That is a finding, not a bug.
+- **It is the best bot we can build, not the best possible.** A model may beat it, and then performance passes 1. That is a finding, not a bug.
 - **Should complacency rise at all?** A long past lowers the hazard but sharpens the bot's view of the old levels. Which wins is computed, not assumed.
 - **Retune or rethink.** The retune bot can't split a kind by side, so it moves both sides together or neither, and never finds the new rule.
 - **The hazard's prior is pre-registered.** It is a Beta prior centred on how often changes happen across the suite, no-change runs included, set before any model runs. The bot updates it over the record, where it can count the resolved changes, and tracks run length over the live rounds, as [Wilson et al.](../prior/people.md#wilson-nassar-and-gold-2010-learning-the-hazard-rate) do.
@@ -582,7 +582,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 
 ## The headline
 
-### Why edge captured is the proof of concept headline
+### Why performance is the proof of concept headline
 
 **Question.** What one number does the proof of concept report?
 
@@ -591,7 +591,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | A threshold fitted over two amplitudes | Two points don't make a curve. The crossing would move with the fit's shape more than with the model |
 | The catch rate at one amplitude | A yes or no per run throws away when the switch came and how full it was, and it saturates once models catch that amplitude |
 | The ratio at each amplitude, averaged | At the faint amplitude the reference bot gains little, so the ratio there swings on a small denominator and the average inherits the swing |
-| **Edge captured pooled by output: one ratio from totals summed over every run** ✓ | |
+| **Performance pooled by output: one ratio from totals summed over every run** ✓ | |
 
 - **It is continuous and luck-free.** Each run scores on expected output, so the dice and the weather drop out and 20 seeds give a standard error near 0.05. That is what splits two models, which is the one thing a proof of concept has to show.
 - **It reads without explanation.** "Took 62% of the gain on offer, where 0 is never changing the split and 1 is the best bot we can build."
@@ -606,12 +606,12 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 
 | Option | Problem |
 |---|---|
-| Edge captured, pooled over every run | Tops out at 1, and one number mixes the amplitudes, so it can't say how faint a change a model handles |
+| Performance, pooled over every run | Tops out at 1, and one number mixes the amplitudes, so it can't say how faint a change a model handles |
 | Lag in rounds | Mixes how loud the change was with how fast it was caught |
 | Catch rate at one amplitude | Saturates once models catch that amplitude |
 | The smallest amplitude caught half the time | The old answer. A yes or no catch rises with skill and with a low bar for raising the alarm. It needs a switch cut-off and a voiding rule, and a catch in round 10 counts the same as one in round 39 |
 | A staircase, sizing each run from the last | Runs in series, not in parallel |
-| **The amplitude where edge captured crosses a set level, on a fixed grid** ✓ | |
+| **The amplitude where performance crosses a set level, on a fixed grid** ✓ | |
 
 How it works:
 
@@ -625,11 +625,11 @@ How it works:
 - **The level is read at 50% and at 80%.** 50% is the curve's centre: it is the location the fit estimates directly, so it has the tightest bar, and it is the level most models reach somewhere on the grid. METR tracks 50% for those reasons and reports 80% beside it. 80% is what a reader means by "acts on", so it is the quoted number, with its wider bar. The wording never says "half": discernment is the smallest drop in level the model acts on.
 - **Every run counts.** A run adds what it won, so an early catch beats a late one, and a run that never switches still scores what its experiments earned.
 - **No cut-off and no voiding rule.** Paranoia shows as the no-change loss, taken off at every amplitude, so a model that always switches gains nothing.
-- **The small denominator is bounded.** At 3 points the reference bot gains little, so a ratio there swings. The arbiter's rule, that an amplitude must be [worth catching](#why-edge-captured-is-the-arbiter) by a margin set in `params.yaml`, keeps such an amplitude off the grid.
+- **The small denominator is bounded.** At 3 points the reference bot gains little, so a ratio there swings. The arbiter's rule, that an amplitude must be [worth catching](#why-performance-is-the-arbiter) by a margin set in `params.yaml`, keeps such an amplitude off the grid.
 - **It can saturate, and we say so.** The reference bot scores 1 at every amplitude, so its own threshold sits below the grid, and a model that matches it reads "below the grid". The remedy is a harder edition, with a lower N, a longer memory or a fainter grid. Each threshold is also published as the evidence a round carries at that amplitude, so every edition sits on one axis.
 - **Cost.** It needs the five-amplitude grid and about 30 seeds, which is why it waits for the full study. It leans on the reference bot and the true levels, where the old catch rate needed neither. The catch rate, d′ and the CUSUM dot stay as [backups](measures.md#catch-rate-a-backup).
 
-### Why edge captured is the arbiter
+### Why performance is the arbiter
 
 **Question.** When a trait or an amplitude is in doubt, what settles it?
 
@@ -637,12 +637,12 @@ How it works:
 |---|---|
 | Discernment alone | It reads amplitude by amplitude, so it can't drop an amplitude or a trait that isn't worth anything, and the proof of concept doesn't have it |
 | Nothing settles it | Every trait stays on the page whether or not it costs output |
-| **Edge captured is the arbiter at both tiers** ✓ | |
+| **Performance is the arbiter at both tiers** ✓ | |
 
 Two rules follow:
 
 1. **An amplitude the reference bot doesn't profit from is moved.** Its gain over the no-update bot, pooled over seeds, must beat a margin set in `params.yaml`. This also keeps discernment's denominator from getting too small. The devil you know: if updating doesn't pay even for the reference bot, the rational play is to stay, and a model that stays has shown nothing.
-2. **A trait that doesn't predict edge captured is a diagnostic.** Across the disposition bots, and then across models, a trait that fails to track edge captured isn't costing anything the game can see.
+2. **A trait that doesn't predict performance is a diagnostic.** Across the disposition bots, and then across models, a trait that fails to track performance isn't costing anything the game can see.
 
 - **It keeps the page honest.** Every trait has to earn its place in output.
 - **Cost.** The margin is a judgement, and so is how strong "predicts" has to be. Both are fixed in [next steps](../../TODO.md#next-steps) 1 and 2, before any model runs.
@@ -718,7 +718,7 @@ There are three ways to fake it, and each defence below closes one:
 | Runs per seed | 3, and one briefing | 6, and one briefing |
 | Seeds | 20 | About 30 |
 
-- **The proof of concept needs one loud and one faint amplitude**, enough to show that edge captured separates models and that the faint change costs them. The 3 point amplitude is left out because it has the smallest denominator and is the likeliest to fail the worth-catching rule.
+- **The proof of concept needs one loud and one faint amplitude**, enough to show that performance separates models and that the faint change costs them. The 3 point amplitude is left out because it has the smallest denominator and is the likeliest to fail the worth-catching rule.
 - **It keeps cost down.** Each run added to a seed costs $60 to $90 a model across 20 seeds, at the thinking we now expect. Spending the proof of concept's runs on 20 seeds rather than five amplitudes doubles the no-change runs, which is where paranoia's error bar comes from.
 - **Ramp only**, since work drifts more often than it changes overnight. Amplitude varies instead of speed.
 - **The level change stays.** Other kinds of change, the history style and the record sweep shouldn't differ between releases, so they run once.

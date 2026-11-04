@@ -112,9 +112,9 @@ Each model gets six traits. An **ability** is better the more of it there is. A 
 
 | Word | What it means | Also called |
 |---|---|---|
-| Edge captured | The model's gain over the no-update bot as a share of the reference bot's, no-change run included. The proof of concept's headline | Edge, performance |
-| Gain and loss | The two parts of edge captured: what the change runs added, and what the no-change run took away | |
-| Discernment | The full study's headline. The amplitude at which a model's edge captured crosses a set level. Smaller is better | Threshold, hearing test |
+| Performance | The model's gain over the no-update bot as a share of the reference bot's, no-change run included. The proof of concept's headline | Edge captured, edge |
+| Gain and loss | The two parts of performance: what the change runs added, and what the no-change run took away | |
+| Discernment | The full study's headline. The amplitude at which a model's performance crosses a set level. Smaller is better | Threshold, hearing test |
 | Catch rate | A backup to discernment. The share of change runs caught, where a run is caught if the agent switched before the last round and the no-change run on that seed had no switch | Caught, catch rule |
 | Expected output | What a round's split was worth at the true levels, with the weather and the dice left out | Expected customers, luck-adjusted score |
 | Insight | Whether the agent rewrote what it believed and acted on it: near the end of each change run, the share of rounds and sides where the largest share on that side is on its best unit, and whether the rewritten notes state the new rule | Rethinking share |
@@ -156,7 +156,7 @@ Diagnostics explain the traits but are not scores: curiosity, first doubt, calib
 - **Signal.** A dashboard index that moved on its own. It was a clue nobody could say the right response to, so it went. Whether a later skin shows the generator's inputs is an [open question](../TODO.md#open-questions).
 - **Bayes bot, perfect player, dumb learner.** Bot names now say what each one is for. The reference bot isn't perfect, and a model may beat it.
 - **Caught, as the headline.** The catch rate stays as a backup to discernment.
-- **Performance, as a trait name.** The trait is edge captured, and the word says what it is.
+- **Edge captured, edge.** A niche name for a headline. Performance says what it is in one word.
 - **First edition.** "Proof of concept" says what the first tier is for.
 - **Flip.** A change ramps. Other shapes of change are [future work](design/future.md).
 - **Bet, stake, bankroll, option, win rate.** The coin flip game they belonged to was dropped for the budget split. See [alternatives](design/alternatives.md).

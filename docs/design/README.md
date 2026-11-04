@@ -22,7 +22,7 @@ How good is an agent at telling a change in the dynamics of a system from ordina
 
 That one question breaks into six traits, each read from the log of a run. Three are abilities, where more is better. Three are dispositions, where the score is a gap from the reference bot and zero is ideal. How each is measured is in [measures.md](measures.md#the-traits).
 
-- **Edge captured.** Takes the gain on offer
+- **Performance.** Takes the gain on offer
 - **Discernment.** Profits from small changes
 - **Insight.** Rewrites what it believed, and acts on it
 - **Paranoia.** Doubts notes that are working
@@ -50,7 +50,7 @@ The benchmark is built in two tiers over the same game. The proof of concept has
 
 | | Proof of concept | Full study |
 |---|---|---|
-| Headline | Edge captured, the share of the gain on offer the model took | Discernment, the smallest drop the model acts on |
+| Headline | Performance, the share of the gain on offer the model took | Discernment, the smallest drop the model acts on |
 | Runs per seed | A briefing, a no-change run and two change sizes | A briefing, a no-change run and five change sizes |
 | Kind of change | The level change | Level, then coupling, gain and observation |
 | Seeds | 20 | About 30 |
@@ -95,7 +95,7 @@ What the benchmark must do, grouped by the part of a run each one constrains. Th
 - **Each trait read in the run where it is cleanest.** Paranoia in the no-change run, caution and conviction in the change runs. These are the parts of [the question](#the-question), and one number would hide which one failed. See [Why each trait lives in one kind of run](decisions.md#why-each-trait-lives-in-one-kind-of-run).
 - **Every score read against the reference bot and the no-update bot.** Each measure becomes a gap against what was knowable, bounded above and below. See [Why two bots bound the game](decisions.md#why-two-bots-bound-the-game).
 - **A backup that needs no oracle.** Both headlines lean on the reference bot and our generator's true levels, which could set a fake target. So the catch rate, which reads only the agent's own shares and its no-change run, is reported beside them.
-- **Every amplitude on the grid worth catching.** If the reference bot doesn't gain from switching at an amplitude, the rational play is to stay and the amplitude says nothing. See [Why edge captured is the arbiter](decisions.md#why-edge-captured-is-the-arbiter).
+- **Every amplitude on the grid worth catching.** If the reference bot doesn't gain from switching at an amplitude, the rational play is to stay and the amplitude says nothing. See [Why performance is the arbiter](decisions.md#why-performance-is-the-arbiter).
 
 ### What the suite must do
 
@@ -109,7 +109,7 @@ What the benchmark must do, grouped by the part of a run each one constrains. Th
 
 | Limitation | Why we accepted it | How to overcome, and at which tier |
 |---|---|---|
-| **A headline that tops out at 1.** Edge captured can't be plotted over releases once models match the reference bot | No model will be near it before the full study exists, and one continuous number is what a proof of concept needs. See [Why two tiers](decisions.md#why-two-tiers) | Full study: discernment |
+| **A headline that tops out at 1.** Performance can't be plotted over releases once models match the reference bot | No model will be near it before the full study exists, and one continuous number is what a proof of concept needs. See [Why two tiers](decisions.md#why-two-tiers) | Full study: discernment |
 | **One kind of change in the proof of concept.** A per-unit tracker can find a level change, so insight is weaker than it will be | The level change is the one with a known bot and one paragraph to explain. See [Why a change is a typed event](decisions.md#why-a-change-is-a-typed-event) | Full study: coupling, gain and observation |
 | **No human baseline.** A score says how models compare with each other, not with people | Comparing models over time needs no human anchor, and recruiting people costs time a proof of concept doesn't have | Beyond the full study: human baseline |
 | **One reasoning setting per model.** Scores are a lower bound for models that do better with more thinking | Budget. Each model runs at its standard high setting, so the comparison is fair even if it isn't complete | Full study: reasoning sweep |

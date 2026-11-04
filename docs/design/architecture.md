@@ -8,8 +8,8 @@ Deep-module architecture. Each layer reads only what the one before it writes.
 |---|---|---|---|
 | **Engine** | Generator (the four blocks, the weather, the levels and the change), shared luck, game, record, views and bots. Pure Python, no I/O, deterministic from config and seed | Config and seed | A `RunLog` per run |
 | **Harness** | The Inspect task, the briefing step, the five tools, the code sandbox, the solver loop and the budget guard | The engine | An Inspect `.eval` log, with the `RunLog` in the sample store |
-| **Scoring** | Per run measures: edge, catch, the traits and the scanners | One `RunLog` | One row of `runs.jsonl` |
-| **Analysis** | Pooling, bootstrap, plots and metrics across runs. Edge captured is pooled here. The full study adds the curve fit for discernment from edge pooled by amplitude | `runs.jsonl` and `params.yaml` | A frozen report folder |
+| **Scoring** | Per run measures: performance, catch, the traits and the scanners | One `RunLog` | One row of `runs.jsonl` |
+| **Analysis** | Pooling, bootstrap, plots and metrics across runs. Performance is pooled here. The full study adds the curve fit for discernment from performance pooled by amplitude | `runs.jsonl` and `params.yaml` | A frozen report folder |
 
 The split between scoring and analysis follows METR's `eval-analysis-public`, which keeps wrangling, fitting and plotting apart from the per run scores.
 
@@ -34,8 +34,8 @@ The Inspect `.eval` log is the transcript, for reading and review. `runs.jsonl` 
 | `task_version`, `config_hash` | The version of what the agent sees, and the hash of the game config |
 | `compute_tool` | Whether the run had the `compute` tool. False only for the pilot's diagnostic run |
 | `suite` | `pilot`, `poc` or `full`. Only `poc` rows reach the proof of concept report |
-| `caught`, `edge_captured` | Whether the switch rule fired with no switch in the seed's no-change run, for the catch rate backup, and the run's expected output minus the no-update bot's on the same seed. Analysis pools the edge over every run into the headline, and by amplitude into discernment in the full study |
-| `edge_gain`, `edge_loss` | The run's edge over the no-update bot, in the gain column for a change run and the loss column for the no-change run. Analysis pools them into the split |
+| `caught`, `performance` | Whether the switch rule fired with no switch in the seed's no-change run, for the catch rate backup, and the run's expected output minus the no-update bot's on the same seed. Analysis pools it over every run into the headline, and by amplitude into discernment in the full study |
+| `gain`, `loss` | The run's gain over the no-update bot, in the gain column for a change run and the loss column for the no-change run. Analysis pools them into the split |
 | `output`, `expected_output` | Output with the real dice and weather, and the luck-adjusted total |
 | `switch_round` | The switch. Null if it never happened |
 | `first_experiment_round` | First doubt, a diagnostic. Null if it never happened |
@@ -70,7 +70,7 @@ We use Inspect's own nouns rather than inventing ours:
 |---|---|
 | One seed, amplitude, history style and skin | A `Sample`, with those in `metadata` |
 | The benchmark | One `Task` |
-| Scoring a run | A `Scorer` that reads the `RunLog` from the sample `Store` and returns catch, edge captured, the traits and output in `Score.value` |
+| Scoring a run | A `Scorer` that reads the `RunLog` from the sample `Store` and returns catch, performance, the traits and output in `Score.value` |
 | Repeats | `epochs`, set to 1 since [seeds beat repeats](decisions.md#why-more-seeds-not-repeats) |
 | Message and token caps | `message_limit` and `token_limit` |
 | A grid of runs | A declarative eval set YAML in `eval_sets/`, one per tier, as in METR's Hawk and its task scaffolder |
@@ -97,7 +97,7 @@ src/paranoid/
     cusum.py  the CUSUM bot behind the caution line, fed the weather model
   task/       task.py, version.py, assets/briefing.md, assets/instructions.md, assets/continue.md
   harness/    tools, compute sandbox, briefing, solver, budget guard
-  scoring/    runlog schema, edge_captured, catch, insight, paranoia, caution, conviction, experiment, switch, briefing_quality
+  scoring/    runlog schema, performance, catch, insight, paranoia, caution, conviction, experiment, switch, briefing_quality
     scanners/ test_aware, tool_misuse, steering_text
   analysis/   wrangle, bootstrap, fit, plot, metrics, spreads
   cli.py      paranoid bots | records | run | score | report | freeze
