@@ -6,44 +6,46 @@ Each decision starts with the question it answers and the options we weighed. Th
 
 ## At a glance
 
+**The words this page uses.** Each round the agent splits a budget across ten units. Before round 1 it reads the **record**, 200 rounds of past play, and writes its own notes, in a separate call we call the **briefing**. The split the record ends on is the **standing split**. A **seed** fixes the luck, and every run on a seed shares it, including a **no-change run** where nothing changes. In that run a **yoked dip** starts exactly like the change and then recovers. The **reference bot** is the best player we can build, and the yardstick for every score. **Amplitude** is how far the falling unit drops, in points. Each story the game is dressed in is a **skin**. The full list is in the [glossary](../glossary.md).
+
 | Decision | Chosen | Main alternative |
 |---|---|---|
 | [How the agent responds](#why-a-budget-split) | A budget split across ten units, with volume scaling with spend | Pick one unit and a stake |
 | [What ordinary variation looks like](#why-weather-has-memory) | Weather with memory, a shared factor and dips | Coin flips at a fixed rate |
-| [What makes the world](#why-the-generator-is-a-state-space-system) | A four block state-space system | Ten independent arms |
-| [What a change is](#why-a-change-is-a-typed-event) | An edit to one block, the level in the proof of concept | A mean shift only |
+| [What makes the world](#why-the-generator-is-a-state-space-system) | A small system built from four parts, any of which a change can edit | Ten unconnected units |
+| [What a change is](#why-a-change-is-a-typed-event) | An edit to one of those four parts. The proof of concept only moves how well a unit pays | A shift in one unit's average pay only |
 | [What a small share buys](#why-attention-is-scarce) | Nothing under a told threshold, then a reading that sharpens with spend | A noisy reading at any share |
 | [How the world is laid out](#why-ten-units-in-five-kinds-by-two-sides) | Ten units, five kinds by two sides, the change in one | Weekly conditions the agent is handed, or dashboard signals |
 | [What a skin may call things](#why-names-must-match-the-generator) | Nouns that carry no lag, trend or memory the generator lacks | Brand, SEO, referrals |
-| [What makes it more than a bandit](#why-this-is-more-than-a-drifting-bandit) | Weather with a yoked false alarm, typed changes, a no-change twin, silence about change | A drifting bandit |
+| [What makes it more than a bandit](#why-this-is-more-than-a-drifting-bandit) | Bad luck that comes in streaks, a false alarm built to match the change, several kinds of change, a matching no-change run, and no hint that change may come | A drifting bandit, where each unit's pay simply wanders |
 | [How luck is shared](#why-shared-luck-is-a-stream-of-numbers) | A stream of numbers per unit per round, and per weather term | Noise added to each reading |
 | [How the agent plays](#why-tools) | Tool calls, one round per call | Ask it whether anything has changed |
 | [Whether it can run code](#why-a-code-tool) | A sandboxed `compute` tool | No code |
 | [How many tries](#why-a-single-long-run-rather-than-multiple-tries) | One run per seed | Several playthroughs, the rules changing in one |
-| [How bad the stale split gets](#why-the-standing-split-still-pays) | Never below a 0.55 level | A unit worse than the rest |
+| [How bad the stale split gets](#why-the-standing-split-still-pays) | The falling unit never pays less than 55% | A unit worse than the rest |
 | [What causes the change](#why-the-change-is-not-reflexive) | Something outside the agent | The agent leaning on its notes |
-| [What the no-change run holds](#why-the-yoked-dip) | A dip that starts like the change, on the same seed | Quiet rounds only |
+| [What the no-change run holds](#why-the-yoked-dip) | A dip that starts exactly like the change, on the same luck, then recovers | Quiet rounds only |
 | [Whether a switch sticks](#why-no-lock-in) | Free to undo | A switching cost |
-| [Where the agent's beliefs come from](#why-the-agent-writes-its-own-notes) | It reads the record and writes its own notes at a briefing | A plan written by a previous agent |
-| [Who wrote the record](#why-the-record-comes-from-a-bot-and-its-style-is-a-factor) | The damped reference bot, with its style a pilot factor | A model's own live run |
-| [What the game looks like](#why-four-skins-over-one-interface) | Four skins over one interface, the fictional one the headline | One public story skin |
+| [Where the agent's beliefs come from](#why-the-agent-writes-its-own-notes) | It reads the record and writes its own notes before round 1 | A plan written by a previous agent |
+| [Who wrote the record](#why-the-record-comes-from-a-bot-and-its-style-is-a-factor) | The reference bot, toned down, with how much it experiments tried both ways in the pilot | A model's own live run |
+| [What the game looks like](#why-four-skins-over-one-interface) | The same game in four skins, with the fictional one used for the headline | One public story skin |
 | [How much is built first](#why-two-tiers) | A proof of concept, then a full study | One funded edition |
 | [What is measured](#why-traits-in-two-kinds) | Six traits in two kinds | One detection score |
-| [Where each trait lives](#why-each-trait-lives-in-one-kind-of-run) | One kind of run each | Both runs |
+| [Where each trait lives](#why-each-trait-lives-in-one-kind-of-run) | Each trait is read in the one kind of run where it shows most clearly | Every trait read across both kinds |
 | [How doubt is read](#why-split-doubting-from-switching) | Paranoia, caution and conviction as three traits | One detection time |
-| [How caution is read](#why-caution-is-a-cusum-line) | The CUSUM line, fed the weather model | Switch minus first doubt |
+| [How caution is read](#why-caution-is-a-cusum-line) | How much evidence a standard change detector, CUSUM, would need to fire on the same round | Rounds from the first experiment to the switch |
 | [How insight is read](#why-insight-reads-the-notes) | The shares on the changed side, and the rewritten notes | The shares alone |
-| [What scores are measured against](#why-two-bots-bound-the-game) | A reference bot and a retune bot | Other models |
-| [How complacency is made](#complacency-as-a-parameter-not-a-history) | Rounds of record before the change | Real long tasks |
-| [How a round is scored](#why-each-round-is-scored-on-expected-output) | Expected output at the true levels | Real output |
-| [How lags are reported](#why-first-doubt-and-the-switch-are-read-as-curves) | Diagnostic curves by round | Mean round |
+| [What scores are measured against](#why-two-bots-bound-the-game) | The reference bot, and a copy of it that can't tell the two sides apart | Other models |
+| [How complacency is made](#complacency-as-a-parameter-not-a-history) | The number of rounds of record before the change | Real long tasks |
+| [How a round is scored](#why-each-round-is-scored-on-expected-output) | What the split would win on average, with the luck taken out | What it actually won |
+| [How delays are reported](#why-first-doubt-and-the-switch-are-read-as-curves) | A curve of how many runs have acted by each round | The average round |
 | [Curiosity](#why-curiosity-is-a-diagnostic-not-a-trait) | A diagnostic, not a trait | Score it from experiments |
-| [The proof of concept headline](#why-performance-is-the-proof-of-concept-headline) | Performance, pooled by output | A threshold from two amplitudes |
-| [The full study headline](#why-discernment-is-the-full-study-headline) | The amplitude where performance crosses a set level | The amplitude caught half the time |
+| [The proof of concept headline](#why-performance-is-the-proof-of-concept-headline) | Performance: the share of the possible gain the model took | The faintest change acted on, from only two amplitudes |
+| [The full study headline](#why-discernment-is-the-full-study-headline) | The smallest amplitude the model profits from, read off a curve across five | The amplitude caught half the time |
 | [What the arbiter is](#why-performance-is-the-arbiter) | Performance | Discernment alone |
 | [Efficiency](#why-efficiency-is-in-game-spend) | Output given up to experiments | Token cost |
-| [Stopping a trivial solve](#how-we-avoid-it-simply-being-solved) | Weather, a split that still works, no hint in the prompt | Tell it change may come |
-| [Stopping gaming](#why-the-game-is-hard-to-game) | A no-change run, private seeds, fixed bots, scans | Trust the public seeds |
+| [Stopping a trivial solve](#how-we-avoid-it-simply-being-solved) | Bad luck in streaks, a standing split that still pays, and no hint in the prompt | Tell it change may come |
+| [Stopping gaming](#why-the-game-is-hard-to-game) | The no-change run, a private set of seeds, bots fixed in advance, and scans of the transcripts | Trust the public seeds |
 | [Runs per seed](#why-one-no-change-run-and-a-grid-per-seed) | One no-change run and a grid of amplitudes | Cross every dial |
 | [Who sets difficulty](#why-the-bots-set-the-difficulty) | The bots | Today's models |
 | [Sample](#why-more-seeds-not-repeats) | Seeds, each run once | One seed, run many times |
@@ -179,20 +181,20 @@ Each decision starts with the question it answers and the options we weighed. Th
 
 ### Why this is more than a drifting bandit
 
-**Question.** Underneath, this is a changepoint problem on ten streams. What makes it a test of telling change from weather rather than another bandit paper?
+**Question.** At heart the game asks when one of ten streams of results changed, a well studied problem called changepoint detection. What makes it a test of telling change from weather, rather than another bandit paper?
 
-Prior drifting-bandit work, [Zhang](../prior/worlds-that-change.md#zhang-et-al-2025-llms-in-a-drifting-bandit), [Mellor and Shapiro](../prior/people.md#mellor-and-shapiro-2013-thompson-sampling-with-a-change-detector) and [BanditBench](../prior/worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration), has memoryless noise, unstructured arms and a change that is only a mean moving. Four things here are different, and each is a decision on this page:
+In a drifting bandit an agent picks between options whose payoffs wander over time. Earlier work of this kind, [Zhang](../prior/worlds-that-change.md#zhang-et-al-2025-llms-in-a-drifting-bandit), [Mellor and Shapiro](../prior/people.md#mellor-and-shapiro-2013-thompson-sampling-with-a-change-detector) and [BanditBench](../prior/worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration), draws each result fresh, treats the options as unconnected, and only ever moves an option's average payoff. Four things here are different, and each is a decision on this page:
 
 | Difference | Why it matters | Decision |
 |---|---|---|
-| **Weather with memory, and a yoked false alarm** | A bad stretch is a real explanation, and the no-change run holds one that starts exactly like the change | [Why weather has memory](#why-weather-has-memory), [Why the yoked dip](#why-the-yoked-dip) |
-| **Typed changes** | A change is an edit to a block, and on the later rungs a per-unit tracker can't find it | [Why a change is a typed event](#why-a-change-is-a-typed-event) |
-| **A no-change twin inside the headline** | A false alarm costs as much as a miss, on the same luck | [Why each trait lives in one kind of run](#why-each-trait-lives-in-one-kind-of-run) |
-| **Silence about change** | No prompt, skin or tool says the world can move. The record shows that it has | [How we avoid it simply being solved](#how-we-avoid-it-simply-being-solved) |
+| **Bad luck in streaks, and a false alarm built to match the change** | A bad stretch is a real explanation, and the no-change run holds a dip that starts exactly like the change and then recovers | [Why weather has memory](#why-weather-has-memory), [Why the yoked dip](#why-the-yoked-dip) |
+| **Several kinds of change** | A change edits one of the four parts the world is built from. In the full study some changes alter how units work together, which a bot watching each unit on its own can't find | [Why a change is a typed event](#why-a-change-is-a-typed-event) |
+| **A no-change run counted in the headline** | Every seed is also played with nothing changed, on the same luck, and that run counts in the main score, so a false alarm costs as much as a miss | [Why each trait lives in one kind of run](#why-each-trait-lives-in-one-kind-of-run) |
+| **Silence about change** | No prompt, skin or tool says the world can move. Only the record shows that it has moved before | [How we avoid it simply being solved](#how-we-avoid-it-simply-being-solved) |
 
-- **It is barely a bandit.** The agent can fund many units at once, so the exploration dilemma is weaker than in a bandit. The threshold is what keeps looking costly.
-- **Being a changepoint problem underneath is an asset.** Known theory, a reference bot we can build, and one paragraph to explain.
-- **Cost.** A reader who skims will file it as a bandit. The README and the [prior-work page](../prior/README.md#at-a-glance) lead with the four differences for that reason.
+- **It is barely a bandit.** The agent can fund many units at once, so the usual bandit tension between trying an option and using the best one is weaker. The threshold is what keeps looking costly.
+- **The changepoint core helps us.** It comes with known theory, it lets us build the reference bot, and it takes one paragraph to explain.
+- **Cost.** At first sight the game looks like one more bandit study. That is why the README and the [prior-work page](../prior/README.md#at-a-glance) lead with what sets it apart.
 
 ### Why shared luck is a stream of numbers
 
@@ -527,15 +529,17 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 |---|---|
 | Real long tasks with a late change | Costly, and every run has a different past |
 | A longer prompt | Mixes complacency with context length |
-| **Rounds of record before the change** ✓ | |
+| **More or fewer rounds of record before the change** ✓ | |
 
-- **The measure is a gap.** The reference bot slows a little too, so the agent's curve is read against the bot's, with the no-change run.
-- **Swept once.** Both tiers fix the record at 200. See [Why one no-change run and a grid per seed](#why-one-no-change-run-and-a-grid-per-seed).
+- **It is read as a gap from the reference bot.** A longer past should make even the reference bot a little slower to doubt. So the agent's delay is compared with the bot's, alongside its false alarms in the no-change run.
+- **The record's length is varied in one separate test.** Otherwise both tiers keep the record at 200 rounds. See [Why one no-change run and a grid per seed](#why-one-no-change-run-and-a-grid-per-seed).
+
+When the record gets longer, the two kinds of run together say what is going on:
 
 | Delay in the change run | False alarms in the no-change run | Reading |
 |---|---|---|
-| Rises | Falls | Bayesian. Check the gap against the reference bot |
-| Rises | Flat | Complacent |
+| Rises | Falls | Weighing the evidence, as a Bayesian would. Check the gap against the reference bot |
+| Rises | Flat | Complacent: slower to catch a change, with no fewer false alarms to show for it |
 | Flat | Flat | Not reading the past at all |
 
 ### Why each round is scored on expected output
