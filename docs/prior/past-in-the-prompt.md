@@ -66,7 +66,7 @@ Johannes A. Schubert et al. "In-context learning agents are asymmetric belief up
 
 The human result behind this is Chambon et al. 2020 (Nature Human Behaviour 4:1067 to 1079, [doi:10.1038/s41562-020-0919-5](https://doi.org/10.1038/s41562-020-0919-5)): in people "the confirmation bias in learning rates was specific to free choices".
 
-**What it means for us.** This is why the [design README](../design/README.md#limitations-of-this-design) calls a read past the weaker form of the bias. The record holds choices someone else made, so learning from it should start even handed, but the notes are the agent's own, and once it has staked on them losses may count for less. The [full live run](../design/future.md#what-the-agent-knows-before-it-starts) tests the difference, though Schubert's "someone else" is a forced choice inside the agent's own run, not a record another player wrote.
+**What it means for us.** This is why the [limitations page](../design/limitations.md) calls a read past the weaker form of the bias. The record holds choices someone else made, so learning from it should start even handed, but the notes are the agent's own, and once it has staked on them losses may count for less. The [full live run](../design/future.md#what-the-agent-knows-before-it-starts) tests the difference, though Schubert's "someone else" is a forced choice inside the agent's own run, not a record another player wrote.
 
 ## IBIS 2026: inertia in search agents
 

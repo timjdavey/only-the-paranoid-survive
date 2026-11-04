@@ -75,7 +75,7 @@ The too jumpy side is the least tested. Wang treats a switch after a loss as goo
 
 ## How this connects to other work
 
-The game measures one narrow skill, but the skill sits under several bigger questions about agents. It serves **part of the wider field** ([design principles](../design/README.md#design-principles)). Each link below is a claim to test, not a finding.
+The game measures one narrow skill, but the skill sits under several bigger questions about agents. It serves **part of the wider field** ([design principles](../design/requirements.md#design-principles)). Each link below is a claim to test, not a finding.
 
 | Theme | The link | What we'd check |
 |---|---|---|

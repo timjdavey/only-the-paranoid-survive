@@ -2,7 +2,7 @@
 
 **Every choice behind the game, what else it could have been, and why we picked this one.**
 
-Each decision starts with the question it answers and the options we weighed. The chosen option is in bold and ticked. The bullets under it say why, and a **Cost** bullet names what we gave up. The values behind the choices are the [design principles](README.md#design-principles). The benchmark has two tiers, a proof of concept and a full study, and a decision that differs between them says so. See [Why two tiers](#why-two-tiers).
+Each decision starts with the question it answers and the options we weighed. The chosen option is in bold and ticked. The bullets under it say why, and a **Cost** bullet names what we gave up. The values behind the choices are the [design principles](requirements.md#design-principles). The benchmark has two tiers, a proof of concept and a full study, and a decision that differs between them says so. See [Why two tiers](#why-two-tiers).
 
 ## At a glance
 
@@ -126,7 +126,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 
 - **The ladder makes insight real.** On the later rungs the retune bot and a per-unit tracker both fail, and only an agent that asks what kind of change this is wins.
 - **The generator is built for all four now**, so a kind of change is config, not a rewrite.
-- **Cost.** The proof of concept tests one kind, and that is a [limitation](README.md#limitations-of-this-design) it says out loud.
+- **Cost.** The proof of concept tests one kind, and that is a [limitation](limitations.md) it says out loud.
 
 ### Why attention is scarce
 

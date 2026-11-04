@@ -1,6 +1,32 @@
 # Measures
 
-We've split the benchmark into two tiers. A proof of concept, then the full study.
+## The question
+
+How good is an agent at telling a change in the dynamics of a system from ordinary bad luck, and so at knowing when its own notes have gone stale?
+
+That one question breaks into six traits, each read from the log of a run. Three are abilities, where more is better. Three are dispositions, where the score is a gap from the reference bot and zero is ideal. How each is measured is in [the traits](#the-traits).
+
+- **Performance.** Takes the gain on offer
+- **Discernment.** Profits from small changes
+- **Insight.** Rewrites what it believed, and acts on it
+- **Paranoia.** Doubts notes that are working
+- **Caution.** Waits for evidence
+- **Conviction.** Acts on the switch
+
+## Two tiers
+
+The benchmark is built in two tiers over the same game. The proof of concept has to show one thing, that the measure separates models with usable error bars, so it leads with one continuous number. The full study adds the runs that a threshold needs. See [Why two tiers](decisions.md#why-two-tiers).
+
+| | Proof of concept | Full study |
+|---|---|---|
+| Headline | Performance, the share of the gain on offer the model took | Discernment, the smallest drop the model acts on |
+| Runs per seed | A briefing, a no-change run and two change sizes | A briefing, a no-change run and five change sizes |
+| Kind of change | The level change | Level, then coupling, gain and observation |
+| Seeds | 20 | About 30 |
+| Runs a model | 60 and 20 briefings, about $100 at the target | About 180 at one reasoning setting |
+| Reasoning | One setting | A sweep |
+| Models | Two in the pilot, then each on release | Every model on release, older ones back-filled |
+| Realism | Four skins and two history styles in the pilot, to decide pooling | A real task with a stale handoff note as well |
 
 ## The game in brief
 
