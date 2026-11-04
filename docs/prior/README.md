@@ -6,7 +6,7 @@
 | [People, and the reference bot](people.md) | Studies of people, and the methods behind the reference bot |
 | [A past in the prompt](past-in-the-prompt.md) | Studies that put a past in front of the model |
 | [Measuring agents](measuring-agents.md) | METR's time horizon, and studies of models that suspect a test |
-| [Themes](themes.md) | How the game connects to bigger questions about agents, each a claim to test |
+| [Themes](themes.md) | How the game connects to Epoch AI's learning on the fly, METR's time horizon and other open questions about agents, each a claim to test |
 | [Glossary](../glossary.md) | The one word we use for each idea in the design |
 
 ## At a glance
@@ -94,7 +94,7 @@ Bleser tests both directions in people, but tells them up front how changeable t
 
 - **Not yet read in full.** Massey and Wu, Brown and Steyvers, Gallistel 2001 and the Kumaran journal version.
 - **Claude system cards.** What happened when the Sonnet 4.5 card suppressed eval awareness (sections 7.6.4 and 7.6.5) is unread, and so are later cards.
-- **Reward hacking.** The last strand of the [themes table](themes.md) still has a literature we haven't reviewed.
+- **Reward hacking.** The [themes table](themes.md) now links METR's, Anthropic's and Epoch's reports, but we haven't reviewed that literature.
 - **LLMs on a biased coin.** We found no one who has run LLMs on the Haghani and Dewey game, nor an LLM study of a bandit that switches once and stays switched. Both look open.
 - **Noise with memory.** Apart from STOCKTAKE's one week-long false alarm, every study above draws each result fresh. Whether models tell a bad stretch from a change when the noise itself has stretches looks open.
 - **Copying a demonstrated style.** BanditBench's example runs are the only test we found of a past that demonstrates how to play. Whether a model copies the experimentation rate of a record it reads is untested, and the pilot's history style cell is a first look.
