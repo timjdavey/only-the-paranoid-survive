@@ -11,13 +11,16 @@
 
 ## At a glance
 
-Our game asks for three things that no study below has together.
+If you know the literature, our game may look like a drifting bandit: an agent picks between options whose payoffs wander over time, as in Zhang, Mellor and Shapiro, and BanditBench. It has that shape, but three things set it apart, and no study below has all three.
 
-1. **The noise has memory.** A bad month is ordinary, so a run of bad results is not evidence by itself, and the no-change run holds a dip that starts exactly like the change. Elsewhere each result is drawn fresh, apart from STOCKTAKE's week-long false alarm.
-2. **The standing split keeps paying.** It never falls below 0.55, so it loses only to the best split available. Elsewhere the old plan mostly stops paying once the change lands: a reversed option wins 20% of the time, a tool group fails every call.
-3. **The headline is read against the best bot we can build**, with the no-change run on the same luck inside it, so a false alarm costs as much as a miss.
+1. **Bad luck comes in streaks.** In our game a bad month is ordinary, so a run of poor results doesn't prove anything changed. Every game is also played on the same luck with nothing changed, which we call the no-change run, and it holds a dip that starts exactly like the real change before it recovers. In the other studies each result is drawn fresh, so a streak is strong evidence. The one exception is STOCKTAKE, with a single false alarm that lasts a week.
+2. **The old split still pays after the change.** The unit the agent relied on never pays off less than 55% of the time, so keeping the old split loses only to the best split available. Elsewhere the old choice mostly stops working once the change lands: in one study a reversed option wins only 20% of the time, in another an old tool fails on every call.
+3. **We score against the best bot we can build.** The no-change run counts in the same score, on the same luck, so a false alarm costs as much as a miss.
 
-A reader who skims will file the game beside Zhang, Mellor and Shapiro and BanditBench. [Why this is more than a drifting bandit](../design/decisions.md#why-this-is-more-than-a-drifting-bandit) says what else sets it apart: a change that edits how the units work, not just one unit's level, and silence about change in every prompt, skin and tool.
+Two more things go beyond a drifting bandit, explained in [Why this is more than a drifting bandit](../design/decisions.md#why-this-is-more-than-a-drifting-bandit):
+
+- **A change can alter how the units work**, not just raise or lower one unit's payoff. The proof of concept moves a payoff only, and the full study adds the rest.
+- **Nothing tells the agent the world might change.** No prompt, story or tool mentions it. It has to spot it from the record of past play.
 
 | Study | Setting | Change | Old plan still pays after it? | Feedback | Agent's past | Scored against | No-change control |
 |---|---|---|---|---|---|---|---|
@@ -42,11 +45,24 @@ A reader who skims will file the game beside Zhang, Mellor and Shapiro and Bandi
 | [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a regime shift | At most one shift | n/a, beliefs only | Noisy | None | Bayesian posterior | No |
 | [Brown and Steyvers 2009](people.md#brown-and-steyvers-2009-naming-a-change-versus-predicting-through-it) | People, a hidden source that jumps | Many jumps | No | Noisy | None | Particle filter fits | No |
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | Ratio of reward rates jumps | No | Noisy | Many earlier sessions, with or without change | Ideal detector | No |
-| **Our game** | A budget split across ten units, after a briefing on a 200 round record | One unit slowly falls and an ignored one rises past it, or a dip that recovers | Yes, never below 0.55 | Noisy, with memory | A record written by a bot, and notes the agent wrote itself | The reference bot as yardstick and the no-update bot as floor, on the same shared luck | No-change run, inside the headline, with a yoked dip |
+| **Our game** | A budget split across ten units, after reading 200 rounds of past play | One unit slowly falls and one it ignored rises past it, or a dip that recovers | Yes, never below 55% | Noisy, in streaks | Past play by a bot, and notes the agent wrote itself | The best bot we can build as yardstick, and a bot that never changes its split as the floor, on the same luck | No-change run on the same luck, counted in the score |
 
-STOCKTAKE comes closest on method: an oracle that sees only what the agent sees, one event tape shared by every policy, and a false alarm that looks real for a week, the shape of our yoked dip. AdaExploreBench comes closest in shape, with one silent change and a score from a floor policy to an oracle, like performance. Set-shifting is the only one whose no-change copy is matched run for run, and it keeps that copy beside the score. [Bazaar](worlds-that-change.md#bazaar-ahmed-et-al-2026-pricing-when-customers-tastes-swap)'s unshocked customers share a run with the shocked ones and get no result of their own. None shares the luck between the two.
+### The closest studies
 
-The too jumpy side is the least tested. Wang treats a switch after a loss as good, STOCKTAKE leaves calm-week overreactions out of every metric, and AdaExploreBench doesn't count false alarms. Yet the studies disagree on which way LLMs fail. Wang finds models rarely switch after a loss, which predicts too slow. Gupta finds some models forget after a couple of flips, Kumaran finds they overweight advice that disagrees with them, and [Horowitz and Plonsky](worlds-that-change.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result, which all predict too jumpy. Bleser tests both directions in people, but by telling them how volatile the world is. Massey and Wu predict which way people fail from the world alone: they overreact in a stable world with noisy signals, which is exactly our no-change run. Our headline makes the question unavoidable: what the no-change run loses is counted in it.
+- **STOCKTAKE is closest in method.** Its yardstick bot sees only what the agent sees, every player faces the same events, and it has a false alarm that looks real for a week, much like the dip in our no-change run.
+- **AdaExploreBench is closest in shape.** One silent change, and a score that runs from a do-nothing floor to an all-knowing oracle, like ours.
+- **Set-shifting is the only one with a matched no-change copy** of every run, but it reports that copy beside the score, not inside it.
+
+[Bazaar](worlds-that-change.md#bazaar-ahmed-et-al-2026-pricing-when-customers-tastes-swap)'s unaffected customers share a run with the affected ones but get no result of their own. None of these gives both runs the same luck.
+
+### Acting too early is the least studied failure
+
+Most studies only count being too slow. Wang counts a switch after a loss as good, STOCKTAKE leaves overreactions in calm weeks out of every score, and AdaExploreBench doesn't count false alarms. Yet the studies disagree about which way models fail:
+
+- **Too slow.** Wang finds models rarely switch after a loss.
+- **Too jumpy.** Gupta finds some models forget after a couple of flips, Kumaran finds they give too much weight to advice that disagrees with them, and [Horowitz and Plonsky](worlds-that-change.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result.
+
+Bleser tests both directions in people, but tells them up front how changeable the world is. Massey and Wu predict the direction from the world alone: people overreact when the world is stable and the signals are noisy, which is exactly our no-change run. Our score settles it, because whatever an agent loses by overreacting there counts against it.
 
 ### Where each study bears on the design
 
