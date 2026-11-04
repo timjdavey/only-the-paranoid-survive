@@ -84,3 +84,5 @@ The budget split's one weakness was that a 1% trickle on every unit watched the 
 | A bad run | Costs that round | Costs every round after |
 
 **Decision: fixed.** It drops Kelly and ruin, keeps evidence equal across runs on a seed, and makes the score a plain count. Compounding stays a generator option, switched off, for the [extension](future.md#how-the-agent-can-act) that asks whether late mistakes should cost more.
+
+**Sources.** Kelly 1956, "A New Interpretation of Information Rate" (Bell System Technical Journal 35(4): 917 to 926, [doi:10.1002/j.1538-7305.1956.tb03809.x](https://doi.org/10.1002/j.1538-7305.1956.tb03809.x)), sizes a bet by the edge. Baker and McHale 2013 (Decision Analysis 10(3): 189 to 199, [doi:10.1287/deca.2013.0271](https://doi.org/10.1287/deca.2013.0271)) show that betting on an estimated edge as if it were known overcommits.

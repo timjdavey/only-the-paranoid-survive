@@ -1,9 +1,5 @@
 # Design
 
-**The question, the values behind the benchmark, what the game must do, and what each tier leaves out.**
-
-This page is not a build spec. The game is sketched only far enough to make the decisions readable, and every number is a starting value or made up. The question and the results are in the [README](../../README.md).
-
 | Page | What's in it |
 |---|---|
 | [mechanics.md](mechanics.md) | The game the agent plays, the generator that makes its world, and the tools it plays through |

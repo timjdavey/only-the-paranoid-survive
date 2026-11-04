@@ -1,8 +1,6 @@
 # Measures
 
-**The runs each model plays, the six traits read from them, and what it costs.**
-
-Every number here is a starting value or made up, and says so. Why each measure is the way it is lives in [decisions.md](decisions.md). The benchmark comes in two tiers. The **proof of concept** is what gets built and run first, at about $100 a model, to show the measure works. The **full study** is the funded version. Where they differ, a section has a part for each, proof of concept first.
+We've split the benchmark into two tiers. A proof of concept, then the full study.
 
 ## The game in brief
 

@@ -478,6 +478,8 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 - **Rounds stay beside it**, because anyone can read them, and the experiment count and price stay as diagnostics.
 - **Cost.** A run with no switch has no line, so caution is read only on switches. Discernment and performance carry the misses.
 
+**Sources.** CUSUM is from Page 1954 (Biometrika 41(1/2): 100 to 115, [doi:10.1093/biomet/41.1-2.100](https://doi.org/10.1093/biomet/41.1-2.100)). Lorden 1971 (Annals of Mathematical Statistics 42(6): 1897 to 1908, [doi:10.1214/aoms/1177693055](https://doi.org/10.1214/aoms/1177693055)) shows it is close to the best trade between delay and false alarms. The problem it solves, spotting a change that comes at a random time, is Shiryaev's quickest detection (1963, Theory of Probability and Its Applications 8(1): 22 to 46, [doi:10.1137/1108002](https://doi.org/10.1137/1108002)).
+
 ### Why insight reads the notes
 
 **Question.** How do we tell a rethink from a retune?
@@ -509,7 +511,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | Reference bot | A filter on the generator's family: a belief per unit over its level, a belief over whether it is in a dip or has shifted, and a belief over how long ago a change began (Adams and MacKay). Each round it samples from the belief and takes the best split under saturation and the threshold for that sample | The yardstick for performance, discernment and every disposition |
 | Retune bot | The same code with sides pooled, so each kind is one belief | Whether the agent retuned or rethought |
 
-- **It values information because sampling does.** A unit the bot is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/further-work.md#quickest-detection-and-drifting-bandits) handle a world that switches, and what [Denrell and March](../prior/further-work.md#the-new-ceo) say a fair yardstick needs.
+- **It values information because sampling does.** A unit the bot is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/further-work.md#quickest-detection-and-drifting-bandits) handle a world that switches, and what Denrell and March's hot stove effect says a fair yardstick needs: a learner that stops trying an option that starts badly never learns it has improved (Organization Science 12(5): 523 to 538, 2001, [doi:10.1287/orsc.12.5.523.10092](https://doi.org/10.1287/orsc.12.5.523.10092)).
 - **It wrote the record.** Damped, so the record's experiments are the yardstick's own, at the right rate by definition.
 - **It is the best bot we can build, not the best possible.** A model may beat it, and then performance passes 1. That is a finding, not a bug.
 - **Should complacency rise at all?** A long past lowers the hazard but sharpens the bot's view of the old levels. Which wins is computed, not assumed.

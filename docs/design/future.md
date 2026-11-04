@@ -1,22 +1,10 @@
-# Future work
-
-**Extensions beyond the full study, each a research question rather than a number to track.**
-
-The benchmark has two tiers. The proof of concept is what gets built first, and the full study is the funded version with the five-amplitude grid, the threshold headline, the later kinds of change, a reasoning sweep and every model on release. What each tier runs is in [measures.md](measures.md#what-each-model-plays), and the steps to get there are in [TODO.md](../../TODO.md). This page holds what could come after both.
-
-## The game in brief
-
-An agent takes over an account from a previous operator. It reads 200 rounds of record, writes its own notes, then splits a fixed budget across ten units each week, five kinds on two sides, and sees yield on the ones it funded. The world wears weather with memory, so a bad month is ordinary. Partway through, one of the standing units slowly falls and an ignored unit on the same side rises past it, which the notes never anticipated. The standing split keeps paying, just less than it should. Each seed is played once with that change at some size and once with no change at all, where the same unit dips and recovers. The rules are in [mechanics.md](mechanics.md).
-
-## Follow ups
-
-These ideas answer research questions rather than track models over time. Each would run once on a few models, and only if the full study shows something worth chasing.
+# Future work (studies not benchmarks)
 
 ### How the world changes
 
 - **Ramp length.** Vary the speed at which the change is introduced rather than its amplitude.
 - **The later kinds of change, if the full study doesn't reach them.** Coupling, where two units start to compete or feed each other. Gain, where returns flatten at the same level. Observation, where yield is credited to the wrong unit. Each is an edit to one block of the generator, and on each a per-unit tracker fails. See [Why a change is a typed event](decisions.md#why-a-change-is-a-typed-event).
-- **Shapes of change.** The ramp is Gama's incremental drift. Sudden, gradual and recurring are the others, and a change that reverses is what Shopify and Hopin bet on.
+- **Shapes of change.** The ramp is incremental drift, in the terms of Gama et al.'s survey of concept drift (ACM Computing Surveys 46(4): 44, 2014, [doi:10.1145/2523813](https://doi.org/10.1145/2523813)). Sudden, gradual and recurring are the others, and a change that reverses is what Shopify and Hopin bet on.
 - **More units and more tags.** Ten units with one tag, side, is the smallest world with a rule to rethink. A third tag, and several units shifting a little from the start, would be closer to a real account.
 - **Reflexive changes.** Real plans often fail this way, like a trading edge that fades once everyone copies it. It is an edit to the coupling block, but a timid agent would score well and the reference bot would have to plan ahead. See [Why the change is not reflexive](decisions.md#why-the-change-is-not-reflexive).
 - **Showing the inputs.** A plant skin can show ambient temperature on the panel, which explains a correlated dip. Whether seeing the shared factor helps or hurts is a factor the proof of concept holds constant by hiding it.
