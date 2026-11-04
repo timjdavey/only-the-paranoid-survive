@@ -2,10 +2,10 @@
 
 | Page | What's in it |
 |---|---|
-| [mechanics.md](mechanics.md) | The game the agent plays, the generator that makes its world, and the tools it plays through |
-| [alternatives.md](alternatives.md) | The five games considered, and why the budget split won |
-| [measures.md](measures.md) | The runs each model plays, how they are scored and what they cost |
-| [decisions.md](decisions.md) | Every decision behind the game, and why |
+| [mechanics.md](mechanics.md) | The logic behind the game design |
+| [alternatives.md](alternatives.md) | A small collection of the different options of games we weighed up |
+| [measures.md](measures.md) | What measurements we take and why |
+| [decisions.md](decisions.md) | The  |
 | [architecture.md](architecture.md) | How the code is split into layers, and how that keeps it hard to game |
 | [future.md](future.md) | Extensions beyond the full study |
 | [glossary.md](../glossary.md) | The one word we use for each idea, and the older names it replaces |
