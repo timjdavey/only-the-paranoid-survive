@@ -2,13 +2,13 @@
 
 **The five games we weighed, and why the budget split won.**
 
-In brief, the chosen game: each round the agent splits a fixed budget across ten units, five kinds on two sides, sees yield on the ones it funded above a threshold, and is scored on output. The world wears weather with memory, so a bad month is ordinary. Partway through, one of the standing units slowly falls and an ignored unit on the same side rises past it. Full rules are in [mechanics.md](mechanics.md).
+In brief, the chosen game: each round the agent splits a fixed budget across ten units, five kinds on two sides, sees yield on the ones it funded above a threshold, and is scored on output. It starts from the record, 200 rounds of past play, and the split the record ends on is the standing split. The world wears weather, good and bad stretches that fade, so a bad month is ordinary. Partway through, one of the units the standing split funds slowly falls, and an ignored unit on the same side rises past it. Full rules are in [mechanics.md](mechanics.md).
 
 ## What any design must keep
 
 1. **A record the agent starts from**, with a standing split that still pays after the change.
-2. **Weather with memory**, so a bad stretch is a real explanation.
-3. **A no-change run** on the same shared luck, with a yoked false alarm in it.
+2. **Bad luck that comes in streaks**, so a bad stretch is a real explanation for poor results.
+3. **A no-change run**: every game is also played on the same luck with nothing changed, and holds a dip that starts like the change and then recovers, to tempt a false alarm.
 4. **Graded change sizes**, from loud to faint.
 5. **Every move a logged action**, so doubt is read from what the agent does.
 6. **A reference bot we can build**: a scripted player that learns from the same rounds as the agent and values information.
