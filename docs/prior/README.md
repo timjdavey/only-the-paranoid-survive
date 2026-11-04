@@ -6,6 +6,7 @@
 | [People, and the reference bot](people.md) | Studies of people, and the methods behind the reference bot |
 | [A past in the prompt](past-in-the-prompt.md) | Studies that put a past in front of the model |
 | [Measuring agents](measuring-agents.md) | METR's time horizon, and studies of models that suspect a test |
+| [Themes](themes.md) | How the game connects to bigger questions about agents, each a claim to test |
 | [Glossary](../glossary.md) | The one word we use for each idea in the design |
 
 ## At a glance
@@ -73,25 +74,11 @@ The too jumpy side is the least tested. Wang treats a switch after a loss as goo
 | Future work: [human baseline](../design/future.md#whether-it-holds-outside-our-game) | Behrens, Bleser, Wang, Haghani and Dewey, Zhang |
 | Future work: [real task and second game](../design/future.md#whether-it-holds-outside-our-game) | STOCKTAKE, Bazaar, CoffeeBench, Allen and McDonald |
 
-## How this connects to other work
-
-The game measures one narrow skill, but the skill sits under several bigger questions about agents. It serves **part of the wider field** ([design principles](../design/requirements.md#design-principles)). Each link below is a claim to test, not a finding.
-
-| Theme | The link | What we'd check |
-|---|---|---|
-| **METR's time horizon** | METR measures how long a task an agent can finish, and credits part of the rise in horizons to agents adapting to their own mistakes. Noticing that the world has moved under a plan is that skill, isolated | Whether a model's discernment explains why it sits above or below the time horizon trend. See [Why older models and a general ability check](../design/decisions.md#why-older-models-and-a-general-ability-check) |
-| **The same headline form** | The full study's discernment copies their recipe: a curve of success against a natural unit, read at a set level and plotted against release date | The two lines can sit side by side on one chart |
-| **Agent handoffs** | Long-running agents hand over through notes, summaries and memory files when their context runs out. The game is a controlled takeover of a record, and the agent's notes are the memory file it writes for itself | Whether an inherited plan, with its voice, changes the play, in the inherited plan extension |
-| **Test awareness** | Frontier models increasingly say they think they are being tested, which can change what they do | How often they say so here, and whether it drives experimenting. See [Why the game is hard to game](../design/decisions.md#why-the-game-is-hard-to-game) |
-| **Reward hacking** | Agents exploit the scoring when they can | Transcript review for tool misuse and steering text in the notes |
-| **Deference to a confident source** | A plan written by someone else is an authority, like a user who sounds sure. Sycophancy work asks whether models defer too long. The game removes that author by default | Whether a plan written in a more confident voice slows the switch, in the inherited plan extension |
-| **Belief updating in context** | Schubert et al. found Claude v1.3 learns more from good news than bad about its own choices, but symmetrically about choices someone else made. See [Schubert et al. 2024](past-in-the-prompt.md#schubert-et-al-2024-asymmetric-belief-updating) | Whether the agent discounts losses on its notes once it has staked on them itself, so a read record stops counting as someone else's choice |
-
 ## Gaps
 
 - **Not yet read in full.** Massey and Wu, Brown and Steyvers, Gallistel 2001 and the Kumaran journal version.
 - **Claude system cards.** What happened when the Sonnet 4.5 card suppressed eval awareness (sections 7.6.4 and 7.6.5) is unread, and so are later cards.
-- **Reward hacking.** The last strand of the [connections table](#how-this-connects-to-other-work) still has a literature we haven't reviewed.
+- **Reward hacking.** The last strand of the [themes table](themes.md) still has a literature we haven't reviewed.
 - **LLMs on a biased coin.** We found no one who has run LLMs on the Haghani and Dewey game, nor an LLM study of a bandit that switches once and stays switched. Both look open.
 - **Noise with memory.** Apart from STOCKTAKE's one week-long false alarm, every study above draws each result fresh. Whether models tell a bad stretch from a change when the noise itself has stretches looks open.
 - **Copying a demonstrated style.** BanditBench's example runs are the only test we found of a past that demonstrates how to play. Whether a model copies the experimentation rate of a record it reads is untested, and the pilot's history style cell is a first look.
