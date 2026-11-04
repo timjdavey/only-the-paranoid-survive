@@ -1,9 +1,13 @@
 # Future work (studies not benchmarks)
 
+**One-off studies we'd like to run beyond the full study. They would use the game, but they aren't part of the benchmark.**
+
+In the game, an agent splits a budget across ten units each round. It starts by reading the record, 200 rounds of past play, and writing its own notes. A few rounds in, one unit it funds quietly falls and one it ignores rises past it.
+
 ### How the world changes
 
-- **Ramp length.** Vary the speed at which the change is introduced rather than its amplitude.
-- **The later kinds of change, if the full study doesn't reach them.** Coupling, where two units start to compete or feed each other. Gain, where returns flatten at the same level. Observation, where yield is credited to the wrong unit. Each is an edit to one block of the generator, and on each a per-unit tracker fails. See [Why a change is a typed event](decisions.md#why-a-change-is-a-typed-event).
+- **Ramp length.** Vary how quickly the change arrives, rather than how far it falls.
+- **The later kinds of change, if the full study doesn't reach them.** Coupling, where two units start to compete or feed each other. Gain, where returns flatten at the same level. Observation, where yield is credited to the wrong unit. Each is an edit to one of the four parts the world is built from, and a bot that watches each unit on its own can't spot any of them. See [Why a change is a typed event](decisions.md#why-a-change-is-a-typed-event).
 - **Shapes of change.** The ramp is incremental drift, in the terms of Gama et al.'s survey of concept drift (ACM Computing Surveys 46(4): 44, 2014, [doi:10.1145/2523813](https://doi.org/10.1145/2523813)). Sudden, gradual and recurring are the others, and a change that reverses is what Shopify and Hopin bet on.
 - **More units and more tags.** Ten units with one tag, side, is the smallest world with a rule to rethink. A third tag, and several units shifting a little from the start, would be closer to a real account.
 - **Reflexive changes.** Real plans often fail this way, like a trading edge that fades once everyone copies it. It is an edit to the coupling block, but a timid agent would score well and the reference bot would have to plan ahead. See [Why the change is not reflexive](decisions.md#why-the-change-is-not-reflexive).
@@ -12,11 +16,11 @@
 
 ### What the agent knows before it starts
 
-- **Vary the length of the record.** A longer stretch of success should make anyone a little slower to doubt, even the reference bot. The question is how this varies among models.
-- **An inherited plan.** The old default, now an extension: hand the agent a plan written by someone else beside the record, with its voice a factor, from flat to "this split has served the client for four years". The gap from the briefing cell is what a read past and a confident author cost. See [Why the agent writes its own notes](decisions.md#why-the-agent-writes-its-own-notes).
+- **Vary the length of the record.** A longer stretch of success should make anyone a little slower to doubt, even the reference bot, the best player we can build. The question is how this varies among models.
+- **An inherited plan.** Hand the agent a plan written by someone else, beside the record, instead of having it write its own notes. This was the original design. The plan's voice would vary, from flat to "this split has served the client for four years". Comparing with the runs where the agent writes its own notes shows what a past it only read, and a confident author, cost. See [Why the agent writes its own notes](decisions.md#why-the-agent-writes-its-own-notes).
 - **Full live run with no record.** The agent plays from the first round, works out its own split, and then faces the change. This tells us whether a past the agent lived is harder to let go of than one it read. Earlier research suggests it is.
-- **The history style, beyond the pilot.** The pilot sizes steady against jittery once. A sweep would ask whether a model copies the record's rate of experimenting however jittery it gets.
-- **Ergodic tries.** Have the agent play several short runs in a row instead of one, with the rules changing in a few outlier runs. How the agent's own experience shapes what it expects.
+- **How much the record experiments.** The pilot, a first small run on two models, compares a steady record with a jittery one, once. Trying a range of styles would show whether a model copies how often the record experiments, however jittery it gets.
+- **Ergodic tries: several short runs in a row.** Have the agent play several short runs instead of one, with the rules changing in only a few of them. This shows how the agent's own experience shapes what it expects.
 
 ### How the agent can act
 
