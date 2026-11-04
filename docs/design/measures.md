@@ -1,21 +1,34 @@
 # Measures
 
+**What we measure, how each score is worked out, and what it costs to run.**
+
 ## The question
 
 How good is an agent at telling a change in the dynamics of a system from ordinary bad luck, and so at knowing when its own notes have gone stale?
 
-That one question breaks into six traits, each read from the log of a run. Three are abilities, where more is better. Three are dispositions, where the score is a gap from the reference bot and zero is ideal. How each is measured is in [the traits](#the-traits).
+That one question breaks into six traits, each read from the log of a run. Three are abilities, where more is better. Three are dispositions, which have a right amount: each is scored as a gap from the reference bot, the best player we can build, so zero is ideal. How each is measured is in [the traits](#the-traits).
 
-- **Performance.** Takes the gain on offer
-- **Discernment.** Profits from small changes
-- **Insight.** Rewrites what it believed, and acts on it
-- **Paranoia.** Doubts notes that are working
-- **Caution.** Waits for evidence
-- **Conviction.** Acts on the switch
+- **Performance.** How much of the gain on offer it takes.
+- **Discernment.** How small a change it can profit from.
+- **Insight.** Whether it rewrites what it believed, and acts on it.
+- **Paranoia.** How readily it doubts notes that are working.
+- **Caution.** How much evidence it waits for before it switches.
+- **Conviction.** How fully it acts once it has switched.
+
+## The game in brief
+
+The agent takes over an account from a previous operator. Each round, a week, it splits a fixed budget across ten units: five kinds, each on two sides. Each unit yields at a hidden level, and a bigger share buys a sharper reading, with less for each extra pound. That falling return is called saturation. A share under a threshold buys nothing. The level wears weather: good and bad stretches that fade, luck shared across units, and the odd dip that recovers. The agent sees volume and yield for the units it funded. The score is output.
+
+Before round 1 the agent reads the record, 200 rounds of past play, and writes its own notes on how to split and why. We call this step the briefing. The split the record ends on is the standing split. A few rounds in, one of the units the standing split funds slowly falls, and a unit it ignores on the same side rises past it. Every game is also played with nothing changed, on the same luck, which we call the no-change run. In it the same unit dips on the same round and recovers. The rules are in [mechanics.md](mechanics.md) and the words in the [glossary](../glossary.md).
+
+Two moves in the log matter most:
+
+- **An experiment** is a round that puts share above the threshold on a unit the standing split leaves out, or cuts one of the standing units below half its usual share.
+- **A switch** is the round from which the largest share on a side moves to a unit the standing split leaves out, and stays there in most later rounds. Rewriting the notes to match confirms it.
 
 ## Two tiers
 
-The benchmark is built in two tiers over the same game. The proof of concept has to show one thing, that the measure separates models with usable error bars, so it leads with one continuous number. The full study adds the runs that a threshold needs. See [Why two tiers](decisions.md#why-two-tiers).
+The benchmark is built in two tiers over the same game. The proof of concept has to show one thing, that the measure separates models with usable error bars, so it leads with one continuous number. The full study adds the runs needed to find the faintest change a model acts on. Before the proof of concept runs in full, a pilot tries it on two models over a few seeds, to tune it. See [Why two tiers](decisions.md#why-two-tiers).
 
 | | Proof of concept | Full study |
 |---|---|---|
@@ -26,18 +39,7 @@ The benchmark is built in two tiers over the same game. The proof of concept has
 | Runs a model | 60 and 20 briefings, about $100 at the target | About 180 at one reasoning setting |
 | Reasoning | One setting | A sweep |
 | Models | Two in the pilot, then each on release | Every model on release, older ones back-filled |
-| Realism | Four skins and two history styles in the pilot, to decide pooling | A real task with a stale handoff note as well |
-
-## The game in brief
-
-The agent takes over an account from a previous operator. Each round, a week, it splits a fixed budget across ten units: five kinds, each on two sides. Each unit yields at a hidden level, and a bigger share buys a sharper reading, with less for each extra pound. That falling return is called saturation. A share under a threshold buys nothing. The level wears weather: good and bad stretches that fade, luck shared across units, and the odd dip that recovers. The agent sees volume and yield for the units it funded. The score is output.
-
-Before round 1 the agent reads 200 rounds of record and writes its own notes on how to split and why. A few rounds in, one of the standing units slowly falls and an ignored unit on the same side rises past it. In the matching run where nothing changes, the same unit dips on the same round and recovers. The rules are in [mechanics.md](mechanics.md) and the words in the [glossary](../glossary.md).
-
-Two moves in the log matter most:
-
-- **An experiment** is a round that puts share above the threshold on a unit the standing split leaves out, or cuts one of the standing units below half its usual share.
-- **A switch** is the round from which the largest share on a side moves to a unit the standing split leaves out, and stays there in most later rounds. Rewriting the notes to match confirms it.
+| Realism | Four skins and two styles of record, tried in the pilot to decide whether their results can be pooled | A real task with a stale handoff note as well |
 
 ## What each model plays
 
