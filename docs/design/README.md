@@ -1,7 +1,5 @@
 # Design
 
-**How good is an agent at telling a change in the dynamics of a system from ordinary bad luck, and so at knowing when its own notes have gone stale?**
-
 | Page | What's in it |
 |---|---|
 | [requirements.md](requirements.md) | Our design principles, and what the benchmark must do |
@@ -13,5 +11,3 @@
 | [architecture.md](architecture.md) | How the code is split into layers, and how that keeps it hard to game |
 | [future.md](future.md) | Extensions beyond the full study |
 | [glossary.md](../glossary.md) | The one word we use for each idea, and the older names it replaces |
-
-The studies it builds on are in [prior](../prior/README.md). What to do next is in [TODO.md](../../TODO.md).
