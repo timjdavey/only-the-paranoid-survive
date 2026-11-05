@@ -1,34 +1,19 @@
 # Measures
 
-**What we measure, how each score is worked out, and what it costs to run.**
+We break the question of "How good is an agent at telling a change in the dynamics of a system from simply a run of bad luck?" into the following measures:
 
-## The question
-
-How good is an agent at telling a change in the dynamics of a system from ordinary bad luck, and so at knowing when its own notes have gone stale?
-
-That one question breaks into six traits, each read from the log of a run. Three are abilities, where more is better. Three are dispositions, which have a right amount: each is scored as a gap from the reference bot, the best player we can build, so zero is ideal. How each is measured is in [the traits](#the-traits).
-
-- **Performance.** How much of the gain on offer it takes.
-- **Discernment.** How small a change it can profit from.
-- **Insight.** Whether it rewrites what it believed, and acts on it.
-- **Paranoia.** How readily it doubts notes that are working.
-- **Caution.** How much evidence it waits for before it switches.
+Dispositions (a balance is required):
+- **Paranoia.** How readily it doubts the status quo and notices a change.
+- **Caution.** How much evidence it requires for before switching how it acts.
 - **Conviction.** How fully it acts once it has switched.
 
-## The game in brief
+Abilities (more is better):
+- **Discernment.** How small of a change can it discern signal from noise.
+- **Insight.** How well it can understand the system dynamics.
+- **Performance.** (encompassing measure) How much it can profit from noticing a change and executing plans accordingly.
 
-The agent takes over an account from a previous operator. Each round, a week, it splits a fixed budget across ten units: five kinds, each on two sides. Each unit yields at a hidden level, and a bigger share buys a sharper reading, with less for each extra pound. That falling return is called saturation. A share under a threshold buys nothing. The level wears weather: good and bad stretches that fade, luck shared across units, and the odd dip that recovers. The agent sees volume and yield for the units it funded. The score is output.
-
-Before round 1 the agent reads the record, 200 rounds of past play, and writes its own notes on how to split and why. We call this step the briefing. The split the record ends on is the standing split. A few rounds in, one of the units the standing split funds slowly falls, and a unit it ignores on the same side rises past it. Every game is also played with nothing changed, on the same luck, which we call the no-change run. In it the same unit dips on the same round and recovers. The rules are in [mechanics.md](mechanics.md) and the words in the [glossary](../glossary.md).
-
-Two moves in the log matter most:
-
-- **An experiment** is a round that puts share above the threshold on a unit the standing split leaves out, or cuts one of the standing units below half its usual share.
-- **A switch** is the round from which the largest share on a side moves to a unit the standing split leaves out, and stays there in most later rounds. Rewriting the notes to match confirms it.
 
 ## Two tiers
-
-The benchmark is built in two tiers over the same game. The proof of concept has to show one thing, that the measure separates models with usable error bars, so it leads with one continuous number. The full study adds the runs needed to find the faintest change a model acts on. Before the proof of concept runs in full, a pilot tries it on two models over a few seeds, to tune it. See [Why two tiers](decisions.md#why-two-tiers).
 
 | | Proof of concept | Full study |
 |---|---|---|
@@ -66,22 +51,6 @@ Every run at either tier shares these settings:
 - **Skins.** Public seeds use the abstract, fictional, plant and market skins. Private seeds, with their own skins, catch a model that learnt the public ones.
 - **Tools.** A sandboxed code tool beside the four game tools.
 
-## The traits
-
-Six traits are read from the log, in two kinds. An **ability** is something more of is always better. A **disposition** has a right amount, so its score is a signed gap from the reference bot: zero is ideal, and positive means more of the trait than the bot showed.
-
-The reference bot is the best player we can build. It keeps a belief about every unit's level, about whether a unit is in a dip or has shifted, and about when a change might have begun, draws a guess from that belief each round, and splits as if the guess were true. Guessing makes it try units it is unsure of, so it values information. It plays every seed beside the model, on the same luck. It is a yardstick, not a ceiling: a model may beat it. The no-update bot, which holds the standing split to the end, is the floor.
-
-| Trait | The question it answers | Kind | Where it is read | Headline at |
-|---|---|---|---|---|
-| **Performance** | How much of the gain on offer did it take? | Ability | Every run, pooled by output | Proof of concept |
-| **Discernment** | How faint a change does it profit from? | Ability | Change runs by amplitude, less the no-change run's loss | Full study |
-| **Insight** | Did it rewrite what it believed, and act on it? | Ability | Change runs, the last rounds and the notes | |
-| **Paranoia** | How much does it doubt notes that are working? | Disposition | No-change run only, sharpest at the yoked dip | |
-| **Caution** | How much evidence does it need before it switches? | Disposition | Change runs, at the switch | |
-| **Conviction** | Once it switches, how fully does it act? | Disposition | Change runs, after the switch | |
-
-Performance is the arbiter at both tiers: it decides which amplitudes and traits stay. Discernment needs the five-amplitude grid, so the proof of concept reports it only as the two points it has. Curiosity is a diagnostic, since a small look looks the same as the spread saturation calls for. See [Why curiosity is a diagnostic, not a trait](decisions.md#why-curiosity-is-a-diagnostic-not-a-trait). Where a disposition has both a plain reading and an evidence reading, [next step 2](../../TODO.md#next-steps) decides which leads.
 
 ## Performance, the proof of concept headline
 

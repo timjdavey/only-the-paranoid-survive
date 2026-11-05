@@ -1,14 +1,6 @@
 # Requirements
 
-**What we want from the benchmark, and what it must do to deliver it.**
-
-## The game in brief
-
-Each round, a week, the agent splits a fixed budget across ten units and sees what the funded ones yield. Before round 1 it reads the record, 200 rounds of past play by an earlier operator, and writes its own notes, a step we call the briefing. The split the record ends on is the standing split. A few rounds in, one unit it funds slowly falls and one it ignores rises past it. A seed fixes the luck, and every game is also played on the same seed with nothing changed, which we call the no-change run. The reference bot is the best player we can build, and the yardstick for every score. A pilot on two models tunes the design before the full runs. The rules are in [mechanics.md](mechanics.md) and the words in the [glossary](../glossary.md).
-
 ## Design principles
-
-What we care about in the design of a benchmark.
 
 - Open and reproducible
 - Cheap and repeatable
