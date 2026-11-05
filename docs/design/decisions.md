@@ -452,7 +452,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 
 | Option | Problem |
 |---|---|
-| One detection time | Switching too early and too late blur together, the two bad rows of the [profile](measures.md#a-profile-not-a-ranking) |
+| One detection time | Switching too early and too late blur together, the two bad rows of the [profile](measure-failure.md#a-profile-not-a-ranking) |
 | Ask when it noticed | Self-report |
 | First doubt and the switch as two lags, caution the gap | The old answer. Both lags rest on cut-offs the agent never knew about, and a run that never experimented has no gap |
 | **Three traits: paranoia for doubt, caution for the switch, conviction for what follows** ✓ | |
@@ -475,7 +475,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 
 - **We wanted four.** Late and timid are different failures, Blockbuster and Kodak, and a leak each would have named them in output.
 - **No measure beats an inaccurate one.** The cuts that remain, the change start and the dip start, are the seed's, so the partition is exact and claims nothing about when the model noticed.
-- **The distinction survives as readings.** Under the change leak, the funnel, the share on the rising unit round by round, and the CUSUM line for runs with a clean switch say whether a run waited or held back, without a number that pretends to add up. See [What the agent did](measures.md#what-the-agent-did).
+- **The distinction survives as readings.** Under the change leak, the funnel, the share on the rising unit round by round, and the CUSUM line for runs with a clean switch say whether a run waited or held back, without a number that pretends to add up. See [What the agent did](measure-failure.md#what-the-agent-did).
 - **Cost.** The profile is two by two rather than three by two. Late and timid share a box, and the notes reading tells Blockbuster from Kodak.
 
 ### Why caution is a CUSUM line
@@ -620,7 +620,7 @@ When the record gets longer, the two kinds of run together say what is going on:
 - **Every run counts by what it won.** An early switch beats a late one, a timid switch earns less than a full one, and a false alarm counts through the output it cost. No switch cut-off and no voiding rule.
 - **The loud amplitude counts more, and should.** Each amplitude weighs by what was on offer, which is what the agent was trying to win. The no-change loss is counted once.
 - **It is a point on the full study's curve.** The same ratio, taken amplitude by amplitude, is what discernment fits. See [Why two tiers](#why-two-tiers).
-- **Cost.** It tops out at 1, so it can't be plotted over releases for long, and it leans on the reference bot and the true levels. The catch rate, d′ and the CUSUM dot stay as [backups](measures.md#catch-rate-a-backup) that don't lean on the bot.
+- **Cost.** It tops out at 1, so it can't be plotted over releases for long, and it leans on the reference bot and the true levels. The catch rate, d′ and the CUSUM dot stay as [backups](measure-headline.md#catch-rate-a-backup) that don't lean on the bot.
 
 ### Why discernment is the full study headline
 
@@ -649,7 +649,7 @@ How it works:
 - **No cut-off and no voiding rule.** Paranoia shows as the no-change loss, taken off at every amplitude, so a model that always switches gains nothing.
 - **The small denominator is bounded.** At 3 points the reference bot gains little, so a ratio there swings. The arbiter's rule, that an amplitude must be [worth catching](#why-performance-is-the-arbiter) by a margin set in `params.yaml`, keeps such an amplitude off the grid.
 - **It can saturate, and we say so.** The reference bot scores 1 at every amplitude, so its own threshold sits below the grid, and a model that matches it reads "below the grid". The remedy is a harder edition, with a lower N, a longer memory or a fainter grid. Each threshold is also published as the evidence a round carries at that amplitude, so every edition sits on one axis.
-- **Cost.** It needs the five-amplitude grid and about 30 seeds, which is why it waits for the full study. It leans on the reference bot and the true levels, where the old catch rate needed neither. The catch rate, d′ and the CUSUM dot stay as [backups](measures.md#catch-rate-a-backup).
+- **Cost.** It needs the five-amplitude grid and about 30 seeds, which is why it waits for the full study. It leans on the reference bot and the true levels, where the old catch rate needed neither. The catch rate, d′ and the CUSUM dot stay as [backups](measure-headline.md#catch-rate-a-backup).
 
 ### Why performance is the arbiter
 

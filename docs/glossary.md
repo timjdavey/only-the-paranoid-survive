@@ -125,7 +125,7 @@ Each model gets six traits. An **ability** is better the more of it there is. A 
 
 Paranoia has three readings: **experimenting** (share of the budget beyond the standing split on other units, also called probing), **hedging** (share held back from the standing units) and **looking** (record reads a round), plus the **dip reading**, whether it switched during the yoked dip.
 
-Diagnostics explain the traits but are not scores: curiosity, first doubt, calibration, steadiness, anchoring, candour, briefing quality, skin and history spread, tool use, test awareness and dollar cost. Each is defined in [Measures](design/measures.md#diagnostics).
+Diagnostics explain the traits but are not scores: curiosity, first doubt, calibration, steadiness, anchoring, candour, briefing quality, skin and history spread, tool use, test awareness and dollar cost. Each is defined in [Measures](design/measure-failure.md#diagnostics).
 
 ## The suite and the code
 

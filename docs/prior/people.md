@@ -209,7 +209,7 @@ C. R. Gallistel, Monika Krishan, Ye Liu, Reilly Miller and Peter E. Latham. "The
 
 **What it means for us.**
 
-- **[Steadiness](../design/measures.md#diagnostics) should split two kinds of reversal.** Taking back a change call in a no-change run corrects a false alarm. Doing so in a change run gives up a true call. Gallistel's button separates them, and so should we.
+- **[Steadiness](../design/measure-failure.md#diagnostics) should split two kinds of reversal.** Taking back a change call in a no-change run corrects a false alarm. Doing so in a change run gives up a true call. Gallistel's button separates them, and so should we.
 - **A graded dial doesn't give graded moves.** [Why a budget split](../design/decisions.md#why-a-budget-split) chose the split so the best play moves smoothly with belief. People with a free slider still stepped. So an agent may hold its split for many rounds and then move it all at once. Read first doubt from experiments, not from the size of a move.
 - **A third kind of noisy bot.** "If it ain't broke, don't fix it" with two thresholds is a cautious or jumpy bot for [next step 2](../../TODO.md#next-steps), beside Nassar's dials.
 - **Complacency in one model.** A long stretch since the last change raises the prior odds that one has happened. A long calm record lowers the learnt change rate. Which wins is the question in [Why two bots bound the game](../design/decisions.md#why-two-bots-bound-the-game).
@@ -242,5 +242,5 @@ Victor Haghani and Richard Dewey. "Rational Decision-Making Under Uncertainty: O
 **What it means for us.**
 
 - **It is why we dropped the coin flip game** ([Why a budget split](../design/decisions.md#why-a-budget-split)). People told the exact odds still mixed sizing up with belief, and a cap they met only late changed the best play. The budget split removes both.
-- **Doubt with nothing to find.** In a coin that never changed, two thirds bet against the stated edge, most often after a streak. That is the too jumpy error our no-change run counts, and the flip-flops are what [steadiness](../design/measures.md#diagnostics) counts.
+- **Doubt with nothing to find.** In a coin that never changed, two thirds bet against the stated edge, most often after a streak. That is the too jumpy error our no-change run counts, and the flip-flops are what [steadiness](../design/measure-failure.md#diagnostics) counts.
 - **A cheap [human baseline](../design/future.md#whether-it-holds-outside-our-game)**, but only for a world that doesn't change, with the odds stated. It says nothing about spotting a change.

@@ -50,7 +50,7 @@ Haomiaomiao Wang, Tomás E. Ward and Lili Zhang. "Comparative reversal learning 
 
 **Problems.** The random schedule changes which state comes next, not when, so it doesn't "increase volatility" as the abstract says. The human row comes from another study and matches neither schedule. The switch fires on the agent's own performance, so a slow agent also slows the world.
 
-**What it means for us.** Their perseveration is close to how long our agent takes to switch. They treat a high lose-shift rate as good, whereas in our game it would include false alarms. Lose-shift can be read from our log for comparison, though it isn't one of our [measures](../design/measures.md).
+**What it means for us.** Their perseveration is close to how long our agent takes to switch. They treat a high lose-shift rate as good, whereas in our game it would include false alarms. Lose-shift can be read from our log for comparison, though it isn't one of our [measures](../design/measure-failure.md).
 
 ## Set-shifting 2026: tool groups that stop working
 

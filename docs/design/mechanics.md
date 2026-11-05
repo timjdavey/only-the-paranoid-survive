@@ -2,7 +2,7 @@
 
 **The game the agent plays, the generator that makes its world, and the tools it plays through.**
 
-Every number is a starting value in `params.yaml`, the settings file, made up and tuned in [next step 1](../../TODO.md#next-steps). Why the game has this shape is in [alternatives.md](alternatives.md), and every other choice in [decisions.md](decisions.md). The game is the same in the proof of concept and the full study. What differs between them is how many runs each model plays, in [measures.md](measures.md#what-each-model-plays).
+Every number is a starting value in `params.yaml`, the settings file, made up and tuned in [next step 1](../../TODO.md#next-steps). Why the game has this shape is in [alternatives.md](alternatives.md), and every other choice in [decisions.md](decisions.md). The game is the same in the proof of concept and the full study. What differs between them is how many runs each model plays, in [measure-headline.md](measure-headline.md#what-each-model-plays).
 
 ## The game in brief
 

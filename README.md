@@ -41,7 +41,7 @@ See [prior](docs/prior/README.md) for more details.
 - **Performance**, the main score of the proof of concept. It measures how well the agent did against a perfect bot that is omniscient. This means it covers both noticing a change and appropriately acting on that change. It's the practical measure you want when trusting a model to complete economically valuable work.
 - **Discernment**, the main score of the full study. Surgically measures the main aim of this benchmark, of identifying changes in dynamics.
 
-Above are the headline figures we care about specifically for this task. But there are other skills compound into making these possible which we aim to measure independently. See [measures.md](docs/design/measures.md) for details.
+Above are the headline figures we care about specifically for this task. But there are other skills compound into making these possible which we aim to measure independently. See [measure-headline.md](docs/design/measure-headline.md) for the headlines, and [measure-failure.md](docs/design/measure-failure.md) for where a model loses output.
 
 ## Results
 
