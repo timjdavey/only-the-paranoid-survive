@@ -50,4 +50,4 @@ To come.
 
 ## Motivation
 
-This project isn't simply about getting the results. It is also a personal study in feeling my way toward what best practices exist when working with agents to build studies. This is why documents such as [TODO](TODO.md), [decisions.md](docs/design/decisions.md) and [requirements.md](docs/design/requirements.md) exist. They are a form of research harness - answering the question of what context, SKILLs, frameworks does an agent need to make good design decisions.
+This project isn't simply about getting the results. It is also a personal study in feeling my way toward what best practices exist when working with agents to build studies. This is why documents such as [TODO](TODO.md), [decisions.md](docs/design/decisions.md) and [requirements.md](docs/design/requirements.md) exist. They are a form of research harness - answering the question of what context, SKILLs, frameworks does an agent need to make good design decisions. Although ironically having structured documents like decisions.md is great for any human reviewing this study too.
