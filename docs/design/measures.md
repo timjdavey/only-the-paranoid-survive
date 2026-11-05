@@ -12,6 +12,26 @@ Abilities (more is better):
 - **Insight.** How well it can understand the system dynamics.
 - **Performance.** (encompassing measure) How much it can profit from noticing a change and executing plans accordingly.
 
+## The steps an agent goes through
+
+Handling a change takes the agent through these steps. Each measure reads one or more of them.
+
+| Step | What the agent does | Measured by |
+|---|---|---|
+| 1. Learn normal | Builds a picture of the status quo and how noisy it is | Nothing yet |
+| 2. Stay alert | Spends a little on looking while things seem fine | Paranoia, the looking and experimenting rates |
+| 3. Notice | Starts to doubt the status quo | Paranoia, and the first doubt curve |
+| 4. Test if it's real | Gathers evidence that tells a change from bad luck | Discernment, and the experiments it runs |
+| 5. Diagnose | Works out what changed and what now leads | Insight, from the shares |
+| 6. Decide | Picks how much evidence it needs before switching | Caution |
+| 7. Execute | Commits to the new split | Conviction |
+| 8. Record | Rewrites the notes so the next operator inherits the new rule | Insight, from the notes |
+| 9. Keep watching | Checks the new split, backs down after a false alarm, stays open to a reversal | Partly the dip reading. Reversals are future work |
+
+- **The steps explain, they don't score.** They overlap, and a good agent runs them as one loop. Scoring each step in order was tried and dropped, see [Why split doubting from switching](decisions.md#why-split-doubting-from-switching).
+- **Noticing can come from looking.** The rising unit is one the agent doesn't fund, so it shows nothing unless the agent pays to look. A good agent may find the change in step 2 before anything seems wrong.
+- **Step 1 has no measure yet.** A model whose briefing notes miss the weather will look paranoid later, and we can't yet tell that apart from a jumpy temperament.
+
 
 ## Two tiers
 
