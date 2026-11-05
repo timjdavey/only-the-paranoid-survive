@@ -1,17 +1,5 @@
 # Measures
 
-We break the question of "How good is an agent at telling a change in the dynamics of a system from simply a run of bad luck?" into the following measures:
-
-Dispositions (a balance is required):
-- **Paranoia.** How readily it doubts the status quo and notices a change.
-- **Caution.** How much evidence it requires for before switching how it acts.
-- **Conviction.** How fully it acts once it has switched.
-
-Abilities (more is better):
-- **Discernment.** How small of a change can it discern signal from noise.
-- **Insight.** How well it can understand the system dynamics.
-- **Performance.** (encompassing measure) How much it can profit from noticing a change and executing plans accordingly.
-
 ## The steps an agent goes through
 
 Handling a change takes the agent through these steps. Each measure reads one or more of them.
@@ -32,6 +20,20 @@ Handling a change takes the agent through these steps. Each measure reads one or
 - **Noticing can come from looking.** The rising unit is one the agent doesn't fund, so it shows nothing unless the agent pays to look. A good agent may find the change in step 2 before anything seems wrong.
 - **Step 1 has no measure yet.** A model whose briefing notes miss the weather will look paranoid later, and we can't yet tell that apart from a jumpy temperament.
 
+
+## Currently measured
+
+We break the question of "How good is an agent at telling a change in the dynamics of a system from simply a run of bad luck?" into the following measures:
+
+Dispositions (a balance is required):
+- **Paranoia.** How readily it doubts the status quo and notices a change.
+- **Caution.** How much evidence it requires for before switching how it acts.
+- **Conviction.** How fully it acts once it has switched.
+
+Abilities (more is better):
+- **Discernment.** How small of a change can it discern signal from noise.
+- **Insight.** How well it can understand the system dynamics.
+- **Performance.** (encompassing measure) How much it can profit from noticing a change and executing plans accordingly.
 
 ## Two tiers
 
