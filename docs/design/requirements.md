@@ -1,57 +1,74 @@
 # Requirements
 
+**What the benchmark must do, whatever game it uses.** How this game meets each one is in [decisions.md](decisions.md). What counts as a requirement is at [the end](#what-counts-as-a-requirement).
+
 ## Design principles
 
-- Open and reproducible
-- Cheap and repeatable
-- No measure is better than an inaccurate one
-- Hard to saturate
-- Tied to real work
-- Connected with the wider ecosystem themes
-- Honesty with error bars
-- Directly measures this skill, not a proxy
-- Hard to game
-- Ideally a single communicable headline number
-- Evidence over story
+- **No measure is better than an inaccurate one.**
+- **Only the skill is tested.** Not a proxy for it, and not the ability to learn rules, do sums or work an interface.
+- **Evidence over story.** Scores come from what the agent did, and design choices from what studies found.
+- **Honest error bars.**
+- **Hard to game.**
+- **Hard to saturate.**
+- **Tied to real work.** The game looks like a job an agent is given.
+- **Open and reproducible.**
+- **Cheap enough to run on every release.**
+- **One headline number a reader can understand without knowing the game.**
+- **Says something to the wider field.** The result can sit beside other measures of agents.
 
 ## What the benchmark must do
 
-### What the agent is given
+### The world
 
-- **Rules simple enough for every model to learn.** The test is noticing change, not working out rules. A model that never learns the rules can't be scored on noticing they moved.
-- **A world with somewhere to hide and a rule to rethink.** Ten units, five kinds by two sides, with the change in one. The record funds both sides alike, and the change makes side matter. See [Why ten units](decisions.md#why-ten-units-in-five-kinds-by-two-sides).
-- **Names that match how the game behaves.** Every unit yields in the week it is bought, in every skin, so no noun imports a belief about lag or trend the generator doesn't have. See [Why names must match the generator](decisions.md#why-names-must-match-the-generator).
-- **A record with a long, good run, and notes the agent wrote itself.** Trust needs a past, and the record gives every model the same one. The notes are the agent's own, written before the world can change, so what it doubts later is its own belief. See [Why the agent writes its own notes](decisions.md#why-the-agent-writes-its-own-notes).
-- **A record written by a bot.** The record shows the agent how much to experiment, so that should be the right amount. Its author is the reference bot, toned down to read as a steady operator, and the pilot tries a steady and a jittery version once to see how much the style matters. See [Why the record comes from a bot](decisions.md#why-the-record-comes-from-a-bot-and-its-style-is-a-factor).
-- **No hint of change in the prompt or the skin.** Any of the words change, probe, commit, experiment, explore or exploit would give the game away. Deciding to look again unprompted is the thing being measured. The one hint is in the data: the record shows changes the previous operator caught.
+- **The dynamics are legible.** A model can learn how the world works from what it is shown, and every model tested can. The test is noticing the rules moved, not working them out.
+- **A change in one part barely moves the whole.** The world has enough parts that a change in one is faint in the totals, so an agent watching the whole misses it.
+- **A rule the agent can state, and the change breaks it.** The world has a structure the agent will write down as a rule. The change makes that rule wrong, so the right response is to rethink, not retune. See [Why ten units](decisions.md#why-ten-units-in-five-kinds-by-two-sides).
+- **A past where the plan worked.** Long enough that trusting it is reasonable, the same for every model, and the agent forms its belief about it before the world can change. What it doubts later must be its own belief, not someone else's words. See [Why the agent writes its own notes](decisions.md#why-the-agent-writes-its-own-notes).
+- **The past sets an example.** The agent will copy how much the previous operator experimented, so that amount must be right, and its pull measured. See [Why the record comes from a bot](decisions.md#why-the-record-comes-from-a-bot-and-its-style-is-a-factor).
+- **The story adds no dynamics.** The nouns and framing must not imply behaviour, such as lag or trend, that the world doesn't have. See [Why names must match the generator](decisions.md#why-names-must-match-the-generator).
+- **No hint of change.** Nothing in the prompt, the tools or the story says the world may move. Deciding to look again unprompted is the thing being measured. The one hint is in the data: the past shows changes the previous operator caught. See [How we avoid it simply being solved](decisions.md#how-we-avoid-it-simply-being-solved).
 
-### How the notes go stale
+### The change
 
-- **Weather with memory, so a bad month is ordinary.** A streak of bad luck must be a real explanation, or spotting the change is trivial. Each unit has stretches that fade, every unit shares some luck, and the odd unit dips and recovers. See [Why weather has memory](decisions.md#why-weather-has-memory).
-- **A stale split that keeps winning, just less than the best one.** That is the Grove case. Every round on the stale split forgoes a little output, so slow and very slow models end at different scores. See [Why the standing split still pays](decisions.md#why-the-standing-split-still-pays).
-- **Changes at sizes from loud to faint.** The proof of concept plays one loud and one faint. The full study plays five, because discernment is read off a curve across them.
-- **A change that is an edit to the world's dynamics.** The generator has four blocks and a change edits one. The proof of concept edits the level. Later rungs edit coupling, gain and observation, which no per-unit tracker can find. See [Why a change is a typed event](decisions.md#why-a-change-is-a-typed-event).
-- **A change driven from outside.** Nothing the agent does moves the levels, so the no-change run stays clean and the reference bot stays a yardstick. See [Why the change is not reflexive](decisions.md#why-the-change-is-not-reflexive).
-- **A false alarm that starts like the real thing.** The no-change run holds a dip on the same unit, starting on the same round at the same slope, that then recovers. See [Why the yoked dip](decisions.md#why-the-yoked-dip).
-- **A start and shape that vary by seed.** A change that always starts at round 5 can be learnt rather than noticed.
+- **Bad luck comes in stretches.** Ordinary variation lasts a while, is partly shared across parts, and sometimes dips and recovers, so a bad month is a real explanation. See [Why weather has memory](decisions.md#why-weather-has-memory).
+- **The old plan keeps paying, just less than the best one.** Nothing fails outright, so no alarm goes off, and every round of delay costs a little. See [Why the standing split still pays](decisions.md#why-the-standing-split-still-pays).
+- **Changes at sizes from loud to faint.** Discernment is read off a curve across them. The proof of concept plays two, the full study five.
+- **The change is to the dynamics, not to one number.** It edits how the world works, and some kinds can't be found by watching each part on its own. See [Why a change is a typed event](decisions.md#why-a-change-is-a-typed-event).
+- **The change comes from outside.** Nothing the agent does moves the world, so every model plays the same world, the no-change run stays clean and the ceiling stays computable. See [Why the change is not reflexive](decisions.md#why-the-change-is-not-reflexive).
+- **A false alarm that begins exactly like the change.** The no-change run holds a stretch that starts on the same part, at the same time, on the same luck, and then recovers. See [Why the yoked dip](decisions.md#why-the-yoked-dip).
+- **When and how the change arrives varies.** A change that always comes at the same time can be learnt rather than noticed.
 
-### What the agent can do
+### The agent
 
-- **Looking costs something.** A share under a told threshold buys nothing, so the standing split sees four units and the rest are dark until the agent pays. Above it, a bigger share buys a sharper reading. Then looking is a decision, and the unit that rises is never heard for free. See [Why attention is scarce](decisions.md#why-attention-is-scarce).
-- **A response sized on a scale, not a switch.** The share shows how sure the model is, not only whether it moved.
-- **Every move taken as a logged action.** What the agent suspects is read from what it does, not from what it says.
-- **A way to check the numbers.** A sandboxed code tool, so a model that would notice the change fails only on judgement, not on arithmetic. See [Why a code tool](decisions.md#why-a-code-tool).
+- **Seeing costs something.** Watching a part takes budget off the plan, and a bigger spend sees more clearly. The part that improves is one the plan doesn't fund, so it is never seen for free. Deciding to look is the decision. See [Why attention is scarce](decisions.md#why-attention-is-scarce).
+- **The response is a dial, not a switch.** How sure the agent is shows in how far it moves. See [Why a budget split](decisions.md#why-a-budget-split).
+- **What the agent does is the record.** Suspicion is read from actions, never from a question about whether anything has changed. See [Why tools](decisions.md#why-tools).
+- **Arithmetic is not the test.** The agent can check its numbers reliably, so a failure is one of judgement. See [Why a code tool](decisions.md#why-a-code-tool).
 
-### How it is scored
+### The score
 
-- **A matching run on each seed where nothing changes.** Without it, doubting everything would always pay. It is where jumpiness shows, most sharply at the dip built to start like the change.
-- **Each trait read in the run where it is cleanest.** Paranoia in the no-change run, caution and conviction in the change runs. These are the parts of [the question](measures.md#the-question), and one number would hide which one failed. See [Why each trait lives in one kind of run](decisions.md#why-each-trait-lives-in-one-kind-of-run).
-- **Every score read against the reference bot and the no-update bot**, which keeps the standing split to the end. Each measure becomes a gap against what was knowable, bounded above and below. See [Why two bots bound the game](decisions.md#why-two-bots-bound-the-game).
-- **A backup that needs no oracle.** Both headline scores lean on the reference bot and our generator's true levels, which could set a fake target. So we also report the catch rate: how often the agent switches in a change run without a false alarm in its no-change run. It reads only the agent's own shares.
-- **Every change size worth catching.** Each change is played at a few sizes, called amplitudes. If the reference bot doesn't gain from switching at one of them, the rational play is to stay, and that size tells us nothing. See [Why performance is the arbiter](decisions.md#why-performance-is-the-arbiter).
+- **Every change is paired with the same world where nothing changes.** Same luck, same past, same notes. Without it, doubting everything would always pay. See [Why the yoked dip](decisions.md#why-the-yoked-dip).
+- **Too jumpy and too slow are told apart.** Each is reported on its own, so a model that doubts everything and one that doubts nothing can't score the same. See [Why each trait lives in one kind of run](decisions.md#why-each-trait-lives-in-one-kind-of-run).
+- **Every score sits between a floor and a ceiling.** The floor is a player that never changes the plan. The ceiling is the best player we can build. A score says how much of what was knowable the model found. See [Why two bots bound the game](decisions.md#why-two-bots-bound-the-game).
+- **One reading uses none of our own machinery.** No bot and no true values from our simulation, so a flaw in either shows as a disagreement. See [Catch rate](measures.md#catch-rate-a-backup).
+- **Every change size worth catching.** If the best player doesn't gain from acting on a size, the rational play is to stay, and that size tells us nothing. See [Why performance is the arbiter](decisions.md#why-performance-is-the-arbiter).
+- **Every rule the score uses is told to the agent.** No hidden cut-off decides what counts as a look or a switch. See [Why attention is scarce](decisions.md#why-attention-is-scarce).
+- **No fixed strategy scores well.** Always switching, never switching, switching at a set time and playing at random all score well below the ceiling. See [Why the bots set the difficulty](decisions.md#why-the-bots-set-the-difficulty).
 
-### What the suite must do
+### The suite
 
-- At most $100 a model for the proof of concept. Cheap enough to run every new model on release.
-- Error bars that split two frontier models at that budget.
-- A measure (or at least a design) which can easily scale so that it does not saturate.
+- **At most $100 a model for the proof of concept.** Cheap enough to run every new model on release. The current estimate is above this, see [What it costs](measures.md#what-it-costs).
+- **Error bars that split two frontier models at that budget.** A score whose bars overlap for every pair can't be plotted over time.
+- **It can get harder on the same scale.** When models reach the ceiling, a harder edition exists and its scores sit on the same axis. See [Why discernment is the full study headline](decisions.md#why-discernment-is-the-full-study-headline).
+- **The story must not move the score much, and we measure how much it does.** The same game in more than one dress, with the spread reported. See [Why four skins over one interface](decisions.md#why-four-skins-over-one-interface).
+- **Frozen and published, all but a private set.** The same worlds, past and bots for every model, so a score today compares with one next year. Everything is released except a set held back to catch a model that learnt the public one. See [Why publish all but a private set](decisions.md#why-publish-all-but-a-private-set).
+
+## What counts as a requirement
+
+Before adding a line to this page, check it against these.
+
+- **It says what the game must do, not how.** A different game could meet it another way.
+- **It is strategic, not specific.** It may name the parts any such game has: a world, a past, a plan, a change, a score. It may not name a number, a mechanism or a component. "The dynamics are legible" is a requirement. "Ten units" is a decision.
+- **A cold reader can understand it.** If it only makes sense once you know the game, it belongs in [decisions.md](decisions.md).
+- **It is not a value.** Values go under [design principles](#design-principles). "Only the skill is tested" is a principle. "Arithmetic is not the test" is the requirement it leads to.
+- **It links to the decision that meets it**, where one exists.
