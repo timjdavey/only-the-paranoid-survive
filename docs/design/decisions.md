@@ -33,6 +33,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | [What is measured](#why-traits-in-two-kinds) | Six traits in two kinds | One detection score |
 | [Where each trait lives](#why-each-trait-lives-in-one-kind-of-run) | Each trait is read in the one kind of run where it shows most clearly | Every trait read across both kinds |
 | [How doubt is read](#why-split-doubting-from-switching) | Paranoia, caution and conviction as three traits | One detection time |
+| [How the gap is traced](#why-three-leaks-not-four) | Three leaks in output, cut where the seed fixes, never at a switch | Four leaks, split at the round the model switched |
 | [How caution is read](#why-caution-is-a-cusum-line) | How much evidence a standard change detector, CUSUM, would need to fire on the same round | Rounds from the first experiment to the switch |
 | [How insight is read](#why-insight-reads-the-notes) | The shares on the changed side, and the rewritten notes | The shares alone |
 | [What scores are measured against](#why-two-bots-bound-the-game) | The reference bot, and a copy of it that can't tell the two sides apart | Other models |
@@ -461,6 +462,21 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 - **The ideal is computable.** A long record raises the bar for switching through the prior, not a new threshold, so each trait is a gap from the reference bot.
 - **The judgement is a dial.** Grove and Kodak needed to move, and Shopify and Hopin moved on a COVID change that reversed. How much to value stability lives only in the ratio of the price of switching to the price of experimenting.
 - **First doubt is now a diagnostic curve.** See [Why each trait lives in one kind of run](#why-each-trait-lives-in-one-kind-of-run).
+
+### Why three leaks, not four
+
+**Question.** Once the world has changed, is the output a model loses split into waiting and acting badly?
+
+| Option | Problem |
+|---|---|
+| Four leaks: doubt tax, delay, execution and false alarm | Delay and execution split at the round the model switched, and there is no such round. Suspicion grows. A model that eases in, 5% then 10% then 20%, crosses any switch rule late, so its creeping rounds are labelled "after it moved" and the split is a rule dressed as a fact |
+| Split at the round the reference bot moved | The same line for every model, but it says when the bot moved, not the model, so "late" and "timid" land on either side by accident |
+| **Three leaks: doubt tax, change leak and false alarm** ✓ | |
+
+- **We wanted four.** Late and timid are different failures, Blockbuster and Kodak, and a leak each would have named them in output.
+- **No measure beats an inaccurate one.** The cuts that remain, the change start and the dip start, are the seed's, so the partition is exact and claims nothing about when the model noticed.
+- **The distinction survives as readings.** Under the change leak, the funnel, the share on the rising unit round by round, and the CUSUM line for runs with a clean switch say whether a run waited or held back, without a number that pretends to add up. See [What the agent did](measures.md#what-the-agent-did).
+- **Cost.** The profile is two by two rather than three by two. Late and timid share a box, and the notes reading tells Blockbuster from Kodak.
 
 ### Why caution is a CUSUM line
 

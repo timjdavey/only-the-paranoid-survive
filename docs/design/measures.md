@@ -124,6 +124,7 @@ The gap between a model and the reference bot is output, and output is scored a 
 | **False alarm leak** | The no-change run from the dip onwards | Output lost by moving on a dip, and by taking long to come back | Paranoia's dip reading, steadiness |
 
 - **The cuts are the seed's, never the model's.** The change start and the dip start are fixed per seed, so the partition is exact and claims nothing about when the model noticed. Waiting and timidity both land in the change leak, and the readings under it say which happened.
+- **We wanted four leaks**, with the change leak split into waiting and acting badly. That split needs the round the model switched, and there is no such round, so we took three. No measure beats an inaccurate one. See [Why three leaks, not four](decisions.md#why-three-leaks-not-four).
 - **A leak can be negative** where the model beat the reference bot in that stretch.
 - **The doubt tax reads from three runs a seed**, not one. Before the change starts, a change run is the same world as the no-change run on the same dice.
 
