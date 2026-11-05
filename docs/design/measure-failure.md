@@ -1,8 +1,6 @@
 # Failure measures
 
-**When a model falls short of the reference bot, where the output went and what the agent did there.**
-
-[Performance](measure-headline.md#performance-the-proof-of-concept-headline) says how much of the gain on offer a model took. This page traces the rest. Each trace is in the same currency as performance, so the pieces add up to the whole. Nothing here claims to read the round at which an agent noticed, because there is no such round. Suspicion grows.
+[Performance](measure-headline.md#performance-the-proof-of-concept-headline) says how much of the gain on offer a model took. The measures we design here are like a stack trace, enabling us to work out where the model went wrong if it did so. Each trace is in the same currency as performance, so the pieces add up to the whole.
 
 ## Where the output went
 
