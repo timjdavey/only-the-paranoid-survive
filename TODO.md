@@ -53,6 +53,20 @@ Once the proof of concept has run on a few models and the error bars hold:
 | Is ten units too many for the older model in the pilot? | Undecided. If it never learns the record, drop D and E to six units |
 | May the record hold a change the previous operator missed? | No. Its changes are all resolved |
 
+## Pages stale after the measures rewrite
+
+[Measures](docs/design/measures.md) now leads with discernment as a noise test on performance, read on an axis of evidence a round with N as the dial, and traces the gap to the reference bot as three leaks in output: the doubt tax, the change leak and the false alarm leak. The six traits are gone as scores. These pages still describe the old design and need to follow it:
+
+- **README.md**, the Contribution and Reported sections. Discernment is described as the faintest change a model acts on, and as surgically measuring the identification of changes. Both claims are gone: discernment says nothing about noticing.
+- **docs/glossary.md.** The rows for Discernment, Insight, Paranoia, Caution and Conviction, the six traits sentence, the paranoia readings, the diagnostics list, Grid and Full study. Rows to add: the three leaks, N as the dial, evidence a round in bits.
+- **docs/design/decisions.md.** Rewrite "Why discernment is the full study headline" around the noise dial and the evidence axis, "Why traits, in two kinds" as why three leaks in one currency, and "Why each trait lives in one kind of run" as why the cuts are the seed's. Rule 2 of "Why performance is the arbiter" reads "every leak and reading", and the "Why two tiers" table changes its full study column. "Why split doubting from switching", "Why caution is a CUSUM line", "Why insight reads the notes" and "Why curiosity is a diagnostic, not a trait" each need a line saying where the reading now lives. Keep every anchor, since other pages link to them.
+- **docs/design/requirements.md.** The five change sizes bullet, and "each trait read in the run where it is cleanest".
+- **docs/design/limitations.md.** The fix column of the first row, which still says discernment is the smallest change a model acts on.
+- **This file.** Full study steps 1 and 2 still run a five-amplitude grid and fit discernment over it. Next step 2 checks traits against the disposition bots, and should check the leaks and the funnel instead. The open questions on which level leads, points or log, and which amplitudes, become questions about the five noise settings. The corrections row on the catch rate backup says amplitude where it now means noise.
+- **docs/design/mechanics.md.** Add the maths that turns N, the drop and the weather into evidence a round, with memory included, and change the full study row of the starting values from five amplitudes to five noise settings at 12 points.
+- **docs/design/architecture.md.** The scoring fields are named after the traits, and the analysis layer pools by amplitude. Rename when the code is designed.
+- **docs/prior/measuring-agents.md and docs/prior/README.md.** "Amplitude in place of task length" becomes "evidence a round in place of task length".
+
 ## Corrections owed
 
 Checking each claim in [README.md](README.md) and [the design](docs/design/README.md) against its source turned up these problems. Earlier rows here quoted text that has since been replaced, so they are gone. Two rows changed what we could build or claim: a ceiling bot that might never experiment, and a catch rate that mixed skill with how readily a model raises the alarm. The rewrite for the two tiers addresses both, and those rows say so. The rest are wording.
