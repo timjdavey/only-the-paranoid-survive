@@ -1,7 +1,5 @@
 # Design
 
-> No measure is better than an inaccurate measure.
-
 | Page | What's in it |
 |---|---|
 | [requirements.md](requirements.md) | Our design principles, and what the benchmark must do |

@@ -4,6 +4,7 @@
 
 - Open and reproducible
 - Cheap and repeatable
+- No measure is better than an inaccurate one
 - Hard to saturate
 - Tied to real work
 - Connected with the wider ecosystem themes
@@ -15,11 +16,9 @@
 
 ## What the benchmark must do
 
-Grouped by the part of a run each one shapes, in the order a run happens, from the briefing to the score.
-
 ### What the agent is given
 
-- **Rules simple enough for every model to learn.** The test is noticing change, not working out rules. A model that never learns the rules can't be scored on noticing they moved. At heart the game asks when one of ten streams of results changed.
+- **Rules simple enough for every model to learn.** The test is noticing change, not working out rules. A model that never learns the rules can't be scored on noticing they moved.
 - **A world with somewhere to hide and a rule to rethink.** Ten units, five kinds by two sides, with the change in one. The record funds both sides alike, and the change makes side matter. See [Why ten units](decisions.md#why-ten-units-in-five-kinds-by-two-sides).
 - **Names that match how the game behaves.** Every unit yields in the week it is bought, in every skin, so no noun imports a belief about lag or trend the generator doesn't have. See [Why names must match the generator](decisions.md#why-names-must-match-the-generator).
 - **A record with a long, good run, and notes the agent wrote itself.** Trust needs a past, and the record gives every model the same one. The notes are the agent's own, written before the world can change, so what it doubts later is its own belief. See [Why the agent writes its own notes](decisions.md#why-the-agent-writes-its-own-notes).
@@ -53,8 +52,6 @@ Grouped by the part of a run each one shapes, in the order a run happens, from t
 
 ### What the suite must do
 
-- **At most $100 a model for the proof of concept.** Cheap enough to run every new model on release. The current estimate is above this, see [What it costs](measures.md#what-it-costs).
-- **Error bars that split two frontier models at that budget.** A score whose error bars overlap for every pair can't be plotted over time.
-- **A condition the best models still find hard.** Otherwise every model scores near the top within a few releases and the line goes flat. The proof of concept's headline tops out at 1, which is accepted until the full study.
-- **Skins whose effect is known.** Four skins over one interface, with the spread across them reported beside the spread across models. See [Why four skins over one interface](decisions.md#why-four-skins-over-one-interface).
-- **Everything published except a private set.** Anyone can rerun a model, and the private set catches a model that learnt the public one. See [Why publish all but a private set](decisions.md#why-publish-all-but-a-private-set).
+- At most $100 a model for the proof of concept. Cheap enough to run every new model on release.
+- Error bars that split two frontier models at that budget.
+- A measure (or at least a design) which can easily scale so that it does not saturate.
