@@ -1,13 +1,23 @@
 # Headline measures
 
-**The two numbers we score a model on, and how many runs each takes.**
+How good is an agent at telling a change in the dynamics of a system from a run of ordinary bad luck? We measure the headline capability in two ways:
 
-How good is an agent at telling a change in the dynamics of a system from a run of ordinary bad luck? Two numbers answer it, one per tier. Neither says the round at which the agent noticed, because there is no such round. Suspicion grows.
+**Performance**
+- the simpler proof of concept headline
+- fundamentally the top line "score" the agent gets from playing the game
+- but pooled over multiple runs
+- and baselined between a perfect bot and a naive bot.
 
-- **Performance**, the proof of concept headline. The model's gain over the bot that never changes its split, as a share of the best bot's gain, pooled over every run and scored on luck-free output. 0 is the floor and 1 matches the bot.
-- **Discernment**, the full study headline. Hold the change loud and make each round's results say less. Report the faintest evidence a round at which the model still takes half the gain on offer, in bits. Smaller is better, and every edition of the game sits on one axis.
+**Discernment**
+- is a more subtle version that scales with agent capability
+- the model plays increasingly difficult games (the change becomes more subtle)
+- this measures the line at which it can detect and take advantage of the change
+- analogous to a hearing test
 
-The rest of this page builds those two numbers up one idea at a time. The tables at the end say what each model plays and what it costs.
+These measures are bundle a few capabilities into one i.e. being able to notice a change, then the tendency and ability to explore & exploit a new strategy. This is by design. As to be economically valuable a model needs all these skills, so it is the most pragmatic measure.
+
+However, when a model fails it is important to know _why_ it failed. There are many skills we need to effectively _stack trace_ against. The design of these can be found in [measure-failure.md](measure-failure.md).
+
 
 ## What one round is worth
 
@@ -17,7 +27,7 @@ What a round pays is partly the split and partly luck: the dice, and the weather
 
 Luck drops out, so far fewer runs give the same error bar. The real output is reported beside it. See [Why each round is scored on expected output](decisions.md#why-each-round-is-scored-on-expected-output).
 
-## Two bots fix the scale
+## Reference baselines
 
 Output on its own says nothing, because nobody knows how much there was to win. Two scripted players mark the scale.
 
