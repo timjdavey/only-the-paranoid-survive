@@ -2,7 +2,7 @@
 
 ## How the agent plays
 
-- **Each round the agent splits a fixed budget across channels.** It returns shares that sum to 100, say A 70, B 20, C 10.
+- **Each round the agent splits a fixed budget across channels.** It returns whole number shares that sum to 100, say A 70, B 20, C 10. Whole numbers to 100 is how budgets are talked about in every skin, the sum check is exact, and models fumble decimals more than they fumble percentages.
 - **It returns a full split every round.** A split that does not sum to 100 gets a neutral error and a retry, so a bad call is never read as a decision. Rounds where the split matches the one before are counted afterwards as rounds it left the plan alone.
 - **The split is its belief.** A small share on a new channel is a look. A large share is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
