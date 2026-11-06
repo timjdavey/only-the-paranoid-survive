@@ -62,7 +62,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | Option | Problem |
 |---|---|
 | Pick one unit, with no share | A binary answer can only be early or late, so doubt never shows |
-| Pick one unit and a stake | The old coin flip game. One flip a round carries too little evidence, and it needs a sizing rule, a cap against ruin and cut-offs the agent never knew about. See [alternatives.md](alternatives.md#why-the-coin-flip-game-was-dropped) |
+| Pick one unit and a stake | The old coin flip game. One flip a round carries too little evidence, and it needs a sizing rule, a cap against ruin and cut-offs the agent never knew about. See [alternatives.md](../spec/alternatives.md#why-the-coin-flip-game-was-dropped) |
 | A flat split, the same every round | Nothing to read |
 | **Shares of a fixed budget across ten units, with saturation and a threshold** ✓ | |
 
@@ -207,7 +207,7 @@ In a drifting bandit an agent picks between options whose payoffs wander over ti
 | One noise term per unit and round, added to the observed rate | A 3% look would see the same noise as a full share, so precision would no longer scale with spend |
 | **A stream of numbers per unit per round, with yield counted on the first n, and a stream per weather term** ✓ | |
 
-- **A bigger buy sees more of the same luck.** Every run on a seed draws from the same stream, so two splits differ only in how far down it they read. See [Shared luck](mechanics.md#shared-luck).
+- **A bigger buy sees more of the same luck.** Every run on a seed draws from the same stream, so two splits differ only in how far down it they read. See [Shared luck](../spec/mechanics.md#shared-luck).
 - **The weather is shared too.** Each weather term is drawn in advance, so the yoked dip and the ramp sit on the same bad and good weeks.
 - **Precision still scales with spend.** A look reads a few numbers and a full share reads dozens.
 
@@ -220,7 +220,7 @@ In a drifting bandit an agent picks between options whose payoffs wander over ti
 | Ask each round whether anything has changed | It says what sounds right, and the question hints at change |
 | Show the whole log and ask for a split | No timing, so no lag to measure |
 | Let it write moves in prose, and parse them | Scoring needs a judge |
-| **Five [tools](mechanics.md#tools), one round per call** ✓ | |
+| **Five [tools](../spec/mechanics.md#tools), one round per call** ✓ | |
 
 - **What it does is the record.** Experimenting is an action, so suspicion is seen rather than asked.
 - **The switch is visible.** It is the largest share on a side moving to a new unit, and a rewrite of the notes confirms it.
@@ -287,7 +287,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | **From outside: nothing the agent does moves the levels** ✓ | |
 
 - **Why a reflexive change tempts.** It is more realistic. SEO, the Phillips curve and a copied trading edge all wore out because people leaned on them, and Grove's memory business drew rivals because it paid.
-- **Why it waits.** It would cost only $60 to $90 more a model, as one more run per seed ([runs-and-cost.md](../runs-and-cost.md#cost-per-model)). The real cost falls on the measure.
+- **Why it waits.** It would cost only $60 to $90 more a model, as one more run per seed ([runs-and-cost.md](../spec/runs-and-cost.md#cost-per-model)). The real cost falls on the measure.
 
 | What fails | How |
 |---|---|
@@ -408,7 +408,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | Models | Two in the pilot, then each on release | Every model on release, older ones back-filled |
 | Realism | The skin and history spreads, deciding pooling | The real-task check as well |
 
-Seed counts, run totals and cost are in [runs-and-cost.md](../runs-and-cost.md).
+Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost.md).
 
 - **The proof of concept has to show one thing**: that the measure separates models with usable error bars. One continuous number does that. A threshold does not, until the grid exists.
 - **Nothing is thrown away.** The two amplitudes are points on the full study's curve, in the same unit against the same bot.

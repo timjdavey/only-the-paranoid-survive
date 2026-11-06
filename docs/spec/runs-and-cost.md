@@ -2,8 +2,8 @@
 
 **How many runs each model plays, and what they cost. The design pages leave these numbers out, so they live here.**
 
-- Terms such as seed, briefing and no-change run are in the [glossary](glossary.md).
-- Why the runs are shaped this way is in [measure-headline.md](design/measure-headline.md#what-each-model-plays).
+- Terms such as seed, briefing and no-change run are in the [glossary](../glossary.md).
+- Why the runs are shaped this way is in [measure-headline.md](../design/measure-headline.md#what-each-model-plays).
 
 ## Runs per seed
 
@@ -54,7 +54,7 @@ At one reasoning setting and one kind of change.
 ## If cost runs over
 
 1. **The pilot measures real thinking first.** A first run on two models over a few seeds.
-2. **Then choose:** a higher target or fewer seeds. [Next step 2](../TODO.md#next-steps) says how far seeds can fall before the error bars break.
+2. **Then choose:** a higher target or fewer seeds. [Next step 2](../../TODO.md#next-steps) says how far seeds can fall before the error bars break.
 3. **Cut seeds, not thinking.** A model run below its best says little.
 4. **Never cut the no-change run.**
 
@@ -62,7 +62,7 @@ At one reasoning setting and one kind of change.
 
 | Count | Reason |
 |---|---|
-| 20 seeds, proof of concept | Gives a standard error near 0.05 on performance. [Why performance is the proof of concept headline](design/decisions.md#why-performance-is-the-proof-of-concept-headline) |
-| 20 no-change runs, not 10 | Halves the error bar on the [doubt tax and the false alarm leak](design/measure-failure.md#where-the-output-went) |
-| New seeds, not repeats of one | A new seed is a new item as well as a new sample, at the same price. [Why more seeds, not repeats](design/decisions.md#why-more-seeds-not-repeats) |
-| About 30 seeds, full study | Enough to fit discernment's curve. Checked on bots in [next step 2](../TODO.md#next-steps) |
+| 20 seeds, proof of concept | Gives a standard error near 0.05 on performance. [Why performance is the proof of concept headline](../design/decisions.md#why-performance-is-the-proof-of-concept-headline) |
+| 20 no-change runs, not 10 | Halves the error bar on the [doubt tax and the false alarm leak](../design/measure-failure.md#where-the-output-went) |
+| New seeds, not repeats of one | A new seed is a new item as well as a new sample, at the same price. [Why more seeds, not repeats](../design/decisions.md#why-more-seeds-not-repeats) |
+| About 30 seeds, full study | Enough to fit discernment's curve. Checked on bots in [next step 2](../../TODO.md#next-steps) |

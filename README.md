@@ -22,7 +22,7 @@ As agents take on longer jobs, the more likely the world will change under them.
 - **Baselined with no change.** Every game is replayed on the same initial setup but now with no fundamental change. So we can measure if any of the models are too jumpy.
 - **Baselined against bots.** Every model is scored within the bounds of a perfect player, who knows the exact system and a dump player who acts with only a simple strategy.
 
-The full design is in [docs/design](docs/design/README.md).
+The full design is in [docs/design](docs/design/README.md), and the game rules and code layout are in [docs/spec](docs/spec/README.md).
 Also see the [glossary](docs/glossary.md) for full outline of terms.
 
 ## Contribution

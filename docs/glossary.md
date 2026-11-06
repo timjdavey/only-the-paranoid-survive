@@ -2,7 +2,7 @@
 
 **The one word we use for each idea in the benchmark, and the older names it replaces.**
 
-Use the word in the left column, in prose and in code. "Also called" lists older names for the same thing, now retired. Studies in [prior work](prior/README.md) keep their own words. The abstract words below are the game's own. Each skin dresses them in its own nouns, listed in [mechanics](design/mechanics.md#the-words).
+Use the word in the left column, in prose and in code. "Also called" lists older names for the same thing, now retired. Studies in [prior work](prior/README.md) keep their own words. The abstract words below are the game's own. Each skin dresses them in its own nouns, listed in [mechanics](spec/mechanics.md#the-words).
 
 ## The game
 
@@ -159,7 +159,7 @@ Diagnostics explain the traits but are not scores: curiosity, first doubt, calib
 - **Edge captured, edge.** A niche name for a headline. Performance says what it is in one word.
 - **First edition.** "Proof of concept" says what the first tier is for.
 - **Flip.** A change ramps. Other shapes of change are [future work](design/future.md).
-- **Bet, stake, bankroll, option, win rate.** The coin flip game they belonged to was dropped for the budget split. See [alternatives](design/alternatives.md).
+- **Bet, stake, bankroll, option, win rate.** The coin flip game they belonged to was dropped for the budget split. See [alternatives](spec/alternatives.md).
 - **Kelly, expected log growth.** A fixed budget doesn't compound, so the right split maximises expected output and nothing needs Kelly's sizing.
 - **Promotion week.** An older version lifted every unit in some weeks. There are no weekly conditions now.
 - **Week, for the unit of play.** A round is a week of spend, and every page says round.

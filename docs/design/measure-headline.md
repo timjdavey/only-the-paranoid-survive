@@ -87,7 +87,7 @@ See [Why performance is the arbiter](decisions.md#why-performance-is-the-arbiter
 
 ## Why performance can't be the number for ever
 
-Performance tops out at 1. Once a model matches the reference bot, the plot over releases goes flat. That is fine for a proof of concept, whose one job is to show that the measure separates models with usable error bars at a [cost we can carry](../runs-and-cost.md). No model will be near 1 by then.
+Performance tops out at 1. Once a model matches the reference bot, the plot over releases goes flat. That is fine for a proof of concept, whose one job is to show that the measure separates models with usable error bars at a [cost we can carry](../spec/runs-and-cost.md). No model will be near 1 by then.
 
 The full study needs a number that keeps moving as models improve. That is why there are two tiers. The game is the same in both, and only the number of runs, the kinds of change and the headline differ. See [Why two tiers](decisions.md#why-two-tiers).
 
@@ -161,7 +161,7 @@ Both headlines lean on the reference bot and on our simulation's true rates, so 
 | Models | Two in the pilot, then each on release | Every model on release, older ones back-filled |
 | Realism | Four skins and two styles of record, tried in the pilot to see if they can be pooled | A real task with a stale handoff note as well |
 
-The kinds of change are the four blocks of [the generator](mechanics.md#the-generator). Seed counts, run totals and cost are in [runs-and-cost.md](../runs-and-cost.md).
+The kinds of change are the four blocks of [the generator](../spec/mechanics.md#the-generator). Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost.md).
 
 ## What each model plays
 
@@ -174,5 +174,5 @@ A change has a size, its amplitude: how far the standing unit's rate falls, in p
 
 **Full study.** On each seed, one briefing, then a no-change run and a 12 point change run at each of five noise settings, since the no-change world gets noisier too. Extra runs go where a model starts to miss.
 
-Every run at either tier plays the same game, set out in [mechanics.md](mechanics.md): 40 rounds, a change that starts between round 3 and round 10 and ramps over about 15, a 200 round record written by the reference bot, the same dice and weather for every run on a seed, four public skins with private ones held back, and a sandboxed code tool.
+Every run at either tier plays the same game, set out in [mechanics.md](../spec/mechanics.md): 40 rounds, a change that starts between round 3 and round 10 and ramps over about 15, a 200 round record written by the reference bot, the same dice and weather for every run on a seed, four public skins with private ones held back, and a sandboxed code tool.
 
