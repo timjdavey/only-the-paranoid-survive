@@ -29,16 +29,18 @@ One run per row. The bets are whole numbers to 100, as on the [interface](interf
 | Constant look, 2 / 5 / 10 | That many points on every other channel, the rest on the highest median | Forecast plus a dumb look of a size we chose |
 | Probability of best, bets as covariate | As probability of best, with its bets passed in as a past covariate | Whether it can learn that a small bet gives a rough reading |
 
-## Sanity ordering
+### Checks before we trust design
 
-- **On switch**, oracle above Timestral above stale above uniform.
-- **On calm**, stale matches both oracles.
-- **If the order breaks**, the noise knob in [mechanics](mechanics.md) or a baseline is wrong.
-
-## Checks before we trust them
-
-- **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, probability of best cannot look and is dropped.
+- **Timestral gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, probability of best cannot look and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
+
+
+## Ordering sniff test
+
+- **Switch scenario**: oracle > steady > Timestral > stale > uniform
+- **Calm scenario:** stale ~= oracle & steady.
+
+If the order breaks from above the noise knob in [mechanics](mechanics.md) is likely too high or a baseline is wrong.
 
 ## Not yet
 
