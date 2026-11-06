@@ -14,7 +14,7 @@
 If you know the literature, our game may look like a drifting bandit: an agent picks between options whose payoffs wander over time, as in Zhang, Mellor and Shapiro, and BanditBench. It has that shape, but three things set it apart, and no study below has all three.
 
 1. **Bad luck comes in streaks.** In our game a bad month is ordinary, so a run of poor results doesn't prove anything changed. Every game is also played on the same luck with nothing changed, which we call the no-change run, and it holds a dip that starts exactly like the real change before it recovers. In the other studies each result is drawn fresh, so a streak is strong evidence. The one exception is STOCKTAKE, with a single false alarm that lasts a week.
-2. **The old split still pays after the change.** The unit the agent relied on never pays off less than 55% of the time, so keeping the old split loses only to the best split available. Elsewhere the old choice mostly stops working once the change lands: in one study a reversed option wins only 20% of the time, in another an old tool fails on every call.
+2. **The old bets still pay after the change.** The unit the agent relied on never pays off less than 55% of the time, so keeping the old bets loses only to the best bets available. Elsewhere the old choice mostly stops working once the change lands: in one study a reversed option wins only 20% of the time, in another an old tool fails on every call.
 3. **We score against [baselines](../design/baselines.md)**, from a ceiling no model can pass down to the best inferrer we can build and two floors. The no-change run counts in the same score, on the same luck, so a false alarm costs as much as a miss.
 
 Two more things go beyond a drifting bandit, explained in [Why this is more than a drifting bandit](../design/decisions.md#why-this-is-more-than-a-drifting-bandit):
@@ -45,7 +45,7 @@ Two more things go beyond a drifting bandit, explained in [Why this is more than
 | [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a regime shift | At most one shift | n/a, beliefs only | Noisy | None | Bayesian posterior | No |
 | [Brown and Steyvers 2009](people.md#brown-and-steyvers-2009-naming-a-change-versus-predicting-through-it) | People, a hidden source that jumps | Many jumps | No | Noisy | None | Particle filter fits | No |
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | Ratio of reward rates jumps | No | Noisy | Many earlier sessions, with or without change | Ideal detector | No |
-| **Our game** | A budget split across ten units, after reading 200 rounds of past play | One unit slowly falls and one it ignored rises past it, or a dip that recovers | Yes, never below 55% | Noisy, in streaks | Past play by a baseline, and notes the agent wrote itself | Perfect and Bayesian baselines above, stale and uniform baselines below, on the same luck | No-change run on the same luck, counted in the score |
+| **Our game** | Bets of a fixed budget across ten units, after reading 200 rounds of past play | One unit slowly falls and one it ignored rises past it, or a dip that recovers | Yes, never below 55% | Noisy, in streaks | Past play by a baseline, and notes the agent wrote itself | Perfect and Bayesian baselines above, stale and uniform baselines below, on the same luck | No-change run on the same luck, counted in the score |
 
 ### The closest studies
 

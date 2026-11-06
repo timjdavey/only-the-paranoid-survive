@@ -16,8 +16,8 @@ As agents take on longer jobs, the more likely they will face these situations. 
 ## Design
 
 - The study is build around a simple cybernetics game engine.
-- The agent plays by splitting a fixed budget across channels each round. See [interface](docs/design/interface.md).
-- The payout is linear, noise is the difficulty knob, and the agent only sees the channels it funds. See [mechanics](docs/design/mechanics.md).
+- The agent plays by betting a fixed budget across channels each round. See [interface](docs/design/interface.md).
+- The payout is linear, noise is the difficulty knob, and the agent only sees the channels it bets on. See [mechanics](docs/design/mechanics.md).
 - That engine then has a set of _narrative skins_ around it. So that the model thinks it is a real situation and so is more likely to act accordingly. But also this helps with contamination, as we can publish the game engine but disguise the game skin.
 - We [baseline](docs/design/baselines.md) a models performance against various strategies. 
 - In order for models to be economically trustworthy they need to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md).

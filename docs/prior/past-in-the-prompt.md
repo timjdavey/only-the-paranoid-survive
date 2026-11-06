@@ -138,7 +138,7 @@ Jingyu Liu et al. "When History Fails to Become Experience: Action Calibration i
 - Shuffling actions costs only 2.6 points. By our sum, about three quarters of the benefit of history survives scrambling which action caused which outcome. DeepSeek-V4-Pro lost the most, 5.4 points.
 - Labelling outcomes helped every model and cut repeated actions from 36.9% to 32.2%. A trained calibrator added 5.1 points.
 
-**What it means for us.** Agents take in what happened more than which action led to it, and our record ties each result to a unit and a share. Notes the agent wrote itself made things worse, which bears directly on `write_notes` and is why briefing quality is a diagnostic. A shuffled record is a cheap arm for the inherited plan extension.
+**What it means for us.** Agents take in what happened more than which action led to it, and our record ties each result to a unit and a bet. Notes the agent wrote itself made things worse, which bears directly on `write_notes` and is why briefing quality is a diagnostic. A shuffled record is a cheap arm for the inherited plan extension.
 
 ## Barkett et al. 2025: escalation of commitment
 
@@ -170,7 +170,7 @@ Emilio Barkett, Olivia Long and Paul Kröger. "Getting out of the Big-Muddy: Esc
 - Escalation came back in pairs of agents, and in a single agent under heavy personal pressure: 97.45% of identity trials fell in the "high" or "very high" bands.
 - One model, one-shot vignettes, and the failure is stated outright. In the two-agent table each escalation rate equals the mean allocation ratio (46.2% and 0.462, 99.2% and 0.992), so read those two numbers loosely.
 
-**What it means for us.** Owning a choice made the model let go faster, the reverse of [IBIS](#ibis-2026-inertia-in-search-agents) and [Kumaran](#kumaran-et-al-2025-whose-first-answer-it-was), so whose plan it is may not push one way across tasks. What did make a single model hold on was a story tying the old choice to its identity, which is close to the voice factor in the [inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) extension. Their switch is free and their failure is plain. Ours is noisy and the old split keeps paying, so the [expensive switching](../design/future.md#how-the-agent-can-act) extension is what separates holding on for a good reason from escalating.
+**What it means for us.** Owning a choice made the model let go faster, the reverse of [IBIS](#ibis-2026-inertia-in-search-agents) and [Kumaran](#kumaran-et-al-2025-whose-first-answer-it-was), so whose plan it is may not push one way across tasks. What did make a single model hold on was a story tying the old choice to its identity, which is close to the voice factor in the [inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) extension. Their switch is free and their failure is plain. Ours is noisy and the old bets keep paying, so the [expensive switching](../design/future.md#how-the-agent-can-act) extension is what separates holding on for a good reason from escalating.
 
 ## Fresh Memory, Stale Plans 2026: a current fact under an old plan
 
@@ -231,7 +231,7 @@ Hanxiang Chao, Yihan Bai, Rui Sheng, Tianle Li and Yushi Sun. "STALE: Can LLM Ag
 - On the first two questions, the strongest memory system retrieved the new evidence 77.5% of the time, yet ranked the old memory first 84.5% to 88.2% of the time (Table 3).
 - The three questions are separate calls, so the gap is between rates, not tracked within one case.
 
-**What it means for us.** For most models, asking whether a belief still holds gets a better answer than watching what the model does, so the [doubt question](../design/future.md#how-the-agent-can-act) may run ahead of the split, and the gap is the finding. The same gap is why [insight reads the notes](../design/decisions.md#why-insight-reads-the-notes) and conviction checks the say/do gap. The false premise result is a warning for the [inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) extension: a plan that states the standing split as settled ("this split has served the client for four years") is a premise, and models went along with premises they could tell were out of date. Their new evidence is one plain sentence. Ours is a drift in noisy yields, so the gap should be wider, not narrower.
+**What it means for us.** For most models, asking whether a belief still holds gets a better answer than watching what the model does, so the [doubt question](../design/future.md#how-the-agent-can-act) may run ahead of the bets, and the gap is the finding. The same gap is why [insight reads the notes](../design/decisions.md#why-insight-reads-the-notes) and conviction checks the say/do gap. The false premise result is a warning for the [inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) extension: a plan that states the standing bets as settled ("these bets have served the client for four years") is a premise, and models went along with premises they could tell were out of date. Their new evidence is one plain sentence. Ours is a drift in noisy yields, so the gap should be wider, not narrower.
 
 ## The Self-Correction Illusion 2026: the same claim under a different role
 
@@ -351,4 +351,4 @@ Ziyang Cai et al. (Microsoft Research). "Fork-and-Flush: Escaping Idea Basins in
 
 Saiful Haq et al. "Is your LLM trapped in a Mental Set? Investigative study on how mental sets affect the reasoning capabilities of LLMs." Preprint, January 2025. [arXiv:2501.11833](https://arxiv.org/abs/2501.11833)
 
-Haq tested whether Llama-3.1 and GPT-4o keep using a long arithmetic method after six problems that need it, when a shortcut would do. It is the only study here where the old method still works after the switch, which is our stale split in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign that the earlier problems carried over, since the extra steps came from chain of thought alone.
+Haq tested whether Llama-3.1 and GPT-4o keep using a long arithmetic method after six problems that need it, when a shortcut would do. It is the only study here where the old method still works after the switch, which is our stale baseline in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign that the earlier problems carried over, since the extra steps came from chain of thought alone.

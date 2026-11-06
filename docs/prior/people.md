@@ -84,7 +84,7 @@ Joseph Mellor and Jonathan Shapiro. "Thompson Sampling in Switching Environments
 
 **What it means for us.** This is the published form of our Bayesian baseline ([Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling)): sample a run length, sample the levels, act on the sample. An arm left alone grows more uncertain (Section 6), so it sometimes samples high and gets a look. That is the property we rely on. Four gaps are ours to close:
 
-- **It pulls one arm.** Our baseline turns each sample into a split under saturation and the threshold. Nothing here tests that step.
+- **It pulls one arm.** Our baseline turns each sample into bets under saturation and the threshold. Nothing here tests that step.
 - **Its noise is fresh and its changes jump.** Our weather has memory and our change is a ramp. The drift world in Table 3 is the nearest test, and their method still won there.
 - **Learning a rate per arm was costly.** One unit changing is the per arm case. That backs a pre-registered hazard prior counted across the suite over a hazard learnt per unit.
 - **Don't copy the "2" trick.** It helped in the challenge, but an arm left alone stops growing uncertain. C0 rises while unfunded, so that variant might never look at it.
@@ -210,7 +210,7 @@ C. R. Gallistel, Monika Krishan, Ye Liu, Reilly Miller and Peter E. Latham. "The
 **What it means for us.**
 
 - **[Steadiness](../design/measure-failure.md#diagnostics) should split two kinds of reversal.** Taking back a change call in a no-change run corrects a false alarm. Doing so in a change run gives up a true call. Gallistel's button separates them, and so should we.
-- **A graded dial doesn't give graded moves.** [Why a budget split](../design/decisions.md#why-a-budget-split) chose the split so the best play moves smoothly with belief. People with a free slider still stepped. So an agent may hold its split for many rounds and then move it all at once. Read first doubt from experiments, not from the size of a move.
+- **A graded dial doesn't give graded moves.** [Why a budget split](../design/decisions.md#why-a-budget-split) chose bets on a fixed budget so the best play moves smoothly with belief. People with a free slider still stepped. So an agent may hold its bets for many rounds and then move them all at once. Read first doubt from experiments, not from the size of a move.
 - **A third kind of noisy baseline.** "If it ain't broke, don't fix it" with two thresholds is a cautious or jumpy baseline for [next step 2](../../TODO.md#next-steps), beside Nassar's dials.
 - **Complacency in one model.** A long stretch since the last change raises the prior odds that one has happened. A long calm record lowers the learnt change rate. Which wins is the question in [Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling).
 
@@ -241,6 +241,6 @@ Victor Haghani and Richard Dewey. "Rational Decision-Making Under Uncertainty: O
 
 **What it means for us.**
 
-- **It is why we dropped the coin flip game** ([Why a budget split](../design/decisions.md#why-a-budget-split)). People told the exact odds still mixed sizing up with belief, and a cap they met only late changed the best play. The budget split removes both.
+- **It is why we dropped the coin flip game** ([Why a budget split](../design/decisions.md#why-a-budget-split)). People told the exact odds still mixed sizing up with belief, and a cap they met only late changed the best play. Betting a fixed budget removes both.
 - **Doubt with nothing to find.** In a coin that never changed, two thirds bet against the stated edge, most often after a streak. That is the too jumpy error our no-change run counts, and the flip-flops are what [steadiness](../design/measure-failure.md#diagnostics) counts.
 - **A cheap [human baseline](../design/future.md#whether-it-holds-outside-our-game)**, but only for a world that doesn't change, with the odds stated. It says nothing about spotting a change.

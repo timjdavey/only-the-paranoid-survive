@@ -4,30 +4,30 @@
 
 These are calculated scores based on fixed strategies.
 
-| Baseline | Split rule | What it settles |
+| Baseline | Betting rule | What it settles |
 |---|---|---|
 | Oracle | 100 on the channel with the highest mean level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 on shock |
 | Steady | 100 on the channel with the highest mean level in the current regime. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
-| Stale | The oracle's round 1 split, held to the end | The complacent floor. Matches the regime oracle on calm and shock, so the suite separates it only on switch and drift |
+| Stale | The oracle's round 1 bets, held to the end | The complacent floor. Matches the regime oracle on calm and shock, so the suite separates it only on switch and drift |
 | Uniform | 10 on every channel, every round | What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
 
 ## Timestral
 
-[Timestral](https://github.com/mistralai/timestral) is a forecaster, so each baseline here is its forecast plus a policy we wrote. The policy is named, not hidden in "a fixed rule".
+[Timestral](https://github.com/mistralai/timestral) is a forecaster, so each baseline here is its forecast plus a policy we wrote.
 
-- **In: each channel's level history**, as one series with ten variates forecast jointly. A round the channel was not funded goes in as NaN, which Timestral supports.
-- **Levels, never output.** Feed it output and a share of 0 reads as a real 0. It forecasts 0, the policy puts 0 on the channel, and it is locked out for good.
+- **In: each channel's level history**, as one series with ten variates forecast jointly. A round with no bet on the channel goes in as NaN, which Timestral supports.
+- **Levels, never output.** Feed it output and a bet of 0 reads as a real 0. It forecasts 0, the policy puts 0 on the channel, and it is locked out for good.
 - **Out: 21 quantiles per channel** for next round's level.
 - **It never sees the skin.** That makes it a floor for how much reading the situation helps.
 
-One run per row. The split is whole numbers to 100, as on the [interface](interface.md) page.
+One run per row. The bets are whole numbers to 100, as on the [interface](interface.md) page.
 
-| Baseline | Split rule | What it is a floor for |
+| Baseline | Betting rule | What it is a floor for |
 |---|---|---|
-| Argmax | 100 on the channel with the highest median | Forecast, never look. It switches only when the funded channel's forecast falls below what it remembers of another |
-| Probability of best | Each channel's share is the chance it has the highest level, read off the quantiles | Forecast, and look as much as its own doubt says. The look size is Timestral's, not ours |
+| Argmax | 100 on the channel with the highest median | Forecast, never look. It switches only when the forecast for the channel it bet on falls below what it remembers of another |
+| Probability of best | Each channel's bet is the chance it has the highest level, read off the quantiles | Forecast, and look as much as its own doubt says. The look size is Timestral's, not ours |
 | Constant look, 2 / 5 / 10 | That many points on every other channel, the rest on the highest median | Forecast plus a dumb look of a size we chose |
-| Probability of best, split as covariate | As probability of best, with the shares passed in as a past covariate | Whether it can learn that a small share is a rough reading |
+| Probability of best, bets as covariate | As probability of best, with its bets passed in as a past covariate | Whether it can learn that a small bet gives a rough reading |
 
 ## Sanity ordering
 

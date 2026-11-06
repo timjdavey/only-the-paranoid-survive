@@ -147,7 +147,7 @@ Ziyuan Zhang et al. "Comparing Exploration-Exploitation Strategies of LLMs and H
 - Directed exploration was negative for every LLM: they avoided the arms they knew least about.
 - Models without reasoning explored more at random than people.
 
-**What it means for us.** It is the only LLM study we found where the world drifts slowly, so a good arm fades rather than fails, and its random walk is the closest any study here comes to our weather. The models were noisy and avoided the unknown, which in our game predicts no look at C0 and a split that wobbles without tracking the change.
+**What it means for us.** It is the only LLM study we found where the world drifts slowly, so a good arm fades rather than fails, and its random walk is the closest any study here comes to our weather. The models were noisy and avoided the unknown, which in our game predicts no look at C0 and bets that wobble without tracking the change.
 
 ## KellyBench (Grady et al. 2026): a season of football bets
 
@@ -216,7 +216,7 @@ Shocked customers only, the last ten rounds against rounds 26 to 30.
 
 **Problems.** Recovery speed is stated three ways: "10–15 rounds for the best LLMs" in the text and Figure 6 caption, "5–10 rounds" a paragraph later, while the table shows only two of seven models back at their peak. No result is reported for the twelve unshocked customers. The introduction credits Opus 4.6 at its highest effort with $2.22 per win, but its table row says $2.39.
 
-**What it means for us.** The unshocked customers sit in the same run as the shocked ones, so they are not a matched [no-change copy](../design/decisions.md#why-the-yoked-dip), and false alarms on them go uncounted. The lock-in notes are the risk in our `write_notes`, and "revision, not detection" is why we [split doubting from switching](../design/decisions.md#why-split-doubting-from-switching). A swap makes the old offer lose outright, unlike our standing split. Thompson sampling beating half the models on profit, yet recovering slowly, is why [our baselines](../design/decisions.md#why-the-baselines-set-the-difficulty) are tuned before they set anything.
+**What it means for us.** The unshocked customers sit in the same run as the shocked ones, so they are not a matched [no-change copy](../design/decisions.md#why-the-yoked-dip), and false alarms on them go uncounted. The lock-in notes are the risk in our `write_notes`, and "revision, not detection" is why we [split doubting from switching](../design/decisions.md#why-split-doubting-from-switching). A swap makes the old offer lose outright, unlike our standing bets. Thompson sampling beating half the models on profit, yet recovering slowly, is why [our baselines](../design/decisions.md#why-the-baselines-set-the-difficulty) are tuned before they set anything.
 
 ## CoffeeBench (Sugiura et al. 2026): a coffee supply chain with a demand surge
 
@@ -251,7 +251,7 @@ Issa Sugiura, Daichi Hattori, Kazuo Araragi, Keita Ogawa, Shota Onose, Taro Maki
 
 **Problems.** The abstract says the other firms are "fixed reference agents", but they are LLM agents. Three runs, with error bars often as wide as the means. The surge is never analysed.
 
-**What it means for us.** The surge is announced and passes, so it tests planning for a known event, not telling a passing shock from a lasting one. It gives no evidence on when switching is the mistake. Idle drift is coherent reasoning with no action. In our game that would show as holding the standing split, which is close to the stale baseline, so it is scored rather than hidden. A supply chain is a candidate [second game](../design/future.md#whether-it-holds-outside-our-game), but this one has no no-change copy or oracle.
+**What it means for us.** The surge is announced and passes, so it tests planning for a known event, not telling a passing shock from a lasting one. It gives no evidence on when switching is the mistake. Idle drift is coherent reasoning with no action. In our game that would show as holding the standing bets, which is close to the stale baseline, so it is scored rather than hidden. A supply chain is a candidate [second game](../design/future.md#whether-it-holds-outside-our-game), but this one has no no-change copy or oracle.
 
 ## Allen and McDonald 2026: a strategy class simulation
 
@@ -278,7 +278,7 @@ Ryan T. Allen and Rory M. McDonald. "How Well Can AI Do Strategy? Empirical Benc
 
 **Problems.** The MBA comparison is lines on a chart with no test, and the authors call it "contextual reference points rather than a direct apples-to-apples comparison": the students were primed by their course and worked unsupervised. The abstract lists Claude Opus 4.5 and Gemini 3 among the models that declined, but the text only discusses GPT-5, o3 and Gemini 2.5 Pro. The text doesn't say how many runs each model got.
 
-**What it means for us.** Playing for the core business still earned high profit after the downturn, the shape of a standing split that keeps paying. Newer models doing worse, and breaking from GPQA, is why we [keep older models and a general ability check](../design/decisions.md#why-older-models-and-a-general-ability-check). The masking test backs our [private skins](../design/decisions.md#why-four-skins-over-one-interface). As a [human baseline](../design/future.md#whether-it-holds-outside-our-game) it is too loose to borrow, and with one deterministic world and no no-change copy it can't separate noticing from guessing.
+**What it means for us.** Playing for the core business still earned high profit after the downturn, the shape of standing bets that keep paying. Newer models doing worse, and breaking from GPQA, is why we [keep older models and a general ability check](../design/decisions.md#why-older-models-and-a-general-ability-check). The masking test backs our [private skins](../design/decisions.md#why-four-skins-over-one-interface). As a [human baseline](../design/future.md#whether-it-holds-outside-our-game) it is too loose to borrow, and with one deterministic world and no no-change copy it can't separate noticing from guessing.
 
 ## Schmied et al. 2025: greedy agents and the knowing-doing gap
 
@@ -310,7 +310,7 @@ Percent of all actions.
 
 **Problems.** The share of correct reasoning is given as 87% in the text, 89% in the appendix and 90.3% by the table's top row. The text's "58% greedy actions among correct rationales" is the share of all actions. Among correct ones it is 58.1 of 90.3, or 64%, the introduction's figure.
 
-**What it means for us.** Writing the right rule and not following it 64% of the time is the gap that [splitting doubting from switching](../design/decisions.md#why-split-doubting-from-switching), and later the [doubt question](../design/future.md#how-the-agent-can-act), would show. Frequency bias predicts that a record full of the standing split pulls a small model to repeat it, for reasons unrelated to doubt, which is one reason the [record's style is a factor](../design/decisions.md#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor). Trying every arm once fixing most of the gap is the yoked dip's point that a look settles it.
+**What it means for us.** Writing the right rule and not following it 64% of the time is the gap that [splitting doubting from switching](../design/decisions.md#why-split-doubting-from-switching), and later the [doubt question](../design/future.md#how-the-agent-can-act), would show. Frequency bias predicts that a record full of the standing bets pulls a small model to repeat them, for reasons unrelated to doubt, which is one reason the [record's style is a factor](../design/decisions.md#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor). Trying every arm once fixing most of the gap is the yoked dip's point that a look settles it.
 
 ## Horowitz and Plonsky 2025: a pull towards the latest result
 

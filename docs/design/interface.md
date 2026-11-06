@@ -2,23 +2,23 @@
 
 ## How the agent plays
 
-- **Each round the agent splits a fixed budget across ten channels.** It returns whole number shares that sum to 100, say 55 on one channel, 15 and 10 on two more, 5 on four others and 0 on the rest. Whole numbers to 100 is how budgets are talked about in every skin, the sum check is exact, and models fumble decimals more than they fumble percentages.
-- **It returns a full split every round.** A split that does not sum to 100 gets a neutral error and a retry, so a bad call is never read as a decision. Rounds where the split matches the one before are counted afterwards as rounds it left the plan alone.
-- **The split is its belief.** A small share on a new channel is a look. A large share is a switch. No cut-off decides which is which.
+- **Each round the agent bets a fixed budget across ten channels.** It places ten whole number bets that sum to 100, say 55 on one channel, 15 and 10 on two more, 5 on four others and 0 on the rest. Whole numbers to 100 is how budgets are talked about in every skin, the sum check is exact, and models fumble decimals more than they fumble percentages.
+- **It places all ten bets every round.** Bets that do not sum to 100 get a neutral error and a retry, so a bad call is never read as a decision. Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
+- **Its bets are its belief.** A small bet on a new channel is a look. A large bet is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
-- **The agent sees the level of every channel it funded**, not just total output, in the record described under [tools](#tools). A share of 0 shows nothing. See [mechanics](mechanics.md).
-- **Nothing tells the agent the world might change.** The prompt asks for a split, not for a view on change.
+- **The agent sees the level of every channel it bet on**, not just total output, in the record described under [tools](#tools). A bet of 0 shows nothing. See [mechanics](mechanics.md).
+- **Nothing tells the agent the world might change.** The prompt asks for bets, not for a view on change.
 
 ## Tools
 
 - **Each round is a fresh call.** The agent gets the rules, the skin and the record, then calls one tool. Nothing carries over between rounds and nothing is compacted, so a run is the same whichever round you replay it from.
-- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its split, the level of each channel it funded and the output. Round 1 has an empty record.
-- **This is the same shape Jev and Timestral get.** History in, split out. See [below](#models-that-cannot-write-a-split).
+- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record.
+- **This is the same shape Jev and Timestral get.** History in, bets out. See [below](#models-that-cannot-place-bets).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `submit(split)` | Ten whole numbers that sum to 100 | The level of each funded channel this round and the output. A neutral error and a retry if the sum is off |
+| `submit(bets)` | Ten whole numbers that sum to 100 | The level of each channel it bet on this round and the output. A neutral error and a retry if the sum is off |
 
 ## Pilot: notepad and compute
 
@@ -29,15 +29,15 @@ A deployed agent would have a scratchpad and a calculator at the very least, so 
 | `notes(text)` | Replaces a file the agent keeps between rounds. It comes back next round as a tool message, never as the agent's own words. Length is capped and logged |
 | `compute(code)` | Runs Python in a sandbox that sees the record as a file and nothing else. No network, no engine, no seeds |
 
-## Models that cannot write a split
+## Models that cannot place bets
 
-Jev and Timestral are stateless and do not write text, so each gets a thin adapter that turns what it does produce into a split. The engine and the score are the same for all three.
+Jev and Timestral are stateless and do not write text, so each gets a thin adapter that turns what it does produce into bets. The engine and the score are the same for all three.
 
 | Model | How it plays |
 |---|---|
-| Classic LLM | Reads the record, returns a split |
-| [Jev](https://docs.typesafe.ai/introduction) | Gets the record as state and one choice question, "which channel should the budget go on". Its probability map over the ten channels is read as the split, normalised in our code |
-| [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A named policy turns the forecast into a split, one run per policy. See [baselines](baselines.md) |
+| Classic LLM | Reads the record, returns its bets |
+| [Jev](https://docs.typesafe.ai/introduction) | Gets the record as state and one choice question, "which channel should the budget go on". Its probability map over the ten channels is read as its bets, normalised in our code |
+| [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A named policy turns the forecast into bets, one run per policy. See [baselines](baselines.md) |
 
 ## Rejected
 

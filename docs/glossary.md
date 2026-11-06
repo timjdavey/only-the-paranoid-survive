@@ -12,7 +12,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
 | Channel | One of the things the agent can put budget on. Each pays out at its own level |
-| Split | The shares of the budget the agent puts on each channel in a round |
+| Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
 | Scenario | A pattern of change we put each model through. See [scenarios](design/scenarios.md) |
 | Contamination | A model having seen the benchmark in training |
 | Baseline | A fixed strategy run through the same game and score as the models. See [baselines](design/baselines.md) |
