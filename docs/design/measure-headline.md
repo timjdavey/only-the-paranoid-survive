@@ -10,26 +10,18 @@ How good is an agent at telling a change in the dynamics of a system from a run 
 
 **Discernment**
 - is a more subtle version that scales with agent capability
-- the model plays increasingly difficult games (the change becomes more subtle)
-- this measures the line at which it can detect and take advantage of the change
-- analogous to a hearing test
+- the model plays increasingly difficult games (where the standard variable noise becomes greater)
+- we can calculate the line at which it stops detecting or taking advantage of a change (analogous to a hearing test)
+- there is a practical upper bound where change and noise are indiscernable, but in theoretical saturation point.
 
 These measures are bundle a few capabilities into one i.e. being able to notice a change, then the tendency and ability to explore & exploit a new strategy. This is by design. As to be economically valuable a model needs all these skills, so it is the most pragmatic measure.
 
 However, when a model fails it is important to know _why_ it failed. There are many skills we need to effectively _stack trace_ against. The design of these can be found in [measure-failure.md](measure-failure.md).
 
 
-## What one round is worth
-
-Each round the agent splits a fixed budget across ten units and sees what each of them paid. A few rounds in, one unit's hidden rate slowly falls and a unit the agent had ignored rises. The split it inherited keeps paying, just less than the best split would.
-
-What a round pays is partly the split and partly luck: the dice, and the weather of good and bad stretches every unit goes through. We score the split, not the luck. A round is worth what its split would have won on average at the true rates, with the dice and the weather left out. We call this expected output.
-
-Luck drops out, so far fewer runs give the same error bar. The real output is reported beside it. See [Why each round is scored on expected output](decisions.md#why-each-round-is-scored-on-expected-output).
-
 ## Reference baselines
 
-Output on its own says nothing, because nobody knows how much there was to win. Two scripted players mark the scale.
+It would be possible to naively compare models performance against each other, which is fine from a relative perspective but we need baselines to understand the models absolute performance.
 
 | Bot | What it does | What it marks |
 |---|---|---|

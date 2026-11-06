@@ -1,10 +1,5 @@
 # Runs and cost
 
-**How many runs each model plays, and what they cost. The design pages leave these numbers out, so they live here.**
-
-- Terms such as seed, briefing and no-change run are in the [glossary](../glossary.md).
-- Why the runs are shaped this way is in [measure-headline.md](../design/measure-headline.md#what-each-model-plays).
-
 ## Runs per seed
 
 | | Proof of concept | Full study |
