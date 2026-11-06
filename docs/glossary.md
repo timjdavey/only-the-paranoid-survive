@@ -60,11 +60,11 @@ Use the word in the left column, in prose and in code. "Also called" lists older
 | Word | What it means | Also called |
 |---|---|---|
 | Handoff | The start of the agent's run, when it takes over a record from a previous operator | Takeover, handover |
-| Previous operator | The reference bot, damped, which played the 200 rounds in the record | Previous agent |
+| Previous operator | The Bayesian baseline, damped, which played the 200 rounds in the record | Previous agent |
 | Record | The 200 rounds before the handoff, rounds −199 to 0. Each row holds the split, volume and yield per unit, and output | History, handoff history, track record, log |
 | History style | How much the previous operator experimented in the record: steady or jittery. A pilot factor, then frozen | |
 | Resolved change | A change inside the record that the previous operator caught and moved for. The record holds one or two | Past change |
-| Standing split | The split the record ends on. The no-update bot holds it to the end | The plan's share, the plan's split |
+| Standing split | The split the record ends on, within a hair of the stale baseline's split | The plan's share, the plan's split |
 | Briefing | The separate call before round 1 where the agent reads the record and writes its notes | |
 | Notes | The agent's own working note on how to split and why, written at the briefing and read and rewritten through `read_notes` and `write_notes` | Plan, frozen plan, guide, strategy guide, handoff document |
 
@@ -92,35 +92,37 @@ Use the word in the left column, in prose and in code. "Also called" lists older
 | Abstract skin | The bare game, with letters for names. The anchor every other skin is read against | No-skin run, plain game |
 | Public and private sets | Seeds and skins we publish, and ones held back to catch a model that learnt the public ones | |
 
-## Bots
+## Baselines
 
-Every scripted player is a bot, named for what it does. Bots play every seed, make no API calls and write the same log rows as models.
+Every scripted player is a baseline, named for what it knows or does. Baselines play every seed, make no API calls and write the same log rows as models. The full set is on [Baselines](design/baselines.md).
 
 | Word | What it means | Also called |
 |---|---|---|
-| Reference bot | The best bot we can build, and the yardstick. A filter on the generator's own family that keeps a belief about every level, about whether a unit is in a dip or has shifted, and about when a change began. It samples from that belief each round and splits on the sample. A model may beat it | Bayes bot, perfect player, perfect learner |
-| No-update bot | The floor. Holds the standing split to the end | Never-update, never changing the plan |
-| Retune bot | The reference bot with sides pooled, so each kind is one belief and it can only retune | Dumb learner, simple player |
-| CUSUM bot | The textbook change detector, fed the weather model. Sums evidence for a change and switches when the sum crosses a line | CUSUM detector |
-| Fixed bots | Switch at a fixed round, split at random, split evenly, or always look at a set share. Each must score well below the reference bot | Dumb bots |
-| Disposition bots | Built to have too much or too little of one disposition, to check that the trait costs output | |
-| Dip-only bot | The reference bot with its belief that a change can be permanent switched off, so it reads every fall as a dip | |
+| Perfect baseline | The ceiling. Told the true levels every round, it plays the best split for them, so no model can beat it on expected output | Perfect bot, omniscient player |
+| Bayesian baseline | The best inferrer we can build. A filter on the generator's own family that keeps a belief about every level, about whether a unit is in a dip or has shifted, and about when a change began. It samples from that belief each round and splits on the sample. A model may beat it | Reference bot, Bayes bot, perfect player, perfect learner |
+| Stale baseline | A floor. The best split for the levels before the change, held to the end. It needs no record | No-update bot, never-update, never changing the plan |
+| Uniform baseline | A floor. The budget split evenly over the ten units every round | Always split evenly |
+| Check baseline | A baseline that tunes the game or checks a measure, rather than marking the chart. The rest of this table | |
+| Retune baseline | The Bayesian baseline with sides pooled, so each kind is one belief and it can only retune | Retune bot, dumb learner, simple player |
+| CUSUM baseline | The textbook change detector, fed the weather model. Sums evidence for a change and switches when the sum crosses a line | CUSUM bot, CUSUM detector |
+| Fixed baselines | Switch at a fixed round, split at random, or always look at a set share. Each must score well below the Bayesian baseline | Fixed bots, dumb bots |
+| Disposition baselines | Jumpy, cautious and hedging: the Bayesian baseline built to have too much or too little of one disposition, to check that the trait costs output | Disposition bots |
+| Dip-only baseline | The Bayesian baseline with its belief that a change can be permanent switched off, so it reads every fall as a dip | Dip-only bot |
 
 ## Traits
 
-Each model gets six traits. An **ability** is better the more of it there is. A **disposition** has a right amount, so it is a signed gap from the reference bot: zero is ideal, and positive means more of the trait.
+Each model gets six traits. An **ability** is better the more of it there is. A **disposition** has a right amount, so it is a signed gap from the Bayesian baseline: zero is ideal, and positive means more of the trait.
 
 | Word | What it means | Also called |
 |---|---|---|
-| Performance | The model's gain over the no-update bot as a share of the reference bot's, no-change run included. The proof of concept's headline | Edge captured, edge |
-| Gain and loss | The two parts of performance: what the change runs added, and what the no-change run took away | |
+| Performance | The model's expected output pooled over every run, no-change run included, reported beside the baselines and as a proportion of the perfect baseline. The proof of concept's headline | Edge captured, edge, share of the reference bot's gain |
 | Discernment | The full study's headline. The amplitude at which a model's performance crosses a set level. Smaller is better | Threshold, hearing test |
 | Catch rate | A backup to discernment. The share of change runs caught, where a run is caught if the agent switched before the last round and the no-change run on that seed had no switch | Caught, catch rule |
 | Expected output | What a round's split was worth at the true levels, with the weather and the dice left out | Expected customers, luck-adjusted score |
 | Insight | Whether the agent rewrote what it believed and acted on it: near the end of each change run, the share of rounds and sides where the largest share on that side is on its best unit, and whether the rewritten notes state the new rule | Rethinking share |
 | Paranoia | How much the agent doubts notes that are working, read in the no-change run, sharpest at the yoked dip | |
 | Caution | How much evidence the agent needs before it switches, read as the CUSUM line it would take to fire on the same round | |
-| Conviction | After the switch, its share on the unit that rose against the reference bot's | |
+| Conviction | After the switch, its share on the unit that rose against the Bayesian baseline's | |
 | Profile | The six boxes that paranoia and caution place a model in, from complacent to jumpy | Six-cell table |
 
 Paranoia has three readings: **experimenting** (share of the budget beyond the standing split on other units, also called probing), **hedging** (share held back from the standing units) and **looking** (record reads a round), plus the **dip reading**, whether it switched during the yoked dip.
@@ -134,7 +136,7 @@ Diagnostics explain the traits but are not scores: curiosity, first doubt, calib
 | Proof of concept | The first tier: what gets built and run first, at about $100 a model, to show the measure works | First edition, v1, core suite, PoC |
 | Full study | The second tier: the funded version, with the five-amplitude grid, more seeds, a reasoning sweep and every model on release | Funded version |
 | Pilot | Runs on two models that test the design before the proof of concept is frozen. It sizes the skin spread and the history style spread | Trial run |
-| Hazard | How often the reference bot expects a change. It starts from a prior fixed before any model runs, and learns from the record and the live rounds | Change rate |
+| Hazard | How often the Bayesian baseline expects a change. It starts from a prior fixed before any model runs, and learns from the record and the live rounds | Change rate |
 | Canary | A unique string in every published file, so training on the benchmark can be spotted | Canary GUID |
 | Realism ladder | Later steps that move the game closer to real work | |
 | Harness | The code that lets a model play through tool calls | |
@@ -144,7 +146,7 @@ Diagnostics explain the traits but are not scores: curiosity, first doubt, calib
 ## Names we've retired
 
 - **Plan, frozen plan, guide.** The agent no longer inherits a note written by someone else. It writes its own at the briefing, so the note is its notes.
-- **Previous agent.** The record is written by a bot, not a model. "Previous operator" says so.
+- **Previous agent.** The record is written by a baseline, not a model. "Previous operator" says so.
 - **Campaign, channel, device, impressions, conversions, customers.** They were the market skin's nouns. The game now has four skins, so the abstract words stand in prose and each skin keeps its own in its own file.
 - **New driver.** There are kinds of change now, and the proof of concept's is the level change.
 - **Minimum share.** It is a told rule of the game, so it has the plainer name, the threshold.
@@ -154,7 +156,9 @@ Diagnostics explain the traits but are not scores: curiosity, first doubt, calib
 - **Test bet, probe.** "Experiment" says why the agent does it.
 - **Observation, segment, cell, for a weekly condition.** They named a condition the week arrived in. A real week is a blend. Side is a tag on a unit, so a unit is the only thing funded. "Observation" now names the generator's last block.
 - **Signal.** A dashboard index that moved on its own. It was a clue nobody could say the right response to, so it went. Whether a later skin shows the generator's inputs is an [open question](../TODO.md#open-questions).
-- **Bayes bot, perfect player, dumb learner.** Bot names now say what each one is for. The reference bot isn't perfect, and a model may beat it.
+- **Bot, reference bot, Bayes bot, perfect player, dumb learner.** Every scripted player is now a baseline, named for what it knows. The old reference bot isn't perfect and a model may beat it, so it is the Bayesian baseline, and "perfect" is kept for the one that can't be beaten.
+- **No-update bot.** It held the standing split, so it needed a record. The stale baseline holds the best split for the old levels and needs none.
+- **Share of the reference bot's gain.** Both ends were judgement calls and the top could be beaten, so performance is now reported in expected output.
 - **Caught, as the headline.** The catch rate stays as a backup to discernment.
 - **Edge captured, edge.** A niche name for a headline. Performance says what it is in one word.
 - **First edition.** "Proof of concept" says what the first tier is for.

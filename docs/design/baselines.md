@@ -35,11 +35,11 @@ Made up numbers, pooled over the same seeds:
 
 | Player | Expected output | Proportion of perfect |
 |---|---|---|
-| Uniform baseline | 41,200 | 0.79 |
-| Stale baseline | 46,800 | 0.90 |
-| Model P | 48,900 | 0.94 |
-| Bayesian baseline | 49,700 | 0.96 |
-| Perfect baseline | 52,000 | 1.00 |
+| Uniform baseline | 236,000 | 0.82 |
+| Stale baseline | 274,000 | 0.95 |
+| Model P | 279,000 | 0.97 |
+| Bayesian baseline | 282,000 | 0.98 |
+| Perfect baseline | 288,000 | 1.00 |
 
 | Where a model sits | What it means |
 |---|---|
@@ -48,11 +48,11 @@ Made up numbers, pooled over the same seeds:
 | Between stale and Bayesian | It acted on the change, but later or less fully than was knowable |
 | Below the stale line | Its doubt cost more than it won |
 
-## Probes
+## Check baselines
 
-Other scripted players tune the game and check the measures. They don't mark the chart. Most are the Bayesian baseline with one part changed.
+The other baselines tune the game and check the measures. They don't mark the chart. Most are the Bayesian baseline with one part changed.
 
-| Probe | How it is built | What it checks |
+| Check baseline | How it is built | What it checks |
 |---|---|---|
 | Retune | Sides pooled, so each kind is one belief | That insight can tell a retune from a rethink |
 | Dip-only | Its belief that a change can last is switched off | That the ramp passes for a dip for about ten rounds |
@@ -67,6 +67,6 @@ See [Why the baselines set the difficulty](decisions.md#why-the-baselines-set-th
 ## Checks before any model plays
 
 1. **The order holds.** Perfect beats Bayesian beats stale on every amplitude, the size of the fall, with Bayesian over stale by a margin set in `params.yaml`.
-2. **No trick pays.** Every fixed probe scores well below the Bayesian baseline.
+2. **No trick pays.** Every fixed check baseline scores well below the Bayesian baseline.
 3. **The floor never switches.** The stale baseline catches no change.
 4. **The record matches the floor.** The standing split is within a hair of the stale baseline's split. See [Why the standing split still pays](decisions.md#why-the-standing-split-still-pays).

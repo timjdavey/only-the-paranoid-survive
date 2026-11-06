@@ -1,8 +1,8 @@
 # Failure measures
 
-**When a model scores below the reference bot, this page says which rounds the output went missing in and what the model was doing at the time.**
+**When a model scores below the Bayesian baseline, the best inferrer we can build, this page says which rounds the output went missing in and what the model was doing at the time.**
 
-[Performance](measure-headline.md#performance-the-proof-of-concept-headline) says how much of the gain on offer a model took. If a model took 60% of it, this page is the stack trace for the other 40%. Every measure here is in the same unit as performance, a share of the reference bot's gain, so the pieces add up to the whole.
+[Performance](measure-headline.md#performance-the-proof-of-concept-headline) says how much expected output a model earned, beside the [baselines](baselines.md). If a model earned 279,000 where the Bayesian baseline earned 282,000, this page is the stack trace for the other 3,000. Every measure here is in expected output, the same unit as performance, so the pieces add up to the whole.
 
 ## In brief
 
@@ -10,13 +10,13 @@ Each model plays the game on a set of seeds, counted in [runs-and-cost.md](../sp
 
 The no-change run holds a trap. On the same round and the same unit as the change, it has a dip, a fall that recovers on its own after a few rounds. So for the first rounds the two runs look the same, and a model cannot tell them apart until the evidence builds.
 
-Every run is measured against the reference bot, the best player we can build. Output is scored a round at a time, on what the model's split was worth at the true rates with the luck left out. So any gap between a model and the bot can be dated to a round.
+Every run is measured against the Bayesian baseline, the best player we can build that sees only what the agent sees. Output is scored a round at a time, on what the model's split was worth at the true rates with the luck left out. So any gap between a model and the Bayesian baseline can be dated to a round.
 
 ## Where the output went
 
-The gap between a model and the reference bot is output the model did not win, and each round of it can be dated. Two rounds on every seed are fixed before any model plays: the round the change starts and the round the dip starts. Cutting each run's rounds at those two moments sorts every lost round into one of three leaks. We call them the doubt tax, the change leak and the false alarm leak.
+The gap between a model and the Bayesian baseline is output the model did not win, and each round of it can be dated. Two rounds on every seed are fixed before any model plays: the round the change starts and the round the dip starts. Cutting each run's rounds at those two moments sorts every lost round into one of three leaks. We call them the doubt tax, the change leak and the false alarm leak.
 
-Each leak is a share of the reference bot's gain, the same denominator as performance. So performance plus the three leaks equals 1.
+Each leak is in expected output: the gap to the Bayesian baseline, dated by round. So performance plus the three leaks equals the Bayesian baseline's total.
 
 | Leak | Rounds it is read from | What it tells you |
 |---|---|---|
@@ -26,7 +26,7 @@ Each leak is a share of the reference bot's gain, the same denominator as perfor
 
 - **The cuts belong to the seed, not the model.** The change start and the dip start are fixed per seed, so the split is exact and claims nothing about when the model noticed. A model that waited and a model that moved too little both land in the change leak. The readings under it say which happened.
 - **We wanted four leaks**, with the change leak split into waiting and acting badly. That split needs the round the model switched, and there is no such round. Suspicion grows a little each round, and a model that eases in crosses any switch rule late. So we took three, because no measure beats an inaccurate one. See [Why three leaks, not four](decisions.md#why-three-leaks-not-four).
-- **A leak can be negative.** If the model beat the reference bot in that stretch, the leak shows it as a gain.
+- **A leak can be negative.** If the model beat the Bayesian baseline in that stretch, the leak is below zero.
 - **The doubt tax is read from three runs a seed, not one.** Before the change starts, a change run is the same world as the no-change run on the same dice. So the rounds before the change count in every run.
 
 ## What the agent did
@@ -47,7 +47,7 @@ Why was output lost once the world had changed? We sort every change run into on
 
 | Bucket | What places a run there |
 |---|---|
-| Never doubted | No experiment before the round the reference bot moved |
+| Never doubted | No experiment before the round the Bayesian baseline moved |
 | Doubted the wrong thing | Experimented, but never put C0 above the threshold |
 | Looked too small to hear | Put C0 above the threshold, but at too small a volume to tell its new rate from its old one |
 | Found it | Put C0 above the threshold at a volume that could tell them apart |
@@ -56,8 +56,8 @@ The threshold is the share below which a unit buys no volume and reports nothing
 
 Beside the funnel sit six more readings.
 
-- **Which unit.** Where the largest share on side 0 ended up: on C0, on B0, or spread about. Each kind of unit, A to E, has one unit on each of two sides. The change happens on side 0 only. Moving share from A0 to B0, a unit the notes already favoured, is a retune. Finding C0, a unit the notes ignored, is a rethink. The retune bot is the reference bot with the two sides pooled, so it can only retune. The output between it and the reference bot is what rethinking was worth.
-- **How full.** The model's share on C0 against the reference bot's, round by round. A slow creep and a timid hold both show up here.
+- **Which unit.** Where the largest share on side 0 ended up: on C0, on B0, or spread about. Each kind of unit, A to E, has one unit on each of two sides. The change happens on side 0 only. Moving share from A0 to B0, a unit the notes already favoured, is a retune. Finding C0, a unit the notes ignored, is a rethink. The retune baseline is the Bayesian baseline with the two sides pooled, so it can only retune. The output between it and the Bayesian baseline is what rethinking was worth.
+- **How full.** The model's share on C0 against the Bayesian baseline's, round by round. A slow creep and a timid hold both show up here.
 - **Side spillover.** Share moved on side 1, where nothing changed. A model that over-generalised the rule to "C now leads everywhere" pays here.
 - **Reversals.** Whether the model moved and then moved back, and what each reversal cost in output.
 - **The notes.** Whether the rewritten notes state the new rule in the nouns of the skin the game is dressed in, such as "on side 0, C now leads". We also read the round the notes changed against the round the shares changed. A model that writes the new rule and does not play it is the Kodak case below. The reverse, playing the new rule without writing it, is a guess that paid.
@@ -67,8 +67,8 @@ Beside the funnel sit six more readings.
 
 Did the model back down?
 
-- **Moved during the dip.** The share it moved off the dipping unit in the rounds where the dip and the change still look the same. The reference bot moves a little and looks.
-- **Recovery.** How many rounds passed from the dip recovering to the model restoring the standing split, against the reference bot.
+- **Moved during the dip.** The share it moved off the dipping unit in the rounds where the dip and the change still look the same. The Bayesian baseline moves a little and looks.
+- **Recovery.** How many rounds passed from the dip recovering to the model restoring the standing split, against the Bayesian baseline.
 - **Notes churn.** Whether the notes were rewritten for the dip and then rewritten back, or left stating a rule the shares no longer follow.
 
 ## Diagnostics
@@ -77,7 +77,7 @@ These say nothing about where output went. They sit beside the scores to help ex
 
 | Diagnostic | What it shows |
 |---|---|
-| **Anchoring** | Whether a longer record slows the model more than it slows the reference bot |
+| **Anchoring** | Whether a longer record slows the model more than it slows the Bayesian baseline |
 | **Skin and history spread** | How far each number moves across the four skins and the two styles of record |
 | **Tool use** | How often it calls `compute`, and whether runs that use it score better |
 | **Test awareness** | How often its reasoning says it is being tested, or that the rules may change, before there is any evidence |
@@ -98,19 +98,20 @@ The companies in the README illustrate the boxes. Blockbuster, which turned Netf
 
 Here is a made up results table for two models. The top block is what the proof of concept reports, and the bottom block is what the full study adds.
 
-| | Model P | Model Q | Reference bot |
-|---|---|---|---|
-| Performance | 0.62 | 0.41 | 1 |
-| Doubt tax | 0.08 | 0.01 | 0 |
-| Change leak | 0.25 | 0.55 | 0 |
-| False alarm leak | 0.05 | 0.03 | 0 |
-| Funnel, 40 change runs | 2 never doubted, 6 too small, 32 found it | 14 never doubted, 10 wrong thing, 16 found it | 40 found it |
-| Notes state the new rule | 30 of 32 | 12 of 16 | n/a |
-| Discernment at 50%, bits a round | 0.15 | 0.40 | Off the left end |
-| Discernment at 80%, bits a round | 0.35 | Off the right end | Off the left end |
-| Catch rate, half caught, bits a round | 0.18 | 0.45 | 0.05 |
+| | Model P | Model Q | Bayesian baseline | Perfect baseline |
+|---|---|---|---|---|
+| Performance, expected output | 279,000 | 276,500 | 282,000 | 288,000 |
+| Proportion of perfect | 0.97 | 0.96 | 0.98 | 1 |
+| Doubt tax | 400 | 100 | 0 | −600 |
+| Change leak | 2,300 | 5,200 | 0 | −4,800 |
+| False alarm leak | 300 | 200 | 0 | −600 |
+| Funnel, 40 change runs | 2 never doubted, 6 too small, 32 found it | 14 never doubted, 10 wrong thing, 16 found it | 40 found it | 40 found it |
+| Notes state the new rule | 30 of 32 | 12 of 16 | n/a | n/a |
+| Discernment at 50%, bits a round | 0.15 | 0.40 | 0.08 | Off the left end |
+| Discernment at 80%, bits a round | 0.35 | Off the right end | 0.12 | Off the left end |
+| Catch rate, half caught, bits a round | 0.18 | 0.45 | 0.05 | Off the left end |
 
-Model P took 62% of the gain on offer, and the three leaks say where the other 38% went. It doubts working notes and pays a little for that, but it finds the change in most runs, so it is nervy but right. Model Q is calm and loses most of its gain after the change starts. A third of its runs never doubted, so it is complacent.
+Model P earned 3,000 less than the Bayesian baseline, and the three leaks say where it went. It doubts working notes and pays a little for that, but it finds the change in most runs, so it is nervy but right. Model Q is calm and loses most of its output after the change starts. The perfect baseline's leaks are below zero, since it knows the true rates and beats the Bayesian baseline everywhere. A third of its runs never doubted, so it is complacent.
 
 Here is a made up log from one change run of 12 points, showing the two side 0 units that matter. The other eight units stay at the standing split throughout. C0 is dark, meaning it reports nothing, until the model funds it above the threshold. Yield is shown as the count won out of the volume bought, and the note on each row says which reading it feeds.
 
@@ -123,4 +124,4 @@ Here is a made up log from one change run of 12 points, showing the two side 0 u
     19     8%    9 of 15       22%   32 of 39      121   a clean switch, so the CUSUM line is read here
     19     rewrites the notes: "on side 0, C now leads"             the notes reading, same round as the shares
     20     8%    8 of 15       22%   33 of 39      122   side 1 stays on A and B, so no spillover
-    21 to 40   C leads on side 0 and A and B on side 1 in 19 of 20 rounds   found it, and nearly as full as the bot
+    21 to 40   C leads on side 0 and A and B on side 1 in 19 of 20 rounds   found it, and nearly as full as the Bayesian baseline

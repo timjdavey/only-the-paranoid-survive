@@ -6,7 +6,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 
 ## At a glance
 
-**The words this page uses.** Each round the agent splits a budget across ten units. Before round 1 it reads the **record**, 200 rounds of past play, and writes its own notes, in a separate call we call the **briefing**. The split the record ends on is the **standing split**. A **seed** fixes the luck, and every run on a seed shares it, including a **no-change run** where nothing changes. In that run a **yoked dip** starts exactly like the change and then recovers. The **reference bot** is the best player we can build, and the yardstick for every score. **Amplitude** is how far the falling unit drops, in points. Each story the game is dressed in is a **skin**. The full list is in the [glossary](../glossary.md).
+**The words this page uses.** Each round the agent splits a budget across ten units. Before round 1 it reads the **record**, 200 rounds of past play, and writes its own notes, in a separate call we call the **briefing**. The split the record ends on is the **standing split**. A **seed** fixes the luck, and every run on a seed shares it, including a **no-change run** where nothing changes. In that run a **yoked dip** starts exactly like the change and then recovers. The **Bayesian baseline** is the best inferrer we can build, and the yardstick for every disposition. The **perfect baseline** is told the true levels, so no model can pass it. The full set is on [Baselines](baselines.md). **Amplitude** is how far the falling unit drops, in points. Each story the game is dressed in is a **skin**. The full list is in the [glossary](../glossary.md).
 
 | Decision | Chosen | Main alternative |
 |---|---|---|
@@ -27,7 +27,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | [What the no-change run holds](#why-the-yoked-dip) | A dip that starts exactly like the change, on the same luck, then recovers | Quiet rounds only |
 | [Whether a switch sticks](#why-no-lock-in) | Free to undo | A switching cost |
 | [Where the agent's beliefs come from](#why-the-agent-writes-its-own-notes) | It reads the record and writes its own notes before round 1 | A plan written by a previous agent |
-| [Who wrote the record](#why-the-record-comes-from-a-bot-and-its-style-is-a-factor) | The reference bot, toned down, with how much it experiments tried both ways in the pilot | A model's own live run |
+| [Who wrote the record](#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor) | The Bayesian baseline, toned down, with how much it experiments tried both ways in the pilot | A model's own live run |
 | [What the game looks like](#why-four-skins-over-one-interface) | The same game in four skins, with the fictional one used for the headline | One public story skin |
 | [How much is built first](#why-two-tiers) | A proof of concept, then a full study | One funded edition |
 | [What is measured](#why-traits-in-two-kinds) | Six traits in two kinds | One detection score |
@@ -36,19 +36,19 @@ Each decision starts with the question it answers and the options we weighed. Th
 | [How the gap is traced](#why-three-leaks-not-four) | Three leaks in output, cut where the seed fixes, never at a switch | Four leaks, split at the round the model switched |
 | [How caution is read](#why-caution-is-a-cusum-line) | How much evidence a standard change detector, CUSUM, would need to fire on the same round | Rounds from the first experiment to the switch |
 | [How insight is read](#why-insight-reads-the-notes) | The shares on the changed side, and the rewritten notes | The shares alone |
-| [What scores are measured against](#why-two-bots-bound-the-game) | The reference bot, and a copy of it that can't tell the two sides apart | Other models |
+| [What scores are measured against](#why-four-baselines-and-why-the-perfect-one-is-the-ceiling) | Four baselines, from one told the true levels to one that splits evenly | Other models |
 | [How complacency is made](#complacency-as-a-parameter-not-a-history) | The number of rounds of record before the change | Real long tasks |
 | [How a round is scored](#why-each-round-is-scored-on-expected-output) | What the split would win on average, with the luck taken out | What it actually won |
 | [How delays are reported](#why-first-doubt-and-the-switch-are-read-as-curves) | A curve of how many runs have acted by each round | The average round |
 | [Curiosity](#why-curiosity-is-a-diagnostic-not-a-trait) | A diagnostic, not a trait | Score it from experiments |
-| [The proof of concept headline](#why-performance-is-the-proof-of-concept-headline) | Performance: the share of the possible gain the model took | The faintest change acted on, from only two amplitudes |
+| [The proof of concept headline](#why-performance-is-the-proof-of-concept-headline) | Performance: expected output pooled over every run, beside the baselines | The faintest change acted on, from only two amplitudes |
 | [The full study headline](#why-discernment-is-the-full-study-headline) | The smallest amplitude the model profits from, read off a curve across five | The amplitude caught half the time |
 | [What the arbiter is](#why-performance-is-the-arbiter) | Performance | Discernment alone |
 | [Efficiency](#why-efficiency-is-in-game-spend) | Output given up to experiments | Token cost |
 | [Stopping a trivial solve](#how-we-avoid-it-simply-being-solved) | Bad luck in streaks, a standing split that still pays, and no hint in the prompt | Tell it change may come |
-| [Stopping gaming](#why-the-game-is-hard-to-game) | The no-change run, a private set of seeds, bots fixed in advance, and scans of the transcripts | Trust the public seeds |
+| [Stopping gaming](#why-the-game-is-hard-to-game) | The no-change run, a private set of seeds, baselines fixed in advance, and scans of the transcripts | Trust the public seeds |
 | [Runs per seed](#why-one-no-change-run-and-a-grid-per-seed) | One no-change run and a grid of amplitudes | Cross every dial |
-| [Who sets difficulty](#why-the-bots-set-the-difficulty) | The bots | Today's models |
+| [Who sets difficulty](#why-the-baselines-set-the-difficulty) | The baselines | Today's models |
 | [Sample](#why-more-seeds-not-repeats) | Seeds, each run once | One seed, run many times |
 | [Comparators](#why-older-models-and-a-general-ability-check) | An older model and general ability scores | Today's models alone |
 | [Release](#why-publish-all-but-a-private-set) | Everything but a private set | Everything |
@@ -86,7 +86,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 - **A shared factor makes a bad week for everyone ordinary**, and a bad week for one unit while the others are fine the thing to notice.
 - **Dips are the false alarm with teeth.** A fall that starts like a change and then recovers. The record holds several the previous operator sat through, so the agent can learn what one looks like.
 - **A change is told apart by two things only.** It persists, and a unit on the same side rises. That is the judgement the README promises.
-- **Cost.** The reference bot needs a two-state belief, dip or shift, instead of a plain hazard, and the CUSUM bot must be fed the weather model or it fires on every dip. Memory, spread and dip size are three more dials to tune in [next step 1](../../TODO.md#next-steps).
+- **Cost.** The Bayesian baseline needs a two-state belief, dip or shift, instead of a plain hazard, and the CUSUM baseline must be fed the weather model or it fires on every dip. Memory, spread and dip size are three more dials to tune in [next step 1](../../TODO.md#next-steps).
 
 ### Why the generator is a state-space system
 
@@ -95,7 +95,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | Option | Problem |
 |---|---|
 | Ten independent arms with a mean each | The only change possible is a mean shift, so a tracker that updates ten means wins and nothing has to be rethought |
-| An open simulator, as rich as we like | No principled bot can model it, so the yardstick stops being the best we can build and performance loses its meaning |
+| An open simulator, as rich as we like | No principled baseline can model it, so the Bayesian baseline stops being the best inferrer we can build and nobody can say what was knowable |
 | **A linear Gaussian state per unit, a coupling matrix, an observation step and a regime switch** ✓ | |
 
 | Block | Holds | A change here |
@@ -106,7 +106,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | Observation | Saturation, the threshold, the count | Returns flatten, or yield is credited to the wrong unit |
 
 - **A change is an edit to one block.** That is what "a change in dynamics" means in code, and it gives the kinds of change below.
-- **The family has a filter.** A Kalman-style filter with a changepoint belief over the parameters tracks it, so the reference bot stays principled however rich the coupling gets.
+- **The family has a filter.** A Kalman-style filter with a changepoint belief over the parameters tracks it, so the Bayesian baseline stays principled however rich the coupling gets.
 - **It stays one file.** Four blocks and a config.
 - **Cost.** The filter is more work than a Beta belief per unit, and richer families than this one are off the table.
 
@@ -117,7 +117,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | Option | Problem |
 |---|---|
 | The level change only, for good | Insight stays hollow: a per-unit tracker finds every change, so there is no rule to rethink |
-| Every kind from the start | Four generators, four bots and four tunings before anything is known |
+| Every kind from the start | Four generators, four sets of baselines and four tunings before anything is known |
 | **The level change in the proof of concept, with coupling, gain and observation as full-study rungs** ✓ | |
 
 | Kind of change | What the agent sees | What a per-unit tracker does |
@@ -127,7 +127,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 | Gain | Volume falls at the same level | Reads a volume problem as a level problem |
 | Observation | Yield moves between units while output barely does | Chases a number that isn't real |
 
-- **The ladder makes insight real.** On the later rungs the retune bot and a per-unit tracker both fail, and only an agent that asks what kind of change this is wins.
+- **The ladder makes insight real.** On the later rungs the retune baseline and a per-unit tracker both fail, and only an agent that asks what kind of change this is wins.
 - **The generator is built for all four now**, so a kind of change is config, not a rewrite.
 - **Cost.** The proof of concept tests one kind, and that is a [limitation](limitations.md) it says out loud.
 
@@ -164,7 +164,7 @@ Each decision starts with the question it answers and the options we weighed. Th
 - **The record asserts structure, and the change breaks it.** The previous operator funded both sides evenly, and the agent's own notes will say side doesn't matter. The change makes side matter on one kind.
 - **The change can hide.** It hits one unit of ten. A player watching totals sees A slip a little overall.
 - **The rule stays one line**: "on side 0, C now leads".
-- **Cost.** Ten units is more to read than three, and the reference bot holds ten beliefs rather than three. The pilot checks whether the older model can hold ten in its head at all.
+- **Cost.** Ten units is more to read than three, and the Bayesian baseline holds ten beliefs rather than three. The pilot checks whether the older model can hold ten in its head at all.
 
 ### Why names must match the generator
 
@@ -189,12 +189,12 @@ In a drifting bandit an agent picks between options whose payoffs wander over ti
 | Difference | Why it matters | Decision |
 |---|---|---|
 | **Bad luck in streaks, and a false alarm built to match the change** | A bad stretch is a real explanation, and the no-change run holds a dip that starts exactly like the change and then recovers | [Why weather has memory](#why-weather-has-memory), [Why the yoked dip](#why-the-yoked-dip) |
-| **Several kinds of change** | A change edits one of the four parts the world is built from. In the full study some changes alter how units work together, which a bot watching each unit on its own can't find | [Why a change is a typed event](#why-a-change-is-a-typed-event) |
+| **Several kinds of change** | A change edits one of the four parts the world is built from. In the full study some changes alter how units work together, which a player watching each unit on its own can't find | [Why a change is a typed event](#why-a-change-is-a-typed-event) |
 | **A no-change run counted in the headline** | Every seed is also played with nothing changed, on the same luck, and that run counts in the main score, so a false alarm costs as much as a miss | [Why each trait lives in one kind of run](#why-each-trait-lives-in-one-kind-of-run) |
 | **Silence about change** | No prompt, skin or tool says the world can move. Only the record shows that it has moved before | [How we avoid it simply being solved](#how-we-avoid-it-simply-being-solved) |
 
 - **It is barely a bandit.** The agent can fund many units at once, so the usual bandit tension between trying an option and using the best one is weaker. The threshold is what keeps looking costly.
-- **The changepoint core helps us.** It comes with known theory, it lets us build the reference bot, and it takes one paragraph to explain.
+- **The changepoint core helps us.** It comes with known theory, it lets us build the Bayesian baseline, and it takes one paragraph to explain.
 - **Cost.** At first sight the game looks like one more bandit study. That is why the README and the [prior-work page](../prior/README.md#at-a-glance) lead with what sets it apart.
 
 ### Why shared luck is a stream of numbers
@@ -224,7 +224,7 @@ In a drifting bandit an agent picks between options whose payoffs wander over ti
 
 - **What it does is the record.** Experimenting is an action, so suspicion is seen rather than asked.
 - **The switch is visible.** It is the largest share on a side moving to a new unit, and a rewrite of the notes confirms it.
-- **No judge.** The no-change run and the bots are read from the same log.
+- **No judge.** The no-change run and the baselines are read from the same log.
 
 ### Why a code tool
 
@@ -266,15 +266,17 @@ In a drifting bandit an agent picks between options whose payoffs wander over ti
 - **Slow and very slow stay apart.** Every round on the stale split forgoes a little output, so the score falls steadily with delay rather than hitting a floor.
 - **The fall is the amplitude.** A0 falls by it and C0 ends the same distance above A's old level, so the prize scales with the amplitude and the rise is never what the standing split hears. See [Why attention is scarce](#why-attention-is-scarce).
 
-Three bots run on every seed before any model does, and the generator is tuned until they separate:
+The [baselines](baselines.md) run on every seed before any model does, and the generator is tuned until they separate:
 
-| Bot | Role | Warning sign |
+| Baseline | Role | Warning sign |
 |---|---|---|
-| No-update bot | The floor: the standing split to the end | Wins almost nothing less than the reference bot, so the change is too small |
-| [Retune bot](#why-two-bots-bound-the-game) | The retune bound | |
-| Reference bot | The yardstick | Beaten by a fixed bot, so the scoring rewards a trick |
+| Stale | A floor: the old levels' best split to the end | Earns almost as much as the Bayesian baseline, so the change is too small |
+| [Retune](#why-four-baselines-and-why-the-perfect-one-is-the-ceiling) | The retune bound | |
+| Bayesian | What was knowable | Beaten by a fixed baseline, so the scoring rewards a trick |
+| Perfect | The ceiling | Beaten by anything, so the scoring has a bug |
 
-If a lucky no-update bot wins more real output than an unlucky reference bot on more than a few seeds, the change is too faint or the horizon too short.
+- **The standing split matches the floor.** The record ends on a split within a hair of the stale baseline's, so the floor is what the agent inherits.
+- **Luck can't swamp the change.** If a lucky stale baseline wins more real output than an unlucky Bayesian baseline on more than a few seeds, the change is too faint or the horizon too short.
 
 ### Why the change is not reflexive
 
@@ -292,7 +294,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | What fails | How |
 |---|---|
 | **The no-change run stops being clean** | A timid agent wears the split out less, so it scores for spreading its budget rather than for noticing |
-| **The yardstick stops being the best we can build** | Each round's spend moves future levels, so the reference bot would need to plan ahead |
+| **The Bayesian baseline stops being the best we can build** | Each round's spend moves future levels, so it would need to plan ahead |
 | **Every agent plays a different world** | Levels follow each agent's path, so skill mixes with the world it made |
 | **It tests a second skill** | Pacing how hard you lean on a split is real, but it isn't noticing that it has gone stale |
 
@@ -346,19 +348,19 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 - **Same past, lower cost.** Every model starts from the same 200 rounds, and the cost is one call rather than 200.
 - **Cost.** One more call a seed. A model that writes poor notes starts behind, which is scored, and which the briefing quality diagnostic reports. A read past is still a weaker pull than a lived one, which the full live run extension tests.
 
-### Why the record comes from a bot, and its style is a factor
+### Why the record comes from a baseline, and its style is a factor
 
 **Question.** Who played the 200 rounds the agent reads?
 
 | Option | Problem |
 |---|---|
 | A model's own live run, frozen | The old answer. Each model explores in its own style, and the record then demonstrates that style to every reader |
-| 200 rounds with no change and no experiments | The reference bot's hazard prior came from us, and the agent never saw how often change happens here |
-| **The reference bot, damped, with one or two resolved changes and several dips, and its style a pilot factor** ✓ | |
+| 200 rounds with no change and no experiments | The Bayesian baseline's hazard prior came from us, and the agent never saw how often change happens here |
+| **The Bayesian baseline, damped, with one or two resolved changes and several dips, and its style a pilot factor** ✓ | |
 
 - **The record is a demonstration.** [BanditBench](../prior/worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration) put five example runs in the prompt and it moved behaviour. 200 rounds with two caught changes is the same thing, including what catching looks like.
-- **A bot's style is the right amount by definition.** The record's experimentation is the yardstick's own, damped to read as a steady operator who moved a few times.
-- **The hazard is anchored in data.** The agent and the bot can both count the resolved changes.
+- **A baseline's style is the right amount by definition.** The record's experimentation is the yardstick's own, damped to read as a steady operator who moved a few times.
+- **The hazard is anchored in data.** The agent and the Bayesian baseline can both count the resolved changes.
 - **The cue is sized once.** The pilot runs a steady record and a jittery one on the same seeds. The spread is reported beside the skin spread, then one style is frozen.
 - **Cost.** It bends "no hint of change in the prompt". The prompt is still silent, but the data says change happens here. The no-change run has the same record, so it charges for any doubt this causes.
 
@@ -411,7 +413,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost.md).
 
 - **The proof of concept has to show one thing**: that the measure separates models with usable error bars. One continuous number does that. A threshold does not, until the grid exists.
-- **Nothing is thrown away.** The two amplitudes are points on the full study's curve, in the same unit against the same bot.
+- **Nothing is thrown away.** The two amplitudes are points on the full study's curve, in the same unit against the same baselines.
 - **The game is the same at both tiers.** Only the number of runs, the kinds of change and the headline change.
 - **Cost.** The proof of concept's headline tops out at 1 and can't be plotted over releases for long. That is accepted because no model will be near 1 before the full study exists.
 
@@ -425,10 +427,10 @@ Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost
 | A list of the game's mechanics: experiment, switch and the gap between them | Each rests on a cut-off the agent never knew about, and none maps onto a trait a reader cares about |
 | **Six traits, split into abilities and dispositions** ✓ | |
 
-- **Abilities are things more of is better.** Performance, discernment and insight. Each is a plain score, and a model may pass the reference bot on any of them.
-- **Dispositions have a right amount.** Paranoia, caution and conviction. Each is a signed gap from the reference bot on the same seed, so zero is ideal and the sign says which way the model leans. Grove and Kodak needed to move, and Shopify and Hopin moved on a change that reversed.
+- **Abilities are things more of is better.** Performance, discernment and insight. Each is a plain score, and a model may pass the Bayesian baseline on any of them.
+- **Dispositions have a right amount.** Paranoia, caution and conviction. Each is a signed gap from the Bayesian baseline on the same seed, so zero is ideal and the sign says which way the model leans. Grove and Kodak needed to move, and Shopify and Hopin moved on a change that reversed.
 - **A reader can name the failure.** "Cautious but calm" says more than "switch lag 8".
-- **Cost.** Every disposition and both headlines lean on the reference bot, so a flaw in that bot moves them all. Insight and the catch rate backup stand without it.
+- **Cost.** Every disposition leans on the Bayesian baseline, so a flaw in it moves them all. The headlines lean only on the true levels, and insight and the catch rate backup stand without either.
 
 ### Why each trait lives in one kind of run
 
@@ -459,7 +461,7 @@ Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost
 
 - **Never experimenting is always wrong.** A cheap experiment pays whenever doubt is above nearly zero, so no loss function is needed. That is why paranoia is read in the no-change run, where every experiment is a misplaced one.
 - **Switching has a price.** Its bar is set by the cost of being wrong, which is where Shopify and Kodak differ. That bar is caution.
-- **The ideal is computable.** A long record raises the bar for switching through the prior, not a new threshold, so each trait is a gap from the reference bot.
+- **The ideal is computable.** A long record raises the bar for switching through the prior, not a new threshold, so each trait is a gap from the Bayesian baseline.
 - **The judgement is a dial.** Grove and Kodak needed to move, and Shopify and Hopin moved on a COVID change that reversed. How much to value stability lives only in the ratio of the price of switching to the price of experimenting.
 - **First doubt is now a diagnostic curve.** See [Why each trait lives in one kind of run](#why-each-trait-lives-in-one-kind-of-run).
 
@@ -470,7 +472,7 @@ Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost
 | Option | Problem |
 |---|---|
 | Four leaks: doubt tax, delay, execution and false alarm | Delay and execution split at the round the model switched, and there is no such round. Suspicion grows. A model that eases in, 5% then 10% then 20%, crosses any switch rule late, so its creeping rounds are labelled "after it moved" and the split is a rule dressed as a fact |
-| Split at the round the reference bot moved | The same line for every model, but it says when the bot moved, not the model, so "late" and "timid" land on either side by accident |
+| Split at the round the Bayesian baseline moved | The same line for every model, but it says when the baseline moved, not the model, so "late" and "timid" land on either side by accident |
 | **Three leaks: doubt tax, change leak and false alarm** ✓ | |
 
 - **We wanted four.** Late and timid are different failures, Blockbuster and Kodak, and a leak each would have named them in output.
@@ -490,9 +492,9 @@ Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost
 | Price, the output given up before the switch | The same, in output |
 | **The CUSUM line, with rounds as the plain reading beside it** ✓ | |
 
-- **It is in units of evidence.** The CUSUM bot adds up how much each result favours a change and fires when the sum crosses a line. The height of the line that would fire on the agent's switch round, fed the same rounds, is how much evidence the agent demanded. Two agents who waited the same rounds on different weather get different lines.
+- **It is in units of evidence.** The CUSUM baseline adds up how much each result favours a change and fires when the sum crosses a line. The height of the line that would fire on the agent's switch round, fed the same rounds, is how much evidence the agent demanded. Two agents who waited the same rounds on different weather get different lines.
 - **It is fed the weather model.** A CUSUM on raw yield fires on every dip. Ours sums evidence for a shift over a dip, given the memory and spread in `params.yaml`, so a dip adds little.
-- **It needs almost no model beyond that.** The CUSUM bot takes a reference amplitude and the weather settings. The reference bot's odds of change at the switch, the evidence backup, depend on the hazard prior we chose, so the line is the main reading and the odds the backup.
+- **It needs almost no model beyond that.** The CUSUM baseline takes a reference amplitude and the weather settings. The Bayesian baseline's odds of change at the switch, the evidence backup, depend on the hazard prior we chose, so the line is the main reading and the odds the backup.
 - **Rounds stay beside it**, because anyone can read them, and the experiment count and price stay as diagnostics.
 - **Cost.** A run with no switch has no line, so caution is read only on switches. Discernment and performance carry the misses.
 
@@ -509,33 +511,40 @@ Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost
 | **The largest share on the changed side, and a simple check that the rewritten notes state the new rule** ✓ | |
 
 - **It reads what the agent believed.** The notes are the agent's own, so a rewrite is the agent changing its mind, not editing someone else's.
-- **The retune bot is the bound.** It pools sides, so it can only move A and B together. Output between it and the reference bot is what rethinking was worth.
+- **The retune baseline is the bound.** It pools sides, so it can only move A and B together. Output between it and the Bayesian baseline is what rethinking was worth.
 - **The check is a string match**, not a judge: does the note say that on side 0 C leads, in the skin's nouns.
 - **Cost.** A model that acts without writing is read as retuning. The say/do gap under conviction catches the reverse.
 
-### Why two bots bound the game
+### Why four baselines, and why the perfect one is the ceiling
 
 **Question.** What is each score measured against?
 
 | Option | Problem |
 |---|---|
 | Other models | No fixed scale, and no way to say what was knowable |
-| The no-update bot only | Beating the floor doesn't say how much was possible |
-| A bot that splits on its best guess of the levels | The old ceiling bot. It never values a look for its own sake, so it may never fund C0 enough to be sure, and fall towards the retune bot |
-| **A reference bot and a retune bot on every seed** ✓ | |
+| A floor only | Beating the floor doesn't say how much was possible |
+| A player that splits on its best guess of the levels | The old ceiling. It never values a look for its own sake, so it may never fund C0 enough to be sure, and fall towards the retune baseline |
+| The best inferrer we can build as the ceiling | The old answer. A model can beat it, and improving it rescales every past score |
+| **Four baselines on every seed, perfect, Bayesian, stale and uniform, with the retune baseline beside them** ✓ | |
 
-| Bot | What it is | What it settles |
+| Baseline | What it is | What it settles |
 |---|---|---|
-| Reference bot | A filter on the generator's family: a belief per unit over its level, a belief over whether it is in a dip or has shifted, and a belief over how long ago a change began (Adams and MacKay). Each round it samples from the belief and takes the best split under saturation and the threshold for that sample | The yardstick for performance, discernment and every disposition |
-| Retune bot | The same code with sides pooled, so each kind is one belief | Whether the agent retuned or rethought |
+| Perfect | Told the true levels each round, it plays the best split for them | The ceiling, and the base of the proportion reported after the headline |
+| Bayesian | A filter on the generator's family: a belief per unit over its level, a belief over whether it is in a dip or has shifted, and a belief over how long ago a change began (Adams and MacKay). Each round it samples from the belief and takes the best split under saturation and the threshold for that sample | What was knowable and when, and the yardstick for every disposition |
+| Stale | The best split for the levels before the change, held to the end | What stale notes earn |
+| Uniform | The budget split evenly over the ten units every round | What knowing nothing earns |
+| Retune | The Bayesian code with sides pooled, so each kind is one belief | Whether the agent retuned or rethought |
 
-- **It values information because sampling does.** A unit the bot is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/people.md#mellor-and-shapiro-2013-thompson-sampling-with-a-change-detector) handle a world that switches, and what Denrell and March's hot stove effect says a fair yardstick needs: a learner that stops trying an option that starts badly never learns it has improved (Organization Science 12(5): 523 to 538, 2001, [doi:10.1287/orsc.12.5.523.10092](https://doi.org/10.1287/orsc.12.5.523.10092)).
+- **The perfect baseline is a fixed ceiling.** Expected output is scored at the true levels, and it plays the best split for them, so no model can pass it and better work on the other baselines never moves it. It is a few lines on the generator and needs no record.
+- **The stale baseline needs no record.** It holds the perfect baseline's round 1 split. The old floor held the standing split, which has no meaning if a study plays without a record. The two sit within a hair, and [a check](#why-the-standing-split-still-pays) confirms it.
+- **Dispositions stay against the Bayesian baseline.** The perfect baseline moves the round the change starts, so a gap from it would charge the agent for what nobody could have seen.
+- **The Bayesian baseline values information because sampling does.** A unit it is unsure of sometimes samples high, so it gets budget above the threshold. This is how [Mellor and Shapiro](../prior/people.md#mellor-and-shapiro-2013-thompson-sampling-with-a-change-detector) handle a world that switches, and what Denrell and March's hot stove effect says a fair yardstick needs: a learner that stops trying an option that starts badly never learns it has improved (Organization Science 12(5): 523 to 538, 2001, [doi:10.1287/orsc.12.5.523.10092](https://doi.org/10.1287/orsc.12.5.523.10092)).
 - **It wrote the record.** Damped, so the record's experiments are the yardstick's own, at the right rate by definition.
-- **It is the best bot we can build, not the best possible.** A model may beat it, and then performance passes 1. That is a finding, not a bug.
-- **Should complacency rise at all?** A long past lowers the hazard but sharpens the bot's view of the old levels. Which wins is computed, not assumed.
-- **Retune or rethink.** The retune bot can't split a kind by side, so it moves both sides together or neither, and never finds the new rule.
-- **The hazard's prior is pre-registered.** It is a Beta prior centred on how often changes happen across the suite, no-change runs included, set before any model runs. The bot updates it over the record, where it can count the resolved changes, and tracks run length over the live rounds, as [Wilson et al.](../prior/people.md#wilson-nassar-and-gold-2010-learning-the-hazard-rate) do.
-- **Cost.** Both headlines and every disposition lean on this bot and on our generator's true levels, so a flaw in either moves them all. The catch rate needs neither, and is reported beside them so a disagreement shows. Realism is the [realism ladder](future.md#whether-it-holds-outside-our-game).
+- **It is the best inferrer we can build, not the best possible.** A model may beat it, and then it sits above the Bayesian line on the chart. That is a finding, not a bug.
+- **Should complacency rise at all?** A long past lowers the hazard but sharpens the Bayesian baseline's view of the old levels. Which wins is computed, not assumed.
+- **Retune or rethink.** The retune baseline can't split a kind by side, so it moves both sides together or neither, and never finds the new rule.
+- **The hazard's prior is pre-registered.** It is a Beta prior centred on how often changes happen across the suite, no-change runs included, set before any model runs. The Bayesian baseline updates it over the record, where it can count the resolved changes, and tracks run length over the live rounds, as [Wilson et al.](../prior/people.md#wilson-nassar-and-gold-2010-learning-the-hazard-rate) do.
+- **Cost.** Every disposition leans on the Bayesian baseline, and every score on our generator's true levels, so a flaw in either moves them. The catch rate needs neither, and is reported beside them so a disagreement shows. Realism is the [realism ladder](future.md#whether-it-holds-outside-our-game).
 
 ### Complacency as a parameter, not a history
 
@@ -547,14 +556,14 @@ Seed counts, run totals and cost are in [runs-and-cost.md](../spec/runs-and-cost
 | A longer prompt | Mixes complacency with context length |
 | **More or fewer rounds of record before the change** ✓ | |
 
-- **It is read as a gap from the reference bot.** A longer past should make even the reference bot a little slower to doubt. So the agent's delay is compared with the bot's, alongside its false alarms in the no-change run.
+- **It is read as a gap from the Bayesian baseline.** A longer past should make even the Bayesian baseline a little slower to doubt. So the agent's delay is compared with the baseline's, alongside its false alarms in the no-change run.
 - **The record's length is varied in one separate test.** Otherwise both tiers keep the record at 200 rounds. See [Why one no-change run and a grid per seed](#why-one-no-change-run-and-a-grid-per-seed).
 
 When the record gets longer, the two kinds of run together say what is going on:
 
 | Delay in the change run | False alarms in the no-change run | Reading |
 |---|---|---|
-| Rises | Falls | Weighing the evidence, as a Bayesian would. Check the gap against the reference bot |
+| Rises | Falls | Weighing the evidence, as a Bayesian would. Check the gap against the Bayesian baseline |
 | Rises | Flat | Complacent: slower to catch a change, with no fewer false alarms to show for it |
 | Flat | Flat | Not reading the past at all |
 
@@ -570,8 +579,8 @@ When the record gets longer, the two kinds of run together say what is going on:
 | **Expected output at the true levels, the sum over funded units of level × N × share^alpha** ✓ | |
 
 - **The dice and the weather drop out.** The score depends only on the split and the true levels, so far fewer runs give the same error bar. [Next step 2](../../TODO.md#next-steps) measures how many fewer.
-- **No bot needed.** It needs only the true levels, which we set.
-- **It adds up** across rounds, and is what the reference bot tries to maximise.
+- **No baseline needed.** It needs only the true levels, which we set.
+- **It adds up** across rounds. The perfect baseline maximises it, and the Bayesian baseline tries to.
 - The agent still plays real dice and real weather, and the real output is reported alongside.
 
 ### Why first doubt and the switch are read as curves
@@ -612,15 +621,16 @@ When the record gets longer, the two kinds of run together say what is going on:
 |---|---|
 | A threshold fitted over two amplitudes | Two points don't make a curve. The crossing would move with the fit's shape more than with the model |
 | The catch rate at one amplitude | A yes or no per run throws away when the switch came and how full it was, and it saturates once models catch that amplitude |
-| The ratio at each amplitude, averaged | At the faint amplitude the reference bot gains little, so the ratio there swings on a small denominator and the average inherits the swing |
-| **Performance pooled by output: one ratio from totals summed over every run** ✓ | |
+| A share of the reference bot's gain over the no-update bot | The old answer. Both ends are judgement calls: the top can be beaten and improved, which rescales every past score, and the floor has no meaning without a record |
+| **Expected output pooled over every run, with the four [baselines](baselines.md) marked beside it, then as a proportion of the perfect baseline** ✓ | |
 
-- **It is continuous and luck-free.** Each run scores on expected output, so the dice and the weather drop out and 20 seeds give a standard error near 0.05. That is what splits two models, which is the one thing a proof of concept has to show.
-- **It reads without explanation.** "Took 62% of the gain on offer, where 0 is never changing the split and 1 is the best bot we can build."
+- **It is continuous and luck-free.** Each run scores on expected output, so the dice and the weather drop out and 20 seeds are enough to split two models, which is the one thing a proof of concept has to show.
+- **It reads without explanation.** "Earned 279,000, where never changing the split earns 274,000 and the best split at the true levels earns 288,000."
+- **Nothing is divided by a baseline a model can beat.** The ceiling is fixed by the generator, so a better Bayesian baseline moves a mark on the chart, never the model's score.
 - **Every run counts by what it won.** An early switch beats a late one, a timid switch earns less than a full one, and a false alarm counts through the output it cost. No switch cut-off and no voiding rule.
-- **The loud amplitude counts more, and should.** Each amplitude weighs by what was on offer, which is what the agent was trying to win. The no-change loss is counted once.
-- **It is a point on the full study's curve.** The same ratio, taken amplitude by amplitude, is what discernment fits. See [Why two tiers](#why-two-tiers).
-- **Cost.** It tops out at 1, so it can't be plotted over releases for long, and it leans on the reference bot and the true levels. The catch rate, d′ and the CUSUM dot stay as [backups](measure-headline.md#catch-rate-a-backup) that don't lean on the bot.
+- **The loud amplitude counts more, and should.** Each run adds what it earned, so an amplitude weighs by what was on offer, which is what the agent was trying to win. The no-change run sits in the same total.
+- **It is a point on the full study's curve.** The same proportion, taken amplitude by amplitude, is what discernment fits. See [Why two tiers](#why-two-tiers).
+- **Cost.** The proportion is squeezed near the top, since even the stale baseline earns most of what the perfect one does, so the gaps between the marks tell more than the proportion. It tops out at the perfect baseline, so it can't be plotted over releases for long, and it leans on the true levels. The catch rate, d′ and the CUSUM dot stay as [backups](measure-headline.md#catch-rate-a-backup) that lean on no baseline.
 
 ### Why discernment is the full study headline
 
@@ -628,7 +638,7 @@ When the record gets longer, the two kinds of run together say what is going on:
 
 | Option | Problem |
 |---|---|
-| Performance, pooled over every run | Tops out at 1, and one number mixes the amplitudes, so it can't say how faint a change a model handles |
+| Performance, pooled over every run | Tops out at the perfect baseline, and one number mixes the amplitudes, so it can't say how faint a change a model handles |
 | Lag in rounds | Mixes how loud the change was with how fast it was caught |
 | Catch rate at one amplitude | Saturates once models catch that amplitude |
 | The smallest amplitude caught half the time | The old answer. A yes or no catch rises with skill and with a low bar for raising the alarm. It needs a switch cut-off and a voiding rule, and a catch in round 10 counts the same as one in round 39 |
@@ -638,18 +648,18 @@ When the record gets longer, the two kinds of run together say what is going on:
 How it works:
 
 1. **Every change run is a ramp**, with an amplitude of 3, 5, 8, 12 or 15 points of level.
-2. **At each amplitude, pool the seeds.** The model's gain over the no-update bot in the change runs, minus its loss in the no-change runs, divided by the same for the reference bot.
-3. **Fit a curve** of that ratio against amplitude and read off where it crosses the level. Whether amplitude enters as points or their log is fixed before the pilot.
+2. **At each amplitude, pool the seeds.** Add the model's expected output over the change runs and the no-change runs, and take it as a proportion of the perfect baseline's on the same runs.
+3. **Fit a curve** of that proportion against amplitude, with its floor fitted rather than chosen by hand, and read off where it has risen the set level of the way from that floor to 1. Fitting the floor is a judgement, settled in [next step 2](../../TODO.md#next-steps). Whether amplitude enters as points or their log is fixed before the pilot.
 4. **Each model is plotted** against its release date, and differences between models are paired seed by seed.
 
 - **It reads like a hearing test.** 15 points is a loud beep and 3 is a whisper. METR's time horizon uses the same shape.
 - **The beep is the fall.** The amplitude is how far the standing unit slips, which is the only thing the standing split hears. The rise is silent until the agent looks, so the test is of how faint a slip makes it look. See [Why attention is scarce](#why-attention-is-scarce).
 - **The level is read at 50% and at 80%.** 50% is the curve's centre: it is the location the fit estimates directly, so it has the tightest bar, and it is the level most models reach somewhere on the grid. METR tracks 50% for those reasons and reports 80% beside it. 80% is what a reader means by "acts on", so it is the quoted number, with its wider bar. The wording never says "half": discernment is the smallest drop in level the model acts on.
 - **Every run counts.** A run adds what it won, so an early catch beats a late one, and a run that never switches still scores what its experiments earned.
-- **No cut-off and no voiding rule.** Paranoia shows as the no-change loss, taken off at every amplitude, so a model that always switches gains nothing.
-- **The small denominator is bounded.** At 3 points the reference bot gains little, so a ratio there swings. The arbiter's rule, that an amplitude must be [worth catching](#why-performance-is-the-arbiter) by a margin set in `params.yaml`, keeps such an amplitude off the grid.
-- **It can saturate, and we say so.** The reference bot scores 1 at every amplitude, so its own threshold sits below the grid, and a model that matches it reads "below the grid". The remedy is a harder edition, with a lower N, a longer memory or a fainter grid. Each threshold is also published as the evidence a round carries at that amplitude, so every edition sits on one axis.
-- **Cost.** It needs the five-amplitude grid and about 30 seeds, which is why it waits for the full study. It leans on the reference bot and the true levels, where the old catch rate needed neither. The catch rate, d′ and the CUSUM dot stay as [backups](measure-headline.md#catch-rate-a-backup).
+- **No cut-off and no voiding rule.** Paranoia shows as output lost in the no-change runs, which sit in every amplitude's total, so a model that always switches gains nothing.
+- **The faint end is bounded.** At 3 points even the stale baseline earns nearly what the perfect one does, so there is little room to read. The arbiter's rule, that an amplitude must be [worth catching](#why-performance-is-the-arbiter) by a margin set in `params.yaml`, keeps such an amplitude off the grid.
+- **It can saturate, and we say so.** The perfect baseline is 1 at every amplitude by definition, and the Bayesian baseline gets a curve of its own on the chart. A model whose curve crosses the level below the grid reads "below the grid". The remedy is a harder edition, with a lower N, a longer memory or a fainter grid. Each threshold is also published as the evidence a round carries at that amplitude, so every edition sits on one axis.
+- **Cost.** It needs the five-amplitude grid and about 30 seeds, which is why it waits for the full study. It leans on the true levels and the fitted floor, where the old catch rate needed neither. The catch rate, d′ and the CUSUM dot stay as [backups](measure-headline.md#catch-rate-a-backup).
 
 ### Why performance is the arbiter
 
@@ -663,8 +673,8 @@ How it works:
 
 Two rules follow:
 
-1. **An amplitude the reference bot doesn't profit from is moved.** Its gain over the no-update bot, pooled over seeds, must beat a margin set in `params.yaml`. This also keeps discernment's denominator from getting too small. The devil you know: if updating doesn't pay even for the reference bot, the rational play is to stay, and a model that stays has shown nothing.
-2. **A trait that doesn't predict performance is a diagnostic.** Across the disposition bots, and then across models, a trait that fails to track performance isn't costing anything the game can see.
+1. **An amplitude the Bayesian baseline doesn't profit from is moved.** Pooled over seeds, it must beat the stale baseline by a margin set in `params.yaml`. This also keeps discernment's faint end readable. The devil you know: if updating doesn't pay even for the Bayesian baseline, the rational play is to stay, and a model that stays has shown nothing.
+2. **A trait that doesn't predict performance is a diagnostic.** Across the disposition baselines, and then across models, a trait that fails to track performance isn't costing anything the game can see.
 
 - **It keeps the page honest.** Every trait has to earn its place in output.
 - **Cost.** The margin is a judgement, and so is how strong "predicts" has to be. Both are fixed in [next steps](../../TODO.md#next-steps) 1 and 2, before any model runs.
@@ -717,7 +727,7 @@ There are three ways to fake it, and each defence below closes one:
 | **[Four public skins and private ones](#why-four-skins-over-one-interface)** | Recognising the game across releases |
 | **A record frozen after the pilot**, the same for every model | A model that learnt one record's quirks |
 | **A canary string in every published file** | Training on the benchmark by accident |
-| **Fixed bots**: switch at a fixed round, split at random, always split evenly, always look at a set share | A scoring rule that rewards a fixed strategy |
+| **Fixed baselines and the uniform baseline**: switch at a fixed round, split at random, always look at a set share, always split evenly | A scoring rule that rewards a fixed strategy |
 | **A test-awareness scan**, flagging "this is a test" or "the rules may have changed" before any loss | Experimenting because it guessed the test. Reported per model, with whether it predicts experiments in the no-change run |
 | **A sandbox that sees only what the agent already saw** | Reading the generator, seeds or logs through code |
 | **A public threshold** | A model that trickles under it loses the budget and reads nothing |
@@ -739,26 +749,26 @@ There are three ways to fake it, and each defence below closes one:
 | Grid | 12 points, and 5 or 8 | 3, 5, 8, 12 and 15 |
 | Runs per seed | 3, and one briefing | 6, and one briefing |
 
-- **The proof of concept needs one loud and one faint amplitude**, enough to show that performance separates models and that the faint change costs them. The 3 point amplitude is left out because it has the smallest denominator and is the likeliest to fail the worth-catching rule.
+- **The proof of concept needs one loud and one faint amplitude**, enough to show that performance separates models and that the faint change costs them. The 3 point amplitude is left out because it leaves the least room between the floor and the ceiling and is the likeliest to fail the worth-catching rule.
 - **It keeps cost down.** Each run added to a seed costs $60 to $90 a model across 20 seeds, at the thinking we now expect. Spending the proof of concept's runs on 20 seeds rather than five amplitudes doubles the no-change runs, which is where paranoia's error bar comes from.
 - **Ramp only**, since work drifts more often than it changes overnight. Amplitude varies instead of speed.
 - **The level change stays.** Other kinds of change, the history style and the record sweep shouldn't differ between releases, so they run once.
 - **The no-change run is the one not to cut.**
 
-### Why the bots set the difficulty
+### Why the baselines set the difficulty
 
 **Question.** What is the difficulty tuned against?
 
 | Option | Problem |
 |---|---|
 | Today's models, in the pilot | Pitched at today's models, so it saturates with the next release |
-| **The bots** ✓ | |
+| **The baselines** ✓ | |
 
-- **The targets.** The reference bot profits from the 3 point change about half as well as it could and from larger ones reliably. The no-update bot catches none, and every [fixed bot](#why-the-game-is-hard-to-game) scores well below the reference bot.
-- **The ramp is ambiguous for about ten rounds.** Memory, spread and dip size are tuned until the reference bot's odds that a change has begun stay under 3 to 1 for about ten rounds of the ramp, and the dip-only bot and the reference bot part at about the same round.
-- **Disposition bots check the traits.** Jumpy and cautious are the reference bot with its switching bar moved down or up, hedging is the reference bot with the standing units' share halved, the dip-only bot reads every fall as weather, and the retune bot pools sides. Each trait must recover its bot's dial, and a trait that can't split jumpy from cautious across the seeds is demoted to a diagnostic.
-- **It is free.** The bots make no API calls.
-- **It is hard by construction.** Matching the reference bot means valuing information as well as the best bot we can build.
+- **The targets.** Perfect beats Bayesian beats stale on every amplitude. At the 3 point change the Bayesian baseline wins about half the perfect baseline's lead over the stale one, and at larger ones nearly all of it. The stale baseline catches none, and every [fixed baseline](#why-the-game-is-hard-to-game) scores well below the Bayesian baseline.
+- **The ramp is ambiguous for about ten rounds.** Memory, spread and dip size are tuned until the Bayesian baseline's odds that a change has begun stay under 3 to 1 for about ten rounds of the ramp, and the dip-only baseline and the Bayesian baseline part at about the same round.
+- **Disposition baselines check the traits.** Jumpy and cautious are the Bayesian baseline with its switching bar moved down or up, hedging is the Bayesian baseline with the standing units' share halved, the dip-only baseline reads every fall as weather, and the retune baseline pools sides. Each trait must recover its baseline's dial, and a trait that can't split jumpy from cautious across the seeds is demoted to a diagnostic.
+- **It is free.** The baselines make no API calls.
+- **It is hard by construction.** Matching the Bayesian baseline means valuing information as well as the best inferrer we can build.
 
 ### Why more seeds, not repeats
 
@@ -796,5 +806,5 @@ There are three ways to fake it, and each defence below closes one:
 | Nothing | No one can rerun a model or check the numbers |
 | **Everything but the private seeds and skins, with scores on both** ✓ | |
 
-- **What is released.** The generator, the bots, the public seeds and skins, the frozen records, full transcripts and model settings, each file with a canary string.
+- **What is released.** The generator, the baselines, the public seeds and skins, the frozen records, full transcripts and model settings, each file with a canary string.
 - **The gap is the warning sign.** A large gap between the public and private sets flags a model that learnt the public one.

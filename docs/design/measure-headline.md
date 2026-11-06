@@ -6,7 +6,7 @@ How good is an agent at telling a change in the dynamics of a system from a run 
 - the simpler proof of concept headline
 - fundamentally the top line "score" the agent gets from playing the game
 - but pooled over multiple runs
-- and baselined between a perfect bot and a naive bot.
+- reported in expected output, with the four [baselines](baselines.md) marked, and as a proportion of the perfect baseline.
 
 **Discernment**
 - is a more subtle version that scales with agent capability
@@ -19,42 +19,46 @@ These measures are bundle a few capabilities into one i.e. being able to notice 
 However, when a model fails it is important to know _why_ it failed. There are many skills we need to effectively _stack trace_ against. The design of these can be found in [measure-failure.md](measure-failure.md).
 
 
-## Reference baselines
+## Baselines
 
 It would be possible to naively compare models performance against each other, which is fine from a relative perspective but we need baselines to understand the models absolute performance.
 
-| Bot | What it does | What it marks |
+| Baseline | What it does | What it marks |
 |---|---|---|
-| No-update bot | Holds the split it inherited, the standing split, to the last round | The floor: what doing nothing earns |
-| Reference bot | The best player we can build. It knows how the world works but not the dice, and keeps a belief about every unit and about whether a change has begun | The yardstick: what there was to win |
+| Perfect | Told the true rates each round, it plays the best split for them | The ceiling. No model can beat it |
+| Bayesian | The best inferrer we can build. It knows how the world works but not the dice, and keeps a belief about every unit and about whether a change has begun | What was knowable, and when. A model may beat it |
+| Stale | Holds the best split for the rates before the change to the last round | What stale notes earn |
+| Uniform | Splits the budget evenly over the ten units every round | What knowing nothing earns |
 
-A model is read by where it sits between them. The reference bot is the best we can build, not the best possible, so a model may beat it. See [Why two bots bound the game](decisions.md#why-two-bots-bound-the-game).
+Each one is set out on [Baselines](baselines.md). See [Why four baselines, and why the perfect one is the ceiling](decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling).
 
 ## Performance, the proof of concept headline
 
-The share of the reference bot's gain that the model also made.
+The model's expected output, pooled over every run on the seed set, change and no-change together.
 
-1. **Score every run on expected output.**
+1. **Score every run on expected output**, what its splits were worth at the true rates with the dice and the weather left out.
 2. **Add up** the model's expected output over all its runs.
-3. **Subtract** the no-update bot's total over the same runs. What is left is the model's gain.
-4. **Divide** by the reference bot's gain, worked out the same way.
+3. **Report it beside the four baselines' totals** on the same seeds.
+4. **Then give it as a proportion** of the perfect baseline's total.
 
 A made-up example:
 
-| | Total expected output | Gain over the no-update bot |
+| Player | Expected output | Proportion of perfect |
 |---|---|---|
-| No-update bot | 4,000 | 0 |
-| Model P | 4,372 | 372 |
-| Reference bot | 4,600 | 600 |
+| Uniform baseline | 236,000 | 0.82 |
+| Stale baseline | 274,000 | 0.95 |
+| Model P | 279,000 | 0.97 |
+| Bayesian baseline | 282,000 | 0.98 |
+| Perfect baseline | 288,000 | 1.00 |
 
-Model P's performance is 372 over 600, or 0.62. [measure-failure.md](measure-failure.md#a-profile-not-a-ranking) says where the other 0.38 went.
+Model P acted on the change, but later or less fully than was knowable. [measure-failure.md](measure-failure.md#a-profile-not-a-ranking) says where the 3,000 between it and the Bayesian baseline went.
 
-| Performance | Reading |
+| Where a model sits | Reading |
 |---|---|
-| 1 | As good as the reference bot |
-| Above 1 | Better than the reference bot |
-| 0 | No better than the no-update bot |
-| Below 0 | Doubt cost more than it gained |
+| At the perfect line | No split could have earned more |
+| Above the Bayesian line | It beat the best inferrer we built |
+| Between stale and Bayesian | It acted on the change, but later or less fully than was knowable |
+| Below the stale line | Its doubt cost more than it won |
 
 Every run adds what it won, so an early switch beats a late one and a timid switch earns less than a full one. There is no switch cut-off and no rule that throws out a run. See [Why performance is the proof of concept headline](decisions.md#why-performance-is-the-proof-of-concept-headline).
 
@@ -66,20 +70,20 @@ A seed is one fixed world: the dice, the weather, the round the change starts, t
 
 In the no-change run, the same unit sags on the same round the change would have started, then recovers on its own. We call this the yoked dip. For the first rounds the two runs look the same, so a model that moves on the dip has moved on bad luck.
 
-Its loss in the no-change run is subtracted inside the same ratio, which is how a false alarm costs through output. Performance splits over that denominator into the gain the change runs added and the loss the no-change run took away, and both are reported. See [Why the yoked dip](decisions.md#why-the-yoked-dip) and [Why one no-change run and a grid per seed](decisions.md#why-one-no-change-run-and-a-grid-per-seed).
+The no-change run's output sits in the same total, so a false alarm costs output. The total is also reported split by kind of run, so a reader can see whether a model lost in the change runs or the no-change run. See [Why the yoked dip](decisions.md#why-the-yoked-dip) and [Why one no-change run and a grid per seed](decisions.md#why-one-no-change-run-and-a-grid-per-seed).
 
 ## Performance is the arbiter
 
 Every other number answers to performance. Two rules follow.
 
-1. **Every setting must be worth catching.** The reference bot's gain over the no-update bot there, pooled over seeds, must beat a margin set in `params.yaml`, or [next step 1](../../TODO.md#next-steps) moves it. If updating doesn't pay even for the reference bot, staying put is right, and a model that stays has shown nothing.
-2. **Every [leak and reading](measure-failure.md) must predict performance.** Across bots built to be too jumpy, too cautious or too hedged, and then across models, a reading that doesn't track performance is dropped.
+1. **Every setting must be worth catching.** Pooled over seeds, the Bayesian baseline must beat the stale baseline there by a margin set in `params.yaml`, or [next step 1](../../TODO.md#next-steps) moves it. If updating doesn't pay even for the Bayesian baseline, staying put is right, and a model that stays has shown nothing.
+2. **Every [leak and reading](measure-failure.md) must predict performance.** Across baselines built to be too jumpy, too cautious or too hedged, and then across models, a reading that doesn't track performance is dropped.
 
 See [Why performance is the arbiter](decisions.md#why-performance-is-the-arbiter).
 
 ## Why performance can't be the number for ever
 
-Performance tops out at 1. Once a model matches the reference bot, the plot over releases goes flat. That is fine for a proof of concept, whose one job is to show that the measure separates models with usable error bars at a [cost we can carry](../spec/runs-and-cost.md). No model will be near 1 by then.
+Performance tops out at the perfect baseline. Once models get as close to it as inference allows, the plot over releases goes flat. That is fine for a proof of concept, whose one job is to show that the measure separates models with usable error bars at a [cost we can carry](../spec/runs-and-cost.md). No model will be that close by then.
 
 The full study needs a number that keeps moving as models improve. That is why there are two tiers. The game is the same in both, and only the number of runs, the kinds of change and the headline differ. See [Why two tiers](decisions.md#why-two-tiers).
 
@@ -87,11 +91,11 @@ The full study needs a number that keeps moving as models improve. That is why t
 
 The obvious second number is the faintest change a model acts on. A hearing test works that way: it quietens the beep until you stop hearing it, and reports the volume where you did. Make the fall in the unit's rate smaller and smaller, and find where the model stops catching it.
 
-It is the wrong test for us. A quieter change is also a smaller prize, so a model that ignores a change not worth catching is right to. And at faint changes the reference bot gains little, so performance there is a ratio of two small numbers and swings with the luck of the seeds. See [Why discernment is the full study headline](decisions.md#why-discernment-is-the-full-study-headline).
+It is the wrong test for us. A quieter change is also a smaller prize, so a model that ignores a change not worth catching is right to. And at faint changes the stale baseline earns nearly what the perfect one does, so there is little room between floor and ceiling and the luck of the seeds swamps it. See [Why discernment is the full study headline](decisions.md#why-discernment-is-the-full-study-headline).
 
 ## Speech in noise: keep the change loud, make each round say less
 
-Audiologists have a second test. Speech in noise keeps the words loud and raises the babble behind them, then reports the noise at which you still get half the words right. Discernment is that test. The change stays loud, each round gets noisier, and we find the noise at which the model still takes half the gain the reference bot takes.
+Audiologists have a second test. Speech in noise keeps the words loud and raises the babble behind them, then reports the noise at which you still get half the words right. Discernment is that test. The change stays loud, each round gets noisier, and we find the noise at which the model still gets half of the way from its floor to the perfect baseline.
 
 What makes a round noisier? Each unit's results in a round are a sample: so many bought, so many that paid. A smaller sample says less. So the dial is how much volume a round buys, which the project calls N.
 
@@ -103,11 +107,11 @@ Three other things could make a round harder to read, and each is held fixed wit
 |---|---|
 | A smaller fall | The prize shrinks with the signal, which is the hearing test's problem |
 | Longer weather memory, so bad patches last longer | It changes what bad luck means between settings. An edition setting, not the dial |
-| Fewer rounds | It tests speed, and the reference bot's own lag caps it |
+| Fewer rounds | It tests speed, and the Bayesian baseline's own lag caps it |
 
 ## Evidence a round, one axis for every edition
 
-N only means something inside one edition of the game. So each setting is published as evidence a round: how much one round's results shift the odds that a change has happened rather than ordinary weather, in bits. One bit doubles the odds, so a world at 0.2 bits a round takes about five rounds to double the odds that something has changed. The maths from N, the fall and the weather to evidence a round is written in [next step 1](../../TODO.md#next-steps) and checked with the bots.
+N only means something inside one edition of the game. So each setting is published as evidence a round: how much one round's results shift the odds that a change has happened rather than ordinary weather, in bits. One bit doubles the odds, so a world at 0.2 bits a round takes about five rounds to double the odds that something has changed. The maths from N, the fall and the weather to evidence a round is written in [next step 1](../../TODO.md#next-steps) and checked with the baselines.
 
 Most benchmarks are replaced when models saturate them: MMLU gave way to MMLU-Pro, and the plot over releases broke. METR's time horizon avoids that because tasks of every length sit on one axis. Evidence a round is ours. A harder edition, with a lower N or a longer weather memory, extends it to the left instead of starting a new chart.
 
@@ -118,11 +122,11 @@ Two rules keep the join honest, a check that psychometrics calls test equating:
 
 ## Discernment, the full study headline
 
-The faintest evidence a round at which the model still takes half the gain on offer. Smaller is better.
+The faintest evidence a round at which the model still gets half of the way from its floor to the perfect baseline. Smaller is better.
 
-1. **At each noise setting, pool the seeds.** The model's gain in the change runs minus its loss in the no-change runs, divided by the same for the reference bot. That is performance at that setting.
-2. **Fit a smooth S-shaped curve** of performance against evidence a round, and read off where it crosses a set level. Resampling the seeds gives the error bar.
-3. **Read it at two levels.** 50% is the curve's centre, so the most precise estimate, and the line tracked over releases. 80% is what a reader means by "profits from", with a wider bar, and is the quoted number. Whether the 80% bar is tight enough to lead is settled in [next step 2](../../TODO.md#next-steps) with the bots.
+1. **At each noise setting, pool the seeds.** Add the model's expected output over the change runs and the no-change runs, as a proportion of the perfect baseline's on the same runs. That is performance at that setting.
+2. **Fit a smooth S-shaped curve** of performance against evidence a round, with its lower end left free, and read off where it has risen a set share of the way from that fitted floor to 1. So no floor is chosen by hand. Fitting it is a judgement call, settled in [next step 2](../../TODO.md#next-steps). Resampling the seeds gives the error bar.
+3. **Read it at two levels.** 50% is the curve's centre, so the most precise estimate, and the line tracked over releases. 80% is what a reader means by "profits from", with a wider bar, and is the quoted number. Whether the 80% bar is tight enough to lead is settled in [next step 2](../../TODO.md#next-steps) with the baselines.
 
 | Reading | What it means |
 |---|---|
@@ -130,13 +134,13 @@ The faintest evidence a round at which the model still takes half the gain on of
 | Off the left end | At or above the level at every setting. The edition has saturated for this model, and the remedy is a harder edition |
 | Off the right end | Below the level at every setting |
 
-The reference bot scores 1 at every setting by definition, so it sits off the left end. The proof of concept's two change sizes are two points on the same axis, so nothing is thrown away when the full grid is run.
+The perfect baseline is 1 at every setting by definition. The Bayesian baseline gets a curve of its own on the chart, so a reader can see how far a model sits from what was knowable. The proof of concept's two change sizes are two points on the same axis, so nothing is thrown away when the full grid is run.
 
 Discernment says how much noise a model can profit through. It says nothing about when the model noticed. Where the output went is in [measure-failure.md](measure-failure.md).
 
 ## Catch rate, a backup
 
-Both headlines lean on the reference bot and on our simulation's true rates, so a flaw in either would move both. Three backups check them without the bot, and none is a score.
+Both headlines lean on the Bayesian and perfect baselines and on our simulation's true rates, so a flaw in any of them would move both. Three backups check them without those, and none is a score.
 
 - **Catch rate.** A change run is caught if the agent moves its largest share to the unit that rose before the last round, and its no-change run has no such switch. The noise at which half the runs are caught should rank models the same way as discernment.
 - **Sensitivity, d′.** A catch rate mixes how well the agent tells signal from noise with how readily it raises the alarm. Signal detection theory splits the two and calls the first d′. With one no-change run a seed it is a check, not a score.
@@ -166,5 +170,5 @@ A change has a size, its amplitude: how far the standing unit's rate falls, in p
 
 **Full study.** On each seed, one briefing, then a no-change run and a 12 point change run at each of five noise settings, since the no-change world gets noisier too. Extra runs go where a model starts to miss.
 
-Every run at either tier plays the same game, set out in [mechanics.md](../spec/mechanics.md): 40 rounds, a change that starts between round 3 and round 10 and ramps over about 15, a 200 round record written by the reference bot, the same dice and weather for every run on a seed, four public skins with private ones held back, and a sandboxed code tool.
+Every run at either tier plays the same game, set out in [mechanics.md](../spec/mechanics.md): 40 rounds, a change that starts between round 3 and round 10 and ramps over about 15, a 200 round record written by the Bayesian baseline, the same dice and weather for every run on a seed, four public skins with private ones held back, and a sandboxed code tool.
 
