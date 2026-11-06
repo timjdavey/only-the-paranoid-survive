@@ -21,8 +21,5 @@
 
 ## Extension: inertia
 
-A fixed budget is forgiving. A model that never moves still earns most of the output, so being late costs less than it cost Kodak. To amplify the lateness signal:
-
-- **Cap how far bets can move each round**, say 10 points. Moving takes time, so the agent has to decide early.
-- **Switched off by default.** It is a generator option, added once the [pilot](pilot.md) shows the base score is too flat to separate models.
-- **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
+- **A fixed budget is forgiving.** A model that never moves still earns most of the output, so being late costs less than it cost Kodak.
+- **A cap on how far bets can move each round** would amplify the lateness signal. It is switched on only if the [pilot](pilot.md#inertia) finds the base score too flat.

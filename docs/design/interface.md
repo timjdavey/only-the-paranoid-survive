@@ -15,19 +15,11 @@
 - **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record.
 - **This is the same shape Jev and Timestral get.** History in, bets out. See [below](#models-that-cannot-place-bets).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
+- **No scratchpad or calculator in the headline.** Whether they change play is a [pilot check](pilot.md#notepad-and-compute).
 
 | Tool | Takes | Returns |
 |---|---|---|
 | `submit(bets)` | Ten whole numbers that sum to 100 | The level of each channel it bet on this round and the output. A neutral error and a retry if the sum is off |
-
-## Pilot: notepad and compute
-
-A deployed agent would have a scratchpad and a calculator at the very least, so a bare harness may not be a fair test. The pilot is designed to check the impact of this.
-
-| Tool | What it does |
-|---|---|
-| `notes(text)` | Replaces a file the agent keeps between rounds. It comes back next round as a tool message, never as the agent's own words. Length is capped and logged |
-| `compute(code)` | Runs Python in a sandbox that sees the record as a file and nothing else. No network, no engine, no seeds |
 
 ## Models that cannot place bets
 
@@ -56,6 +48,3 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 | Three channels | Where to go is a coin flip, there is no room for a decoy, and calm saturates so it stops separating models |
 | A `read_record` tool | Lets a model never look, and then lazy and confident read the same. A default row count is a hidden choice about how far back it can see, which is the thing drift tests |
 | A rolling conversation | The agent's own reasoning piles up, and that is the one place a model will not question a claim ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Cost grows with the square of the game length |
-| Notes in the headline | Notes an agent wrote itself scored below the full history ([Liu](../prior/past-in-the-prompt.md#liu-et-al-2026-history-that-never-becomes-experience)), rewrites wipe detail ([ACE](../prior/past-in-the-prompt.md#ace-2025-notes-that-collapse-when-rewritten)) and progress summaries did not free the agent ([Fork-and-Flush](../prior/past-in-the-prompt.md#fork-and-flush-2026-a-fresh-session-on-old-work)). Parked in the pilot |
-| A `read_notes` tool | The notes are in the prompt |
-| Pasting data into `compute` | Retyping hundreds of rows measures tedium, not judgement. The sandbox gets the record as a file instead |
