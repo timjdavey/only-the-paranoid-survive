@@ -15,8 +15,6 @@ As agents take on longer jobs, the more likely they will face these situations. 
 
 ## Design
 
-See [requirements.md](docs/design/requirements.md) for full details.
-
 - The study is build around a simple cybernetics game engine.
 - That engine then has a set of _narrative skins_ around it. So that the model thinks it is a real situation and so is more likely to act accordingly. But also this helps with contamination, as we can publish the game engine but disguise the game skin.
 - We [baseline](docs/design/baselines.md) a models performance against various strategies. 
@@ -34,6 +32,3 @@ To complete
 To come.
 
 
-## Honest side quest
-
-This project isn't simply about getting the results. It is also a personal study in feeling toward what best practices exist when working with agents to build studies. This is why documents such as [TODO](TODO.md), [decisions.md](docs/design/decisions.md) and [requirements.md](docs/design/requirements.md) exist. They are a form of research harness - answering the question of what context, SKILLs, frameworks does an agent need to make good design decisions. Although ironically having structured documents like decisions.md is great for any human reviewing this study too.
