@@ -3,7 +3,7 @@
 ## How the agent plays
 
 - **Each round the agent splits a fixed budget across channels.** It returns shares that sum to 100, say A 70, B 20, C 10.
-- **The split stands until the agent changes it.** Each round it sees last round's split and either leaves it or edits it. "No change" is a valid answer, so we can count the rounds it left the plan alone.
+- **It returns a full split every round.** A split that does not sum to 100 gets a neutral error and a retry, so a bad call is never read as a decision. Rounds where the split matches the one before are counted afterwards as rounds it left the plan alone.
 - **The split is its belief.** A small share on a new channel is a look. A large share is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
 - **The record shows each channel's level every round**, not just total output. The agent reads it, and a forecaster can forecast it.
@@ -15,13 +15,12 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 
 | Model | How it plays |
 |---|---|
-| Classic LLM | Reads the record and last round's split, returns a split or "no change" |
+| Classic LLM | Reads the record, returns a split |
 | [Jev](https://docs.typesafe.ai/introduction) | Gets the record as state and one choice question, "which channel should the budget go on". Its probability map over channels is read as the split, normalised in our code |
 | [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A fixed rule in our code turns the forecast into a split |
 
 - **The forecast to split rule is the one the oracle uses** when given the true levels. Timestral is then scored purely on how well it predicts. Any other rule would bake our own doubt into its split.
 - **We score the output of the split, never the forecast.**
-- **"No change" only exists for LLMs.** Jev and Timestral produce a fresh split each round, so the count of untouched rounds is an LLM only diagnostic.
 - **Timestral never sees the narrative skin.** That makes it a floor for how much reading the situation helps.
 
 ## Rejected
