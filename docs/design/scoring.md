@@ -2,7 +2,7 @@
 
 ## How we score
 
-- **Each round the agent splits a fixed budget across channels**, see [mechanics](mechanics.md). Its split is its belief: a small share on a channel is a look, a large one is a switch.
+- **Each round the agent splits a fixed budget across channels**, see [interface](interface.md). Its split is its belief: a small share on a channel is a look, a large one is a switch.
 - **Each scenario scores output as a fraction of what an oracle that knows the shape would earn.** This sits between 0 and 1, strips out luck, and reads directly as the scenario's failure mode: the gap in calm is jumpiness, in shock overreaction, in switch underreaction.
 - **The headline is the geometric mean across [scenarios](scenarios.md).** A model must do well on every shape to score highly. One bad scenario drags the whole figure down.
 

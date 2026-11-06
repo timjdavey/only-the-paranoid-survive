@@ -1,4 +1,4 @@
-# Mechanics
+# Interface
 
 ## How the agent plays
 
