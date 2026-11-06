@@ -25,7 +25,7 @@ Allen Nie et al. "EVOLvE: Evaluating and Optimizing LLMs For In-Context Explorat
 
 Win rates in %. Finetuned Flash reached 65.6 and beat Pro. Gemma never settled on the best arm. Example runs helped Flash but hurt Pro.
 
-**What it means for us.** Even in a world that stays the same, models fall well short of a simple algorithm, which is why our bots are tuned before any model runs. A summary beats the raw log, which is the bet behind having the agent write its own notes at the briefing and defaulting `read_record` to the last 20 rounds. The example runs moved behaviour, which is why our record is written by a bot and its style is sized in the pilot.
+**What it means for us.** Even in a world that stays the same, models fall well short of a simple algorithm, which is why our baselines are tuned before any model runs. A summary beats the raw log, which is the bet behind having the agent write its own notes at the briefing and defaulting `read_record` to the last 20 rounds. The example runs moved behaviour, which is why our record is written by a baseline and its style is sized in the pilot.
 
 ## Wang, Ward and Zhang 2026: reversal learning
 
@@ -46,7 +46,7 @@ Haomiaomiao Wang, Tomás E. Ward and Lili Zhang. "Comparative reversal learning 
 - Every model stayed after a win over 93% of the time.
 - The authors find three causes of rigidity: DeepSeek barely learns from losses (learning rate 0.03), every model chooses far more deterministically than people, and GPT and Gemini push down the value of the option they didn't pick.
 - A random order of states made every model more rigid yet raised its total wins. Good payoffs can hide rigid behaviour.
-- They warn that Rescorla-Wagner fits "partially conflate incremental value updating with latent state inference and volatility sensitivity", which backs scoring choices against the reference bot rather than fitting learning rules.
+- They warn that Rescorla-Wagner fits "partially conflate incremental value updating with latent state inference and volatility sensitivity", which backs scoring choices against the Bayesian baseline rather than fitting learning rules.
 
 **Problems.** The random schedule changes which state comes next, not when, so it doesn't "increase volatility" as the abstract says. The human row comes from another study and matches neither schedule. The switch fires on the agent's own performance, so a slow agent also slows the world.
 
@@ -85,7 +85,7 @@ Rui Wang et al. "AdaExploreBench: Benchmarking LLM Agents for Proactive Explorat
 - Forcing the agent to probe did nothing.
 - The abstract implies GPT-6-Sol (61.9) is the best model, but its own table puts Gemini-3.8-Flash higher.
 
-**What it means for us.** It is the closest benchmark in shape. Calibrated accuracy runs from a floor to an oracle, as performance runs from the no-update bot to the reference bot. Swaps being noticed far more than reversals bears on the [later kinds of change](../design/future.md#how-the-world-changes), and forced probing doing nothing says experiments have to be the agent's own idea. But the oracle knows the true rule rather than seeing what the agent sees, feedback is exact, and false alarms aren't counted.
+**What it means for us.** It is the closest benchmark in shape. Calibrated accuracy runs from a floor to an oracle, as our chart runs from the stale baseline to the perfect baseline. Swaps being noticed far more than reversals bears on the [later kinds of change](../design/future.md#how-the-world-changes), and forced probing doing nothing says experiments have to be the agent's own idea. Their oracle knows the true rule, like our perfect baseline, but nothing in it plays our Bayesian baseline's part of seeing only what the agent sees. Feedback is exact, and false alarms aren't counted.
 
 ## STOCKTAKE 2026: a fair oracle for supply chains
 
@@ -114,7 +114,7 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 - Knowing didn't mean acting. Even after naming the problem, an agent ran out of stock in a third or more of those weeks.
 - Failures ran both ways. Claude froze through a port jam, GPT-5.4 never locked in freight in 87% of freight spikes, and DeepSeek flailed. The two worst models overbought protection against problems that were real.
 
-**What it means for us.** It is the closest study in method: their oracle is our reference bot, their 0 to 1 skill is the shape of performance, and their event tape is our shared luck. Its week-long false alarm is the nearest thing in the literature to noise with a run in it, and the shape of our yoked dip, yet calm-week overreactions "are excluded from every reported metric by construction", so false alarms go uncounted. Their split between knowing and acting is what our [doubt question](../design/future.md#how-the-agent-can-act) would measure, and their supplier story is close to our planned second game.
+**What it means for us.** It is the closest study in method: their oracle is our Bayesian baseline, their 0 to 1 skill is the shape of our proportion of the perfect baseline, and their event tape is our shared luck. Its week-long false alarm is the nearest thing in the literature to noise with a run in it, and the shape of our yoked dip, yet calm-week overreactions "are excluded from every reported metric by construction", so false alarms go uncounted. Their split between knowing and acting is what our [doubt question](../design/future.md#how-the-agent-can-act) would measure, and their supplier story is close to our planned second game.
 
 ## Gupta et al. 2025: coin flips and Bayes
 
@@ -216,7 +216,7 @@ Shocked customers only, the last ten rounds against rounds 26 to 30.
 
 **Problems.** Recovery speed is stated three ways: "10–15 rounds for the best LLMs" in the text and Figure 6 caption, "5–10 rounds" a paragraph later, while the table shows only two of seven models back at their peak. No result is reported for the twelve unshocked customers. The introduction credits Opus 4.6 at its highest effort with $2.22 per win, but its table row says $2.39.
 
-**What it means for us.** The unshocked customers sit in the same run as the shocked ones, so they are not a matched [no-change copy](../design/decisions.md#why-the-yoked-dip), and false alarms on them go uncounted. The lock-in notes are the risk in our `write_notes`, and "revision, not detection" is why we [split doubting from switching](../design/decisions.md#why-split-doubting-from-switching). A swap makes the old offer lose outright, unlike our standing split. Thompson sampling beating half the models on profit, yet recovering slowly, is why [our bots](../design/decisions.md#why-the-bots-set-the-difficulty) are tuned before they set anything.
+**What it means for us.** The unshocked customers sit in the same run as the shocked ones, so they are not a matched [no-change copy](../design/decisions.md#why-the-yoked-dip), and false alarms on them go uncounted. The lock-in notes are the risk in our `write_notes`, and "revision, not detection" is why we [split doubting from switching](../design/decisions.md#why-split-doubting-from-switching). A swap makes the old offer lose outright, unlike our standing split. Thompson sampling beating half the models on profit, yet recovering slowly, is why [our baselines](../design/decisions.md#why-the-baselines-set-the-difficulty) are tuned before they set anything.
 
 ## CoffeeBench (Sugiura et al. 2026): a coffee supply chain with a demand surge
 
@@ -251,7 +251,7 @@ Issa Sugiura, Daichi Hattori, Kazuo Araragi, Keita Ogawa, Shota Onose, Taro Maki
 
 **Problems.** The abstract says the other firms are "fixed reference agents", but they are LLM agents. Three runs, with error bars often as wide as the means. The surge is never analysed.
 
-**What it means for us.** The surge is announced and passes, so it tests planning for a known event, not telling a passing shock from a lasting one. It gives no evidence on when switching is the mistake. Idle drift is coherent reasoning with no action. In our game that would show as holding the standing split, which is the no-update bot, so it is scored rather than hidden. A supply chain is a candidate [second game](../design/future.md#whether-it-holds-outside-our-game), but this one has no no-change copy or oracle.
+**What it means for us.** The surge is announced and passes, so it tests planning for a known event, not telling a passing shock from a lasting one. It gives no evidence on when switching is the mistake. Idle drift is coherent reasoning with no action. In our game that would show as holding the standing split, which is close to the stale baseline, so it is scored rather than hidden. A supply chain is a candidate [second game](../design/future.md#whether-it-holds-outside-our-game), but this one has no no-change copy or oracle.
 
 ## Allen and McDonald 2026: a strategy class simulation
 
@@ -310,7 +310,7 @@ Percent of all actions.
 
 **Problems.** The share of correct reasoning is given as 87% in the text, 89% in the appendix and 90.3% by the table's top row. The text's "58% greedy actions among correct rationales" is the share of all actions. Among correct ones it is 58.1 of 90.3, or 64%, the introduction's figure.
 
-**What it means for us.** Writing the right rule and not following it 64% of the time is the gap that [splitting doubting from switching](../design/decisions.md#why-split-doubting-from-switching), and later the [doubt question](../design/future.md#how-the-agent-can-act), would show. Frequency bias predicts that a record full of the standing split pulls a small model to repeat it, for reasons unrelated to doubt, which is one reason the [record's style is a factor](../design/decisions.md#why-the-record-comes-from-a-bot-and-its-style-is-a-factor). Trying every arm once fixing most of the gap is the yoked dip's point that a look settles it.
+**What it means for us.** Writing the right rule and not following it 64% of the time is the gap that [splitting doubting from switching](../design/decisions.md#why-split-doubting-from-switching), and later the [doubt question](../design/future.md#how-the-agent-can-act), would show. Frequency bias predicts that a record full of the standing split pulls a small model to repeat it, for reasons unrelated to doubt, which is one reason the [record's style is a factor](../design/decisions.md#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor). Trying every arm once fixing most of the gap is the yoked dip's point that a look settles it.
 
 ## Horowitz and Plonsky 2025: a pull towards the latest result
 

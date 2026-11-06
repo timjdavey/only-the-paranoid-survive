@@ -31,7 +31,7 @@
 | Prompt caching | On |
 | Typical prices | $4 in, $20 out, per million tokens |
 | Top prices | $10 in, $50 out, per million tokens |
-| Bots | Free: no API calls |
+| Baselines | Free: no API calls |
 
 ## Cost per model
 
@@ -60,4 +60,4 @@ At one reasoning setting and one kind of change.
 | 20 seeds, proof of concept | Gives a standard error near 0.05 on performance. [Why performance is the proof of concept headline](../design/decisions.md#why-performance-is-the-proof-of-concept-headline) |
 | 20 no-change runs, not 10 | Halves the error bar on the [doubt tax and the false alarm leak](../design/measure-failure.md#where-the-output-went) |
 | New seeds, not repeats of one | A new seed is a new item as well as a new sample, at the same price. [Why more seeds, not repeats](../design/decisions.md#why-more-seeds-not-repeats) |
-| About 30 seeds, full study | Enough to fit discernment's curve. Checked on bots in [next step 2](../../TODO.md#next-steps) |
+| About 30 seeds, full study | Enough to fit discernment's curve. Checked on baselines in [next step 2](../../TODO.md#next-steps) |

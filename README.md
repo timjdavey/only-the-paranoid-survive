@@ -20,7 +20,7 @@ As agents take on longer jobs, the more likely the world will change under them.
 - **Weather like periods.** The bets are not purely stochastic. Good and bad stretches last a while and then fade, where options rise and fall together to simulate real systems. But stable enough to feel like a typical static "game" which can be understood.
 - **A quiet change.** Many rounds in, we change a key dynamic of the game. The change is like a boiling frog, where a previous plan will only fail slowly.
 - **Baselined with no change.** Every game is replayed on the same initial setup but now with no fundamental change. So we can measure if any of the models are too jumpy.
-- **Baselined against bots.** Every model is scored within the bounds of a perfect player, who knows the exact system and a dump player who acts with only a simple strategy.
+- **Baselined against scripted players.** Every model is scored in game output against four [baselines](docs/design/baselines.md): a perfect one, who is told the exact system, a Bayesian one, who sees only what the agent sees, and stale and uniform ones, who act with only a simple strategy.
 
 The full design is in [docs/design](docs/design/README.md), and the game rules and code layout are in [docs/spec](docs/spec/README.md).
 Also see the [glossary](docs/glossary.md) for full outline of terms.
@@ -29,16 +29,16 @@ Also see the [glossary](docs/glossary.md) for full outline of terms.
 
 We've specifically designed the study to focus on the following:
 
-1. **A number which can be tracked across releases.** The full study's main score, discernment, measures the faintest change a model acts on, which is scored against a perfect bot. Once a model matches that bot, the parameters of the game are too easy, so the change becomes more subtle. Similar to the hearing aid analogy.
+1. **A number which can be tracked across releases.** The full study's main score, discernment, measures the faintest change a model acts on, which is scored against the perfect baseline. Once models get as close to it as inference allows, the parameters of the game are too easy, so the change becomes more subtle. Similar to the hearing aid analogy.
 2. **Paranoia isn't enough.** Most tests only measure being blind to change. However, being too jumpy is also a failure mode. So we purposefully have a setup to measure the false alarms rate.
 3. **The changes are masked.** In most studies which measure change the dynamic shift is abrupt telegraphing the change instantly and clearly. Meaning you're testing a models basic bayesian statistical capabilities, rather than judgement. Like the real world, it has to navigate a system without understanding the exact dynamics inside the black box. With unlikely streaks blurring real change.
-4. **Different kinds of change, not just different sizes.** Under the hood the world is built from a few parts, and we change only one of them. The first version of the benchmark, the proof of concept, changes only how well one option pays. The full study also changes how options affect each other, how fast extra spend stops paying, and which option gets the credit for a result. A bot that watches each option on its own can't spot these - it needs to investigate holistically.
+4. **Different kinds of change, not just different sizes.** Under the hood the world is built from a few parts, and we change only one of them. The first version of the benchmark, the proof of concept, changes only how well one option pays. The full study also changes how options affect each other, how fast extra spend stops paying, and which option gets the credit for a result. A player that watches each option on its own can't spot these - it needs to investigate holistically.
 
 See [prior](docs/prior/README.md) for more details. 
 
 ## Reported
 
-- **Performance**, the main score of the proof of concept. It measures how well the agent did against a perfect bot that is omniscient. This means it covers both noticing a change and appropriately acting on that change. It's the practical measure you want when trusting a model to complete economically valuable work.
+- **Performance**, the main score of the proof of concept. It measures the agent's output in the game against four baselines, the perfect one being a true ceiling that no model can beat. This means it covers both noticing a change and appropriately acting on that change. It's the practical measure you want when trusting a model to complete economically valuable work.
 - **Discernment**, the main score of the full study. Surgically measures the main aim of this benchmark, of identifying changes in dynamics.
 
 Above are the headline figures we care about specifically for this task. But there are other skills compound into making these possible which we aim to measure independently. See [measure-headline.md](docs/design/measure-headline.md) for the headlines, and [measure-failure.md](docs/design/measure-failure.md) for where a model loses output.

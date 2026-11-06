@@ -46,7 +46,7 @@ The world is a small system in four blocks. Each block is one file section, and 
 | Coupling | How units pull on each other. Identity in the proof of concept | Two units start to compete or to feed each other | Full study rung |
 | Observation | Saturation, the threshold, and the count that turns volume into yield | Returns flatten, or yield is credited to the wrong unit | Full study rung |
 
-The family is kept small on purpose: a linear Gaussian state with a regime switch. That is a family a Kalman-style filter with a changepoint belief can track, which is what the reference bot is. See [Why the generator is a state-space system](../design/decisions.md#why-the-generator-is-a-state-space-system).
+The family is kept small on purpose: a linear Gaussian state with a regime switch. That is a family a Kalman-style filter with a changepoint belief can track, which is what the Bayesian baseline is. See [Why the generator is a state-space system](../design/decisions.md#why-the-generator-is-a-state-space-system).
 
 ## Weather
 
@@ -125,11 +125,11 @@ Each round scores the output the split would win on average at the true levels, 
 
 ## The record and the briefing
 
-The record is 200 rounds played by the reference bot, damped so it reads as a steady operator who moved a few times. Each row holds the round, the shares, volume and yield per unit, and output.
+The record is 200 rounds played by the Bayesian baseline, damped so it reads as a steady operator who moved a few times. Each row holds the round, the shares, volume and yield per unit, and output.
 
 - **It holds one or two resolved changes.** The generator put them in, and the previous operator caught each one and moved budget. The last sits well back, so the standing split has a long run of success behind it.
 - **It holds several dips** the previous operator rightly sat through.
-- **Its style is a factor in the pilot.** A jittery record, from the undamped bot, experiments more. The pilot runs both on the same seeds and the spread is reported, then one is frozen. See [Why the record comes from a bot](../design/decisions.md#why-the-record-comes-from-a-bot-and-its-style-is-a-factor).
+- **Its style is a factor in the pilot.** A jittery record, from the undamped Bayesian baseline, experiments more. The pilot runs both on the same seeds and the spread is reported, then one is frozen. See [Why the record comes from a baseline](../design/decisions.md#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor).
 - **One numbering.** The record's rounds are −199 to 0 and the live rounds 1 to 40. Every round number elsewhere in the docs is a live round.
 
 The briefing is one call per seed, before round 1. The agent gets `read_record`, `compute` and `write_notes`, and a prompt that says only: you are taking over this account at round 1, read the record and write your notes on how you will split the budget and why. The notes go into the live session as the agent's own, and the change run and the no-change run on that seed share them. See [Why the agent writes its own notes](../design/decisions.md#why-the-agent-writes-its-own-notes).
@@ -158,7 +158,7 @@ The live prompt says only: here are your notes, maximise output over the 40 roun
 | Setting | Value |
 |---|---|
 | Rounds played | 40 |
-| Record | 200 rounds by the damped reference bot, one or two resolved changes, about three dips |
+| Record | 200 rounds by the damped Bayesian baseline, one or two resolved changes, about three dips |
 | History style | Steady in the suite. Steady and jittery in the pilot |
 | Units | 10: five kinds by two sides |
 | `volume_per_budget`, N | 150, tuned in [next step 1](../../TODO.md#next-steps) |

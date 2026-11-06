@@ -11,7 +11,7 @@ In brief, the chosen game: each round the agent splits a fixed budget across ten
 3. **A no-change run**: every game is also played on the same luck with nothing changed, and holds a dip that starts like the change and then recovers, to tempt a false alarm.
 4. **Graded change sizes**, from loud to faint.
 5. **Every move a logged action**, so doubt is read from what the agent does.
-6. **A reference bot we can build**: a scripted player that learns from the same rounds as the agent and values information.
+6. **A Bayesian baseline we can build**: a scripted player that learns from the same rounds as the agent and values information.
 7. **No hint of change** in the prompt or the story.
 
 ## Why the coin flip game was dropped
@@ -40,7 +40,7 @@ Power wasn't the only problem:
 |---|---|---|---|---|
 | **Budget split** | Shares of a fixed budget across ten units | Yield per funded unit | A share above the threshold on a unit the standing split leaves out | A trickle may look cheap |
 | Inventory ordering | Units to stock each week, given a forecast | Sales, capped at stock | Stock more than the forecast | Demand above stock is never seen |
-| Pricing by segment | A price for each segment | Sales at that price | Try another price | A curve, not a level, so a hard reference bot |
+| Pricing by segment | A price for each segment | Sales at that price | Try another price | A curve, not a level, so a hard Bayesian baseline |
 | Supplier split | Orders split across suppliers, with a fee to move | Defects per supplier | A small order elsewhere | Tests lock-in as well |
 | Coin flip with batches | One option and a stake | Wins in a batch of flips | A small stake off the standing option | Kelly and ruin stay |
 
@@ -48,11 +48,11 @@ Power wasn't the only problem:
 
 **Inventory ordering on a demand forecast.** Familiar, but when demand beats stock the agent sees only that it sold out. Evidence is cut off exactly when the world gets better. Show full demand instead and every model sees the same evidence whatever it does, so there is nothing to test and the split between looking and committing, which the traits lean on, is gone.
 
-**Pricing by segment.** Close to real work, but the change moves a demand curve rather than a level, so the reference bot is much harder to write and check. Models also reason about price response less well than about rates, and on a continuous price it is hard to say which round counts as the switch.
+**Pricing by segment.** Close to real work, but the change moves a demand curve rather than a level, so the Bayesian baseline is much harder to write and check. Models also reason about price response less well than about rates, and on a continuous price it is hard to say which round counts as the switch.
 
-**Supplier split with switching costs.** A good story for lock-in, which the game leaves out on purpose ([Why no lock-in](../design/decisions.md#why-no-lock-in)). A fee mixes the price of switching into every trait, and it turns the reference bot into a planning problem over future fees.
+**Supplier split with switching costs.** A good story for lock-in, which the game leaves out on purpose ([Why no lock-in](../design/decisions.md#why-no-lock-in)). A fee mixes the price of switching into every trait, and it turns the Bayesian baseline into a planning problem over future fees.
 
-**The coin flip game repaired with batches.** The smallest change. It fixes power, but a test and a hedge still need stake cut-offs the agent never knew about, and it keeps Kelly and a cap against ruin. It stays the fallback if the reference bot for the budget split proves too hard to build.
+**The coin flip game repaired with batches.** The smallest change. It fixes power, but a test and a hedge still need stake cut-offs the agent never knew about, and it keeps Kelly and a cap against ruin. It stays the fallback if the Bayesian baseline for the budget split proves too hard to build.
 
 Pricing and the supplier split are candidates for a second game, once the proof of concept shows the core measure works. See [Future work](../design/future.md).
 
@@ -69,7 +69,7 @@ The budget split's one weakness was that a 1% trickle on every unit watched the 
 
 - **The threshold.** A share under 3% buys nothing and reports nothing, and the agent is told so. The standing split funds four units, so every other unit is dark until the agent pays to look. The unit that rises sits under the threshold at the standing split, so the rise is never heard for free. See [Why attention is scarce](../design/decisions.md#why-attention-is-scarce).
 - **Precision scales with spend above it.** At N = 150, 3% buys 6 of volume a round and 25% buys 43. A look at the threshold says something moved within some rounds. Telling whether C0 now beats B0 by 3 points takes a real share and real rounds.
-- **The reference bot sets the right amount of looking**, so a model that looks more pays for it as a gap.
+- **The Bayesian baseline sets the right amount of looking**, so a model that looks more pays for it as a gap.
 - **The no-change run charges for it**, in output forgone, and its yoked dip tempts exactly the look the change run rewards.
 - **The table of rounds to 3 to 1 odds**, by share and amplitude, is produced in [next step 1](../../TODO.md#next-steps) from the generator itself, with weather in.
 

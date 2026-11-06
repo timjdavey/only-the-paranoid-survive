@@ -1,6 +1,6 @@
-# People, and the reference bot
+# People, and the Bayesian baseline
 
-Seven studies of people, and one of rats, show the effects we look for in LLMs. Three methods papers give us the [reference bot](../design/decisions.md#why-two-bots-bound-the-game).
+Seven studies of people, and one of rats, show the effects we look for in LLMs. Three methods papers give us the [Bayesian baseline](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling).
 
 ## Behrens et al. 2007: people learn faster when the world is volatile
 
@@ -22,7 +22,7 @@ Behrens et al. "Learning the value of information in an uncertain world." Nature
 - Volatility was tracked in the anterior cingulate cortex. People with a stronger signal there had higher learning rates (r² = 0.27).
 - The effect is weaker than the headline. In the fMRI experiment it only "survived as a trend", and a later reanalysis in PLOS Computational Biology found it significant only under some models (t(34) ≈ 2.1, p ≈ 0.04).
 
-**What it means for us.** This is the human version of [complacency as a parameter](../design/decisions.md#complacency-as-a-parameter-not-a-history): does what you have seen of change move how fast you learn? It also shows a learner that tracks how often the world changes can match people, which is the job of our reference bot's hazard. "Learn faster" means a higher learning rate, not better scores.
+**What it means for us.** This is the human version of [complacency as a parameter](../design/decisions.md#complacency-as-a-parameter-not-a-history): does what you have seen of change move how fast you learn? It also shows a learner that tracks how often the world changes can match people, which is the job of our Bayesian baseline's hazard. "Learn faster" means a higher learning rate, not better scores.
 
 ## Adams and MacKay 2007: Bayesian online change point detection
 
@@ -32,10 +32,10 @@ Ryan Prescott Adams and David J. C. MacKay. "Bayesian Online Changepoint Detecti
 
 **How it works.** At each step it keeps a probability for every run length, the number of turns since the last change. Each turn a run grows by one, or resets to zero with chance H, the hazard. Runs whose data predicted the next point well gain weight. The hazard is fixed by hand in every example, and results are shown as figures, with no scores.
 
-**What it means for us.** This is the core of our reference bot. The bot runs it on each unit's level, with a dip as a second state, and the chance the notes have gone stale is the weight on runs that began after the briefing. Three catches:
+**What it means for us.** This is the core of our Bayesian baseline. It runs this on each unit's level, with a dip as a second state, and the chance the notes have gone stale is the weight on runs that began after the briefing. Three catches:
 
-- **It doesn't know which way a change goes.** It counts a rise as a change just as it counts a fall. That suits C0, which rises, but the bot also spends belief on rises the standing units never make.
-- **It assumes changes arrive at random** at a constant rate, while our runs have exactly one change or none. The bot is exact under its own model, not under how we build the runs.
+- **It doesn't know which way a change goes.** It counts a rise as a change just as it counts a fall. That suits C0, which rises, but the baseline also spends belief on rises the standing units never make.
+- **It assumes changes arrive at random** at a constant rate, while our runs have exactly one change or none. The baseline is exact under its own model, not under how we build the runs.
 - **It assumes jumps.** Our change is a ramp over 15 rounds, so early in the ramp no single run length fits well. This mirrors Wilson's point below about Behrens, who assumed drift where the task jumped.
 
 ## Wilson, Nassar and Gold 2010: learning the hazard rate
@@ -52,7 +52,7 @@ Robert C. Wilson, Matthew R. Nassar and Joshua I. Gold. "Bayesian Online Learnin
 
 They also show Behrens's learner is not the true ideal observer, because it assumes slow drift where the task had sudden jumps.
 
-**What it means for us.** A long past lowering the hazard is half of why complacency should rise at all. With a hazard fixed in advance, a longer record would only sharpen the bot's view of the old levels. So the reference bot counts resolved changes over the record (section 3.1) and tracks run length over the live rounds (section 3.2), as [Why two bots bound the game](../design/decisions.md#why-two-bots-bound-the-game) sets out.
+**What it means for us.** A long past lowering the hazard is half of why complacency should rise at all. With a hazard fixed in advance, a longer record would only sharpen the baseline's view of the old levels. So the Bayesian baseline counts resolved changes over the record (section 3.1) and tracks run length over the live rounds (section 3.2), as [Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling) sets out.
 
 ## Mellor and Shapiro 2013: Thompson sampling with a change detector
 
@@ -82,12 +82,12 @@ Joseph Mellor and Jonathan Shapiro. "Thompson Sampling in Switching Environments
 - On exchange rates every CTS version made about 350 to 380 thousand errors, against about 610 for UCB and DiscountedUCB and 623 for random (Table 6). On Yahoo! clicks the best, Global-CTS2, scored 0.443 against 0.526 for UCB, with error bars of 0.03 to 0.04 (Table 5).
 - Nothing proves it works. The authors say theory is still needed.
 
-**What it means for us.** This is the published form of our reference bot ([Why two bots bound the game](../design/decisions.md#why-two-bots-bound-the-game)): sample a run length, sample the levels, act on the sample. An arm left alone grows more uncertain (Section 6), so it sometimes samples high and gets a look. That is the property we rely on. Four gaps are ours to close:
+**What it means for us.** This is the published form of our Bayesian baseline ([Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling)): sample a run length, sample the levels, act on the sample. An arm left alone grows more uncertain (Section 6), so it sometimes samples high and gets a look. That is the property we rely on. Four gaps are ours to close:
 
-- **It pulls one arm.** Our bot turns each sample into a split under saturation and the threshold. Nothing here tests that step.
-- **Its noise is fresh and its changes jump.** Our weather has memory and our change is a ramp. The drift world in Table 3 is the nearest test, and the bot still won there.
+- **It pulls one arm.** Our baseline turns each sample into a split under saturation and the threshold. Nothing here tests that step.
+- **Its noise is fresh and its changes jump.** Our weather has memory and our change is a ramp. The drift world in Table 3 is the nearest test, and their method still won there.
 - **Learning a rate per arm was costly.** One unit changing is the per arm case. That backs a pre-registered hazard prior counted across the suite over a hazard learnt per unit.
-- **Don't copy the "2" trick.** It helped in the challenge, but an arm left alone stops growing uncertain. C0 rises while unfunded, so that bot might never look at it.
+- **Don't copy the "2" trick.** It helped in the challenge, but an arm left alone stops growing uncertain. C0 rises while unfunded, so that variant might never look at it.
 
 ## Bleser et al. 2026: true and false beliefs about volatility
 
@@ -174,9 +174,9 @@ Matthew R. Nassar, Robert C. Wilson, Benjamin Heasly and Joshua I. Gold. "An App
 - **The trade-off.** People with higher hazards did better in the 5 trials after a change (r = −0.43, p = 0.02) and worse from the sixth trial on (r = 0.51, p < 0.01) (Fig. 10).
 - The one-parameter learner matches the shape but overreacts. People reacted to changes less than it did. Adding a weight that discounts surprise, or a belief that the mean drifts, fitted better for 30 of 30 people. With the weight, every person fell between a fixed learning rate and the reduced Bayesian learner (Fig. 11).
 
-**What it means for us.** This is a ready way to build the noisy bots in [next step 2](../../TODO.md#next-steps). Instead of random delay, a Nassar bot has dials with a human meaning:
+**What it means for us.** This is a ready way to build the noisy Bayesian baselines in [next step 2](../../TODO.md#next-steps). Instead of random delay, a Nassar baseline has dials with a human meaning:
 
-- **Hazard high or low** gives the jumpy and the cautious bot. Fig. 10 is the trade that caution and paranoia measure: quick after a change, noisy when nothing has changed, or the reverse.
+- **Hazard high or low** gives the jumpy and the cautious baseline. Fig. 10 is the trade that caution and paranoia measure: quick after a change, noisy when nothing has changed, or the reverse.
 - **Discounting surprise** stands in for a model that notices too little.
 - **A belief in drift** suits our ramp better than a pure jump detector.
 
@@ -211,8 +211,8 @@ C. R. Gallistel, Monika Krishan, Ye Liu, Reilly Miller and Peter E. Latham. "The
 
 - **[Steadiness](../design/measure-failure.md#diagnostics) should split two kinds of reversal.** Taking back a change call in a no-change run corrects a false alarm. Doing so in a change run gives up a true call. Gallistel's button separates them, and so should we.
 - **A graded dial doesn't give graded moves.** [Why a budget split](../design/decisions.md#why-a-budget-split) chose the split so the best play moves smoothly with belief. People with a free slider still stepped. So an agent may hold its split for many rounds and then move it all at once. Read first doubt from experiments, not from the size of a move.
-- **A third kind of noisy bot.** "If it ain't broke, don't fix it" with two thresholds is a cautious or jumpy bot for [next step 2](../../TODO.md#next-steps), beside Nassar's dials.
-- **Complacency in one model.** A long stretch since the last change raises the prior odds that one has happened. A long calm record lowers the learnt change rate. Which wins is the question in [Why two bots bound the game](../design/decisions.md#why-two-bots-bound-the-game).
+- **A third kind of noisy baseline.** "If it ain't broke, don't fix it" with two thresholds is a cautious or jumpy baseline for [next step 2](../../TODO.md#next-steps), beside Nassar's dials.
+- **Complacency in one model.** A long stretch since the last change raises the prior odds that one has happened. A long calm record lowers the learnt change rate. Which wins is the question in [Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling).
 
 Three catches. Ten people, told changes would happen. The change is a jump: under smooth change the pattern is only simulated (Fig. 19), and the authors call testing it "important". And the model is disputed. Forsgren, Juslin and van den Berg 2023 (Psychological Review 130(5): 1383 to 1400, [doi:10.1037/rev0000410](https://doi.org/10.1037/rev0000410), abstract read) fit the same patterns better with a delta rule for the slider and an evidence counter for change calls. The data stand. Gallistel's claim that no trial-by-trial rule can produce them doesn't.
 
