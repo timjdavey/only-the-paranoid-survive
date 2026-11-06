@@ -60,7 +60,7 @@ Each line ends with its status. *Met* means a decision meets it. *Open* means it
 
 ### The suite
 
-- **Cheap enough to run every new model on release.** The budget and the current estimate are in [What it costs](measure-headline.md#what-it-costs). *Open.* The estimate is above the budget.
+- **Cheap enough to run every new model on release.** The budget and the current estimate are in [runs-and-cost.md](../runs-and-cost.md#cost-per-model). *Open.* The estimate is above the budget.
 - **Error bars that split two frontier models at that budget.** A score whose bars overlap for every pair can't be plotted over time. *Unmeasured.*
 - **It can get harder on the same scale.** When models reach the ceiling, a harder edition exists and its scores sit on the same axis. See [Why discernment is the full study headline](decisions.md#why-discernment-is-the-full-study-headline). *Open.*
 - **The story must not move the score much, and we measure how much it does.** The same game in more than one dress, with the spread reported. See [Why four skins over one interface](decisions.md#why-four-skins-over-one-interface). *Unmeasured.*

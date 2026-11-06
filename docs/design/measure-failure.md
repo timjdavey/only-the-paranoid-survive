@@ -6,7 +6,7 @@
 
 ## In brief
 
-Each model plays the game on 20 seeds. A seed fixes one setup. It sets the dice and the weather, the record the model reads before it starts, and the rounds on which the change and the dip begin. On each seed the model plays one run where nothing changes, and runs where one unit quietly stops paying as well and a unit the model has never funded starts to pay better. We call these the no-change run and the change runs.
+Each model plays the game on a set of seeds, counted in [runs-and-cost.md](../runs-and-cost.md). A seed fixes one setup. It sets the dice and the weather, the record the model reads before it starts, and the rounds on which the change and the dip begin. On each seed the model plays one run where nothing changes, and runs where one unit quietly stops paying as well and a unit the model has never funded starts to pay better. We call these the no-change run and the change runs.
 
 The no-change run holds a trap. On the same round and the same unit as the change, it has a dip, a fall that recovers on its own after a few rounds. So for the first rounds the two runs look the same, and a model cannot tell them apart until the evidence builds.
 

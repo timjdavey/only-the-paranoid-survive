@@ -287,7 +287,7 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | **From outside: nothing the agent does moves the levels** ✓ | |
 
 - **Why a reflexive change tempts.** It is more realistic. SEO, the Phillips curve and a copied trading edge all wore out because people leaned on them, and Grove's memory business drew rivals because it paid.
-- **Why it waits.** It would cost only $30 to $45 more a model, as one more run per seed. The real cost falls on the measure.
+- **Why it waits.** It would cost only $60 to $90 more a model, as one more run per seed ([runs-and-cost.md](../runs-and-cost.md#cost-per-model)). The real cost falls on the measure.
 
 | What fails | How |
 |---|---|
@@ -404,11 +404,11 @@ If a lucky no-update bot wins more real output than an unlucky reference bot on 
 | Headline | Performance, pooled, gain and loss split | Discernment: the threshold from a fitted curve |
 | Grid per seed | One no-change run and two amplitudes | One no-change run and five amplitudes |
 | Kind of change | Level | Level, then coupling, gain and observation |
-| Seeds | 20 | About 30, with extra runs where a model starts to miss |
-| Runs a model | 60 and 20 briefings, about $100 at the target | About 180 at one reasoning setting |
 | Reasoning | One setting | A sweep |
 | Models | Two in the pilot, then each on release | Every model on release, older ones back-filled |
 | Realism | The skin and history spreads, deciding pooling | The real-task check as well |
+
+Seed counts, run totals and cost are in [runs-and-cost.md](../runs-and-cost.md).
 
 - **The proof of concept has to show one thing**: that the measure separates models with usable error bars. One continuous number does that. A threshold does not, until the grid exists.
 - **Nothing is thrown away.** The two amplitudes are points on the full study's curve, in the same unit against the same bot.
@@ -738,7 +738,6 @@ There are three ways to fake it, and each defence below closes one:
 |---|---|---|
 | Grid | 12 points, and 5 or 8 | 3, 5, 8, 12 and 15 |
 | Runs per seed | 3, and one briefing | 6, and one briefing |
-| Seeds | 20 | About 30 |
 
 - **The proof of concept needs one loud and one faint amplitude**, enough to show that performance separates models and that the faint change costs them. The 3 point amplitude is left out because it has the smallest denominator and is the likeliest to fail the worth-catching rule.
 - **It keeps cost down.** Each run added to a seed costs $60 to $90 a model across 20 seeds, at the thinking we now expect. Spending the proof of concept's runs on 20 seeds rather than five amplitudes doubles the no-change runs, which is where paranoia's error bar comes from.

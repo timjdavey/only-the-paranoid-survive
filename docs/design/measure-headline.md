@@ -87,7 +87,7 @@ See [Why performance is the arbiter](decisions.md#why-performance-is-the-arbiter
 
 ## Why performance can't be the number for ever
 
-Performance tops out at 1. Once a model matches the reference bot, the plot over releases goes flat. That is fine for a proof of concept, whose one job is to show that the measure separates models with usable error bars at about $100 a model. No model will be near 1 by then.
+Performance tops out at 1. Once a model matches the reference bot, the plot over releases goes flat. That is fine for a proof of concept, whose one job is to show that the measure separates models with usable error bars at a [cost we can carry](../runs-and-cost.md). No model will be near 1 by then.
 
 The full study needs a number that keeps moving as models improve. That is why there are two tiers. The game is the same in both, and only the number of runs, the kinds of change and the headline differ. See [Why two tiers](decisions.md#why-two-tiers).
 
@@ -147,7 +147,7 @@ Discernment says how much noise a model can profit through. It says nothing abou
 Both headlines lean on the reference bot and on our simulation's true rates, so a flaw in either would move both. Three backups check them without the bot, and none is a score.
 
 - **Catch rate.** A change run is caught if the agent moves its largest share to the unit that rose before the last round, and its no-change run has no such switch. The noise at which half the runs are caught should rank models the same way as discernment.
-- **Sensitivity, d′.** A catch rate mixes how well the agent tells signal from noise with how readily it raises the alarm. Signal detection theory splits the two and calls the first d′. With 20 no-change runs it is a check, not a score.
+- **Sensitivity, d′.** A catch rate mixes how well the agent tells signal from noise with how readily it raises the alarm. Signal detection theory splits the two and calls the first d′. With one no-change run a seed it is a check, not a score.
 - **The dot against the CUSUM curve.** The textbook change detector, called CUSUM, sums how much each round favours a change and fires when the sum crosses a line. Swept from hasty to patient, it draws the trade between delay and false alarms, and each model is one dot against that curve.
 
 ## The two tiers at a glance
@@ -156,39 +156,23 @@ Both headlines lean on the reference bot and on our simulation's true rates, so 
 |---|---|---|
 | Headline | Performance | Discernment |
 | Runs per seed | A briefing, a no-change run and two change sizes | A briefing, then a no-change run and one loud change at each of five noise settings |
-| Seeds | 20 | About 30 |
-| Runs a model | 60 and 20 briefings, about $100 at the target | About 300 at one reasoning setting |
 | Reasoning | One setting | A sweep |
 | Kind of change | One unit's rate falls and another's rises, the level change | Level, then coupling, gain and observation |
 | Models | Two in the pilot, then each on release | Every model on release, older ones back-filled |
 | Realism | Four skins and two styles of record, tried in the pilot to see if they can be pooled | A real task with a stale handoff note as well |
 
-The kinds of change are the four blocks of [the generator](mechanics.md#the-generator).
+The kinds of change are the four blocks of [the generator](mechanics.md#the-generator). Seed counts, run totals and cost are in [runs-and-cost.md](../runs-and-cost.md).
 
 ## What each model plays
 
 A change has a size, its amplitude: how far the standing unit's rate falls, in points. If it yields 70 in 100 before and 58 after, the amplitude is 12. 15 is loud and 3 a whisper.
 
-**Proof of concept.** 20 seeds, one briefing and three runs of 40 rounds on each:
+**Proof of concept.** On each seed, one briefing and three runs:
 
 - **One no-change run.** Nothing changes, so any doubt here is misplaced, and the yoked dip tempts it.
 - **Two change runs**, one at 12 points and one at 5. The faint one is moved to 8 if [next step 1](../../TODO.md#next-steps) finds 5 isn't worth catching.
 
-That is 60 runs and 20 briefings a model. Twenty no-change runs, rather than ten, halve the error bar on the [doubt tax and the false alarm leak](measure-failure.md#where-the-output-went).
-
-**Full study.** About 30 seeds. On each, a no-change run and a 12 point change run at each of five noise settings, since the no-change world gets noisier too. That is ten runs a seed and about 300 a model at one reasoning setting, with extra runs where a model starts to miss.
+**Full study.** On each seed, one briefing, then a no-change run and a 12 point change run at each of five noise settings, since the no-change world gets noisier too. Extra runs go where a model starts to miss.
 
 Every run at either tier plays the same game, set out in [mechanics.md](mechanics.md): 40 rounds, a change that starts between round 3 and round 10 and ramps over about 15, a 200 round record written by the reference bot, the same dice and weather for every run on a seed, four public skins with private ones held back, and a sandboxed code tool.
 
-## What it costs
-
-The target is about $100 a model, since the benchmark is run out of pocket. At the thinking we now expect, it costs more.
-
-**Proof of concept.**
-
-- **Calls.** 60 runs of 40 rounds is about 2,400 calls a model, plus 20 briefings, reads and code calls.
-- **Typical prices.** At $4 in and $20 out per million tokens, with prompt caching and 3,000 to 5,000 thinking tokens a round, a run costs about $3 to $4.50, or $180 to $270 a model.
-- **Top prices.** At $10 in and $50 out, about $7 to $11 a run, or $420 to $660 a model.
-- **Thinking** is most of the bill, so the pilot, a first run on two models over a few seeds, measures it first. If the figure holds, the choice is a higher target or fewer seeds, settled by the error bars from [next step 2](../../TODO.md#next-steps). We cut seeds rather than thinking, since a model run below its best says little, and never the no-change run. Bots cost nothing.
-
-**Full study.** About 300 runs a model at one reasoning setting, five times the proof of concept: $900 to $1,350 a model at typical prices, before the reasoning sweep and the other kinds of change multiply it. That is a funded figure, and the reason the threshold waits.
