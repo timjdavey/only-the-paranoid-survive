@@ -794,7 +794,7 @@ There are three ways to fake it, and each defence below closes one:
 
 - **Older models are cheap.**
 - **The outliers are the finding**: models well above or below the trend.
-- **METR's time horizon is the best comparator.** It tests whether this skill is part of why models fail long tasks. See [How this connects to other work](../prior/README.md#how-this-connects-to-other-work).
+- **METR's time horizon is the best comparator.** It tests whether this skill is part of why models fail long tasks. See [Themes](../prior/themes.md).
 
 ### Why publish all but a private set
 
