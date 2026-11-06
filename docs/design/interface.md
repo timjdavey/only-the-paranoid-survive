@@ -9,15 +9,6 @@
 - **The agent sees every channel's level every round**, not just total output, in the record described under [tools](#tools).
 - **Nothing tells the agent the world might change.** The prompt asks for a split, not for a view on change.
 
-## Channels
-
-- **There are ten.** The shape on the [scenarios](scenarios.md) page describes the channel with the highest level at round 1. In switch and drift another channel climbs as that one falls. The other eight are ordinary noise, and in calm one of them dips and recovers, so there is always something to over react to.
-- **Where to go is a real question.** With three channels a switch is a coin flip between the other two. With ten the agent has to pick, which is Grove's problem: not just out of memory, but into processors.
-- **The calm floor separates models.** More series means more runs of noise that look like a change, so jumpiness has something to show up on.
-- **Drift hides.** One line sagging among nine wobbling ones is a boiling frog. One line sagging among two flat ones is a chart.
-- **It reads as real.** Ten channels is a portfolio, a product line, a fund. Three is a toy.
-- **Not more than ten.** Past that the work is scanning rows, which is a search skill, not judgement.
-
 ## Tools
 
 - **Each round is a fresh call.** The agent gets the rules, the skin and the record, then calls one tool. Nothing carries over between rounds and nothing is compacted, so a run is the same whichever round you replay it from.
@@ -31,17 +22,12 @@
 
 ## Pilot: notepad and compute
 
-A deployed agent would have a scratchpad and a calculator at the very least, so a bare harness may not be a fair test. The pilot checks.
+A deployed agent would have a scratchpad and a calculator at the very least, so a bare harness may not be a fair test. The pilot is designed to check the impact of this.
 
 | Tool | What it does |
 |---|---|
 | `notes(text)` | Replaces a file the agent keeps between rounds. It comes back next round as a tool message, never as the agent's own words. Length is capped and logged |
 | `compute(code)` | Runs Python in a sandbox that sees the record as a file and nothing else. No network, no engine, no seeds |
-
-- **Bare against both.** One model, a handful of seeds, with and without the pair.
-- **If the score moves, the headline runs with the tools.** Jev and Timestral then become floors rather than peers.
-- **If it does not, the headline runs bare.** Cheaper, and every model gets the same input.
-- **Split the two only if the pair moves the score.** Four cells for an answer we may not need is a waste.
 
 ## Models that cannot write a split
 
@@ -53,8 +39,6 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 | [Jev](https://docs.typesafe.ai/introduction) | Gets the record as state and one choice question, "which channel should the budget go on". Its probability map over the ten channels is read as the split, normalised in our code |
 | [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A fixed rule in our code turns the forecast into a split |
 
-- **The forecast to split rule is the one the oracle uses** when given the true levels. Timestral is then scored purely on how well it predicts. Any other rule would bake our own doubt into its split.
-- **We score the output of the split, never the forecast.**
 - **Timestral never sees the narrative skin.** That makes it a floor for how much reading the situation helps.
 
 ## Rejected
