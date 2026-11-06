@@ -1,15 +1,13 @@
 # Baselines
 
-A baseline is a fixed strategy run through the same engine, [scenarios](scenarios.md) and [score](scoring.md) as the models. They are near free to run, so every one below runs on every scenario.
-
 ## Fixed baselines
 
-No forecaster. Each one is a few lines on the engine.
+These are calculated scores based on fixed strategies.
 
 | Baseline | Split rule | What it settles |
 |---|---|---|
 | Oracle | 100 on the channel with the highest mean level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 on shock |
-| Regime oracle | 100 on the channel with the highest mean level in the current regime. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
+| Steady | 100 on the channel with the highest mean level in the current regime. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
 | Stale | The oracle's round 1 split, held to the end | The complacent floor. Matches the regime oracle on calm and shock, so the suite separates it only on switch and drift |
 | Uniform | 10 on every channel, every round | What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
 
