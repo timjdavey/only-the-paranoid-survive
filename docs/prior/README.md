@@ -3,7 +3,7 @@
 | Page | What's in it |
 |---|---|
 | [Worlds that change](worlds-that-change.md) | Studies that change the world under the agent |
-| [People, and the reference bot](people.md) | Studies of people, and the methods behind the reference bot |
+| [People, and the Bayesian baseline](people.md) | Studies of people, and the methods behind the Bayesian baseline |
 | [A past in the prompt](past-in-the-prompt.md) | Studies that put a past in front of the model |
 | [Measuring agents](measuring-agents.md) | METR's time horizon, and studies of models that suspect a test |
 | [Themes](themes.md) | How the game connects to Epoch AI's learning on the fly, METR's time horizon and other open questions about agents, each a claim to test |
@@ -15,7 +15,7 @@ If you know the literature, our game may look like a drifting bandit: an agent p
 
 1. **Bad luck comes in streaks.** In our game a bad month is ordinary, so a run of poor results doesn't prove anything changed. Every game is also played on the same luck with nothing changed, which we call the no-change run, and it holds a dip that starts exactly like the real change before it recovers. In the other studies each result is drawn fresh, so a streak is strong evidence. The one exception is STOCKTAKE, with a single false alarm that lasts a week.
 2. **The old split still pays after the change.** The unit the agent relied on never pays off less than 55% of the time, so keeping the old split loses only to the best split available. Elsewhere the old choice mostly stops working once the change lands: in one study a reversed option wins only 20% of the time, in another an old tool fails on every call.
-3. **We score against the best bot we can build.** The no-change run counts in the same score, on the same luck, so a false alarm costs as much as a miss.
+3. **We score against [baselines](../design/baselines.md)**, from a ceiling no model can pass down to the best inferrer we can build and two floors. The no-change run counts in the same score, on the same luck, so a false alarm costs as much as a miss.
 
 Two more things go beyond a drifting bandit, explained in [Why this is more than a drifting bandit](../design/decisions.md#why-this-is-more-than-a-drifting-bandit):
 
@@ -45,11 +45,11 @@ Two more things go beyond a drifting bandit, explained in [Why this is more than
 | [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a regime shift | At most one shift | n/a, beliefs only | Noisy | None | Bayesian posterior | No |
 | [Brown and Steyvers 2009](people.md#brown-and-steyvers-2009-naming-a-change-versus-predicting-through-it) | People, a hidden source that jumps | Many jumps | No | Noisy | None | Particle filter fits | No |
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | Ratio of reward rates jumps | No | Noisy | Many earlier sessions, with or without change | Ideal detector | No |
-| **Our game** | A budget split across ten units, after reading 200 rounds of past play | One unit slowly falls and one it ignored rises past it, or a dip that recovers | Yes, never below 55% | Noisy, in streaks | Past play by a bot, and notes the agent wrote itself | The best bot we can build as yardstick, and a bot that never changes its split as the floor, on the same luck | No-change run on the same luck, counted in the score |
+| **Our game** | A budget split across ten units, after reading 200 rounds of past play | One unit slowly falls and one it ignored rises past it, or a dip that recovers | Yes, never below 55% | Noisy, in streaks | Past play by a baseline, and notes the agent wrote itself | Perfect and Bayesian baselines above, stale and uniform baselines below, on the same luck | No-change run on the same luck, counted in the score |
 
 ### The closest studies
 
-- **STOCKTAKE is closest in method.** Its yardstick bot sees only what the agent sees, every player faces the same events, and it has a false alarm that looks real for a week, much like the dip in our no-change run.
+- **STOCKTAKE is closest in method.** Its yardstick player sees only what the agent sees, every player faces the same events, and it has a false alarm that looks real for a week, much like the dip in our no-change run.
 - **AdaExploreBench is closest in shape.** One silent change, and a score that runs from a do-nothing floor to an all-knowing oracle, like ours.
 - **Set-shifting is the only one with a matched no-change copy** of every run, but it reports that copy beside the score, not inside it.
 
@@ -72,14 +72,14 @@ Bleser tests both directions in people, but tells them up front how changeable t
 | [Why a change is a typed event](../design/decisions.md#why-a-change-is-a-typed-event) | AdaExploreBench (swapped fields noticed three times as often as reversals) |
 | [Why the yoked dip](../design/decisions.md#why-the-yoked-dip) | STOCKTAKE (canal closure and false alarm), Set-shifting (resumed copies), Bazaar (unshocked customers), Massey and Wu |
 | [Why the agent writes its own notes](../design/decisions.md#why-the-agent-writes-its-own-notes) | Schubert, IBIS, Barkett, Kumaran, Fresh Memory, Stale Plans, STALE, ACE, Fork-and-Flush |
-| [Why the record comes from a bot](../design/decisions.md#why-the-record-comes-from-a-bot-and-its-style-is-a-factor) | BanditBench (example runs in the prompt), Coda-Forno, Liu |
-| [Why a budget split](../design/decisions.md#why-a-budget-split) | Haghani and Dewey, KellyBench, Wang (lose-shift), all from the [coin flip game we dropped](../design/alternatives.md#why-the-coin-flip-game-was-dropped) |
+| [Why the record comes from a baseline](../design/decisions.md#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor) | BanditBench (example runs in the prompt), Coda-Forno, Liu |
+| [Why a budget split](../design/decisions.md#why-a-budget-split) | Haghani and Dewey, KellyBench, Wang (lose-shift), all from the [coin flip game we dropped](../spec/alternatives.md#why-the-coin-flip-game-was-dropped) |
 | [Why split doubting from switching](../design/decisions.md#why-split-doubting-from-switching) | Mazaheri, STOCKTAKE, Set-shifting |
-| [Why two bots bound the game](../design/decisions.md#why-two-bots-bound-the-game) | Adams and MacKay, Wilson, Behrens, STOCKTAKE, Mellor and Shapiro, Nassar, Gallistel 2014 |
+| [Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling) | Adams and MacKay, Wilson, Behrens, STOCKTAKE, Mellor and Shapiro, Nassar, Gallistel 2014 |
 | [Complacency as a parameter, not a history](../design/decisions.md#complacency-as-a-parameter-not-a-history) | Coda-Forno, Behrens, Wilson, Gallistel, Massey and Wu |
 | [Why discernment is the full study headline](../design/decisions.md#why-discernment-is-the-full-study-headline) | METR, Wichmann and Hill, Mazaheri (sensitivity and bar), Miller (paired error bars) |
 | [Why the game is hard to game](../design/decisions.md#why-the-game-is-hard-to-game) | Set-shifting and AdaExploreBench (what a hint in the prompt does), Bleser (false warnings), the papers on [test awareness](measuring-agents.md) |
-| [Why the bots set the difficulty](../design/decisions.md#why-the-bots-set-the-difficulty) | Bazaar, BanditBench |
+| [Why the baselines set the difficulty](../design/decisions.md#why-the-baselines-set-the-difficulty) | Bazaar, BanditBench |
 | [Why four skins over one interface](../design/decisions.md#why-four-skins-over-one-interface) | Allen and McDonald (a masked game models couldn't name) |
 | [Future work](../design/future.md): [an inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) | Ge, BanditBench, Krishnamurthy, Liu, the Self-Correction Illusion, Kumaran (whose notes they are), ACE, Fresh Memory, Stale Plans |
 | Future work: [full live run](../design/future.md#what-the-agent-knows-before-it-starts) | Schubert, IBIS |
