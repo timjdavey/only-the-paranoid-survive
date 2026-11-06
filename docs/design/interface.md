@@ -6,19 +6,19 @@
 - **It returns a full split every round.** A split that does not sum to 100 gets a neutral error and a retry, so a bad call is never read as a decision. Rounds where the split matches the one before are counted afterwards as rounds it left the plan alone.
 - **The split is its belief.** A small share on a new channel is a look. A large share is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
-- **The agent sees every channel's level every round**, not just total output, in the record described under [tools](#tools).
+- **The agent sees the level of every channel it funded**, not just total output, in the record described under [tools](#tools). A share of 0 shows nothing. See [mechanics](mechanics.md).
 - **Nothing tells the agent the world might change.** The prompt asks for a split, not for a view on change.
 
 ## Tools
 
 - **Each round is a fresh call.** The agent gets the rules, the skin and the record, then calls one tool. Nothing carries over between rounds and nothing is compacted, so a run is the same whichever round you replay it from.
-- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its split, each channel's level and the output. Round 1 has an empty record.
+- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its split, the level of each channel it funded and the output. Round 1 has an empty record.
 - **This is the same shape Jev and Timestral get.** History in, split out. See [below](#models-that-cannot-write-a-split).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `submit(split)` | Ten whole numbers that sum to 100 | Each channel's level this round and the output. A neutral error and a retry if the sum is off |
+| `submit(split)` | Ten whole numbers that sum to 100 | The level of each funded channel this round and the output. A neutral error and a retry if the sum is off |
 
 ## Pilot: notepad and compute
 
@@ -37,9 +37,7 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 |---|---|
 | Classic LLM | Reads the record, returns a split |
 | [Jev](https://docs.typesafe.ai/introduction) | Gets the record as state and one choice question, "which channel should the budget go on". Its probability map over the ten channels is read as the split, normalised in our code |
-| [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A fixed rule in our code turns the forecast into a split |
-
-- **Timestral never sees the narrative skin.** That makes it a floor for how much reading the situation helps.
+| [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A named policy turns the forecast into a split, one run per policy. See [baselines](baselines.md) |
 
 ## Rejected
 
