@@ -1,6 +1,6 @@
 # Only the paranoid survive
 
-**A benchmark for how well an agent acts when presented with a shock to a system the returns to normal vs a shock that creates a new normal.**
+_A benchmark for how well an agent acts when presented with a shock to a system the returns to normal vs a shock that creates a new normal._
 
 ## Motivation
 
@@ -22,7 +22,8 @@ See [requirements.md](docs/design/requirements.md) for full details.
 - We [baseline](docs/design/baselines.md) a models performance against various strategies. 
 - In order for models to be economically trustworthy they need to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md).
 - We [measure](docs/design/measures.md) the geometric mean of a models performance across each of these scenarios as the headline figure. So it needs to perform well across all scenarios to score highly.
-
+- This study avoids becoming saturated by extending the game. Increasing the number of shocks before a switch; or more subtle drift into a switch.
+- It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.
 
 ## Contribution
 
