@@ -32,3 +32,7 @@
 
 - If we test a positive effect, we need to make sure we test it's reverse.
 - Tie each shape to a named failure mode.
+
+## Open questions
+
+- **In a switch, what do the other nine channels do?** Either a challenger rises past the incumbent, or the incumbent falls below a channel that was standing all along. It decides whether a barbell on the round 1 runner up is a cheap win. See [baselines](baselines.md#not-yet).

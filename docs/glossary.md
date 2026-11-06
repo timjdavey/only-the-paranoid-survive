@@ -15,6 +15,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Split | The shares of the budget the agent puts on each channel in a round |
 | Scenario | A pattern of change we put each model through. See [scenarios](design/scenarios.md) |
 | Contamination | A model having seen the benchmark in training |
+| Baseline | A fixed strategy run through the same game and score as the models. See [baselines](design/baselines.md) |
+| Oracle | The baseline that knows each round's mean levels. Every score is a fraction of what it earns |
 
 ## Adding a word
 
