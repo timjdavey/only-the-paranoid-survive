@@ -1,6 +1,6 @@
 # Pilot
 
-A short run before the full study to settle the knobs. Each check names its question, what we run, what we measure and what we decide from it. Other pages state the design and link here for how the pilot settles it.
+A short run before the full study to settle the knobs.
 
 ## Seeds
 
