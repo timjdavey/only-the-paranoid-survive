@@ -7,14 +7,14 @@ A short run before the full study to settle the knobs.
 - **Question.** How many seeds a scenario needs, and whether a model's own sampling adds enough spread to need repeats on the same seed.
 - **Run.** One model, one scenario, say shock. Twenty seeds played once, and one seed played ten times.
 - **Measure.** The spread of the run score across seeds, against the spread across repeats of one seed.
-- **Decide.** The number of seeds per scenario: enough that the standard error is small next to the gaps between [baselines](baselines.md). If the same-seed spread is near the seed spread, the model's dice matter and we note it, but the headline still plays each seed once. See [scoring](scoring.md#seeds).
+- **Decide.** The number of seeds per scenario: enough that the standard error is small next to the gaps between [baselines](../design/baselines.md). If the same-seed spread is near the seed spread, the model's dice matter and we note it, but the headline still plays each seed once. See [scoring](../design/scoring.md#seeds).
 
 ## Noise
 
-Noise is the difficulty knob, see [mechanics](mechanics.md#noise). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
+Noise is the difficulty knob, see [mechanics](../design/mechanics.md#noise). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
 
 - **Question.** What sigma makes shock and switch hard to tell apart for a while, but not forever.
-- **Run.** The fixed [baselines](baselines.md) on shock and switch, at a few sigma values.
+- **Run.** The fixed [baselines](../design/baselines.md) on shock and switch, at a few sigma values.
 - **Measure.** How the baseline scores spread at each sigma, and whether the [baseline order](#baseline-order) holds.
 - **Decide.** The sigma for the full study. If the base score is flat across models, raise it. Raising it later is also how the study avoids saturating.
 
@@ -27,17 +27,17 @@ Noise is the difficulty knob, see [mechanics](mechanics.md#noise). With low nois
 
 ## Reading roughness
 
-A small bet gives a worse reading, see [mechanics](mechanics.md#information). That rewards a look, and is how it works in the real world.
+A small bet gives a worse reading, see [mechanics](../design/mechanics.md#information). That rewards a look, and is how it works in the real world.
 
 - **Question.** How much worse a small bet's reading is, and which route makes it worse: coarse whole number counts, or extra noise.
-- **Run.** The constant look [Timestral baselines](baselines.md#timestral) at 2, 5 and 10 points, under each route and a few strengths.
+- **Run.** The constant look [Timestral baselines](../design/baselines.md#timestral) at 2, 5 and 10 points, under each route and a few strengths.
 - **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output.
 - **Decide.** One route and one strength, where a look is worth its cost but no look tells the whole story.
 
 ## Baseline order
 
 - **Question.** Do the fixed baselines land in the order we expect.
-- **Run.** Every [baseline](baselines.md) on switch and calm.
+- **Run.** Every [baseline](../design/baselines.md) on switch and calm.
 - **Measure.** Their scores, against these orders:
   - **Switch:** oracle > steady > Timestral > stale > uniform.
   - **Calm:** stale ≈ oracle ≈ steady.
@@ -45,14 +45,14 @@ A small bet gives a worse reading, see [mechanics](mechanics.md#information). Th
 
 ## Timestral checks
 
-Checks before we trust the [Timestral baselines](baselines.md#timestral).
+Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).
 
 - **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, probability of best cannot look and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
 
 ## Notepad and compute
 
-A deployed agent would have a scratchpad and a calculator at the very least, so a bare harness may not be a fair test. The headline plays without them, see [interface](interface.md#tools).
+A deployed agent would have a scratchpad and a calculator at the very least, so a bare harness may not be a fair test. The headline plays without them, see [interface](../design/interface.md#tools).
 
 - **Question.** Does a scratchpad or a calculator change how a model plays.
 - **Run.** The same models and seeds with and without each tool.

@@ -25,14 +25,14 @@ One run per row. The bets are whole numbers to 100, as on the [interface](interf
 | Baseline | Betting rule | What it is a floor for |
 |---|---|---|
 | Argmax | 100 on the channel with the highest median | Forecast, never look. It switches only when the forecast for the channel it bet on falls below what it remembers of another |
-| Probability of best | Each channel's bet is the chance it has the highest level, read off the quantiles | Forecast, and look as much as its own doubt says. The look size is Timestral's, not ours. Kept only if it passes the [gap test](pilot.md#timestral-checks) |
+| Probability of best | Each channel's bet is the chance it has the highest level, read off the quantiles | Forecast, and look as much as its own doubt says. The look size is Timestral's, not ours. Kept only if it passes the [gap test](../pilot/README.md#timestral-checks) |
 | Constant look, 2 / 5 / 10 | That many points on every other channel, the rest on the highest median | Forecast plus a dumb look of a size we chose |
 | Probability of best, bets as covariate | As probability of best, with its bets passed in as a past covariate | Whether it can learn that a small bet gives a rough reading |
 
 ## Checks
 
-- **Timestral** must pass a gap test and a rounding watch before we trust it, see [pilot](pilot.md#timestral-checks).
-- **The baselines must land in the expected order** on switch and calm, see [pilot](pilot.md#baseline-order).
+- **Timestral** must pass a gap test and a rounding watch before we trust it, see [pilot](../pilot/README.md#timestral-checks).
+- **The baselines must land in the expected order** on switch and calm, see [pilot](../pilot/README.md#baseline-order).
 
 ## Not yet
 

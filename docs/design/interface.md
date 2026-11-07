@@ -15,7 +15,7 @@
 - **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record.
 - **This is the same shape Jev and Timestral get.** History in, bets out. See [below](#models-that-cannot-place-bets).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
-- **No scratchpad or calculator in the headline.** Whether they change play is a [pilot check](pilot.md#notepad-and-compute).
+- **No scratchpad or calculator in the headline.** Whether they change play is a [pilot check](../pilot/README.md#notepad-and-compute).
 
 | Tool | Takes | Returns |
 |---|---|---|
