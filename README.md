@@ -22,7 +22,7 @@ As agents take on longer jobs, the more likely they will face these situations. 
 - We [baseline](docs/design/baselines.md) a models performance against various strategies. 
 - In order for models to be economically trustworthy they need to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md).
 - We [score](docs/design/scoring.md) each scenario as the mean over seeds of a model's output as a fraction of an oracle's, and take the geometric mean across scenarios as the headline. So it needs to perform well across all scenarios to score highly.
-- A [pilot](docs/pilot/README.md) settles the knobs, such as how many seeds, before the full run.
+- A [pilot](docs/pilot/checks.md) settles the knobs, such as how many seeds, before the full run.
 - This study avoids becoming saturated by extending the game. Increasing the number of shocks before a switch; or more subtle drift into a switch.
 - It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.
 

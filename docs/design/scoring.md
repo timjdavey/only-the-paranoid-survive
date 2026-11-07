@@ -11,7 +11,7 @@
 
 - **A seed fixes the world.** It draws every channel's noise for every round up front, bet on or not, so two agents on one seed see the same world and differ only by what they do. The oracle runs on it too.
 - **One fixed set of seeds per scenario, the same set for every model.** A model is compared with a rival on the same worlds, not on a different roll of the dice, so the gaps between models are tighter.
-- **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the mean absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/README.md#seeds).
+- **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the mean absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/checks.md#seeds).
 
 ## Why a mean within and a geometric mean across
 
@@ -22,4 +22,4 @@
 ## Extension: inertia
 
 - **A fixed budget is forgiving.** A model that never moves still earns most of the output, so being late costs less than it cost Kodak.
-- **A cap on how far bets can move each round** would amplify the lateness signal. It is switched on only if the [pilot](../pilot/README.md#inertia) finds the base score too flat.
+- **A cap on how far bets can move each round** would amplify the lateness signal. It is switched on only if the [pilot](../pilot/checks.md#inertia) finds the base score too flat.
