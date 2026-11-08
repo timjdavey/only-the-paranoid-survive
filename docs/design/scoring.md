@@ -37,15 +37,15 @@
 - **Skins are a sensitivity, not an error.** If a model scores 0.8 on one story and 0.6 on another with the same engine and seed, that is a finding: the story swayed it (skin sensitivity). Averaging skins and widening the bar would hide the most interesting number, so skins are never resampled and never pooled into a headline. **The proof of concept runs one skin**, so skin sensitivity is a named layer we do not measure yet. When more skins run, each gets its own headline and the gap between them is reported beside it.
 - **Scenario differences are not spread either.** A gap between scenarios is the signal (trait profile). It gets no bar and is never resampled.
 
-| Name | What changes between runs | Kind | Shrinks with more seeds | Where it shows |
-|---|---|---|---|---|
-| Level luck | The channels' levels | Noise, removed by the oracle on the same seed | n/a | Nowhere, by design |
-| Sampling spread | Nothing. Same seed, same skin, run again | Aleatoric | No | A share of the spread, from the pilot |
-| World spread | The seed | Aleatoric | No | The per-seed dots |
-| Spread | The seed, each played once, so both mixed | Aleatoric | No | The dots and the 10th percentile run |
-| Error bar | Our estimate of the mean | Epistemic | Yes | Every scenario score and the headline |
-| Skin sensitivity | The story, with engine and seed fixed | A finding | No | A gap per skin, outside the headline. Not measured in the proof of concept, which runs one skin |
-| Trait profile | The scenario | The signal | No | The per-scenario scores |
+| Name | What changes between runs | Kind | Where it shows |
+|---|---|---|---|
+| Level luck | The channels' levels | Noise, removed by the oracle on the same seed | Nowhere, by design |
+| Sampling spread | Nothing. Same seed, same skin, run again | Aleatoric, more seeds don't shrink it | A share of the spread, from the pilot |
+| World spread | The seed | Aleatoric, more seeds don't shrink it | The per-seed dots |
+| Spread | The seed, each played once, so both mixed | Aleatoric, more seeds don't shrink it | The dots and the 10th percentile run |
+| Error bar | Our estimate of the mean | Epistemic, more seeds shrink it | Every scenario score and the headline |
+| Skin sensitivity | The story, with engine and seed fixed | A finding, more seeds don't shrink it | A gap per skin, outside the headline. Not measured in the proof of concept, which runs one skin |
+| Trait profile | The scenario | The signal, more seeds don't shrink it | The per-scenario scores |
 
 ## Extension: inertia
 
