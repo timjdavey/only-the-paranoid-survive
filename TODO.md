@@ -1,8 +1,5 @@
 Keep a running list of TODOs in here.
 
-## Broken links
-- `docs/prior/` still links to `docs/design/decisions.md`, `docs/design/future.md` and `docs/spec/`, which went in the rewrite. Read them at commit `5eaceb4`, e.g. `git show 5eaceb4:docs/design/decisions.md`. Fix as the new docs land.
-
 ## Pilot
 The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Run length, how many events a run holds, and the minimum gap between them.
