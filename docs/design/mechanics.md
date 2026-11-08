@@ -6,6 +6,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 - **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
 - **So the oracle goes all in** on the channel with the highest level. A spread only ever means doubt or a look. See [scoring](scoring.md).
+- **Output and levels are reported to one decimal place.**
 
 ## Generator
 
@@ -70,7 +71,13 @@ Off by default. Each one closes a tell a model could learn.
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
 - **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
+- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. The pilot sets k, see [reading roughness](../pilot/checks.md#reading-roughness).
 - **Why.** A look costs something, so paranoia has a price. You know a market by being in it.
+
+## Defaults
+
+- **Every number on this page is a field on `ScenarioConfig`** in the engine, with a default, so the engine is built from this page alone. A hash of the config goes in every log, see [layout](../harness/layout.md).
+- **A run is 40 rounds by default.** The pilot moves this and the other defaults, see [decisions](../pilot/decisions.md).
 
 ## Rejected
 

@@ -22,12 +22,12 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 
 ## Noise
 
-Noise is the difficulty knob, see [mechanics](../design/mechanics.md#noise). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
+Noise is the difficulty knob. It has three dials, own-weather spread, memory and shared-factor spread, see [difficulty](../design/mechanics.md#difficulty). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
 
-- **Question.** What sigma makes shock and switch hard to tell apart for a while, but not forever.
-- **Run.** The fixed [baselines](../design/baselines.md) on shock and switch, at a few sigma values.
-- **Measure.** How the baseline scores spread at each sigma, and whether the [baseline order](#baseline-order) holds.
-- **Decide.** The sigma for the full study. If the base score is flat across models, raise it. Raising it later is also how the study avoids saturating.
+- **Question.** What settings of the three dials make shock and switch hard to tell apart for a while, but not forever.
+- **Run.** The fixed [baselines](../design/baselines.md) on shock and switch, at a few settings of each dial.
+- **Measure.** How the baseline scores spread at each setting, and whether the [baseline order](#baseline-order) holds.
+- **Decide.** The three dials per scenario. If the base score is flat across models, raise them. Raising them later is also how the study avoids saturating.
 
 ## Game length and switch round
 
@@ -38,12 +38,12 @@ Noise is the difficulty knob, see [mechanics](../design/mechanics.md#noise). Wit
 
 ## Reading roughness
 
-A small bet gives a worse reading, see [mechanics](../design/mechanics.md#information). That rewards a look, and is how it works in the real world.
+A small bet gives a rough reading and a large bet a clean one, see [what the agent sees](../design/mechanics.md#what-the-agent-sees). That rewards a look, and is how it works in the real world.
 
-- **Question.** How much worse a small bet's reading is, and which route makes it worse: coarse whole number counts, or extra noise.
-- **Run.** The constant look [Timestral baselines](../design/baselines.md#timestral) at 2, 5 and 10 points, under each route and a few strengths.
+- **Question.** How fast the read noise shrinks as the bet grows.
+- **Run.** The constant look [Timestral baselines](../design/baselines.md#timestral) at 2, 5 and 10 points, at a few strengths of read noise.
 - **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output.
-- **Decide.** One route and one strength, where a look is worth its cost but no look tells the whole story.
+- **Decide.** One strength, where a look is worth its cost but no look tells the whole story.
 
 ## Baseline order
 

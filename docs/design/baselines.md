@@ -40,4 +40,4 @@ One run per row. The bets are whole numbers to 100, as on the [interface](interf
 |---|---|
 | Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid: it bets on past readings only, so there is no loop. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
 | Hedge | Incumbent plus a fixed spread that never acts pays for a look it never uses, so it sits below stale. With a switch rule it is the constant look row |
-| Barbell | Incumbent plus one challenger. Needs a rule for the challenger, which waits on [what the other channels do in a switch](scenarios.md#open-questions) |
+| Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises. Add it once the pilot shows how often a sleeper rises |
