@@ -22,6 +22,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Shared factor | One hidden series every channel loads on, so channels have good and bad weeks together |
 | Loading | How much a channel moves with the shared factor. Uneven across channels |
 | Hedge | The one channel with a negative loading. It rises when everything else falls |
+| Look | A small bet on a channel the agent isn't backing, to read its level. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees) |
 | Leader | The channel that pays best when a run starts |
 | Runner-up | The second best channel at the start. The obvious fallback |
 | Field | The other channels, including the hedge |

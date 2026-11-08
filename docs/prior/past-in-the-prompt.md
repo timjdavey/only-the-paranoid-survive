@@ -2,26 +2,6 @@
 
 These studies put a past in front of the model and ask whether it changes what the model does, as our briefing does with 200 rounds of record someone else played and the notes the agent writes from it. In most of them the world doesn't change during the task. In Fresh Memory, Stale Plans and STALE a fact does change, but it is stated plainly, not hidden in noisy results.
 
-## Coda-Forno et al. 2023: meta in-context learning
-
-Julian Coda-Forno et al. "Meta-in-context learning in large language models." NeurIPS 2023. [arXiv:2305.12907](https://arxiv.org/abs/2305.12907)
-
-**Aim.** Can a model get better at learning in context just by seeing earlier tasks in the same prompt?
-
-**How they tested it.**
-
-1. **Model.** GPT-3 (text-davinci-002). GPT-4 appears only in a supplement.
-2. **Two-armed bandit.** Up to 5 casinos in turn, 10 pulls each, with arm means drawn fresh for each casino. Against greedy and UCB.
-3. **Regression.** Up to 5 tasks of 5 points each, on made-up lines and on 42 real datasets, against Bayesian linear regression.
-
-**What they found.**
-
-- Regret falls within a task (β = -0.221) and also across tasks (β = -0.031). On the first casino GPT-3 trails greedy and UCB. By the fifth it matches greedy, and it gets greedier with each task.
-- The history fixes wild priors. Before any task, GPT-3 expected rewards averaging 545 with a spread of 6,359. After a few tasks the mean was 6.5 with a spread of 4.4, close to the truth.
-- Gains are larger when the new task resembles earlier ones. GPT-4 did slightly worse than GPT-3.
-
-**What it means for us.** This is the clearest proof that past episodes in the prompt move a model's priors towards the truth, which is what our record relies on. [Complacency as a parameter](../design/decisions.md#complacency-as-a-parameter-not-a-history) asks the same in a world that does change. Their run of casinos is the shape of the ergodic tries extension.
-
 ## Mazaheri and Mazaheri 2026: one past audit makes verifiers lenient
 
 Parsa Mazaheri and Kasra Mazaheri. "Prior Audit-Repair Context Shifts LLM Verifier Thresholds Toward Leniency." Preprint, August 2026. [arXiv:2608.16003](https://arxiv.org/abs/2608.16003)
@@ -293,28 +273,6 @@ Qizheng Zhang et al. (Stanford, SambaNova and UC Berkeley). "Agentic Context Eng
 - A lesson writer told to plant harmful lessons every step cut accuracy to 66.7. Every fifth step it still helped, at 76.1 (Table 17).
 
 **What it means for us.** Two warnings for `write_notes`. First, one wholesale rewrite can wipe out detailed notes in a single step, and the detail lost may be what would show a change. Note length across rewrites is worth logging beside the briefing quality diagnostic. Second, notes revised from feedback you can't trust got worse than no notes. Our yields are noisy with memory, so an agent that rewrites its notes after a bad month may write the dip in as a rule, which is the no-change run's false alarm on paper. For the [inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) extension, a short generic plan against a detailed one is a factor worth having.
-
-## Krishnamurthy et al. 2024: a summarised history and exploration
-
-Akshay Krishnamurthy, Keegan Harris, Dylan J. Foster, Cyril Zhang and Aleksandrs Slivkins. "Can large language models explore in-context?" NeurIPS 2024. [arXiv:2403.15371](https://arxiv.org/abs/2403.15371)
-
-**Aim.** Do LLMs explore a bandit from the history in their prompt, with no training?
-
-**How they tested it.**
-
-1. **Models.** GPT-3.5, GPT-4 (both June 2023) and Llama2-13B.
-2. **Bandits.** Five arms with a 0.2 gap between best and the rest (hard), or four arms with a 0.5 gap (easy). Mostly 100 rounds and 10 or 20 runs, with checks at 200 and 500 rounds.
-3. **Prompts.** Five switches: buttons or adverts, neutral framing or a hint to balance exploring and exploiting, raw history or per-arm counts and averages, one arm or a distribution, chain of thought or not. Plus temperature 0 or 1.
-4. **Measures.** Reward is too noisy at this scale, so they count suffix failures (never picking the best arm in the second half) and uniform failures (picking all arms about equally). Against UCB, Thompson sampling and greedy.
-
-**What they found.**
-
-- "Only one configuration resulted in satisfactory exploratory behavior": GPT-4 with the exploration hint, summarised history, chain of thought and temperature 0. Its reward was close to Thompson sampling.
-- The same set-up with raw history had suffix failures (Figure 7), so the summary was the difference.
-- All but five configurations had suffix failures in at least 15% of runs. GPT-4 with the basic prompt failed this way in over 60% of runs at 500 rounds.
-- On the easy bandit most GPT-4 configurations behaved close to greedy and did well, since greed works when the gap is wide.
-
-**What it means for us.** The summary that worked was exact counts and averages computed for the model, alongside a hint to explore. Our agent gets neither: it writes its own summary from the raw record, and the prompt never mentions exploring or change. So this backs summarised notes only as far as the agent's notes match a computed summary, which the briefing quality diagnostic checks. A record served as per-unit averages would be a cheap arm to price the raw rows. For the [inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) extension, a prose plan is a summary but not counts, so it may not carry this benefit.
 
 ## Fork-and-Flush 2026: a fresh session on old work
 

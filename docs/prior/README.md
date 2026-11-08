@@ -24,7 +24,7 @@ Two more things go beyond a drifting bandit, explained in [Why this is more than
 
 | Study | Setting | Change | Old plan still pays after it? | Feedback | Agent's past | Scored against | No-change control |
 |---|---|---|---|---|---|---|---|
-| [Coda-Forno et al. 2023](past-in-the-prompt.md#coda-forno-et-al-2023-meta-in-context-learning) | Bandits and regression, GPT-3 | None | n/a | Noisy | Up to 4 earlier tasks | UCB, greedy, Bayesian regression | No |
+| [Coda-Forno et al. 2023](learning-from-results.md#coda-forno-et-al-2023-meta-in-context-learning) | Bandits and regression, GPT-3 | None | n/a | Noisy | Up to 4 earlier tasks | UCB, greedy, Bayesian regression | No |
 | [Mazaheri and Mazaheri 2026](past-in-the-prompt.md#mazaheri-and-mazaheri-2026-one-past-audit-makes-verifiers-lenient) | Checking maths proofs | None | n/a | None | One earlier episode | Human labels | Filler of the same length |
 | [Schubert et al. 2024](past-in-the-prompt.md#schubert-et-al-2024-asymmetric-belief-updating) | Two-armed bandits, Claude v1.3 | None | n/a | Noisy | Own or someone else's choices | Fitted learning rates | No |
 | [IBIS 2026](past-in-the-prompt.md#ibis-2026-inertia-in-search-agents) | Web search agents | None | n/a | None | Own action or results handed over | Human labels | No |
@@ -32,13 +32,13 @@ Two more things go beyond a drifting bandit, explained in [Why this is more than
 | [Ge, Zhang and Vorobeychik 2026](past-in-the-prompt.md#ge-zhang-and-vorobeychik-2026-the-description-history-gap) | One-shot lotteries | None | n/a | None | Stated odds or a list of past payoffs | Expected value maximiser | No |
 | [Liu et al. 2026](past-in-the-prompt.md#liu-et-al-2026-history-that-never-becomes-experience) | ALFWorld, WebShop and others | None | n/a | Exact | Within the episode | Task success | Shuffled history |
 | [Haq et al. 2025](past-in-the-prompt.md#haq-et-al-2025-mental-sets-in-llms) | 12 arithmetic problems | Problem type switches | Yes, the long method still works | Exact | Earlier problems | Nothing | Problems with no lead-in |
-| [BanditBench 2025](worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration) | Bandits | None | n/a | Noisy | None | UCB and LinUCB | No |
-| [Wang, Ward and Zhang 2026](worlds-that-change.md#wang-ward-and-zhang-2026-reversal-learning) | Two options that swap | Many swaps | No, the old option wins 20% | Noisy | Within the run | People | No |
+| [BanditBench 2025](learning-from-results.md#banditbench-nie-et-al-2025-in-context-exploration) | Bandits | None | n/a | Noisy | None | UCB and LinUCB | No |
+| [Wang, Ward and Zhang 2026](learning-from-results.md#wang-ward-and-zhang-2026-reversal-learning) | Two options that swap | Many swaps | No, the old option wins 20% | Noisy | Within the run | People | No |
 | [Set-shifting 2026](worlds-that-change.md#set-shifting-2026-tool-groups-that-stop-working) | Tool groups in an agent harness | Up to 3 silent shifts | No, old tools always fail | Exact | Within the session | Nothing | Resumed copies, beside the score |
 | [AdaExploreBench 2026](worlds-that-change.md#adaexplorebench-2026-hidden-rules-that-drift) | Hidden decision rules | One drift | No, accuracy falls 27 points | Exact | None | All-knowing oracle | No-drift setting, averages only |
 | [STOCKTAKE 2026](worlds-that-change.md#stocktake-2026-a-fair-oracle-for-supply-chains) | 26-week supply chain | Six hidden factors drift | Partly, the supplier degrades by bands | Noisy | None | Bayes filter on the agent's own view | Same event tape for every policy |
-| [Gupta et al. 2025](worlds-that-change.md#gupta-et-al-2025-coin-flips-and-bayes) | Coin flips, beliefs only | One switch, in one experiment | No, 75% heads becomes 25% | Noisy | None | Beta posterior | No |
-| [Zhang et al. 2025](worlds-that-change.md#zhang-et-al-2025-llms-in-a-drifting-bandit) | Four-armed bandit | Every arm drifts all the time | Partly, a good arm fades rather than fails | Noisy | None | People, and fitted exploration models | No |
+| [Gupta et al. 2025](learning-from-results.md#gupta-et-al-2025-coin-flips-and-bayes) | Coin flips, beliefs only | One switch, in one experiment | No, 75% heads becomes 25% | Noisy | None | Beta posterior | No |
+| [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit) | Four-armed bandit | Every arm drifts all the time | Partly, a good arm fades rather than fails | Noisy | None | People, and fitted exploration models | No |
 | [KellyBench 2026](worlds-that-change.md#kellybench-grady-et-al-2026-a-season-of-football-bets) | A season of football bets | The real season, which shifts | Unclear, no model had an edge to begin with | Noisy | None | Final bankroll, human baselines and an expert rubric | No |
 | [Behrens et al. 2007](people.md#behrens-et-al-2007-people-learn-faster-when-the-world-is-volatile) | People, blue or green | Many swaps | No | Noisy | None | Hierarchical Bayesian learner | Stable phase |
 | [Bleser et al. 2026](people.md#bleser-et-al-2026-true-and-false-beliefs-about-volatility) | People, told the rule will or won't change | One flip per block | No | Noisy | None | Rescorla-Wagner fits | Stable blocks |
@@ -60,7 +60,7 @@ Two more things go beyond a drifting bandit, explained in [Why this is more than
 Most studies only count being too slow. Wang counts a switch after a loss as good, STOCKTAKE leaves overreactions in calm weeks out of every score, and AdaExploreBench doesn't count false alarms. Yet the studies disagree about which way models fail:
 
 - **Too slow.** Wang finds models rarely switch after a loss.
-- **Too jumpy.** Gupta finds some models forget after a couple of flips, Kumaran finds they give too much weight to advice that disagrees with them, and [Horowitz and Plonsky](worlds-that-change.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result.
+- **Too jumpy.** Gupta finds some models forget after a couple of flips, Kumaran finds they give too much weight to advice that disagrees with them, and [Horowitz and Plonsky](learning-from-results.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result.
 
 Bleser tests both directions in people, but tells them up front how changeable the world is. Massey and Wu predict the direction from the world alone: people overreact when the world is stable and the signals are noisy, which is exactly our no-change run. Our score settles it, because whatever an agent loses by overreacting there counts against it.
 
