@@ -4,10 +4,21 @@ A short run before the full study to settle the knobs.
 
 ## Seeds
 
-- **Question.** How many seeds a scenario needs, and whether a model's own sampling adds enough spread to need repeats on the same seed.
-- **Run.** One model, one scenario, say shock. Twenty seeds played once, and one seed played ten times.
-- **Measure.** The spread of the run score across seeds, against the spread across repeats of one seed.
-- **Decide.** The number of seeds per scenario: enough that the standard error is small next to the gaps between [baselines](../design/baselines.md). If the same-seed spread is near the seed spread, the model's dice matter and we note it, but the headline still plays each seed once. See [scoring](../design/scoring.md#seeds).
+Sizes the [error bar](../design/scoring.md#error-bars).
+
+- **Question.** How many seeds a scenario needs.
+- **Run.** One model, one scenario, say shock. Twenty seeds played once.
+- **Measure.** The SD of the run score across seeds. This is the [spread](../design/scoring.md#spread).
+- **Decide.** Seeds per scenario = (SD ÷ target error bar)², rounded up. The target is a fraction, say a fifth, of the smallest gap between [baselines](../design/baselines.md) we want to read.
+
+## Repeats
+
+Splits [spread](../design/scoring.md#spread) into the world's dice and the model's.
+
+- **Question.** How much of the spread is the model's own sampling, so we know whether a per-seed dot means "this world was hard" or "the model rolled badly".
+- **Run.** Five of the twenty seeds from [Seeds](#seeds), each played three more times. Pick them across the range of single-run scores, not the first five, because sampling matters most on ambiguous worlds. 15 extra runs.
+- **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
+- **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
 ## Noise
 
@@ -83,5 +94,5 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 ## Cost per run
 
 - **Question.** What the full study costs.
-- **Measure.** Tokens per run for each model, from the [seeds](#seeds) runs.
+- **Measure.** Tokens per run for each model, from the [seeds](#seeds) and [repeats](#repeats) runs.
 - **Decide.** Tokens per run × seeds × scenarios × models gives the budget. If it is too high, cut seeds before scenarios, as every scenario feeds the headline.
