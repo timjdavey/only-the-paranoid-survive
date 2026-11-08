@@ -1,0 +1,7 @@
+.env
+logs/
+.context/
+__pycache__/
+*.pyc
+.venv/
+.timestral-cache/

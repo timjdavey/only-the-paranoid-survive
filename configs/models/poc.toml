@@ -1,0 +1,79 @@
+# Proof of concept model list. Columns are explained in docs/harness/models.md.
+# Verify every third-party id against its provider before the first run.
+
+[[model]]
+id = "anthropic/claude-haiku-5-5"
+kind = "llm"
+reasoning = "low"
+notes = "Cheapest Claude. Thinking cannot be switched off on Claude 5.5 models, so low effort is the minimum"
+
+[[model]]
+id = "anthropic/claude-sonnet-5-5"
+kind = "llm"
+reasoning = "low"
+notes = "The mid Claude"
+
+[[model]]
+id = "google/gemini-2.5-flash"
+kind = "llm"
+reasoning = "off"
+notes = "Cheap non-Claude. Verify the id, a newer Flash may exist. Swap for openrouter/moonshotai/kimi-k2 if Google keys are a bother"
+
+[[model]]
+id = "jev/jev-latest"
+kind = "jev"
+reasoning = "n/a"
+notes = "See docs/harness/adapters.md"
+
+[[model]]
+id = "timestral/argmax"
+kind = "timestral"
+reasoning = "n/a"
+notes = "One row per policy, see docs/design/baselines.md"
+
+[[model]]
+id = "timestral/prob-best"
+kind = "timestral"
+reasoning = "n/a"
+notes = "Dropped if it fails the gap test"
+
+[[model]]
+id = "timestral/look-2"
+kind = "timestral"
+reasoning = "n/a"
+
+[[model]]
+id = "timestral/look-5"
+kind = "timestral"
+reasoning = "n/a"
+
+[[model]]
+id = "timestral/look-10"
+kind = "timestral"
+reasoning = "n/a"
+
+[[model]]
+id = "timestral/prob-best-cov"
+kind = "timestral"
+reasoning = "n/a"
+
+[[model]]
+id = "baseline/oracle"
+kind = "baseline"
+reasoning = "n/a"
+notes = "The ceiling. Every score is a fraction of it"
+
+[[model]]
+id = "baseline/steady"
+kind = "baseline"
+reasoning = "n/a"
+
+[[model]]
+id = "baseline/stale"
+kind = "baseline"
+reasoning = "n/a"
+
+[[model]]
+id = "baseline/uniform"
+kind = "baseline"
+reasoning = "n/a"
