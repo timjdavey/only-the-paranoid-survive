@@ -12,7 +12,7 @@
 ## Tools
 
 - **Each round is a fresh call.** The agent gets the rules, the skin and the record, then calls one tool. Nothing carries over between rounds and nothing is compacted, so a run is the same whichever round you replay it from.
-- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record.
+- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record, so the agent finds the leader itself in the first rounds. The pilot also runs a cell where the record starts pre-filled by a baseline, see [TODO](../../TODO.md#pilot).
 - **This is the same shape Jev and Timestral get.** History in, bets out. See [below](#models-that-cannot-place-bets).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
 - **No scratchpad or calculator in the headline.** Whether they change play is a [pilot check](../pilot/checks.md#notepad-and-compute).
