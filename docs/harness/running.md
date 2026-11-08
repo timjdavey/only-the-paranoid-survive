@@ -25,7 +25,7 @@
 ## Logs
 
 - Written to `logs/`, gitignored.
-- A log holds the full prompt, so logs from a private skin never leave the machine. See [privacy](../privacy.md).
+- A log holds the full prompt, so logs from a private skin never leave the machine. See [contamination](contamination.md).
 - Published logs come from the public skin only and go in `results/logs/`.
 
 ## Cost guard

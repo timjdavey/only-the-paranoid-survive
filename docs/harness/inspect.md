@@ -17,7 +17,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | Baselines, Jev, Timestral | Custom `ModelAPI` providers | Same solver, same seeds, same logs as an LLM |
 | `notes` and `compute`, pilot only | `StoreModel` for notes, an inspect sandbox for compute | The sandbox is an optional extra |
 | The prompt lint | A pytest over the rendered prompt and tool text | |
-| Logs | `.eval` files in `logs/`, browsed with `inspect view` | They hold the full prompt, see [privacy](../privacy.md) |
+| Logs | `.eval` files in `logs/`, browsed with `inspect view` | They hold the full prompt, see [contamination](contamination.md) |
 
 ## The round loop
 

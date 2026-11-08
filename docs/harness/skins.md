@@ -36,4 +36,4 @@ One TOML file per skin. Each field fills a bracket in the [system prompt](prompt
 
 ## Canary
 
-Every published file that holds prompt text carries the canary GUID, see [privacy](../privacy.md#canary). The prompt itself does not, so the model never sees it.
+Every published file that holds prompt text carries the canary GUID, see [contamination](contamination.md#canary). The prompt itself does not, so the model never sees it.

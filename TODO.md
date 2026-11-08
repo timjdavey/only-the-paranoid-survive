@@ -13,5 +13,5 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 ## Code
 - Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first.
 - `configs/seeds/` once the engine exists.
-- The canary GUID once the example skin exists, see [privacy](docs/privacy.md#canary).
+- The canary GUID once the example skin exists, see [contamination](docs/harness/contamination.md#canary).
 - Verify the model ids in `configs/models/poc.toml` before the first run.

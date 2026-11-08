@@ -38,7 +38,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
       pilot/       checks to run, decisions taken, results
       results/     the headline tables
       prior/       what others have done
-      glossary.md  privacy.md
+      glossary.md
     src/paranoid/
       engine/  skins/  harness/  analysis/
     tests/         one folder per layer

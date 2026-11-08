@@ -30,7 +30,7 @@ As agents take on longer jobs, the more likely they will face these situations. 
 
 - The code is four layers, engine, skins, harness and analysis, each importing only the one below. See [layout](docs/harness/layout.md).
 - The harness is [inspect_ai](docs/harness/inspect.md). Setup and commands are in [running](docs/harness/running.md).
-- The engine and this repo are public. The skins are private. See [privacy](docs/privacy.md).
+- The engine and this repo are public. The skins are private. See [contamination](docs/harness/contamination.md).
 
 ## Contribution
 
