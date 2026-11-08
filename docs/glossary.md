@@ -16,6 +16,18 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
 | Scenario | A pattern of change we put each model through. See [scenarios](design/scenarios.md) |
 | Contamination | A model having seen the benchmark in training |
+| Base level | A channel's mean when nothing is happening |
+| Weather | The round-to-round wobble round a base level |
+| Memory | How much of this round's weather carries into the next. At 0.8 a bad stretch is half gone after three rounds |
+| Shared factor | One hidden series every channel loads on, so channels have good and bad weeks together |
+| Loading | How much a channel moves with the shared factor. Uneven across channels |
+| Hedge | The one channel with a negative loading. It rises when everything else falls |
+| Leader | The channel that pays best when a run starts |
+| Runner-up | The second best channel at the start. The obvious fallback |
+| Field | The other channels, including the hedge |
+| Sleeper | A field channel whose base level rises past the leader's in a switch |
+| Event | A shock, switch or drift. The three moves a world can make |
+| Tape | The true level of every channel in every round, as one seed produces it. Saved and replayed |
 | Baseline | A fixed strategy run through the same game and score as the models. See [baselines](design/baselines.md) |
 | Oracle | The baseline that knows each round's levels. Every score is a fraction of what it earns |
 | Level | A channel's true payout, which its noisy output sits around. Never called a mean: that word is kept for averaging over runs |
