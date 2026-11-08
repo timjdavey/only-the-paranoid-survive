@@ -2,7 +2,7 @@
 
 These are agent benchmarks where the world moves under the agent partway through. Tools stop working, customers change their minds, a market turns. They are the nearest relatives of our game. For how LLMs learn from noisy results in simpler bandit tasks, see [learning from results](learning-from-results.md).
 
-- **The old plan mostly stops working outright.** Only STOCKTAKE and Allen and McDonald leave the old business still earning, as our leader keeps paying after a [switch](../design/mechanics.md#events).
+- **The old plan mostly stops working outright.** Only STOCKTAKE, Allen and McDonald, and on thin evidence Haq, leave the old business still earning, as our leader keeps paying after a [switch](../design/mechanics.md#events).
 - **Overreacting is rarely priced.** Only STOCKTAKE has a false alarm that looks real for a while, and even it leaves calm-week overreactions out of the score.
 - **Knowing and acting come apart.** In STOCKTAKE, KellyBench, Bazaar and Goel, agents name the problem and then fail to act on it.
 
@@ -237,6 +237,14 @@ Ryan T. Allen and Rory M. McDonald. "How Well Can AI Do Strategy? Empirical Benc
 - **The masking test backs narrative skins.** No model could name the masked game, which is why the engine is public and the held-out skins are private, see [skins](../harness/skins.md) and [contamination](../harness/contamination.md).
 - **Newer models did worse and broke from GPQA**, so we shouldn't assume a newer model scores higher here.
 - One deterministic world can't separate noticing from guessing. Our seeds redraw every event. As a human baseline it is too loose to borrow, and the current design has none.
+
+## Haq et al. 2025: mental sets in LLMs
+
+Saiful Haq et al. "Is your LLM trapped in a Mental Set? Investigative study on how mental sets affect the reasoning capabilities of LLMs." Preprint, January 2025. [arXiv:2501.11833](https://arxiv.org/abs/2501.11833)
+
+**In short.** After six problems that need a long arithmetic method, do Llama-3.1 and GPT-4o keep using it when a shortcut would do? Like Allen and McDonald, the old method still works after the switch.
+
+**Why it matters here.** That is the shape of our [switch](../design/mechanics.md#events), where the leader keeps paying, and of the stale baseline in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign the earlier problems carried over, since the extra steps came from chain of thought alone.
 
 ## Goel et al. 2026: a teammate who switches tasks
 
