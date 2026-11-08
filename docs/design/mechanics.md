@@ -2,7 +2,7 @@
 
 ## Noise
 
-- Each channel's output is noisy around its mean every turn. With a set sigma pure channel per regime.
+- Each channel's output is noisy around its level every turn. With a set sigma pure channel per regime.
 - Noise can be seen as a difficulty knob. With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds. Its level is set in the [pilot](../pilot/checks.md#noise).
 
 ## Information

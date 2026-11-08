@@ -17,7 +17,14 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Scenario | A pattern of change we put each model through. See [scenarios](design/scenarios.md) |
 | Contamination | A model having seen the benchmark in training |
 | Baseline | A fixed strategy run through the same game and score as the models. See [baselines](design/baselines.md) |
-| Oracle | The baseline that knows each round's mean levels. Every score is a fraction of what it earns |
+| Oracle | The baseline that knows each round's levels. Every score is a fraction of what it earns |
+| Level | A channel's true payout, which its noisy output sits around. Never called a mean: that word is kept for averaging over runs |
+| Error bar | How sure we are of a score. Spread over √seeds, so it shrinks with more seeds (epistemic uncertainty). See [scoring](design/scoring.md#error-bars) |
+| Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
+| Sampling spread | The part of spread from the model's own draws. Same seed, run again |
+| World spread | The part of spread from the seed |
+| Skin sensitivity | The gap in a model's score between skins. A finding, not an error. Not measured until more than one skin runs |
+| Trait profile | A model's scores across scenarios. The signal the headline combines |
 
 ## Adding a word
 
