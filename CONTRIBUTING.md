@@ -8,8 +8,16 @@ See [running](docs/harness/running.md). `uv sync`, copy `.env.example` to `.env`
 
 - **Read the layer rule** in [layout](docs/harness/layout.md). Code imports only from the layer below it. CI checks this.
 - **Use glossary words** in code and prose, see [glossary](docs/glossary.md). Add a word there before using it anywhere else.
-- **Docs are skimmable.** Bullets, tables, under 300 lines, links over re-explaining. See [AGENTS.md](AGENTS.md).
-- **Commit before every major change.**
+- **Commit before every major change.** If the working tree has uncommitted work, commit it first, then start the change.
+
+## Be reader friendly
+
+This matters most.
+
+- Every file must be skimmable, clear and concise. Use bullets where you can.
+- Name things so they explain themselves.
+- Keep files under 300 lines. Use links over re-explaining.
+- Talk to the reader, not to yourself. Assume they've never seen the study, and be friendly and clear.
 
 ## Adding things
 
