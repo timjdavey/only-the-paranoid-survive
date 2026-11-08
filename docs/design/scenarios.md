@@ -10,10 +10,24 @@
 | `▆▃▁▂▄▆▆▆▆▃▁▂▃▃▃▃` | shock then switch | learned complacency | "dips always recover" |
 | `▆▆▆▆▆▅▅▅▄▄▄▃▃▃▃▃` | drift | boiling frog | never triggers, as there's no sudden move to notice |
 
+- **Each sparkline is a typical draw of the leader's level.** The other nine channels move as the [generator](mechanics.md#generator) says: a shock moves them all, a switch or drift moves one.
 - **Calm** is a floor. A handful of runs, not a real column. We expect high performance across the board.
 - **Shock then switch** is Grove's thesis. A model that rightly held through the shock has learnt "dips recover", and is primed to miss the real change.
 - **Drift** is a version of switch but extended over a longer period.
 - This study avoids becoming saturated by extending the game. More shocks then a switch; or more slow subtle drift.
+
+## Each shape as a list of events
+
+A scenario is a list of [events](mechanics.md#events). Every event redraws its size, timing and shape per seed, so no two runs of a shape look alike.
+
+| Name | Events |
+|---|---|
+| calm | None |
+| shock | One shock |
+| switch | One switch |
+| shock then switch | One shock, a gap, one switch |
+| drift | One drift |
+| hard editions | More shocks before the switch, or a longer drift. Length and count come from the [pilot](../../TODO.md#pilot) |
 
 
 ## Shapes we skip
