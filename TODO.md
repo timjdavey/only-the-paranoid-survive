@@ -9,7 +9,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 
 ## Code
 - Write the engine from its [spec](docs/specs/engine/README.md), tests first, then the baselines from [theirs](docs/specs/baselines/README.md).
-- Write the analysis spec, see [specs](docs/specs/README.md). The engine, baselines, skins and harness specs are written.
+- Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
 - Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first, baselines second.
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before a held-out run.

@@ -47,4 +47,4 @@ One eval plays every scenario, so one log holds all a headline needs. Each metri
 - **Headline** is the plain mean of the scenario scores, bootstrapped by resampling seeds within each scenario. Scenarios are never resampled.
 - **Weakest trait** is the lowest scenario score and the name of its trait.
 - **Retry share** is the share of rounds that needed a retry, read from the store and reported beside every score.
-- **Gaps between models** are paired by seed in the [analysis](layout.md) layer, as they need two logs.
+- **Gaps between models** are paired by seed in the analysis layer, as they need two logs, see [paired gap](../specs/analysis/scores.md#paired-gap).

@@ -17,7 +17,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 | baselines | `paranoid.baselines` | engine | the fixed policies, `HedgeRule`, `ScoutRule`, `POLICIES`, the forecast rules and `FORECAST_RULES`, see the [baselines spec](../specs/baselines/README.md#exports) |
 | skins | `paranoid.skins` | engine | `Skin`, `SkinError`, `load_skin`, `load_skins`, `render_system_prompt`, `render_record`, `prompt_hash`, `lint`, `lint_text`, `LintError`, `CANARY` and the lint's word lists, see the [skins spec](../specs/skins/README.md#exports) |
 | harness | `paranoid.harness` | skins, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
-| analysis | `paranoid.analysis` | harness, pandas | `load_runs`, tables, CSVs, bootstrap, plots |
+| analysis | `paranoid.analysis` | harness, engine, pandas, matplotlib, scipy | `load_runs`, `ResultKey`, `scenario_scores`, `headlines`, the gaps, `spread`, `switch_kinds`, `noise_threshold`, the writers and plots, `analyse`, see the [analysis spec](../specs/analysis/README.md#exports) |
 
 ## What each layer does
 
@@ -25,7 +25,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 - **Baselines** hold every [baseline](../design/baselines.md) as a pure function from what it may see to bets, plus the rules that turn a forecast into bets. A new baseline is a file here and a key in `POLICIES`, and the harness plays it as `baseline/<name>` with no change of its own.
 - **Skins** dress the engine in a story. A skin is text plus the names of the ten channels. The layer renders the system prompt and the record in the skin's words, and lints both for banned words. Private skins load from a path, see [skins](skins.md).
 - **Harness** is the inspect_ai layer. One task, one solver, one tool, a provider for every model that cannot place bets, a scorer and metrics. See [inspect](inspect.md).
-- **Analysis** reads `.eval` logs and writes the tables and plots in [results](../results/poc.md) and [pilot results](../pilot/results.md). Beside each table it writes the data as a CSV with one row per run: model, skin, scenario, seed set, seed and score. A held-out seed shows its position in the list (0, 1, 2…), never its value, see [contamination](contamination.md#who-can-see-them).
+- **Analysis** reads `.eval` logs and writes the tables and plots in [results](../results/poc.md) and [pilot results](../pilot/results.md). Beside each table it writes the data as a CSV with one row per run: model, skin, scenario, seed set, seed and score. A held-out seed shows its position in the list (0, 1, 2…), never its value, see [contamination](contamination.md#who-can-see-them). It reads a log's scores and metadata and never its messages, see the [analysis spec](../specs/analysis/README.md).
 
 ## Repo tree
 
@@ -42,7 +42,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
       results/     the headline tables and their CSVs
       prior/       what others have done
       specs/       what each layer must do, written before its code. See docs/specs/README.md
-        engine/  baselines/  skins/  harness/
+        engine/  baselines/  skins/  harness/  analysis/
       glossary.md
     src/paranoid/
       engine/  baselines/  skins/  harness/  analysis/

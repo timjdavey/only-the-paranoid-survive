@@ -14,7 +14,7 @@ What is published and what is held back, and why.
 | Logs from the example skin on public seeds | `results/logs/` | Yes |
 | Logs from a held-out skin or a held-out seed | Nowhere. They stay on the machine that ran them | No |
 | Results tables | `docs/results/` | Yes, scores per scenario with skin names only |
-| Run CSVs | `docs/results/` | Yes, one row per run. Held-out seeds by position, not value |
+| Run CSVs | `docs/results/` | Yes, one row per run: the run score and the gain and gap that pool it, nothing round by round. Held-out seeds by position, not value, see [the run CSV](../specs/analysis/tables.md#the-run-csv) |
 
 ## Why
 
@@ -50,7 +50,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 ## The public gap
 
 - **A check that the public seeds have not been tuned on.** Each model plays one held-out skin on both seed sets, so only the seeds differ.
-- **A model that does much better on public seeds** has likely seen them. The gap is reported beside the headline, with its paired interval, see [scoring](../design/scoring.md#error-bars).
+- **A model that does much better on public seeds** has likely seen them. The gap is reported beside the headline with its interval. The two seed sets are different worlds, so it cannot be paired by seed, see [public gap](../specs/analysis/scores.md#public-gap).
 - **The seeds are not the only leak.** Whether a model can tell from the prompt that it is in this benchmark is the [recognition check](../pilot/provider-checks.md#recognition).
 
 ## What it does not stop

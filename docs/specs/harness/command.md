@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`paranoid` is the console script. `paranoid poc` plays every row of a models config through the task. `paranoid pilot <check>` runs one pilot cell, with no model where the check needs none. The models config and the reasoning mapping live here, as the command is what reads them. `paranoid analyse` belongs to the analysis layer and plugs in, see [subcommands](#subcommands). The design is in [running](../../harness/running.md#commands) and [models](../../harness/models.md).
+`paranoid` is the console script. `paranoid poc` plays every row of a models config through the task. `paranoid pilot <check>` runs one pilot cell, with no model where the check needs none. The models config and the reasoning mapping live here, as the command is what reads them. `paranoid analyse` belongs to the analysis layer and plugs in, see [subcommands](#subcommands) and the [analysis command](../analysis/command.md). The design is in [running](../../harness/running.md#commands) and [models](../../harness/models.md).
 
 ## Interface
 
@@ -10,7 +10,7 @@
 paranoid poc   [--models configs/models/poc.toml] [--skin example] [--seeds public]
                [--limit N] [--log-dir logs/] [--only <id>] [--dry-run]
 paranoid pilot <check> [--out logs/pilot/] [--models configs/models/poc.toml] [--dry-run]
-paranoid analyse ...    registered by the analysis layer
+paranoid analyse ...    registered by the analysis layer, see the analysis command page
 ```
 
 ```python
@@ -40,7 +40,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 - **`main`** parses `argv` with `argparse`, dispatches, and returns 0 on success and 1 on a `ValueError`, whose message it prints. Any other exception propagates with its traceback.
 - **`poc` and `pilot`** are built in.
-- **Other subcommands come from the entry point group `paranoid.commands`.** The analysis layer registers `analyse = "paranoid.analysis.cli:analyse"`. `main` discovers them with `importlib.metadata.entry_points` and loads one only when it is named, so the harness never imports the analysis layer and the layer rule holds, see [layout](../../harness/layout.md#five-layers).
+- **Other subcommands come from the entry point group `paranoid.commands`.** The analysis layer registers `analyse = "paranoid.analysis.cli:analyse"`, see [analysis command](../analysis/command.md#dispatch). `main` discovers them with `importlib.metadata.entry_points` and loads one only when it is named, so the harness never imports the analysis layer and the layer rule holds, see [layout](../../harness/layout.md#five-layers).
 
 ### Models config
 
@@ -72,12 +72,13 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 ### `poc`
 
-- **For every row and every `reasoning` value** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
+- **For every row and every `reasoning` value** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
 - **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens.
 - **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own tape, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
 - **`--only <id>`** runs one row. **`--limit`** caps samples per eval, as inspect does. **`--dry-run`** prints each eval call and runs nothing.
 - **A Timestral row with the extra missing** is skipped with one line saying so, and `poc` carries on. A missing key for an LLM row is left to inspect, which fails that eval, and `poc` carries on to the next row and returns 1 at the end.
 - **Logs** go to `--log-dir`, named by inspect. Each holds the metadata in [dataset](task.md#dataset), so the analysis layer can tell them apart without the config.
+- **The log carries its setting.** `metadata` on the eval puts `reasoning` and `kind` in `EvalLog.eval.metadata`, as neither is in a sample's metadata or readable from a generate config for `off` and `on`. The analysis reads them first and falls back to the config, see [reasoning](../analysis/runs.md#reasoning).
 
 ### Pilot cells
 
@@ -124,3 +125,4 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 ## Verify before code
 
 - **The budget table and the effort names per provider**, against inspect's `GenerateConfig` and each provider's API, see the "to verify" notes in [`full.toml`](../../../configs/models/full.toml). `EFFORT_PREFIXES` is a first guess for the same reason. `generate_config` waits on it.
+- **That `eval(metadata=...)` lands in `EvalLog.eval.metadata`.** If inspect has no such argument, `poc` writes the two keys into every sample's metadata through a task arg instead. `poc` waits on it.

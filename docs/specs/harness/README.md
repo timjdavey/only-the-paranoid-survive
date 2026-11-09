@@ -29,7 +29,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `TIMESTRAL_POLICIES` | Timestral ids to a forecast rule and whether the past bets go in | [providers](providers.md) |
 | `gain` | The `@scorer` | [scorer](scorer.md) |
 | `scenario_score`, `headline`, `weakest_trait`, `retry_share` | The `@metric`s | [scorer](scorer.md) |
-| `pooled_score`, `bootstrap`, `TRAITS` | The maths the metrics share, and scenario to trait | [scorer](scorer.md) |
+| `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED`, `TRAITS` | The maths the metrics share, its two constants, and scenario to trait | [scorer](scorer.md) |
 | `load_models`, `ModelRow`, `generate_config` | The models config and the reasoning mapping | [command](command.md) |
 | `REASONING`, `EFFORT_PREFIXES` | The reasoning grid, and the providers that take an effort rather than a budget | [command](command.md) |
 | `main` | The `paranoid` console script | [command](command.md) |
@@ -93,6 +93,17 @@ The harness imports these from `paranoid.skins`. Their signatures and behaviour 
 | `render_system_prompt`, `render_record` | The system prompt and the record, the one way the harness renders either, see [each round](solver.md#each-round) |
 | `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
 | `lint_text` | The banned word check on messages and replies, see [tests](tests.md) and [command](command.md) |
+
+## What the analysis layer reads
+
+The analysis is the layer above. What it takes from the harness is listed on its README, so the boundary is written on both sides, see [specs](../README.md#rules).
+
+| Layer | Its list |
+|---|---|
+| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `scenario_config` and `load_seeds` for the one tape it rebuilds |
+
+- **The analysis reads a log's scores and metadata, never its messages or store**, see [runs](../analysis/runs.md#privacy). So every number it reports is in `Score.value` or `Sample.metadata`, which is why the [scorer](scorer.md#scoring-one-run) puts the baselines' outputs there and the [task](task.md#dataset) puts every identifier in the metadata.
+- **`poc` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [poc](command.md#poc).
 
 ## Conventions
 

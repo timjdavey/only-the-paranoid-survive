@@ -93,6 +93,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HM10 | `main(["poc", "--only", "baseline/uniform", "--dry-run"])` on a two-row file prints that row's line only | [command](command.md#poc) |
 | HM11 | Without the timestral extra, a models file with a `timestral/top-pick` row then a `baseline/uniform` row: `poc` prints one line saying the Timestral row is skipped, runs the baseline eval, and returns 0 | [command](command.md#poc) |
 | HM12 | A models file with an `llm` row whose `id` names a provider inspect cannot resolve, then a `baseline/uniform` row: `poc` runs the baseline eval anyway and returns 1 | [command](command.md#poc) |
+| HM13 | The log HM6 writes has `eval.metadata["reasoning"] == "n/a"` and `eval.metadata["kind"] == "baseline"` | [command](command.md#poc) |
 
 ## Property tests
 

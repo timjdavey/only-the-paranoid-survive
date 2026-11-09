@@ -74,7 +74,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 
 - **The scorer still runs**, as the solver raised nothing. `gave_up` is 1, `gain` is 0 whatever the agent earned before it stopped, so `run_score` is 0. `output` keeps the real partial sum for the reader. `gap` is the full gap, so the seed keeps its weight in the pool.
 - **`failed`** counts them per scenario. A group where every run gave up has a score of 0 and `failed == n`.
-- **It never happens silently.** `failed` is in the value, and the analysis layer marks the bar.
+- **It never happens silently.** `failed` is in the value, and the analysis layer flags the bar, see [flags](../analysis/scores.md#flags). inspect's own view shows `failed` as a metric key and nothing more.
 - **Nothing is rebuilt.** Every number a metric needs is in `Score.value`, so a log scores the same with no seed file, no `PARANOID_SEEDS` and no engine, and `--limit 2` scores two seeds rather than reporting the rest as failed.
 - **An errored sample is infrastructure**, see [task settings](task.md#task-settings). It has no `SampleScore` and is in no metric. inspect's own log says how many errored, and the eval fails past a tenth.
 
@@ -96,8 +96,8 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 
 ### Not here
 
-- **Gaps between models** need two logs and are paired by seed in the analysis layer, see [metrics](../../harness/inspect.md#metrics).
-- **The noise threshold** needs every grid setting, so it is analysis too, see [noise threshold](../../design/scoring.md#noise-threshold).
+- **Gaps between models** need two logs and are paired by seed in the analysis layer, see [paired gap](../analysis/scores.md#paired-gap).
+- **The noise threshold** needs every grid setting, so it is analysis too, see [noise threshold](../analysis/scores.md#noise-threshold).
 
 ## Invariants
 
@@ -110,4 +110,3 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 ## Not decided
 
 - `BOOTSTRAP_DRAWS` at 1000 is a convention, not a pilot knob. Raise it if the bars wobble between runs of the analysis at the seed counts the pilot picks. Decide once the pilot has set its seed count.
-- Whether `failed` should also mark the bar inside inspect's own view, or only in the analysis layer's tables. Decide when the analysis spec is written.
