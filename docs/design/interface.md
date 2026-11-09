@@ -40,7 +40,7 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 | Compounding bankroll | The right stake is a Kelly fraction, so the game tests bet sizing as much as spotting a change. Early luck multiplies through the run, so variance swamps model differences. Ruin scores zero on that seed and swamps the pool |
 | Cash as a safe channel | Models park in cash whenever unsure, so the No change scenario needs an extra cost to stay readable |
 | Stop or continue, one irreversible switch | Clean detection delay, but binary, so no graded doubt |
-| Ask for a probability the regime changed | The most direct measure, but it tells the agent change is the question |
+| Ask for a probability the climate changed | The most direct measure, but it tells the agent change is the question |
 | Forecast the levels, engine acts on them | Asking an LLM for a forecast nudges it that levels move. Kept only as the adapter for forecasters like Timestral, where there is no prompt to nudge |
 | Rank the channels | Cheap for the model but coarse. A rank swap is as binary as a pick |
 | Pivot with a conversion cost | The mechanic prices lateness and overreaction itself, but the fee leaks into every trait, and it is lumpy, so a timid agent and a confident one read the same until one moves |

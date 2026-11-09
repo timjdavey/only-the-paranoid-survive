@@ -34,6 +34,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Level | A channel's true payout, which its noisy output sits around. Never called a mean: that word is kept for averaging over runs |
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |
+| Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |
 | Persistence | How much of this round's weather carries into the next. At 0.8 a bad stretch is half gone after three rounds |
 | Shared factor | One hidden series every channel loads on, so channels have good and bad weeks together |
 | Loading | How much a channel moves with the shared factor. Uneven across channels |
@@ -74,7 +75,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 
 | Word | What it means |
 |---|---|
-| Scenario score | The share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. 0 is knowing nothing, 1 is knowing the regime. See [scoring](design/scoring.md#how-we-score) |
+| Scenario score | The share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. 0 is knowing nothing, 1 is knowing the climate. See [scoring](design/scoring.md#how-we-score) |
 | Run score | One seed's share of that gap, shown as a dot. It can land outside 0 to 1 on one seed. The scenario score pools seeds so it rarely does |
 | Headline | One score per model: the plain mean of its five scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
 | Weakest trait | The lowest of a model's five scenario scores, named. The AND the headline alone does not give |

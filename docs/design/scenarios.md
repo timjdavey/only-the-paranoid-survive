@@ -23,11 +23,11 @@ A scenario is a list of [events](mechanics.md#events), and each event has a shap
 
 | Sparkline | Scenario | What it would test | Failure mode | Why we skip it |
 |---|---|---|---|---|
-| `▆▃▁▂▃▃▃▃▃▂▁▂▃▃▃▃` | Switch then shock | commitment stability | whipsaw back to the old regime | Real but second order. The noise after any switch gives a partial read for free |
+| `▆▃▁▂▃▃▃▃▃▂▁▂▃▃▃▃` | Switch then shock | commitment stability | whipsaw back to the old climate | Real but second order. The noise after any switch gives a partial read for free |
 | `▆▃▁▄▆▆▃▁▄▆▆▃▁▄▆▆` | Repeated shocks | which way habituation goes | gets jumpier, not calmer | Habituation is a follow-up study. Add it if models turn out fine on the basics |
 | `▇▇▇▇▅▅▅▅▃▃▃▃▁▁▁▁` | Repeated switches | whether it updates its rate of updating | treats the third switch like the first | Same as repeated shocks |
-| `▆▆▆▃▃▃▃▃▃▃▆▆▆▆▆▆` | Switch then revert | recognising a return | treats the old regime as new, or refuses to go back | Niche |
-| `▅▅▄▅▅▄▅▅▇▂▆▃▇▂▆▄` | Variance shift | a regime change with no level change | only watches the mean | A different question: what counts as a regime. Save it for when we want to argue definitions |
+| `▆▆▆▃▃▃▃▃▃▃▆▆▆▆▆▆` | Switch then revert | recognising a return | treats the old climate as new, or refuses to go back | Niche |
+| `▅▅▄▅▅▄▅▅▇▂▆▃▇▂▆▄` | Variance shift | a change in the weather with no change in level | only watches the mean | A different question: what counts as a change in climate. Save it for when we want to argue definitions |
 | `▆▅▆▆▄▆▆▃▆▆▂▅▁▁▁▁` | Escalating shocks | reading precursors | ignores a trend in volatility | A precursor-reading benchmark in disguise. Separate project |
 | `▆▅▆▆▄▆▆▃▆▆▂▅▆▆▆▆` | False escalation | the twin of escalating shocks | adapts to a storm that passes | Goes with escalating shocks |
 

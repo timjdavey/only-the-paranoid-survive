@@ -58,7 +58,7 @@ Returns the level of each funded channel and the output. A sum that is not 100 r
 The lint fails if the rendered system prompt, record or tool text contains any of these, in any case or inflection:
 
     check, change, shift, switch, shock, drift, trend, anomaly, regime,
-    detect, monitor, watch, alert, stable, volatile
+    climate, detect, monitor, watch, alert, stable, volatile
 
 - The list lives in `paranoid.skins.lint`. Add a word there first, then here.
 - Skin text is linted on load, so a private skin cannot slip one in.

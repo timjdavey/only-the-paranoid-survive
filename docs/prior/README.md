@@ -53,7 +53,7 @@ Studies where nothing changes are on their own pages.
 | [Haq et al. 2025](worlds-that-change.md#haq-et-al-2025-mental-sets-in-llms) | 12 arithmetic problems | Problem type switches | Yes, the long method still works | Exact | No | Nothing | n/a |
 | [Behrens et al. 2007](people.md#behrens-et-al-2007-people-learn-faster-when-the-world-is-volatile) | People, blue or green | Many swaps | No | Noisy | No | Hierarchical Bayesian learner | Stable phase reported |
 | [Bleser et al. 2026](people.md#bleser-et-al-2026-true-and-false-beliefs-about-volatility) | People, told the rule will or won't change | One flip per block | No | Noisy | Yes, half the time falsely | Fitted learning rates | Yes, stable blocks reported |
-| [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a regime shift | At most one shift | n/a, beliefs only | Noisy | Yes | Bayesian posterior | Yes, overreaction is a finding |
+| [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a switch | At most one shift | n/a, beliefs only | Noisy | Yes | Bayesian posterior | Yes, overreaction is a finding |
 | [Brown and Steyvers 2009](people.md#brown-and-steyvers-2009-naming-a-change-versus-predicting-through-it) | People, a hidden source that jumps | Many jumps | No | Noisy | Not stated | Particle filter fits | No |
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | The reward ratio jumps | No | Noisy | n/a | Ideal detector | No |
 | [Nassar et al. 2010](people.md#nassar-et-al-2010-a-learning-rate-that-rises-with-surprise) | People, predicting the next number | The mean jumps | No | Noisy | Yes | Reduced Bayesian learner | Yes, through prediction error |
@@ -62,8 +62,8 @@ Studies where nothing changes are on their own pages.
 
 ### The closest studies
 
-- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees, which makes it depend on what the agent chose to look at. Ours, the [Discerning baseline](../design/baselines.md#fixed-baselines), knows the regime but not the weather, so it is the same for every player and reachable in expectation.
-- **AdaExploreBench is closest in design.** One silent change, and a score that runs from a floor to a ceiling. Theirs is all-knowing. Ours, the Discerning baseline, knows the regime but not the weather.
+- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees, which makes it depend on what the agent chose to look at. Ours, the [Discerning baseline](../design/baselines.md#fixed-baselines), knows the climate but not the weather, so it is the same for every player and reachable in expectation.
+- **AdaExploreBench is closest in design.** One silent change, and a score that runs from a floor to a ceiling. Theirs is all-knowing. Ours, the Discerning baseline, knows the climate but not the weather.
 - **Set-shifting is the only one with a matched no-change copy** of every run. It reports that copy beside the score, not inside it. Our No change and One shock scenarios are inside the headline.
 
 ## Which way do models fail?

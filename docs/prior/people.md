@@ -141,7 +141,7 @@ Cade Massey and George Wu. "Detecting Regime Shifts: The Causes of Under- and Ov
 
 **In short.** People react mainly to the signals in front of them and too little to the system that makes them. The authors call this system neglect, and it predicts which way people err from the world alone.
 
-**What they did.** People watch signals from a system that may have switched regime and say how likely the switch is. The experiments vary how informative each signal is and how likely a switch is, against the Bayesian answer.
+**What they did.** People watch signals from a system that may have switched state and say how likely the switch is. The experiments vary how informative each signal is and how likely a switch is, against the Bayesian answer.
 
 **What they found.**
 
