@@ -65,6 +65,7 @@ This is where most rewrites come from. A story passes the lint and still fails i
 - **Place names should read as one place.** Ten names that could all be wards of one real city read as a city. Any-town names, or a mix of British and American registers, read as a list.
 - **Channel names are headers.** Short, unique, comma-free, no quotes, none starting with a banned stem. Avoid one name being a substring of another. The lint finds `Rome` inside `Rome East` and passes, but the agent reading a header row does not, see [frame facts](../specs/skins/lint.md#frame-facts).
 - **A banned stem must start the word.** So `exchange` passes and `shift` fails, and a compound such as "night shift" fails on its second word. The ordinary words that fail by design are under [words](../specs/skins/lint.md#words). Pick another word rather than argue.
+- **The column words are headers too.** `round_word`, `bet_word`, `level_word` and `output_word` head the record. Pick them in the story's words, never `round`, `bet`, `level` or `output`, which are the example skin's, see [render](../specs/skins/render.md#record).
 - **The tool name is a verb and a noun in the story's words.** Never `submit`, which is the example skin's name for it and the harness's. It is linted like any field, so a verb from the banned list fails.
 
 ## Wording the frame your own way

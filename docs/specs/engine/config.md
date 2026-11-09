@@ -152,18 +152,21 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `hedge_margin_points` | 4 | One sigma at the default `own_scale`, in points so it survives pinning | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `ShockSpec.depth_sigmas` | 4 to 8 | Through a loading of 0.65 the leader dips 2.6 to 5.2 sigmas. The cap cuts the deepest draws on seeds with a high hedge and strong loadings, so the final depth is in `Event.numbers` | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `ShockSpec.half_life` | 2 to 4 | The shock is mostly gone in about ten rounds | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
-| `SwitchSpec.size_sigmas` | 1 to 3 | The leader ends clearly below the runner-up on every seed. With the gap it moves 12 to 28 points | Switch size row in [decisions](../../pilot/decisions.md#engine-checks) |
+| `SwitchSpec.size_sigmas` | 1 to 3 | The leader ends clearly below the runner-up on every seed. With the gap it moves 12 to 28 points | [Noise grid](../../pilot/engine-checks.md#noise-grid) |
 | `SwitchSpec.rise_sigmas` | 1 to 3 | A sleeper clearly best once risen, but not a giveaway | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.riser_share` | 0.5 | Half the Down switch tapes draw a sleeper | [Up and down](../../pilot/engine-checks.md#up-and-down) |
-| `SwitchSpec.short_share` | 0 on the spec, 0.25 in `up_switch` | "On most seeds the sleeper rises past the leader, on some it stops short", see [scenarios](../../design/scenarios.md#scenarios-we-test) | Short share row in [decisions](../../pilot/decisions.md#engine-checks) |
+| `SwitchSpec.short_share` | 0 on the spec, 0.25 in `up_switch` | "On most seeds the sleeper rises past the leader, on some it stops short", see [scenarios](../../design/scenarios.md#scenarios-we-test) | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.short_level` | 0.25 to 0.75 | Clear of the runner-up, so a looker sees a real move, and clear of the leader, so the Scout rule does not move on a near tie | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.ramp` | 1 to 5 | [events](../../design/mechanics.md#events) | Fixed by design |
 | `DriftSpec.size_sigmas`, `length` | 1 to 3, 15 to 25 | The Down switch stretched: with the gap, about 0.5 to 1.9 points a round | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
-| `gap` | 8 to 12 | Room for a habit to re-form after a shock | Events per run row in [decisions](../../pilot/decisions.md#engine-checks) |
+| `gap` | 8 to 12 | Room for a habit to re-form after a shock | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `*_points` pairs | sigmas × 4 | Agree with the sigmas pair at `own_scale` 4 | [Noise grid](../../pilot/engine-checks.md#noise-grid) |
 
-## Open
+## Pilot decides
 
-- The [noise grid](../../pilot/engine-checks.md#noise-grid) is a list of `own_scale` values with `pin_in_level_points` on. It lives in `configs/grid.toml`, and the harness applies one setting per eval, see the [task spec](../harness/task.md#scenarios-and-config).
-- Whether `inertia_cap` belongs here or on the harness task. It is here because it changes what a valid bet is, which is an engine rule.
-- `hedge_may_overtake` needs a config whose ladder and loadings let the hedge pass the leader within `depth_points`. At the defaults most seeds cannot, so the knob's config is for the pilot, see [shock](tape.md#shock).
+- Every default above. The [noise grid](../../pilot/engine-checks.md#noise-grid) is a list of `own_scale` values with `pin_in_level_points` on. It lives in `configs/grid.toml`, and the harness applies one setting per eval, see the [task spec](../harness/task.md#scenarios-and-config).
+
+## Not decided
+
+- Whether `inertia_cap` belongs here or on the harness task. It is here because it changes what a valid bet is, which is an engine rule. Decide before the harness task is coded, as it is a task arg either way.
+- `hedge_may_overtake` needs a config whose ladder and loadings let the hedge pass the leader within `depth_points`. At the defaults most seeds cannot, so the knob's config is for the pilot, see [shock](tape.md#shock). Build it when [the tell](../../pilot/engine-checks.md#the-tell) runs.

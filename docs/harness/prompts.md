@@ -56,7 +56,7 @@ The record as CSV. Round 1 sends the header only, or a record pre-filled by a ba
     1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,61.2
     2,...
 
-- Column names use the skin's channel names.
+- Column names use the skin's channel names and its four column words. The example skin's words are `round`, `bet`, `level` and `output`, and a held-out skin picks its own, see [skins](skins.md#what-a-skin-file-holds).
 - A blank level is a channel with no bet.
 - Levels and output are reported to one decimal place.
 

@@ -9,7 +9,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | Field | What it is |
 |---|---|
 | `name` | Short id, the file stem, used in log metadata. Results tables publish it, so a held-out skin's name is opaque, never a word from its story |
-| `channels` | Ten names. Which one leads is drawn per seed by the [ladder](../design/mechanics.md#the-ladder) |
+| `channels` | One name per channel, ten in the study. Which one leads is drawn per seed by the [ladder](../design/mechanics.md#the-ladder) |
 | `intro` | Who the agent is and what it runs |
 | `rules` | The budget of 100 points, the ten channels by name, and that points are whole numbers adding up to 100 |
 | `how_points_earn` | What a point buys, what a reading means, and that a small spend gives a rough reading |
@@ -20,9 +20,10 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `bad_call` | The retry message for any bets the engine rejects. One generic message, no slots |
 | `no_call` | The retry message for a reply with no tool call |
 | `question` | Jev's choice question, see [providers](providers.md#jev). Linted like every other skin field |
+| `round_word`, `bet_word`, `level_word`, `output_word` | The four words that head the [record](prompts.md#user-message): the round column, the suffix of each bet column, the suffix of each level column, the output column. `round`, `bet`, `level` and `output` in the example skin. Each skin picks its own, so no header is shared across skins, see [contamination](contamination.md#why) |
 
 - **Numbers come from the engine, never the skin.** A skin names things and sets the scene. It never states levels, trends or history.
-- **Each skin words the [frame](../glossary.md) its own way.** A held-out skin should read nothing like the example skin, in its rules, ask and tool text as much as its story. The published wording is then only the example skin's, see [contamination](contamination.md#why).
+- **Each skin words the [frame](../glossary.md) its own way.** A held-out skin should read nothing like the example skin, in its rules, ask, tool text and column words as much as its story. The published wording is then only the example skin's, see [contamination](contamination.md#why).
 - **One skin per headline.** Skins are never averaged, see [scoring](../design/scoring.md#spread).
 
 ## Where skins live
