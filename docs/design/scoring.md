@@ -128,7 +128,7 @@ The full study headline. The proof of concept reports the headline at one noise 
 - **The Complacent baseline is the reference floor.** Its headline does not move with noise, as it never reads anything. Fit a logistic curve of the model's headline against the log of signal to noise and read off the setting at which the model sits half way between the Complacent baseline's headline and 1. That is the noise threshold: the noisiest world the model still reads. Lower is better. Report the 80% crossing beside it, as METR does.
 - **The crossing does not depend on the floor.** Half way from the Complacent to the Discerning baseline is the same world whether the scale starts at the Uniform baseline or at the Complacent one.
 - **Error bar.** Resample seeds at every setting and refit.
-- **Off the grid.** A model that never crosses within the grid reads "off the quiet end" (saturated, extend the grid) or "off the noisy end", never a number.
+- **Off the grid.** A model that never crosses within the grid gets a status, never a number: "off the noisy end" when it sits above the half way mark at every setting, so it reads every world on the grid and the grid should extend to noisier settings, or "off the quiet end" when it sits below at every setting. See [noise threshold](../specs/analysis/scores.md#noise-threshold).
 - **Releases join on the axis.** Adjacent releases overlap by two settings, and a fixed set of anchor models is rerun on each.
 - **The grid is set from baselines, not models.** The pilot places it so the hedge rule and Timestral baselines span a full curve, before any model runs.
 

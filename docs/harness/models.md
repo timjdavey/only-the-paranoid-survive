@@ -51,7 +51,7 @@ The full study plots the headline two ways, one point per model and setting:
 - **Against [ECI](../glossary.md)** (`eci`). Is it just general capability, or something separate?
 - **Settings of one model are joined by a line.** ECI has one score per model, not per setting, so on the ECI plot a model's settings stack in a column. How tall that column is tells you how much reasoning matters.
 - **Error bars** come from [scoring](../design/scoring.md#error-bars).
-- **ECI is Epoch AI's**, under CC BY 4.0. Credit it on every plot. The analysis can refresh `eci` from the CSV, but it reports the date it read it.
+- **ECI is Epoch AI's**, under CC BY 4.0. Credit it on every plot. The values are typed into the models file by hand from the CSV, and the date they were read is passed to `paranoid analyse --eci-read-on` for the credit. The analysis never fetches them, see the [analysis command](../specs/analysis/command.md#results).
 
 ## Keys
 

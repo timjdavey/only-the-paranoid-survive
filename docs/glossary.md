@@ -30,6 +30,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 | Spec | The contract a layer of the code is written to and tested against. One folder per layer in [specs](specs/README.md). Design pages say why, specs say what |
+| Setting | What was played, apart from who played it: the skin, seed set, noise setting, knobs and versions. Rows that differ in any of them never share a table. `Setting` in code, see the [analysis spec](specs/analysis/runs.md) |
+| Result row | One model at one reasoning setting on one setting. One row of a results table, and the unit the analysis compares. `ResultKey` in code, see the [analysis spec](specs/analysis/runs.md) |
 
 ## The world
 
@@ -113,6 +115,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Sampling spread | The part of spread from the model's own draws. Same seed, run again |
 | World spread | The part of spread from the seed |
 | Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Not measured until more than one skin runs |
+| Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
+| Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
 
 ## Seeds and secrecy
 

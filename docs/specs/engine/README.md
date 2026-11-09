@@ -37,6 +37,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 | baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Policy`, `Bets`, `Tape`, `Record` and `split_budget`, and `play`, `make_tape` and `SCENARIOS` in its tests |
 | skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_tape` and `SCENARIOS` in its tests |
 | harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the tape, the game, `Bets`, `play`, `Policy` and `split_budget` |
+| analysis | [Names from the engine](../analysis/README.md#names-from-the-engine): `make_tape`, `Tape` and `Event` for the switch kind a seed drew, `SwitchSpec` for the signal on the noise axis, and `SCENARIOS` to check the names a log claims |
 
 ## Modules
 
