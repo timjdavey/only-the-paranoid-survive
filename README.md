@@ -8,9 +8,11 @@ In the 1980s Intel's memory chip business was declining. The board thought it wa
 
 Keynes supposedly wrote "When the facts change, I change my mind. What do you do sir?" But that understates the hard part which is spotting that things have actually changed rather than it just being volatility. Grove wrote about this in his book *Only the Paranoid Survive*.
 
-There is a long line of famous companies which acted too slowly to fundamental change: Blockbuster, Kodak, Blackberry. However the reverse is also true with companies like Peloton and Hopin betting too hard on a new normal, when it's surprising how resilient systems are and tend to regress to the mean.
+There is a long line of famous companies which acted too slowly to fundamental change: Blockbuster, Kodak, Blackberry. However the reverse is also true with companies like Peloton and Hopin betting too hard on a new normal, when it's surprising how resilient systems are and tend to regress to the mean. These stories are clear with hindsight, but is why we need to measure both scenarios.
 
-As agents take on longer jobs, the more likely they will face these situations. The more autonomous they become the more they will need to be be able to adapt correctly.
+As agents take on longer jobs and interact with long running complex systems, the more likely they will face these situations. The more autonomous they become the more they will need to be be able to adapt appropriately.
+
+People react to the signals in front of them and too little to the system that makes them. So they overreact when the world is stable and the signals are noisy, and underreact when the world is changing and the signals are precise. This is called [system neglect](docs/prior/people.md#massey-and-wu-2005-system-neglect). Whether agents share the bias, and which way they lean, is the question.
 
 
 ## Design
@@ -20,11 +22,12 @@ As agents take on longer jobs, the more likely they will face these situations. 
 - The payout is linear, noise is the difficulty knob, and the agent only sees the channels it bets on. See [mechanics](docs/design/mechanics.md).
 - That engine then has a set of _narrative skins_ around it. So that the model thinks it is a real situation and so is more likely to act accordingly. But also this helps with contamination, as we can publish the game engine but disguise the game skin.
 - We [baseline](docs/design/baselines.md) a models performance against various strategies. 
-- In order for models to be economically trustworthy they need to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md).
+- A model has to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md). The headline scores that one skill. Whether it predicts how an agent does on real work is a claim to test, see [themes](docs/prior/themes.md).
 - We [score](docs/design/scoring.md) each scenario as the mean over seeds of a model's output as a fraction of an oracle's, and take the geometric mean across scenarios as the headline. So it needs to perform well across all scenarios to score highly.
 - A [pilot](docs/pilot/checks.md) settles the knobs, such as how many seeds, before the full run.
 - This study avoids becoming saturated by extending the game. Increasing the number of shocks before a switch; or more subtle drift into a switch.
 - It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.
+- What the game gives up, and what checks each gap, is in [limits](docs/design/limits.md).
 
 ## Repo
 

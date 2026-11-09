@@ -12,6 +12,7 @@ One row per check in [checks](checks.md) and per knob the [generator](../design/
 | [Baseline order](checks.md#baseline-order) | | | |
 | [Timestral checks](checks.md#timestral-checks) | | | |
 | [Notepad and compute](checks.md#notepad-and-compute) | | | |
+| [Rolling conversation](checks.md#rolling-conversation) | | | |
 | [Inertia](checks.md#inertia) | | | |
 | [Cost per run](checks.md#cost-per-run) | | | |
 | Events per run and minimum gap | | | |

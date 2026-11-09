@@ -81,6 +81,15 @@ A deployed agent would have a scratchpad and a calculator at the very least, so 
 | A `read_notes` tool | The notes are in the prompt |
 | Pasting data into `compute` | Retyping hundreds of rows measures tedium, not judgement. The sandbox gets the record as a file instead |
 
+## Rolling conversation
+
+Each round is a fresh call with the record in the prompt, see [tools](../design/interface.md#tools). A deployed agent keeps its conversation, so this check prices the difference.
+
+- **Question.** How much does the fresh call change how a model plays.
+- **Run.** One model on shock and switch, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted.
+- **Measure.** The score gap, paired by seed, and tokens per run.
+- **Decide.** Report the gap beside the headline. The headline stays on fresh calls, as the [interface](../design/interface.md#rejected) page says why. If the gap is large, say so where the score is read.
+
 ## Inertia
 
 A fixed budget is forgiving. A model that never moves still earns most of the output, so being late costs less than it cost Kodak. Inertia amplifies the lateness signal.
