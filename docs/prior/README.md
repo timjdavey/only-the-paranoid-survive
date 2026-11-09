@@ -123,6 +123,6 @@ Some studies mattered most to ideas the design has since dropped or parked. They
 - **Noise with persistence.** Apart from STOCKTAKE's one week-long false alarm, every study here draws each result fresh. Whether models tell a bad stretch from a change, when the noise itself has stretches, looks open.
 - **A shared factor.** No LLM study we found has a market-wide bad week, where a look at other options tells you the dip is everyone's.
 - **A record from someone else.** BanditBench's example runs are the only test we found of a past that shows how to play. Whether a model copies the habits of a record it reads is untested. The [warm-up cell](../../TODO.md#pilot) is a first look.
-- **Forecasters as agents.** We read nothing on time-series models like Timestral, or on Jev, making decisions. Their [adapters](../design/interface.md#models-that-cannot-place-bets) rest on the design alone.
+- **Forecasters as agents.** We read nothing on time-series models like Timestral, or on Jev, making decisions. Their [providers](../design/interface.md#models-that-cannot-place-bets) rest on the design alone.
 - **Base rates.** No study here measures how often a dip turns out to be a switch in any real setting. Equal weights across scenarios are a prior, see [limits](../design/limits.md).
 - **Business strategy.** The motivation leans on Grove and on famous company stories. Apart from Allen and McDonald, we haven't reviewed the strategy research behind it.

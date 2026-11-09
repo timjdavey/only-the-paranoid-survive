@@ -47,9 +47,16 @@ Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down
   - Run score on fall-only, fall-with-riser, rise-past and rise-short, paired by seed.
   - How often any bet reaches the sleeper after onset, and in which round.
   - Mean points on unfunded channels before onset, which is looking when nothing is wrong.
-  - The gap between the Up switch and Up switch then down switch run scores, paired by seed, which is what the revert cost.
+  - The gap between the Up switch and Up switch then down switch run scores, paired by seed on the seeds where the Up switch sleeper does not stop short, which is what the revert cost.
   - The gap between the Down switch and Switch then shock run scores, paired by seed, which is what the whipsaw cost.
 - **Decide.** Whether the Up switch scenario needs its own seed count, as its run scores may split into found and not found. Report the four kinds beside the headline.
+
+## Jev checks
+
+Checks before we trust the Jev row, see [providers](../harness/providers.md#jev).
+
+- **Rounding.** A probability under 0.005 rounds to a bet of 0, which is a blank, so a channel can fall out of Jev's view. Watch how often it happens, as for Timestral below.
+- **Look size.** The points Jev puts off its top channel each round in the No change scenario. This is the look its own doubt buys, which is what the row is there to show.
 
 ## Timestral checks
 
@@ -57,6 +64,7 @@ Checks before we trust the [Timestral baselines](../design/baselines.md#timestra
 
 - **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, Timestral odds cannot look and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
+- **Determinism.** The same input twice gives the same quantiles. If not, the forecast needs a fixed seed before the cache can key on the inputs alone.
 - **On the grid.** Timestral top pick and Timestral odds at every setting on the [noise grid](engine-checks.md#noise-grid). Each should land between the hedge rule baseline and the Complacent baseline, as in the [baseline order](engine-checks.md#baseline-order).
 - **Looks.** Timestral top pick with looks at 1, 2 and 5 points, at the read noise [reading roughness](engine-checks.md#reading-roughness) chose. This confirms a look is still worth its cost for a forecaster, not just for the hedge rule baseline.
 

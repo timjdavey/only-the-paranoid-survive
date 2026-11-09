@@ -14,14 +14,15 @@ These are calculated scores based on fixed strategies.
 | Scout rule baseline | `s` points on each of the nine other channels, the rest on its pick. It moves to a channel whose mean of its last `n` readings beats the pick's over the same rounds, `n` rounds running, unless the hedge's mean over those rounds is above its earlier average. It keeps scouting after a move | The hedge rule that looks everywhere, all the time, so it reads a rise as well as a fall. The reference curve for the Up switch scenario. `s` and `n` come from the [pilot](../pilot/engine-checks.md#up-and-down) |
 
 - **The hedge rule and the Scout rule differ only in when they look.** The hedge rule looks at one channel and acts on a fall. The Scout rule looks at every channel every round, which costs `9s` points in the No change scenario and finds the sleeper in the Up switch scenario. Between them they bracket a model's choice: how much to look when nothing is wrong. In noisy worlds the Scout rule can whipsaw, which shows on the noise grid as its curve falling below the Complacent baseline at the noisy end. That is the price of constant looking, and worth seeing.
+- **The baselines are handed round 1.** The hedge rule and Scout rule start on the leader and know which channel is the hedge, the same gift the Complacent baseline gets. No model gets either: it finds the leader in its first rounds and never learns which channel is the hedge. So their curves are an upper bound on what a player that reads the tell could earn, not a floor a model should clear.
 - **Players may read their own record. The yardstick may not.** The Discerning baseline reads the tape, so the score is the same whatever the agent chose to look at. A Bayesian or CUSUM player that reads its own record is a fine mark, see [not yet](#not-yet), but never a denominator, as a lazy agent would get a lenient yardstick.
 
 ## Timestral
 
 [Timestral](https://github.com/mistralai/timestral) is a forecaster. It guesses each channel's level next round, and a policy we wrote turns that guess into bets. It only learns about a channel by betting on it.
 
-- **What it sees:** each channel's past levels, but only for the rounds it bet on that channel. Every other round is a gap, which Timestral handles.
-- **Why levels and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
+- **What it sees:** each channel's past readings, but only for the rounds it bet on that channel. Every other round is a blank, which Timestral handles.
+- **Why readings and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
 - **What it gives back:** a range of guesses, low to high, for each channel's level next round. That is 21 quantiles per channel.
 - **What it never sees:** the skin. So it shows how much reading the story helps.
 

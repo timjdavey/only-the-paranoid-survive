@@ -23,7 +23,7 @@ notes = "Cheap non-Claude. Verify the id, a newer Flash may exist. Swap for open
 id = "jev/jev-latest"
 kind = "jev"
 reasoning = "n/a"
-notes = "See docs/harness/adapters.md"
+notes = "See docs/harness/providers.md"
 
 [[model]]
 id = "timestral/top-pick"

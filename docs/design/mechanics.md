@@ -10,7 +10,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 ## Generator
 
-The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels are not clipped, so one can go below 0 in a deep shock. Every run on a seed replays the same tape, and the tapes of public seeds are published with the engine. Held-out seeds' tapes are not, see [contamination](../harness/contamination.md#two-seed-sets).
+The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels are not clipped, so one can go below 0 in a deep shock. Every run on a seed replays the same tape, and anyone can regenerate a public seed's tape from the engine. A tape is never written down: a held-out seed's tape is as secret as the seed, see [contamination](../harness/contamination.md#two-seed-sets).
 
 ### Each round
 
@@ -42,11 +42,11 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 | Shape | What it edits | Who moves | Drawn per seed |
 |---|---|---|---|
 | Shock | An impulse into the shared factor that decays | Every channel by its loading, so most fall and the hedge rises | Depth in sigmas, onset round, half-life, profile: sharp fall and slow climb, or slow slide and quick rebound |
-| Switch | A base level | The leader falls, a **sleeper** in the field rises past the leader's level, or both. The sleeper's loading is redrawn so it stops moving with its old group. Where the scenario says so, a sleeper rises short of the leader instead, or an earlier switch is undone | Size in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, which sleeper rises, and the direction where the scenario leaves it open |
-| Drift | A base level, slowly | As a switch, over many more rounds | Slope in sigmas per round, length, profile: linear or logistic |
+| Switch | A base level | The leader falls below the runner-up, a **sleeper** in the field rises past every other channel, or both. The sleeper's loading is redrawn so it stops moving with its old group. Where the scenario says so, a sleeper rises short of the leader instead, or an earlier switch is undone | How far below the runner-up the leader ends and how far above the rest the sleeper ends, both in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, which sleeper rises, whether a rise stops short and where, and the direction where the scenario leaves it open |
+| Drift | A base level, slowly | As a switch, over many more rounds | How far below the runner-up the leader ends, in sigmas, length, profile: linear or logistic |
 
 - **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. A look at any unfunded channel tells them apart. A look at the hedge tells them apart fastest.
-- **Why a switch comes in three kinds.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When the leader falls and a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. When only a sleeper rises, nothing in the agent's record moves and the test is whether it was looking at all. The [Down switch scenario](scenarios.md#scenarios-we-test) draws the first two per seed, so a model cannot learn that a fall always comes with a riser, or never does. The Up switch scenario pins the third.
+- **Why a switch comes in three kinds.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When the leader falls and a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. Sizes are measured from the runner-up, so a fall always changes who pays best and a riser always ends on top, unless the scenario has it stop short. When only a sleeper rises, nothing in the agent's record moves and the test is whether it was looking at all. The [Down switch scenario](scenarios.md#scenarios-we-test) draws the first two per seed, so a model cannot learn that a fall always comes with a riser, or never does. The Up switch scenario pins the third.
 - **The old plan keeps paying.** A switch leaves the leader well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 
 ### Stringing events
@@ -69,7 +69,7 @@ Off by default. Each one closes a tell a model could learn.
 | Knob | What it does |
 |---|---|
 | Hedge may overtake | In a deep shock the hedge pays more than the leader for a few rounds, so holding costs real output |
-| One-channel shock | A shock that hits the leader only, so a look at the field says nothing about scope |
+| One-channel shock | A shock that hits the leader only, as an impulse on its level that leaves its base level alone, so the climate does not move and a look at the field says nothing about scope |
 
 ## What the agent sees
 

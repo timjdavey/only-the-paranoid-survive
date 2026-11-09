@@ -3,10 +3,10 @@
 ## How the agent plays
 
 - **Each round the agent bets a fixed budget across ten channels.** It places ten whole number bets that sum to 100, say 55 on one channel, 15 and 10 on two more, 5 on four others and 0 on the rest. Whole numbers to 100 is how budgets are talked about in every skin, the sum check is exact, and models fumble decimals more than they fumble percentages.
-- **It places all ten bets every round.** Bets that do not sum to 100, or a reply with no bets, get a neutral message and a retry. The round ends only on a valid call, so a bad call is never read as a decision, see the [retry rule](../harness/prompts.md#retry-rule). Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
+- **It places all ten bets every round.** Bets the engine rejects, such as ones that do not sum to 100, or a reply with no bets, get a neutral message and a retry. The round ends only on a valid call, so a bad call is never read as a decision, see the [retry rule](../harness/prompts.md#retry-rule). Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
 - **Its bets are its belief.** A small bet on a new channel is a look. A large bet is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
-- **The agent sees the level of every channel it bet on**, not just total output, in the record described under [tools](#tools). A bet of 0 shows nothing. See [mechanics](mechanics.md).
+- **The agent sees a reading of every channel it bet on**, not just total output, in the record described under [tools](#tools). A bet of 0 shows nothing. See [mechanics](mechanics.md).
 - **Nothing tells the agent the world might change.** The prompt asks for bets, not for a view on change.
 
 ## Tools
@@ -19,11 +19,11 @@
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole numbers that sum to 100 | The level of each channel it bet on this round and the output. A neutral error and a retry if the sum is off |
+| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole numbers that sum to 100 | A reading of each channel it bet on this round, and the output. A neutral error and a retry if the bets are not valid |
 
 ## Models that cannot place bets
 
-Jev and Timestral are stateless and do not write text, so each gets a thin adapter that turns what it does produce into bets. The engine and the score are the same for all three.
+Jev and Timestral are stateless and do not write text, so each gets a provider that turns what it does produce into bets, see [providers](../harness/providers.md). The engine and the score are the same for all three.
 
 | Model | How it plays |
 |---|---|
@@ -41,7 +41,7 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 | Cash as a safe channel | Models park in cash whenever unsure, so the No change scenario needs an extra cost to stay readable |
 | Stop or continue, one irreversible switch | Clean detection delay, but binary, so no graded doubt |
 | Ask for a probability the climate changed | The most direct measure, but it tells the agent change is the question |
-| Forecast the levels, engine acts on them | Asking an LLM for a forecast nudges it that levels move. Kept only as the adapter for forecasters like Timestral, where there is no prompt to nudge |
+| Forecast the levels, engine acts on them | Asking an LLM for a forecast nudges it that levels move. Kept only as the provider for forecasters like Timestral, where there is no prompt to nudge |
 | Rank the channels | Cheap for the model but coarse. A rank swap is as binary as a pick |
 | Pivot with a conversion cost | The mechanic prices lateness and overreaction itself, but the fee leaks into every trait, and it is lumpy, so a timid agent and a confident one read the same until one moves |
 | Controller with feedback | Prices both failures naturally, but the score becomes a cost rather than a share of the gap between the Uniform and Discerning baselines, and the model has to reason about a system whose past carries into the present. Kept as a second game to check the skill carries over |

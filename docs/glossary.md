@@ -15,6 +15,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
 | Baseline | A fixed strategy run through the same game and score as the models. A fixed baseline's name always ends in "baseline", so it never reads as a plain adjective. See [baselines](design/baselines.md) |
+| Provider | The harness code that plays one model through the same solver as an LLM. inspect_ai's own for chat LLMs, ours for baselines, Jev and Timestral. `baseline/<name>`, `jev/<model>` and `timestral/<policy>` in code. See [inspect](harness/inspect.md#providers) |
 | Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer. It divides nothing. `baseline/perfect` in code |
 | Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. The ceiling: a scenario score of 1. `baseline/discerning` in code |
 | Complacent baseline | The baseline that holds the Discerning baseline's round 1 bets to the end. A mark on every scenario's bar, near 0.55 where there is a switch. `baseline/complacent` in code |
@@ -27,6 +28,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Timestral odds, bet aware | Timestral odds, also told its past bets. `timestral/odds-bet-aware` in code |
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
+| Spec | The contract a layer of the code is written to and tested against. One folder per layer in [specs](specs/README.md). Design pages say why, specs say what |
 
 ## The world
 
@@ -34,6 +36,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Channel | One of the things the agent can put budget on. Each pays out at its own level |
 | Level | A channel's true payout, which its noisy reading sits around. Never called a mean: that word is kept for averaging over runs |
+| Reading | The noisy number the agent sees for a channel it bet on. It sits round the level, and is rougher the smaller the bet. A channel with no bet shows a blank. See [mechanics](design/mechanics.md#what-the-agent-sees) |
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |
 | Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |
@@ -45,7 +48,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Leader | The channel that pays best when a run starts |
 | Runner-up | The second best channel at the start. The obvious fallback |
 | Field | The other channels, including the hedge |
-| Sleeper | A field channel whose base level rises past the leader's in a switch |
+| Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
 | Tape | The true level of every channel in every round, as one seed produces it. Saved and replayed |
 
 ## How the world changes
@@ -55,8 +58,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Event | One move the world makes, with its own onset and numbers drawn per seed. See [events](design/mechanics.md#events) |
 | Shape | The kind of move an event makes: a shock, a switch or a drift. "A shock" is short for an event whose shape is a shock |
 | Shock | A dip in every channel through the shared factor, which passes |
+| Impulse | The decaying dip a shock adds. Into the shared factor by default, so every channel feels it by its loading. Onto the leader's level alone with the one-channel shock knob, so its base level never moves |
 | Switch | A lasting change in base levels that changes which channel pays best. The leader falls, a sleeper rises past it, or both |
 | Drift | A switch stretched over many more rounds |
+| Short | A sleeper's rise that stops short: it ends above the runner-up but below the leader, so the right call is to stay. Drawn on some Up switch seeds. `short` in code |
+| Undo | A switch that puts an earlier sleeper back: its base level and loading return to what they were before it rose. `kind="undo"` in code |
 | Profile | The form an event takes within its shape, drawn per seed. A shock falls sharply and climbs slowly, or slides and rebounds. A drift is linear or logistic |
 | Scenario | A list of events we put each model through. Its name always ends in "scenario", so it never reads as an event. See [scenarios](design/scenarios.md) |
 | No change scenario | No events. `no_change` in code |
