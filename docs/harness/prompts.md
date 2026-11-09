@@ -73,6 +73,16 @@ It returns the level of each funded channel and the output. A sum that is not 10
 
     The ten numbers add up to {sum}, not 100. Send them again.
 
+Ten values that are not ten whole numbers return:
+
+    Send ten whole numbers, one per channel, adding up to 100.
+
+A negative number returns:
+
+    Points can't be negative. Send them again.
+
+These three messages come from the engine, see the [game spec](../specs/engine/game.md#bets).
+
 A reply with no tool call returns `no_call`:
 
     Place this round's points with the submit tool.
@@ -88,7 +98,7 @@ A reply with no tool call returns `no_call`:
 
 ## Banned words
 
-The lint fails if the rendered system prompt, record or tool text contains any of these, in any case or inflection:
+The lint fails if the rendered system prompt, record, tool text or the skin's Jev question contains any of these, in any case or inflection:
 
     check, change, shift, switch, shock, drift, trend, anomaly, regime,
     climate, detect, monitor, watch, alert, stable, volatile

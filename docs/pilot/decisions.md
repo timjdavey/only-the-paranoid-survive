@@ -28,6 +28,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Repeats](provider-checks.md#repeats) | | | |
 | [Recognition](provider-checks.md#recognition), share that marks a bar | | | |
 | [Up against down](provider-checks.md#up-against-down) | | | |
+| [Jev checks](provider-checks.md#jev-checks) | | | |
 | [Timestral checks](provider-checks.md#timestral-checks) | | | |
 | [Notepad and compute](provider-checks.md#notepad-and-compute) | | | |
 | [Rolling conversation](provider-checks.md#rolling-conversation) | | | |

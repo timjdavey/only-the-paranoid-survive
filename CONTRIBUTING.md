@@ -7,6 +7,7 @@ See [running](docs/harness/running.md). `uv sync`, copy `.env.example` to `.env`
 ## Before you change anything
 
 - **Read the layer rule** in [layout](docs/harness/layout.md). Code imports only from the layer below it. CI checks this.
+- **Read the layer's spec** in [specs](docs/specs/README.md). Code is written from its spec and tested against it. If the code has to differ, change the spec in the same PR.
 - **Use glossary words** in code and prose, see [glossary](docs/glossary.md). Add a word there before using it anywhere else.
 - **Commit before every major change.** If the working tree has uncommitted work, commit it first, then start the change.
 

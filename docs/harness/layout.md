@@ -13,7 +13,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 
 | Layer | Package | Depends on | What it exports |
 |---|---|---|---|
-| engine | `paranoid.engine` | numpy | `ScenarioConfig`, `make_tape`, `Game`, `Record`, the fixed and forecast policies |
+| engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_tape`, `Tape`, `Game`, `Record`, `play`, the fixed and forecast policies. See the [engine spec](../specs/engine/) |
 | skins | `paranoid.skins` | engine | `Skin`, `render_system_prompt`, `render_record`, `lint`, `load_skins` |
 | harness | `paranoid.harness` | skins, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
 | analysis | `paranoid.analysis` | harness, pandas | `load_runs`, tables, CSVs, bootstrap, plots |
@@ -38,6 +38,8 @@ How the code is arranged. The [design](../design/) pages say why the game is the
       pilot/       checks to run, decisions taken, results
       results/     the headline tables and their CSVs
       prior/       what others have done
+      specs/       what each layer must do, written before its code. See docs/specs/README.md
+        engine/
       glossary.md
     src/paranoid/
       engine/  skins/  harness/  analysis/

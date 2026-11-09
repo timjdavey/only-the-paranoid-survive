@@ -19,7 +19,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `tool_text` | The tool's description |
 | `bad_sum` | The retry message for a sum that is not 100, with a `{sum}` slot |
 | `no_call` | The retry message for a reply with no tool call |
-| `question` | Jev's choice question, see [adapters](adapters.md#jev) |
+| `question` | Jev's choice question, see [providers](providers.md#jev). Linted like every other skin field |
 
 - **Numbers come from the engine, never the skin.** A skin names things and sets the scene. It never states levels, trends or history.
 - **Each skin words the [frame](../glossary.md) its own way.** A held-out skin should read nothing like the example skin, in its rules, ask and tool text as much as its story. The published wording is then only the example skin's, see [contamination](contamination.md#why).

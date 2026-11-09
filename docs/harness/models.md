@@ -62,7 +62,7 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 | Google | `GOOGLE_API_KEY` |
 | OpenRouter | `OPENROUTER_API_KEY` |
 | Jev | `TYPESAFE_API_KEY` |
-| Timestral | None. Runs locally, see [adapters](adapters.md) |
+| Timestral | None. Runs locally, see [providers](providers.md#timestral) |
 | Baselines | None |
 
 - **A Claude.ai subscription does not work here.** inspect calls the Anthropic API, which needs a key from the console. The proof of concept is small, so it runs on API credits.

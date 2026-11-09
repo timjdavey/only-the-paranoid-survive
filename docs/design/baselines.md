@@ -20,8 +20,8 @@ These are calculated scores based on fixed strategies.
 
 [Timestral](https://github.com/mistralai/timestral) is a forecaster. It guesses each channel's level next round, and a policy we wrote turns that guess into bets. It only learns about a channel by betting on it.
 
-- **What it sees:** each channel's past levels, but only for the rounds it bet on that channel. Every other round is a gap, which Timestral handles.
-- **Why levels and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
+- **What it sees:** each channel's past readings, but only for the rounds it bet on that channel. Every other round is a blank, which Timestral handles.
+- **Why readings and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
 - **What it gives back:** a range of guesses, low to high, for each channel's level next round. That is 21 quantiles per channel.
 - **What it never sees:** the skin. So it shows how much reading the story helps.
 
