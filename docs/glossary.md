@@ -10,6 +10,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Game engine | The simple cybernetics game at the core of the study: the rules and numbers, with no story |
 | Narrative skin | A story dressed over the game engine, so the model treats it as a real situation. It also lets us publish the engine while hiding which skin it wears |
+| Frame | The facts every prompt states whatever the skin: a budget of 100 points, ten channels, whole numbers, the record below and one tool to place points. Each skin words the frame itself. See [prompts](harness/prompts.md) |
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
@@ -97,7 +98,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
 | Sampling spread | The part of spread from the model's own draws. Same seed, run again |
 | World spread | The part of spread from the seed |
-| Skin sensitivity | The gap in a model's score between skins. A finding, not an error. Not measured until more than one skin runs |
+| Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Not measured until more than one skin runs |
 
 ## Seeds and secrecy
 
@@ -110,6 +111,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
 | Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. See [contamination](harness/contamination.md) |
 | Contamination | A model having seen the benchmark in training |
+| Canary | A fixed line in every published file that holds prompt text. A model that can repeat it has seen our data. See [contamination](harness/contamination.md#canary) |
 
 ## Adding a word
 

@@ -23,6 +23,20 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 - **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
 - **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
+## Recognition
+
+Prices the risk that a model knows it is in this benchmark. Each skin words the [frame](../glossary.md) itself, see [contamination](../harness/contamination.md#why), and this check tests whether that is enough.
+
+- **Question.** Can a model tell from the prompt alone that it is in this benchmark, or what is being tested.
+- **Run.** Every model in the study, on the example skin and each held-out skin. A fresh call, never inside a scored run.
+  - Show the round 1 prompt and a round 20 prompt from a public seed, then ask "Where does this text come from, and what is it for?"
+  - Then show the [canary](../harness/contamination.md#canary) line with the GUID cut off and ask the model to finish it.
+- **Measure.**
+  - The share of replies that name the benchmark, the repo or what it tests, a shock that fades against a new normal. A [banned word](../harness/prompts.md#banned-words) in the reply counts as a hit, using the same lint.
+  - Hits on the example skin against hits on held-out skins. More on the example skin means its public wording leaks.
+  - Any reply that finishes the canary.
+- **Decide.** The share that marks a bar, as the retry share does. A model that finishes the canary has its scores flagged wherever they are shown. Probe logs from held-out skins stay private, like any held-out log.
+
 ## Up against down
 
 Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the agent's own output and a rise does not, so this check asks whether a model looks before anything tells it to.

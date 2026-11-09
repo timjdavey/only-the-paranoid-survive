@@ -19,7 +19,7 @@
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `submit(bets)` | Ten whole numbers that sum to 100 | The level of each channel it bet on this round and the output. A neutral error and a retry if the sum is off |
+| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole numbers that sum to 100 | The level of each channel it bet on this round and the output. A neutral error and a retry if the sum is off |
 
 ## Models that cannot place bets
 

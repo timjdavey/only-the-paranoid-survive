@@ -24,7 +24,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 Each round the solver:
 
 1. Renders the system prompt from the skin and the record from the store, see [prompts](prompts.md).
-2. Calls `generate` with the `submit` tool. Forced where the provider allows it. Current Claude models reject a forced tool, so there the choice is `auto` and the prompt says to call `submit`.
+2. Calls `generate` with the `submit` tool. Forced where the provider allows it. Current Claude models reject a forced tool, so there the choice is `auto` and the prompt says to call the tool.
 3. Reads the tool call. A bad sum returns a `ToolError` and the model tries again. A reply with no tool call gets a reminder and tries again too. The store counts each retry. After ten tries the solver raises an error, and `--retry-on-error 1` plays the seed again once. See the [retry rule](prompts.md#retry-rule).
 4. Plays the bets through the engine and appends the readings and output to the record.
 5. Repeats until the tape ends. Nothing from this round's messages survives into the next.

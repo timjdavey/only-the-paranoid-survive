@@ -32,7 +32,8 @@ This matters most.
 
 ## What never changes without a new pilot
 
-- The prompt text in [prompts](docs/harness/prompts.md).
+- The frame and prompt structure in [prompts](docs/harness/prompts.md).
+- A skin's text, once a headline run has played it.
 - Any number in [decisions](docs/pilot/decisions.md) once filled.
 - The public seed lists in `configs/seeds/`.
 - The held-out seed lists. They change only with a new release, see [contamination](docs/harness/contamination.md#who-can-see-them).
