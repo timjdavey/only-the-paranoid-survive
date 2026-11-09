@@ -41,6 +41,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | World spread | The part of spread from the seed |
 | Skin sensitivity | The gap in a model's score between skins. A finding, not an error. Not measured until more than one skin runs |
 | Trait profile | A model's scores across scenarios. The signal the headline combines |
+| Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
+| ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 
 ## Adding a word
 

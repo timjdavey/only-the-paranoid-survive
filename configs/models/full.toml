@@ -1,64 +1,204 @@
 # Full study model list. Fill in when budget lands. Columns are explained in docs/harness/models.md.
-# Every row in poc.toml runs here too. Verify every id before the first run.
+# Every non-LLM row in poc.toml (baselines, Jev, Timestral) runs here too. Every LLM the full study sweeps is listed below.
+# released and eci come from Epoch AI's https://epoch.ai/data/eci_scores.csv (CC BY 4.0), read on 2026-11-09.
+# Each reasoning value is its own result row. Values marked "to verify" in notes need checking against the provider before the first run.
+#
+# Left out on purpose:
+# - Claude Fable 5.1. Its ECI sits below Opus 5.5, and Claude already has four rows
+# - Claude Sonnet 4.5. Retires 2026-11-30
+# - gpt-5. Shuts down 2026-12-11. gpt-5.1 is the GPT-5 era point instead
+# - Gemini 2.5 Pro and Flash. Silently rerouted to newer models on 2026-12-01
+# - Kimi K3.1 Pro. No ECI score yet
+# - Meta Muse. Not on OpenRouter
+
+# Anthropic
 
 [[model]]
-id = "anthropic/claude-fable-5-1"
+id = "anthropic/claude-haiku-4-5-20251001"
 kind = "llm"
-reasoning = "high"
-notes = "Most capable Claude. Thinking is always on"
+released = 2025-10-15
+eci = 142.8
+reasoning = ["off", "high"]
+notes = "No effort setting, so high is a thinking token budget. Past its earliest retirement date, run it first"
+
+[[model]]
+id = "anthropic/claude-opus-4-6"
+kind = "llm"
+released = 2026-02-05
+eci = 156.3
+reasoning = ["off", "low", "medium", "high", "max"]
 
 [[model]]
 id = "anthropic/claude-opus-5-5"
 kind = "llm"
-reasoning = "high"
-
-[[model]]
-id = "anthropic/claude-opus-5-5"
-kind = "llm"
-reasoning = "low"
-notes = "Same model, minimal reasoning, its own row"
-
-[[model]]
-id = "anthropic/claude-sonnet-5-5"
-kind = "llm"
-reasoning = "high"
+released = 2026-09-22
+eci = 168.4
+reasoning = ["low", "medium", "high", "max"]
+notes = "Thinking cannot be switched off"
 
 [[model]]
 id = "anthropic/claude-haiku-5-5"
 kind = "llm"
-reasoning = "high"
+released = 2026-10-07
+eci = 160.2
+reasoning = ["off", "low", "medium", "high", "max"]
+notes = "Thinking can be off only at high effort or below"
+
+# OpenAI
 
 [[model]]
-id = "openai/gpt-5"
+id = "openai/gpt-4o-2024-11-20"
 kind = "llm"
-reasoning = "high"
-notes = "Verify the id and the current reasoning setting names"
+released = 2024-11-20
+eci = 128.9
+reasoning = ["off"]
+notes = "Shuts down 2027-01-14"
 
 [[model]]
-id = "openai/gpt-5"
+id = "openai/gpt-5.1"
 kind = "llm"
-reasoning = "min"
+released = 2025-11-13
+eci = 150.9
+reasoning = ["off", "low", "medium", "high"]
+notes = "Effort values to verify. Shuts down 2027-04-01"
 
 [[model]]
-id = "google/gemini-2.5-pro"
+id = "openai/gpt-6-astra"
 kind = "llm"
-reasoning = "high"
-notes = "Verify the id"
+released = 2026-09-03
+eci = 169.1
+reasoning = ["low", "medium", "high", "max"]
+notes = "No none setting, so reasoning cannot be switched off"
+
+# Google
+
+[[model]]
+id = "google/gemini-3.1-pro-preview"
+kind = "llm"
+released = 2026-02-19
+eci = 156.2
+reasoning = ["low", "high"]
+notes = "Preview. Thinking levels to verify"
+
+[[model]]
+id = "google/gemini-3.8-flash"
+kind = "llm"
+released = 2026-09-02
+eci = 158.6
+reasoning = ["low", "medium", "high"]
+notes = "minimal returns an error"
+
+[[model]]
+id = "google/gemini-4-argon"
+kind = "llm"
+released = 2026-09-30
+eci = 166.5
+reasoning = ["low", "medium", "high"]
+notes = "Epoch lists it as limited access. Check the key can call it"
+
+# Moonshot
 
 [[model]]
 id = "openrouter/moonshotai/kimi-k2"
 kind = "llm"
-reasoning = "off"
-notes = "Verify the id"
+released = 2025-07-12
+eci = 141.3
+reasoning = ["off"]
+
+[[model]]
+id = "openrouter/moonshotai/kimi-k3"
+kind = "llm"
+released = 2026-07-16
+eci = 158.5
+reasoning = ["off", "high"]
+notes = "Reasoning settings to verify"
+
+# DeepSeek
 
 [[model]]
 id = "openrouter/deepseek/deepseek-r1"
 kind = "llm"
-reasoning = "on"
-notes = "Verify the id. Reasoning cannot be switched off"
+released = 2025-01-20
+eci = 138.6
+reasoning = ["on"]
+notes = "Reasoning cannot be switched off"
+
+[[model]]
+id = "openrouter/deepseek/deepseek-v4-pro"
+kind = "llm"
+released = 2026-04-24
+eci = 150.1
+reasoning = ["off", "high"]
+notes = "OpenRouter titles this 0423, Epoch dates it 0424. Check it is the same checkpoint. Reasoning settings to verify"
+
+[[model]]
+id = "openrouter/deepseek/deepseek-v4.1-flash-1017"
+kind = "llm"
+released = 2026-10-17
+eci = 159.3
+reasoning = ["off", "high"]
+notes = "Reasoning settings to verify"
+
+# Qwen
 
 [[model]]
 id = "openrouter/qwen/qwen3-235b-a22b"
 kind = "llm"
-reasoning = "off"
-notes = "Verify the id"
+released = 2025-04-28
+eci = 138.4
+reasoning = ["off", "on"]
+notes = "Hybrid thinking, switched per call"
+
+[[model]]
+id = "openrouter/qwen/qwen3.8-max-0902"
+kind = "llm"
+released = 2026-09-01
+eci = 155.9
+reasoning = ["off", "high"]
+notes = "Reasoning settings to verify"
+
+# Z.ai
+
+[[model]]
+id = "openrouter/z-ai/glm-5.3"
+kind = "llm"
+released = 2026-08-14
+eci = 156.9
+reasoning = ["off", "on"]
+notes = "Reasoning settings to verify"
+
+# xAI
+
+[[model]]
+id = "openrouter/x-ai/grok-4"
+kind = "llm"
+released = 2025-07-09
+eci = 146.9
+reasoning = ["on"]
+notes = "Reasoning cannot be switched off"
+
+[[model]]
+id = "openrouter/x-ai/grok-4.7"
+kind = "llm"
+released = 2026-09-21
+eci = 156.1
+reasoning = ["off", "high"]
+notes = "Reasoning settings to verify"
+
+# Mistral
+
+[[model]]
+id = "openrouter/mistralai/mistral-large-2407"
+kind = "llm"
+released = 2024-07-24
+eci = 126.4
+reasoning = ["off"]
+notes = "The oldest point on the trend line"
+
+[[model]]
+id = "openrouter/mistralai/mistral-large-4-0"
+kind = "llm"
+released = 2026-10-29
+eci = 154.7
+reasoning = ["off"]
+notes = "Reasoning settings to verify"
