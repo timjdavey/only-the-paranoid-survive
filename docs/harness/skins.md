@@ -1,6 +1,6 @@
 # Skins
 
-A skin is the story dressed over the engine, see [glossary](../glossary.md). This page is how a skin is written and where it lives. Why skins exist is in the [README](../../README.md#design). What the code must do with one is in the [skins spec](../specs/skins/README.md).
+A skin is the story dressed over the engine, see [glossary](../glossary.md). This page is what a skin file holds and where it lives. How to write a good one is in [writing a skin](writing-a-skin.md). Why skins exist is in the [README](../../README.md#design). What the code must do with one is in the [skins spec](../specs/skins/README.md).
 
 ## What a skin file holds
 
@@ -43,4 +43,4 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 
 ## Canary
 
-Every published file that holds prompt text carries the canary GUID, see [contamination](contamination.md#canary). The prompt itself does not, so the model never sees it.
+Every published file that holds prompt text carries the canary GUID, see [contamination](contamination.md#canary). Held-out skins carry it too, so a file that ever leaks is filtered. The prompt itself does not, so the model never sees it.

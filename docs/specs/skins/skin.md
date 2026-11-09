@@ -51,7 +51,7 @@ One file per skin, one table, no nesting.
 - **Every field of `Skin` but `name` is a top-level key** of the same name. `channels` is an array of ten strings, every other key a string. Multi-line strings use TOML's `"""` form.
 - **Every key is required.** A missing key, an unknown key, or a value of the wrong type raises `SkinError` naming the key. So a typo in a key name fails on load rather than silently dropping a part of the prompt.
 - **`name` is the file stem.** `example.toml` is the skin `example`. There is no `name` key, so a file cannot disagree with its own name. A stem that fails the `name` pattern, such as `Rome.toml`, raises `SkinError`.
-- **Comments are free.** The example skin's first line is a comment holding the [canary](lint.md#canary). Held-out skins may carry it or not, as they are never published.
+- **Comments are free.** The example skin's first line is a comment holding the [canary](lint.md#canary). Held-out skins carry it too, so a file that ever leaks is filtered, see [writing a skin](../../harness/writing-a-skin.md#before-you-start).
 - **No templating.** A skin writes the ten names, the number 100 and its tool name into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
 
 ### `load_skin`
@@ -67,7 +67,7 @@ One file per skin, one table, no nesting.
 - **Every file in the folder whose name ends `.toml`** is loaded with `load_skin`, in sorted filename order. Other files are ignored, subfolders are not walked. The private repo keeps `skins/` a plain folder of TOML files, see [skins](../../harness/skins.md#where-skins-live).
 - **One bad file fails the call.** `load_skins` raises the `SkinError` or `LintError` the first bad file raises, naming it. It never skips a file, so a held-out skin that fails to lint is never quietly left out of a run.
 - **Names are unique.** A held-out skin named `example` raises `SkinError`. Two files cannot share a stem, so that is the one way to clash.
-- **Held-out names are opaque.** A skin's name is published in every results table, see [contamination](../../harness/contamination.md#public-and-held-out), so a held-out skin is `held_out_a`, never a word from its story. The lint cannot check this, so a reviewer does.
+- **Held-out names are opaque.** A skin's name is published in every results table, see [contamination](../../harness/contamination.md#public-and-held-out), so a held-out skin is a colour such as `amber`, never a word from its story, see [writing a skin](../../harness/writing-a-skin.md#before-you-start). The lint cannot check this, so a reviewer does.
 - **The result is a `types.MappingProxyType`**, keys in sorted order, so the harness cannot swap a skin under a name that is already in a log.
 - **The harness picks by name.** The `skin` task arg defaults to `example`, see [running](../../harness/running.md#commands). A name not in the mapping is a harness error, not a skins one.
 
