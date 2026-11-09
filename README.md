@@ -28,6 +28,7 @@ People react to the signals in front of them and too little to the system that m
 - The full study plays a grid of noise levels on one signal to noise axis and reports the [noise threshold](docs/design/scoring.md#noise-threshold), the noisiest world a model still reads. Harder releases extend the grid rather than start a new chart.
 - It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.
 - What the game gives up, and what checks each gap, is in [limits](docs/design/limits.md).
+- Studies we'd like to run beyond the headline are in [future](docs/design/future.md).
 
 ## Repo
 

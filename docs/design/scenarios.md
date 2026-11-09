@@ -24,7 +24,7 @@ A scenario is a list of [events](mechanics.md#events), and each event has a shap
 | Sparkline | Scenario | What it would test | Failure mode | Why we skip it |
 |---|---|---|---|---|
 | `▆▃▁▂▃▃▃▃▃▂▁▂▃▃▃▃` | Switch then shock | commitment stability | whipsaw back to the old climate | Real but second order. The noise after any switch gives a partial read for free |
-| `▆▃▁▄▆▆▃▁▄▆▆▃▁▄▆▆` | Repeated shocks | which way habituation goes | gets jumpier, not calmer | Habituation is a follow-up study. Add it if models turn out fine on the basics |
+| `▆▃▁▄▆▆▃▁▄▆▆▃▁▄▆▆` | Repeated shocks | which way habituation goes | gets jumpier, not calmer | Habituation is a [future study](future.md#how-the-world-changes). Add it if models turn out fine on the basics |
 | `▇▇▇▇▅▅▅▅▃▃▃▃▁▁▁▁` | Repeated switches | whether it updates its rate of updating | treats the third switch like the first | Same as repeated shocks |
 | `▆▆▆▃▃▃▃▃▃▃▆▆▆▆▆▆` | Switch then revert | recognising a return | treats the old climate as new, or refuses to go back | Niche |
 | `▅▅▄▅▅▄▅▅▇▂▆▃▇▂▆▄` | Variance shift | a change in the weather with no change in level | only watches the mean | A different question: what counts as a change in climate. Save it for when we want to argue definitions |
