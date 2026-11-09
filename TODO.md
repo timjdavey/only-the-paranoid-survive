@@ -8,9 +8,9 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Warm up: one cell starts round 1 with an empty record, one with a record pre-filled by a baseline.
 
 ## Code
-- Write the engine from its [spec](docs/specs/engine/README.md), tests first.
-- Write the analysis spec, see [specs](docs/specs/README.md). The engine, skins and harness specs are written.
-- Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first.
+- Write the engine from its [spec](docs/specs/engine/README.md), tests first, then the baselines from [theirs](docs/specs/baselines/README.md).
+- Write the analysis spec, see [specs](docs/specs/README.md). The engine, baselines, skins and harness specs are written.
+- Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first, baselines second.
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before a held-out run.
 - Put the canary GUID in `paranoid.skins.canary`, see [contamination](docs/harness/contamination.md#canary).

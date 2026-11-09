@@ -1,6 +1,6 @@
 # Tests
 
-Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engine, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#four-layers). Tests marked **slow** run a thousand seeds and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
+Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engine, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Tests marked **slow** run a thousand seeds and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
 
 ## Config
 
@@ -81,28 +81,14 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 
 - EG10 moved to the skins suite with the CSV, see [KR9 and KR10](../skins/tests.md#render). The number stays free so no reference goes stale.
 
-## Policies
+## View
 
 | Id | Test | Page |
 |---|---|---|
-| EP1 | Every baseline returns a valid split on every round of 50 seeds of every scenario, with `play` | [policies](policies.md#invariants) |
-| EP2 | `split_budget`: `[1] × 10` gives ten 10s. `[1, 1, 1]` with 100 gives `(34, 33, 33)`. All zeros and a negative raise `ValueError` | [policies](policies.md#split_budget) |
-| EP3 | `uniform` returns the same split for any view | [policies](policies.md#the-six-baselines) |
-| EP4 | `complacent` round 1 equals `discerning` round 1 on 50 seeds, and the two are equal on every round of a No change tape | [policies](policies.md#invariants) |
-| EP5 | `discerning` moves on every Down switch tape of 50 seeds, in the first round the sleeper's or runner-up's base passes the leader's, and never before onset | [policies](policies.md#the-six-baselines) |
-| EP6 | `perfect` output is at least `discerning` output on every seed of every scenario | [policies](policies.md#the-six-baselines) |
-| EP7 | Non-peeking policies give the same splits with `view.tape` as the tape and as `None` | [policies](policies.md#view) |
-| EP8 | Hedge rule on a hand-built record: holds through a fall with a tell, scouts for `scout_rounds` rounds after a fall with no tell, then moves to the best scouted channel and never to the hedge | [policies](policies.md#hedge-rule) |
-| EP9 | Hedge rule on an Up switch tape and an Up switch then down switch tape never moves | [policies](policies.md#hedge-rule) |
-| EP10 | Scout rule on a hand-built record: moves after exactly `n` rounds of a channel beating the pick, not after `n − 1`, and not when the hedge tells | [policies](policies.md#scout-rule) |
-| EP11 | `ScoutRule(s=12)` raises `ValueError` on its first view at the defaults, as `12 × 9 ≥ 100` | [policies](policies.md#scout-rule) |
-| EP12 | Baseline order, **slow**: over 1000 seeds, pooled output orders as in [baseline order](../../pilot/engine-checks.md#baseline-order) for Down switch, Up switch, No change, Switch then shock and Up switch then down switch, with Up switch split into seeds with `short` 0 and `short` 1. The No change case, and the short Up switch seeds for `complacent`, `discerning` and the hedge rule, allow them within 1% of each other | [policies](policies.md#the-six-baselines) |
-| EP13 | Uniform output, **slow**: over 1000 No change seeds, pooled, equals the mean level over all channels and rounds within 0.1% | [policies](policies.md#the-six-baselines) |
-| EP14 | Every exported policy has a `peeks` bool and is callable, `hedge_rule == HedgeRule()` and `scout_rule == ScoutRule()` | [policies](policies.md#interface) |
-| EP15 | A policy that tries to write to `view.tape.levels` raises `ValueError` | [policies](policies.md#invariants) |
-| EP16 | `discerning` never moves on 50 short Up switch seeds. On 50 Up switch then down switch seeds it moves to the sleeper once and back to `start.leader` once, and ends on `start.leader` | [policies](policies.md#the-six-baselines) |
-| EP17 | `HedgeRule(look=0)` raises `ValueError` on construction. `HedgeRule(look=100)` raises `ValueError` on its first view at the defaults | [policies](policies.md#hedge-rule) |
-| EP18 | Scout rule on 50 Up switch then down switch seeds: on at least 40 it ends on `start.leader` having moved at least twice, to the sleeper after the rise and back after the undo | [policies](policies.md#scout-rule) |
+| EV1 | `split_budget`: `[1] × 10` gives ten 10s. `[1, 1, 1]` with 100 gives `(34, 33, 33)`. All zeros and a negative raise `ValueError` | [view](view.md#split_budget) |
+| EV2 | A policy that tries to write to `view.tape.levels` raises `ValueError` | [view](view.md#invariants) |
+
+- EP1 to EP18 moved to the baselines suite with the policies, see [baselines tests](../baselines/tests.md). The letter stays retired so no reference goes stale.
 
 ## Property tests
 
@@ -112,12 +98,12 @@ With `hypothesis`, kept fast with a small example count.
 |---|---|
 | EH1 | For any seed and scenario, ET2, ET3 and ET4 hold |
 | EH2 | For any valid split, `Game.play` accepts it and the row's `None`s match its zeros |
-| EH3 | For any weights with a positive sum, `split_budget` sums to the budget and is non-negative |
+| EH3 | For any weights with a positive sum, `split_budget` sums to the budget and is non-negative, see [view](view.md#split_budget) |
 
 ## Pilot decides
 
-- ET22 and EP12 double as [Tape sanity](../../pilot/engine-checks.md#tape-sanity) and [Baseline order](../../pilot/engine-checks.md#baseline-order) in the pilot, but the pilot runs them at every grid setting and records the numbers.
+- ET22 doubles as [Tape sanity](../../pilot/engine-checks.md#tape-sanity) in the pilot, which runs it at every grid setting and records the numbers. Baseline order is the pilot's, with the part no knob can change in [BP7](../baselines/tests.md#policies).
 
 ## Not decided
 
-- Tolerances in ET6, ET7, ET17, ET22 and EP18 are first guesses. Tighten them once the suite runs.
+- Tolerances in ET6, ET7, ET17 and ET22 are first guesses. Tighten them once the suite runs.

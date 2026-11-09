@@ -40,7 +40,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 - **`main`** parses `argv` with `argparse`, dispatches, and returns 0 on success and 1 on a `ValueError`, whose message it prints. Any other exception propagates with its traceback.
 - **`poc` and `pilot`** are built in.
-- **Other subcommands come from the entry point group `paranoid.commands`.** The analysis layer registers `analyse = "paranoid.analysis.cli:analyse"`. `main` discovers them with `importlib.metadata.entry_points` and loads one only when it is named, so the harness never imports the analysis layer and the layer rule holds, see [layout](../../harness/layout.md#four-layers).
+- **Other subcommands come from the entry point group `paranoid.commands`.** The analysis layer registers `analyse = "paranoid.analysis.cli:analyse"`. `main` discovers them with `importlib.metadata.entry_points` and loads one only when it is named, so the harness never imports the analysis layer and the layer rule holds, see [layout](../../harness/layout.md#five-layers).
 
 ### Models config
 
@@ -88,7 +88,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `streaks` | No | Tapes over a grid of `persistence`, 1000 seeds each, the No change and Down switch scenarios | A CSV: setting, seed, longest run of rounds the leader reads below the runner-up by chance, and the round the Scout rule moves |
 | `tell` | No | Tapes over a grid of `factor_scale`, One shock and Down switch, 1000 seeds | A CSV: setting, seed, hedge move at the trough, and the hedge rule's hold or move |
 | `luck` | No | `perfect` minus `discerning` on every scenario at every grid setting | A CSV: scenario, setting, seed, gap |
-| `tape-sanity` | No | ET22 and EP12 from the [engine tests](../engine/tests.md#tape) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
+| `tape-sanity` | No | [ET22](../engine/tests.md#tape) and [BP7](../baselines/tests.md#policies) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
 | `noise-grid` | No | Every fixed baseline on One shock, Down switch and Up switch at every setting in `configs/grid.toml`, 1000 seeds | A CSV: scenario, setting, baseline, seed, output |
 | `game-length` | No | The baselines at `rounds` of 30, 40 and 60 and `onset` ranges around the default, One shock, Down switch and the two-event scenarios | A CSV: scenario, rounds, onset, baseline, seed, output |
 | `reading-roughness` | No | `HedgeRule(look=1,2,5)` and `ScoutRule(s=1,2,5)` over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |

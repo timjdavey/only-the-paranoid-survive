@@ -1,6 +1,6 @@
 # Skins spec
 
-The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the four words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
+The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the four words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Its tests also take `uniform` from the baselines layer below it to play records. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
 
 ## Pages
 
@@ -13,7 +13,7 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the chan
 
 ## Exports
 
-`paranoid.skins` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#four-layers).
+`paranoid.skins` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -32,7 +32,15 @@ The skins layer imports these from `paranoid.engine`. Their behaviour is in the 
 | Name | What the skins layer uses it for |
 |---|---|
 | `Record`, `Row` | The rows `render_record` writes, see [record](render.md#record) |
-| `play`, `make_tape`, `SCENARIOS`, `uniform` | Records for the test suite only, see [tests](tests.md) |
+| `play`, `make_tape`, `SCENARIOS` | Records for the test suite only, see [tests](tests.md) |
+
+## Names from the baselines layer
+
+The skins code imports nothing from `paranoid.baselines`. Its tests import one name. The baselines side of this boundary is [what the layers above read](../baselines/README.md#what-the-layers-above-read).
+
+| Name | What the skins layer uses it for |
+|---|---|
+| `uniform` | The policy `play` runs to make a record for the test suite, see [tests](tests.md) |
 
 ## Modules
 
@@ -46,8 +54,8 @@ The skins layer imports these from `paranoid.engine`. Their behaviour is in the 
       example.toml   the example skin, shipped as package data
 
 - **Loading is its own module** so the imports run one way: `load` imports `lint`, `lint` imports `render`, `render` imports `skin`. `skin.py` imports nothing of its own layer.
-- Nothing outside `__init__.py` is public. Tests import from `paranoid.skins` only, plus `paranoid.engine` for records.
-- The only imports are `paranoid.engine` and the standard library. TOML is read with `tomllib`. `import-linter` enforces it, see [layout](../../harness/layout.md#four-layers).
+- Nothing outside `__init__.py` is public. Tests import from `paranoid.skins` only, plus `paranoid.engine` and `paranoid.baselines` for records.
+- The only imports are `paranoid.engine` and the standard library. TOML is read with `tomllib`. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
 
 ## What the harness reads
 

@@ -19,9 +19,6 @@ class BaselineAPI(StoreAPI): ...     # "baseline/<name>". model_args are the pol
 class JevAPI(StoreAPI): ...          # "jev/<model>"
 class TimestralAPI(StoreAPI): ...    # "timestral/<policy>"
 
-POLICIES: Mapping[str, Policy | type[Policy]]   # uniform, discerning, complacent, perfect as instances,
-                                                # hedge_rule and scout_rule as HedgeRule and ScoutRule
-
 @dataclass(frozen=True)
 class JevAnswer:
     probabilities: tuple[float, ...]            # one per option, in option order
@@ -35,7 +32,7 @@ class Forecaster(Protocol):
     def __call__(self, readings: np.ndarray, bets: np.ndarray | None) -> np.ndarray: ...
     # readings (rounds, channels) with NaN for blanks. bets the same shape or None. Returns (channels, 21)
 
-TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (quantiles, budget) -> bets
+TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -> the rule, and whether past bets go in
 ```
 
 ## Behaviour
@@ -58,8 +55,8 @@ TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (q
 
 ### Baseline
 
-- **`POLICIES`** maps the six names in [baselines](../../design/baselines.md#fixed-baselines) to the engine's exports: `uniform`, `discerning`, `complacent`, `perfect` to the instances, `hedge_rule` to `HedgeRule` and `scout_rule` to `ScoutRule`.
-- **Model args are policy parameters.** `--model baseline/hedge_rule -M look=1 -M window=4` builds `HedgeRule(look=1, window=4)`. inspect passes `-M` values as strings, so each is cast to the dataclass field's type. A model arg on a baseline that takes none, or an unknown field, raises `ValueError` on construction. With no model args the two parameterised baselines are `HedgeRule()` and `ScoutRule()`, equal to the engine's `hedge_rule` and `scout_rule`.
+- **The name after the slash is a key of [`POLICIES`](../baselines/policies.md#policies)**, from the baselines layer, and the policy is `POLICIES[name](**args)` with the model args cast.
+- **Model args are policy parameters.** `--model baseline/hedge_rule -M look=1 -M window=4` builds `HedgeRule(look=1, window=4)`. inspect passes `-M` values as strings, so each is cast to the dataclass field's type, read from `dataclasses.fields`. A model arg that is not a field of the class, which for the four fixed baselines is any model arg at all, raises `ValueError` on construction naming the known fields. With no model args every entry is built at its defaults, so it equals the layer's instance of the same name.
 - **`bets`** is `policy(store.game().view(policy.peeks))`, see [view](../engine/game.md#view). The peeking baselines get the tape, the rest get `None`.
 - **The same rounds as a model.** A baseline run through the provider has the same `rows` as `play(policy, tape)`, warm up included, so the scorer's own baseline sums agree with the provider's run to the last decimal, see [scorer invariants](scorer.md#invariants).
 - **`max_connections`** is 32. A baseline does no I/O, so the cap only bounds concurrency.
@@ -69,7 +66,7 @@ TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (q
 - **`JevAPI`** takes a `client: JevClient`. The default is `TypesafeClient`, a thin wrapper over `typesafe-sdk` that is imported lazily, so the default install needs the package only when Jev runs. Tests pass a fake.
 - **State** is the text of the system message and the text of the user message in `input`, joined by two newlines. That is exactly what an LLM sees this round, notes included when the pilot turns them on.
 - **Question and options** are the skin's `question` and `channels`, in channel index order. The provider loads the skin by `store.skin` from `load_skins()`, called once per process and kept.
-- **Bets** are `split_budget(answer.probabilities, budget)`, see [`split_budget`](../engine/policies.md#split_budget). A probability under 0.005 of the budget gets 0 unless a leftover point falls to it. An answer with the wrong number of probabilities, a negative one, or all zeros raises `ValueError`.
+- **Bets** are `split_budget(answer.probabilities, budget)`, see [`split_budget`](../engine/view.md#split_budget). A probability under 0.005 of the budget gets 0 unless a leftover point falls to it. An answer with the wrong number of probabilities, a negative one, or all zeros raises `ValueError`.
 - **Logged** on the message's `metadata`: `probabilities`, `confidence` and `raw`.
 - **No memory.** The client is awaited once a round with the state as given. Nothing is kept between rounds, see [Jev](../../harness/providers.md#jev).
 
@@ -79,20 +76,11 @@ TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (q
 - **Pinned.** `pyproject.toml` pins the Timestral package to one git commit, and the loader passes a weights `revision`, so a rerun loads the same code and the same weights. Both are named in the row's `notes` in the models config. An unpinned git install is a supply chain risk and a reproducibility hole at once.
 - **Input** is `readings`, shape `(len(rows), channels)`, each row's readings with `NaN` where the bet was 0. For `odds-bet-aware`, `bets` is the same shape with the past bets, else `None`, see [Timestral](../../harness/providers.md#timestral).
 - **Round 1 is `uniform`.** With no rows there is nothing to forecast, so the first split is `uniform`'s, which also reads every channel once.
-- **Output** is `(channels, 21)` quantiles for next round, in ascending quantile order. Index 10 is the median. The levels are the ones the Timestral package reports, see [verify before code](#verify-before-code).
+- **Output** is `(channels, len(QUANTILE_LEVELS))` quantiles for next round, in ascending quantile order, on the baselines layer's [`QUANTILE_LEVELS`](../baselines/forecast.md#interface). The levels the Timestral package reports are to be read, see [verify before code](#verify-before-code). The provider sorts each row ascending before it calls a rule, as a forecaster can return crossed quantiles and the rules raise on them, see [forecast](../baselines/forecast.md#the-rules).
 - **Determinism and cache.** `torch.set_num_threads(1)` once, `torch.manual_seed(0)` before each forecast, and one forecast at a time, as CPU inference can differ across thread counts and the seed is process-wide, see [shared behaviour](#shared-behaviour). The result is cached under `$PARANOID_CACHE`, default `~/.cache/paranoid/timestral/`, keyed by the SHA-256 of the model id, the weights revision, the input arrays' bytes and shapes, and whether `bets` was passed. A cache hit never calls the model, so a rerun replays the same bets. The key is logged on the message's `metadata` as `cache_key`, with the quantiles.
 - **The cache is as private as a log.** It holds forecasts of the readings a run saw, so after a held-out run it stays on the machine like the log does, see [contamination](../../harness/contamination.md#public-and-held-out).
-- **`TIMESTRAL_POLICIES`** turns quantiles into bets, one entry per id in the [glossary](../../glossary.md#the-study):
-
-| Id | Bets |
-|---|---|
-| `top-pick` | `budget` on the channel with the highest median. Ties to the lowest index |
-| `odds` | `split_budget(p, budget)` where `p[c]` is the share of 1000 draws in which channel `c` is highest. Each draw takes one value per channel from its quantile function by linear interpolation, with `default_rng(0)` |
-| `look-1`, `look-2`, `look-5` | 1, 2 or 5 on every channel but the top pick, the rest on it |
-| `odds-bet-aware` | As `odds`. The difference is the `bets` input |
-
-- **A channel with no reading yet** has a `NaN` median. `top-pick` treats it as lowest. `odds` gives it no draws.
-- **These rules move to the engine** as `Policy`s whose `View` carries the forecast, once the Bayesian baseline needs them, see [parked](../engine/policies.md#parked). The table here is the contract until then.
+- **`TIMESTRAL_POLICIES`** maps each `timestral/<id>` in the [glossary](../../glossary.md#the-study) to a [forecast rule](../baselines/forecast.md#the-rules) and a flag for the `bets` input. `top-pick`, `odds`, `look-1`, `look-2` and `look-5` map to `FORECAST_RULES[id]` with the flag off. `odds-bet-aware` maps to `FORECAST_RULES["odds"]` with it on. The rules themselves, and what they do with a `NaN` channel, are the baselines layer's.
+- **Bets** are `rule(quantiles, budget)` from round 2 on. The quantiles the forecaster returns must sit on `QUANTILE_LEVELS`, see [verify before code](#verify-before-code).
 
 ## Invariants
 
@@ -104,5 +92,5 @@ TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (q
 ## Verify before code
 
 - **Store in scope.** `store_as` inside `generate` relies on inspect's sample context reaching the model call. Check it with `mockllm` and a stub provider before `StoreAPI.generate` is written. If it does not hold, the solver sets a `ContextVar` holding the store before each generate and the base reads that instead.
-- **Timestral's quantile levels and call signature.** Read them from the package when the extra is first installed. The 21 levels are assumed to be evenly spaced from 0.05 to 0.95 until then. `Forecaster` and `TIMESTRAL_POLICIES` wait on it.
+- **Timestral's quantile levels and call signature.** Read them from the package when the extra is first installed. They are assumed to equal `QUANTILE_LEVELS`, 21 levels evenly spaced from 0.05 to 0.95, until then. If they differ, the default `Forecaster` interpolates onto `QUANTILE_LEVELS`, see the baselines side at [verify before code](../baselines/forecast.md#verify-before-code). `Forecaster` waits on it.
 - **`typesafe-sdk`'s call shape.** `JevClient` is the seam, so only `TypesafeClient` changes if the SDK differs. `TypesafeClient` waits on it.

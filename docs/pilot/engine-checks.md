@@ -100,7 +100,7 @@ A switch comes in three kinds, see [events](../design/mechanics.md#events): the 
 - **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in every scenario.
 - **Measure.** Their scores, against these orders:
   - **Down switch scenario:** Perfect > Discerning > hedge rule > Complacent > Uniform.
-  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The hedge rule never moves here, so it sits with the Complacent baseline minus its look. On the seeds where the sleeper stops short, Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, and report how far the Scout rule falls below.
+  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The hedge rule has no reason to move here, so it sits with the Complacent baseline minus its look, less any false alarm on weather. On the seeds where the sleeper stops short, Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, and report how far the Scout rule falls below.
   - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
   - **Switch then shock scenario:** as Down switch. The hedge rises in the shock, so the hedge rule holds the new best.
   - **Up switch then down switch scenario:** as Up switch. The Scout rule keeps scouting after a move, so it sees the sleeper fall and the leader hold.

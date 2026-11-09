@@ -42,7 +42,8 @@ Every page has the same sections, in this order. A section with nothing to say i
 
 | Layer | Prefix | Pages |
 |---|---|---|
-| engine | `E` | `EC` config, `ET` tape, `EG` game, `EP` policies, `EH` property |
+| engine | `E` | `EC` config, `ET` tape, `EG` game, `EV` view, `EH` property |
+| baselines | `B` | `BP` policies, `BR` rules, `BF` forecast, `BH` property |
 | skins | `K` | `KS` skin, `KR` render, `KL` lint, `KH` property |
 | harness | `H` | `HK` task, `HS` solver, `HR` providers, `HO` scorer, `HM` command, `HY` property |
 
@@ -80,6 +81,7 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 | Layer | Spec | Status | Verify before code |
 |---|---|---|---|
 | engine | [engine/](engine/) | Written, no code yet | Nothing |
+| baselines | [baselines/](baselines/) | Written, no code yet | Timestral's quantile levels, which `QUANTILE_LEVELS` assumes. See the [forecast](baselines/forecast.md#verify-before-code) page |
 | skins | [skins/](skins/) | Written, no code yet | Nothing |
 | harness | [harness/](harness/) | Written, no code yet | Whether inspect's store is in scope inside `generate`, Timestral's quantile levels and call signature, the `typesafe-sdk` call shape, the reasoning budgets and effort names per provider, and which providers refuse a forced tool with thinking on. See the [providers](harness/providers.md#verify-before-code), [command](harness/command.md#verify-before-code) and [solver](harness/solver.md#verify-before-code) pages |
 | analysis | | To come | |
