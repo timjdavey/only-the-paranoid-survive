@@ -42,12 +42,14 @@ Prices the risk that a model knows it is in this benchmark. Each skin words the 
 Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the agent's own output and a rise does not, so this check asks whether a model looks before anything tells it to.
 
 - **Question.** Does a model find a rise it was not cued to look for, and does a fall with a riser differ from a fall alone.
-- **Run.** One model on the Down switch seeds from [Seeds](#seeds), split by whether a sleeper rose, plus the Up switch scenario on the same seeds. No extra Down switch runs.
+- **Run.** One model on the Down switch seeds from [Seeds](#seeds), split by whether a sleeper rose, plus the Up switch, Up switch then down switch and Switch then shock scenarios on the same seeds. No extra Down switch runs.
 - **Measure.**
-  - Run score on fall-only, fall-with-riser and rise-only, paired by seed.
+  - Run score on fall-only, fall-with-riser, rise-past and rise-short, paired by seed.
   - How often any bet reaches the sleeper after onset, and in which round.
   - Mean points on unfunded channels before onset, which is looking when nothing is wrong.
-- **Decide.** Whether the Up switch scenario needs its own seed count, as its run scores may split into found and not found. Report the three kinds beside the headline.
+  - The gap between the Up switch and Up switch then down switch run scores, paired by seed, which is what the revert cost.
+  - The gap between the Down switch and Switch then shock run scores, paired by seed, which is what the whipsaw cost.
+- **Decide.** Whether the Up switch scenario needs its own seed count, as its run scores may split into found and not found. Report the four kinds beside the headline.
 
 ## Timestral checks
 

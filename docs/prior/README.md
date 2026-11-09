@@ -90,7 +90,9 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [A fresh call each round, record in the prompt](../design/interface.md#tools) | Self-Correction Illusion, IBIS, Kumaran, Schubert, Barkett, Horowitz and Plonsky |
 | [No change and One shock scenarios](../design/scenarios.md#scenarios-we-test) | Massey and Wu, Nassar, Haghani and Dewey, Gupta, Kumaran |
 | [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) | Gallistel 2001, Behrens, Wilson, Coda-Forno, Bazaar |
-| [Scenarios we skip](../design/scenarios.md#scenarios-we-skip) | Behrens, Wang, Set-shifting (going back), Gallistel 2014 (taking it back) |
+| [Switch then shock scenario](../design/scenarios.md#scenarios-we-test) | Gallistel 2014 (taking it back), Schubert (own choices), Bazaar (revision) |
+| [Up switch then down switch scenario](../design/scenarios.md#scenarios-we-test) | Set-shifting (going back), Gama (recurring drift) |
+| [Scenarios we skip](../design/scenarios.md#scenarios-we-skip) | Behrens, Wang |
 | [Score from a floor to a ceiling on the same seeds](../design/scoring.md#how-we-score) | AdaExploreBench, STOCKTAKE |
 | [Pairing models by seed](../design/scoring.md#error-bars) | METR (correlated errors), STOCKTAKE (event tape) |
 | [Fixed baselines](../design/baselines.md#fixed-baselines) | BanditBench, Bazaar (Thompson sampling) |

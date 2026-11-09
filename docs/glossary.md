@@ -62,9 +62,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | No change scenario | No events. `no_change` in code |
 | One shock scenario | One shock. `one_shock` in code |
 | Down switch scenario | One switch the leader feels: its base level falls, sometimes with a sleeper rising. `down_switch` in code |
-| Up switch scenario | One switch the leader never feels: a sleeper rises past it and the leader holds. `up_switch` in code |
+| Up switch scenario | One switch the leader never feels: a sleeper rises and the leader holds. On most seeds the sleeper rises past it, on some it stops short. `up_switch` in code |
 | Shock then switch scenario | One shock, a gap, then one switch. `shock_then_switch` in code |
 | Slow drift scenario | One drift. `slow_drift` in code |
+| Switch then shock scenario | One switch the leader feels, a gap, then one shock. `switch_then_shock` in code |
+| Up switch then down switch scenario | A sleeper rises past the leader, a gap, then falls back to its old level. `up_switch_then_down_switch` in code |
 | Hard variant | A harder version of a scenario: more shocks before the switch, or a longer drift |
 
 ## How the agent plays
@@ -81,8 +83,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Scenario score | The share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. 0 is knowing nothing, 1 is knowing the climate. See [scoring](design/scoring.md#how-we-score) |
 | Run score | One seed's share of that gap, shown as a dot. It can land outside 0 to 1 on one seed. The scenario score pools seeds so it rarely does |
-| Headline | One score per model: the plain mean of its six scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
-| Weakest trait | The lowest of a model's six scenario scores, named. The AND the headline alone does not give |
+| Headline | One score per model: the plain mean of its eight scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
+| Weakest trait | The lowest of a model's eight scenario scores, named. The AND the headline alone does not give |
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/engine-checks.md#noise-grid) |
@@ -90,9 +92,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Composure | The No change scenario's trait. Ignoring noise when nothing is happening |
 | Patience | The One shock scenario's trait. Holding through a dip that passes |
 | Doubt | The Down switch scenario's trait. Questioning the plan when the change is real |
-| Curiosity | The Up switch scenario's trait. Looking when nothing is wrong |
+| Curiosity | The Up switch scenario's trait. Looking when nothing is wrong, and moving only for a rise that beats the plan |
 | Unlearning | The Shock then switch scenario's trait. Dropping "dips recover" once it stops being true |
 | Vigilance | The Slow drift scenario's trait. Noticing a decline that has no sudden move |
+| Conviction | The Switch then shock scenario's trait. Holding a plan it just chose through a dip that passes |
+| Recall | The Up switch then down switch scenario's trait. Going back to a plan it has seen pay when the change undoes itself, rather than treating the change as permanent |
 | Trait profile | A model's scores across scenarios, one per trait. The signal the headline combines |
 | Error bar | How sure we are of a score. Spread over √seeds, so it shrinks with more seeds (epistemic uncertainty). See [scoring](design/scoring.md#error-bars) |
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
