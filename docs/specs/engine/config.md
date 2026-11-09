@@ -164,6 +164,6 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 
 ## Open
 
-- The [noise grid](../../pilot/engine-checks.md#noise-grid) is a list of `own_scale` values with `pin_in_level_points` on. Where that list lives, `configs/` or a constant in the harness, is a harness spec question.
+- The [noise grid](../../pilot/engine-checks.md#noise-grid) is a list of `own_scale` values with `pin_in_level_points` on. It lives in `configs/grid.toml`, and the harness applies one setting per eval, see the [task spec](../harness/task.md#scenarios-and-config).
 - Whether `inertia_cap` belongs here or on the harness task. It is here because it changes what a valid bet is, which is an engine rule.
 - `hedge_may_overtake` needs a config whose ladder and loadings let the hedge pass the leader within `depth_points`. At the defaults most seeds cannot, so the knob's config is for the pilot, see [shock](tape.md#shock).

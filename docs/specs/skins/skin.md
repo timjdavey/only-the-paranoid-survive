@@ -17,6 +17,7 @@ class Skin:
     ask: str                                # the record is below, place this round's points with the tool
     tool_name: str                          # the tool's name as the model sees it
     tool_text: str                          # the tool's description
+    bets_text: str                          # the description of the tool's one parameter, the ten bets
     bad_call: str                           # the retry message for bets the engine rejects. One message, no slots
     no_call: str                            # the retry message for a reply with no tool call
     question: str                           # Jev's choice question, see providers

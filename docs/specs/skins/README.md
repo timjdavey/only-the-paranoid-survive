@@ -48,7 +48,7 @@ The harness takes a `Skin` from `load_skins` and uses it in five places, see [in
 |---|---|
 | System prompt | `render_system_prompt(skin)` |
 | User message | `render_record(skin, record)` |
-| The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bad_call`, `skin.no_call` |
+| The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bets_text`, `skin.bad_call`, `skin.no_call` |
 | The Jev provider | `skin.question`, with `skin.channels` as the options, see [providers](../../harness/providers.md#jev) |
 | Log metadata | `skin.name`, `prompt_hash(skin)` |
 

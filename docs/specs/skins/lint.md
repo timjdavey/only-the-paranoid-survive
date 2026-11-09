@@ -89,7 +89,7 @@ Then it renders `render_system_prompt(skin)` and checks the facts in [what every
 Then it checks that nothing the model reads carries the canary GUID.
 
 - **The GUID** is the part of `CANARY` after `canary GUID `. The line's first half fails the [word lint](#words) on its own, as `benchmark` and `canary` are banned, so this check needs only the GUID.
-- **Checked in** the rendered system prompt, and in `tool_text`, `bad_call`, `no_call` and `question`. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
+- **Checked in** the rendered system prompt, and in `tool_text`, `bets_text`, `bad_call`, `no_call` and `question`. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
 - **`CANARY`** is the line in [contamination](../../harness/contamination.md#canary), exactly, with no trailing newline. It lives in `paranoid.skins.canary` and is exported from `paranoid.skins`.
 - **Every published file that holds prompt text carries it.** In this repo that is `example.toml`, as its first comment line, and `docs/harness/prompts.md`. The test suite checks both, see [tests](tests.md#lint).
 - **A model that can finish the line has seen our data.** The [recognition check](../../pilot/provider-checks.md#recognition) asks it to.

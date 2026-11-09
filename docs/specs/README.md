@@ -40,5 +40,5 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 |---|---|---|
 | engine | [engine/](engine/) | Written, no code yet |
 | skins | [skins/](skins/) | Written, no code yet |
-| harness | | To come |
+| harness | [harness/](harness/) | Written, no code yet |
 | analysis | | To come |

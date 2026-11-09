@@ -79,7 +79,7 @@ A deployed agent would have a scratchpad and a calculator at the very least, so 
 
 | Tool | What it does |
 |---|---|
-| `notes(text)` | Replaces a file the agent keeps between rounds. It comes back next round as a tool message, never as the agent's own words. Length is capped and logged |
+| `notes(text)` | Replaces a file the agent keeps between rounds. It comes back next round in the user message below the record, never as the agent's own words. A tool message would need a tool call before it, which a fresh call does not have. Length is capped and logged |
 | `compute(code)` | Runs Python in a sandbox that sees the record as a file and nothing else. No network, no engine, no seeds |
 
 | Rejected | Why not |

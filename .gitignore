@@ -4,4 +4,4 @@ logs/
 __pycache__/
 *.pyc
 .venv/
-.timestral-cache/
+.cache/

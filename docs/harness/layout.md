@@ -31,7 +31,8 @@ How the code is arranged. The [design](../design/) pages say why the game is the
     pyproject.toml  .env.example
     configs/
       models/      poc.toml and full.toml. See models.md
-      seeds/       public seeds, one file per scenario, once the engine exists. Held-out seeds are private, see contamination.md
+      seeds/       public.txt, the one list every scenario plays, once the engine exists. Held-out seeds are private, see contamination.md
+      grid.toml    the noise grid, see docs/specs/harness/task.md
     docs/
       design/      why. The decisions
       harness/     how. This folder
@@ -39,7 +40,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
       results/     the headline tables and their CSVs
       prior/       what others have done
       specs/       what each layer must do, written before its code. See docs/specs/README.md
-        engine/
+        engine/  harness/
       glossary.md
     src/paranoid/
       engine/  skins/  harness/  analysis/
