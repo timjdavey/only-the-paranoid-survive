@@ -25,12 +25,12 @@ These pages collect what others have found on that question, in LLMs, in people 
 
 If you know the field, our game may look like a drifting bandit: an agent picks between options whose payoffs wander, as in [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit). It has that shape, but no study below has all of these.
 
-- **Both mistakes cost.** Calm and shock sit in the same headline as switch and drift. The headline is a geometric mean, so a model can't make up for false alarms with quick switches ([scoring](../design/scoring.md#how-we-score)).
+- **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the One switch and Slow drift scenarios. The headline is a geometric mean, so a model can't make up for false alarms with quick switches ([scoring](../design/scoring.md#how-we-score)).
 - **Bad luck comes in streaks, and the whole market has bad weeks.** Each channel's weather has memory, so a bad stretch fades rather than stops. A shared factor moves every channel at once ([generator](../design/mechanics.md#each-round)).
 - **A look costs, and a look tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
 - **The old plan keeps paying.** After a switch the leader is still well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 - **Nothing tells the agent the world might change.** No prompt, story or tool mentions it ([interface](../design/interface.md#how-the-agent-plays)).
-- **A right lesson can go wrong.** In shock then switch, an agent that rightly held through the shock has learnt "dips recover", and is primed to miss the real change ([scenarios](../design/scenarios.md#shapes-we-test)).
+- **A right lesson can go wrong.** In the Shock then switch scenario, an agent that rightly held through the shock has learnt "dips recover", and is primed to miss the real change ([scenarios](../design/scenarios.md#shapes-we-test)).
 
 ## Studies where the world changes
 
@@ -58,13 +58,13 @@ Studies where nothing changes are on their own pages.
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | The reward ratio jumps | No | Noisy | n/a | Ideal detector | No |
 | [Nassar et al. 2010](people.md#nassar-et-al-2010-a-learning-rate-that-rises-with-surprise) | People, predicting the next number | The mean jumps | No | Noisy | Yes | Reduced Bayesian learner | Yes, through prediction error |
 | [Gallistel et al. 2014](people.md#gallistel-et-al-2014-step-hold-and-take-it-back) | People, tracking a hidden share | The odds jump rarely | No | Noisy | Yes | Their own model | Yes, false alarm rates reported |
-| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Oracle above, stale and uniform below, on the same seeds | Yes, calm and shock are in the headline |
+| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Oracle above, stale and uniform below, on the same seeds | Yes, the No change and One shock scenarios are in the headline |
 
 ### The closest studies
 
 - **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees. Ours, the [oracle](../design/baselines.md#fixed-baselines), knows each round's levels. A yardstick that sees only what the agent sees is the [parked Bayesian baseline](../design/baselines.md#not-yet).
 - **AdaExploreBench is closest in shape.** One silent change, and a score that runs from a floor to an all-knowing oracle, like ours.
-- **Set-shifting is the only one with a matched no-change copy** of every run. It reports that copy beside the score, not inside it. Our calm and shock scenarios are inside the headline.
+- **Set-shifting is the only one with a matched no-change copy** of every run. It reports that copy beside the score, not inside it. Our No change and One shock scenarios are inside the headline.
 
 ## Which way do models fail?
 
@@ -73,7 +73,7 @@ Most studies only count being too slow. Wang counts a switch after a loss as goo
 - **Too slow.** Wang finds models rarely switch after a loss. Set-shifting finds many lock into one routine. Bazaar's fastest learners adapted worst after the change.
 - **Too jumpy.** Gupta finds some models forget after a couple of flips. [Kumaran](past-in-the-prompt.md#kumaran-et-al-2025-whose-first-answer-it-was) finds they give too much weight to advice that disagrees with them. [Horowitz and Plonsky](learning-from-results.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result.
 
-People research offers a way to predict the direction. Massey and Wu find people overreact when the world is stable and the signals are noisy, and underreact when it is changeable and the signals are precise. Calm and shock are the first case. A switch at low noise is the second. Because every scenario feeds the headline, our score settles which way each model leans.
+People research offers a way to predict the direction. Massey and Wu find people overreact when the world is stable and the signals are noisy, and underreact when it is changeable and the signals are precise. The No change and One shock scenarios are the first case. A switch at low noise is the second. Because every scenario feeds the headline, our score settles which way each model leans.
 
 ## Where each study bears on the design
 
@@ -88,8 +88,8 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [Nothing tells the agent](../design/interface.md#how-the-agent-plays) | Set-shifting, AdaExploreBench, Wang, Bleser, Nassar |
 | [Not asking for a chance of change](../design/interface.md#rejected) | Brown and Steyvers, Bleser, STALE, Goel, STOCKTAKE, Schmied |
 | [A fresh call each round, record in the prompt](../design/interface.md#tools) | Self-Correction Illusion, IBIS, Kumaran, Schubert, Barkett, Horowitz and Plonsky |
-| [Calm and shock](../design/scenarios.md#shapes-we-test) | Massey and Wu, Nassar, Haghani and Dewey, Gupta, Kumaran |
-| [Shock then switch](../design/scenarios.md#shapes-we-test) | Gallistel 2001, Behrens, Wilson, Coda-Forno, Bazaar |
+| [No change and One shock scenarios](../design/scenarios.md#shapes-we-test) | Massey and Wu, Nassar, Haghani and Dewey, Gupta, Kumaran |
+| [Shock then switch scenario](../design/scenarios.md#shapes-we-test) | Gallistel 2001, Behrens, Wilson, Coda-Forno, Bazaar |
 | [Shapes we skip](../design/scenarios.md#shapes-we-skip) | Behrens, Wang, Set-shifting (going back), Gallistel 2014 (taking it back) |
 | [Score as a fraction of the oracle](../design/scoring.md#how-we-score) | AdaExploreBench, STOCKTAKE |
 | [Pairing models by seed](../design/scoring.md#error-bars) | METR (correlated errors), STOCKTAKE (event tape) |

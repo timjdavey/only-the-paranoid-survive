@@ -7,7 +7,7 @@ A short run before the full study to settle the knobs.
 Sizes the [error bar](../design/scoring.md#error-bars).
 
 - **Question.** How many seeds a scenario needs.
-- **Run.** One model, one scenario, say shock. Twenty public seeds played once, as pilot logs are published. See [contamination](../harness/contamination.md#two-seed-sets).
+- **Run.** One model, one scenario, say the One shock scenario. Twenty public seeds played once, as pilot logs are published. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Measure.** The SD of the run score across seeds. This is the [spread](../design/scoring.md#spread).
 - **Decide.** Seeds per scenario = (SD ÷ target error bar)², rounded up. The target is a fraction, say a fifth, of the smallest gap between [baselines](../design/baselines.md) we want to read. This sizes the held-out seed set.
 
@@ -25,14 +25,14 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 Noise is the difficulty knob. It has three dials, own-weather spread, memory and shared-factor spread, see [difficulty](../design/mechanics.md#difficulty). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
 
 - **Question.** What settings of the three dials make shock and switch hard to tell apart for a while, but not forever.
-- **Run.** The fixed [baselines](../design/baselines.md) on shock and switch, at a few settings of each dial.
+- **Run.** The fixed [baselines](../design/baselines.md) in the One shock and One switch scenarios, at a few settings of each dial.
 - **Measure.** How the baseline scores spread at each setting, and whether the [baseline order](#baseline-order) holds.
 - **Decide.** The three dials per scenario. If the base score is flat across models, raise them. Raising them later is also how the study avoids saturating.
 
 ## Game length and switch round
 
 - **Question.** How many rounds a run lasts, and in which round the shock or switch hits.
-- **Run.** The fixed baselines on shock and switch, at a few game lengths and switch rounds.
+- **Run.** The fixed baselines in the One shock and One switch scenarios, at a few game lengths and switch rounds.
 - **Measure.** How far steady pulls ahead of stale after the switch, and how many rounds that takes.
 - **Decide.** Enough calm rounds before the change to set a habit, and enough rounds after it for steady to pull clear of stale. Longer runs cost more, see [cost per run](#cost-per-run).
 
@@ -48,10 +48,10 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 ## Baseline order
 
 - **Question.** Do the fixed baselines land in the order we expect.
-- **Run.** Every [baseline](../design/baselines.md) on switch and calm.
+- **Run.** Every [baseline](../design/baselines.md) in the One switch and No change scenarios.
 - **Measure.** Their scores, against these orders:
-  - **Switch:** oracle > steady > Timestral > stale > uniform.
-  - **Calm:** stale ≈ oracle ≈ steady.
+  - **One switch scenario:** oracle > steady > Timestral > stale > uniform.
+  - **No change scenario:** stale ≈ oracle ≈ steady.
 - **Decide.** If the order breaks, the [noise](#noise) is likely too high or a baseline is wrong. Fix it before any model runs.
 
 ## Timestral checks
@@ -86,7 +86,7 @@ A deployed agent would have a scratchpad and a calculator at the very least, so 
 Each round is a fresh call with the record in the prompt, see [tools](../design/interface.md#tools). A deployed agent keeps its conversation, so this check prices the difference.
 
 - **Question.** How much does the fresh call change how a model plays.
-- **Run.** One model on shock and switch, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted.
+- **Run.** One model in the One shock and One switch scenarios, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted.
 - **Measure.** The score gap, paired by seed, and tokens per run.
 - **Decide.** Report the gap beside the headline. The headline stays on fresh calls, as the [interface](../design/interface.md#rejected) page says why. If the gap is large, say so where the score is read.
 
@@ -97,7 +97,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
 - **Question.** Is the base score too flat to separate models.
-- **Measure.** The gaps between models on switch and drift, from the main pilot runs.
+- **Measure.** The gaps between models in the One switch and Slow drift scenarios, from the main pilot runs.
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 
 ## Cost per run

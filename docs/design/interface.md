@@ -38,13 +38,13 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 | Pick one channel a round | One reading a round is too little evidence. Even an oracle mostly misses the switch by round 40. A look costs a whole round's output, and doubt only shows across several rounds |
 | Pick one channel and a stake | The old coin flip game. Sizing a stake is a maths skill of its own that blurs with belief, and asking "how much do you move" every round hints that change is the question |
 | Compounding bankroll | The right stake is a Kelly fraction, so the game tests bet sizing as much as spotting a change. Early luck multiplies through the run, so variance swamps model differences. Ruin scores zero and collapses the geometric mean |
-| Cash as a safe channel | Models park in cash whenever unsure, so calm needs an extra cost to stay readable |
+| Cash as a safe channel | Models park in cash whenever unsure, so the No change scenario needs an extra cost to stay readable |
 | Stop or continue, one irreversible switch | Clean detection delay, but binary, so no graded doubt |
 | Ask for a probability the regime changed | The most direct measure, but it tells the agent change is the question |
 | Forecast the levels, engine acts on them | Asking an LLM for a forecast nudges it that levels move. Kept only as the adapter for forecasters like Timestral, where there is no prompt to nudge |
 | Rank the channels | Cheap for the model but coarse. A rank swap is as binary as a pick |
 | Pivot with a conversion cost | The mechanic prices lateness and overreaction itself, but the fee leaks into every trait, and it is lumpy, so a timid agent and a confident one read the same until one moves |
 | Controller with feedback | Prices both failures naturally, but the score becomes a cost rather than a fraction of the oracle, and the model has to reason about a system with memory. Kept as a second game to check the skill carries over |
-| Three channels | Where to go is a coin flip, there is no room for a decoy, and calm saturates so it stops separating models |
-| A `read_record` tool | Lets a model never look, and then lazy and confident read the same. A default row count is a hidden choice about how far back it can see, which is the thing drift tests |
+| Three channels | Where to go is a coin flip, there is no room for a decoy, and the No change scenario saturates so it stops separating models |
+| A `read_record` tool | Lets a model never look, and then lazy and confident read the same. A default row count is a hidden choice about how far back it can see, which is the thing the Slow drift scenario tests |
 | A rolling conversation | The agent's own reasoning piles up, and that is the one place a model will not question a claim ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Cost grows with the square of the game length. Out of the headline, but what it changes is a [pilot check](../pilot/checks.md#rolling-conversation) |

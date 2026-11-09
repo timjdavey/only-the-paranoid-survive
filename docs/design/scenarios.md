@@ -2,32 +2,33 @@
 
 ## Shapes we test
 
-| Shape | Name | What it tests | Failure mode |
+| Shape | Scenario | What it tests | Failure mode |
 |---|---|---|---|
-| `▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆` | calm | jumpiness | false alarms |
-| `▆▆▆▆▃▁▂▄▅▆▆▆▆▆▆▆` | shock | patience | overreaction |
-| `▆▆▆▆▃▁▂▃▃▃▃▃▃▃▃▃` | switch | willingness to question | underreaction |
-| `▆▃▁▂▄▆▆▆▆▃▁▂▃▃▃▃` | shock then switch | learned complacency | "dips always recover" |
-| `▆▆▆▆▆▅▅▅▄▄▄▃▃▃▃▃` | drift | boiling frog | never triggers, as there's no sudden move to notice |
+| `▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆` | No change | jumpiness | false alarms |
+| `▆▆▆▆▃▁▂▄▅▆▆▆▆▆▆▆` | One shock | patience | overreaction |
+| `▆▆▆▆▃▁▂▃▃▃▃▃▃▃▃▃` | One switch | willingness to question | underreaction |
+| `▆▃▁▂▄▆▆▆▆▃▁▂▃▃▃▃` | Shock then switch | learned complacency | "dips always recover" |
+| `▆▆▆▆▆▅▅▅▄▄▄▃▃▃▃▃` | Slow drift | boiling frog | never triggers, as there's no sudden move to notice |
 
+- **Every scenario name ends in "scenario"**, as in the One shock scenario, so it never reads as the [events](mechanics.md#events) inside it. In code the name is lower case with underscores, such as `one_shock`.
 - **Each sparkline is a typical draw of the leader's level.** The other nine channels move as the [generator](mechanics.md#generator) says: a shock moves them all, a switch or drift moves one.
-- **Calm** is a floor. A handful of runs, not a real column. We expect high performance across the board.
-- **Shock then switch** is Grove's thesis. A model that rightly held through the shock has learnt "dips recover", and is primed to miss the real change.
-- **Drift** is a version of switch but extended over a longer period.
+- **The No change scenario** is a floor. A handful of runs, not a real column. We expect high performance across the board.
+- **The Shock then switch scenario** is Grove's thesis. A model that rightly held through the shock has learnt "dips recover", and is primed to miss the real change.
+- **The Slow drift scenario** is the One switch scenario stretched over many more rounds.
 - This study avoids becoming saturated by extending the game. More shocks then a switch; or more slow subtle drift.
 
 ## Each shape as a list of events
 
 A scenario is a list of [events](mechanics.md#events). Every event redraws its size, timing and shape per seed, so no two runs of a shape look alike.
 
-| Name | Events |
+| Scenario | Events |
 |---|---|
-| calm | None |
-| shock | One shock |
-| switch | One switch |
-| shock then switch | One shock, a gap, one switch |
-| drift | One drift |
-| hard editions | More shocks before the switch, or a longer drift. Length and count come from the [pilot](../../TODO.md#pilot) |
+| No change | None |
+| One shock | One shock |
+| One switch | One switch |
+| Shock then switch | One shock, a gap, one switch |
+| Slow drift | One drift |
+| Hard editions | More shocks before the switch, or a longer drift. Length and count come from the [pilot](../../TODO.md#pilot) |
 
 
 ## Shapes we skip

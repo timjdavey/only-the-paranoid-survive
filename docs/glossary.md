@@ -17,7 +17,12 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
 | Channel | One of the things the agent can put budget on. Each pays out at its own level |
 | Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
-| Scenario | A pattern of change we put each model through. See [scenarios](design/scenarios.md) |
+| Scenario | A pattern of change we put each model through. Its name always ends in "scenario", so it never reads as an event. See [scenarios](design/scenarios.md) |
+| No change scenario | The scenario with no events. A floor. `no_change` in code |
+| One shock scenario | The scenario with one shock. `one_shock` in code |
+| One switch scenario | The scenario with one switch. `one_switch` in code |
+| Shock then switch scenario | The scenario with one shock, a gap, then one switch. `shock_then_switch` in code |
+| Slow drift scenario | The scenario with one drift. `slow_drift` in code |
 | Contamination | A model having seen the benchmark in training |
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |

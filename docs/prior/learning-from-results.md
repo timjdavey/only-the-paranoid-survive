@@ -3,7 +3,7 @@
 These studies ask how LLMs learn from noisy results: which option they try, how far one result moves them and how fast they forget. Most use a bandit, where each round the agent picks one of several options, called arms, and sees what it paid. The worlds mostly stand still or switch once, so they predict how a model will cope with our shock or switch rather than test it.
 
 - **Models explore too little**, even when nothing changes. They fall far short of simple algorithms and avoid what they know least about. In our game that means few looks at the field.
-- **Models lean hard on the latest result**, and some forget within a couple of rounds. That predicts overreaction in shock and false alarms in calm.
+- **Models lean hard on the latest result**, and some forget within a couple of rounds. That predicts overreaction in the One shock scenario and false alarms in the No change scenario.
 - **Yet when the better option really swaps, models are slow to let go.** The same model can be too jumpy and too stuck, which is why our game prices both mistakes.
 
 ## BanditBench (Nie et al. 2025): in-context exploration
@@ -82,7 +82,7 @@ Julian Coda-Forno et al. "Meta-in-context learning in large language models." Ne
 **Why it matters here.**
 
 - A past in the prompt moves a model's expectations towards the truth. Our round 1 starts with an empty record, so the agent finds the leader itself in the first rounds ([tools](../design/interface.md#tools)). The pre-filled warm-up cell asks whether a baseline's record does that job for it ([TODO](../../TODO.md#pilot)).
-- It got greedier as it learnt. In shock then switch the agent learns from the first dip that dips recover, then that lesson goes wrong ([scenarios](../design/scenarios.md#shapes-we-test)). This is the same carry over, in a world that punishes it.
+- It got greedier as it learnt. In the Shock then switch scenario the agent learns from the first dip that dips recover, then that lesson goes wrong ([scenarios](../design/scenarios.md#shapes-we-test)). This is the same carry over, in a world that punishes it.
 
 ## Schmied et al. 2025: greedy agents and the knowing-doing gap
 
@@ -153,7 +153,7 @@ Means over the four tasks.
 
 **Why it matters here.**
 
-- The world never changes here, so this predicts rather than tests. A model that follows the last result reads each bad round of a shock as news. Our weather has memory, so bad rounds come in runs ([each round](../design/mechanics.md#each-round)). That predicts overreaction in shock and false alarms in calm, and both count in the headline ([scoring](../design/scoring.md#how-we-score)).
+- The world never changes here, so this predicts rather than tests. A model that follows the last result reads each bad round of a shock as news. Our weather has memory, so bad rounds come in runs ([each round](../design/mechanics.md#each-round)). That predicts overreaction in the One shock scenario and false alarms in the No change scenario, and both count in the headline ([scoring](../design/scoring.md#how-we-score)).
 - They showed the payoff of the option not picked. We don't: a channel with a bet of 0 shows a blank ([what the agent sees](../design/mechanics.md#what-the-agent-sees)). So a recency habit never sees a sleeper rise unless the agent pays to look.
 - Restating the full history each prompt didn't stop the chasing. Our record is restated in full each round, in a fresh call ([tools](../design/interface.md#tools)), so expect the same pull.
 
@@ -190,7 +190,7 @@ Haomiaomiao Wang, Tomás E. Ward and Lili Zhang. "Comparative reversal learning 
 **Why it matters here.**
 
 - Perseveration is close to how long our agent stays on the leader after a switch. Their prompt warned of change and models still stuck. Ours never warns ([how the agent plays](../design/interface.md#how-the-agent-plays)), so expect more stickiness, not less.
-- They count a high lose-shift rate as good. In our game shifting after a loss is right in a switch and wrong in a shock, which is why both scenarios feed one headline ([scenarios](../design/scenarios.md#shapes-we-test)). We score output against the oracle and fit no learning rule, which sidesteps the problem they warn of.
+- They count a high lose-shift rate as good. In our game shifting after a loss is right after a switch and wrong in a shock, which is why the One switch and One shock scenarios feed one headline ([scenarios](../design/scenarios.md#shapes-we-test)). We score output against the oracle and fit no learning rule, which sidesteps the problem they warn of.
 - Their many swaps are our repeated switches, a shape we skip for now ([shapes we skip](../design/scenarios.md#shapes-we-skip)).
 
 ## Zhang et al. 2025: LLMs in a drifting bandit
@@ -212,9 +212,9 @@ Ziyuan Zhang et al. "Comparing Exploration-Exploitation Strategies of LLMs and H
 
 **Why it matters here.**
 
-- It is the only LLM study we found where the world drifts slowly, so a good option fades rather than fails. Its random walk is the nearest thing here to our weather ([each round](../design/mechanics.md#each-round)), and the fade is the shape of our drift scenario ([scenarios](../design/scenarios.md#shapes-we-test)).
+- It is the only LLM study we found where the world drifts slowly, so a good option fades rather than fails. Its random walk is the nearest thing here to our weather ([each round](../design/mechanics.md#each-round)), and the fade is the shape of our Slow drift scenario ([scenarios](../design/scenarios.md#shapes-we-test)).
 - Avoiding the unknown predicts few looks at the field. Then a model can't tell a shock from a switch, and it misses a sleeper ([events](../design/mechanics.md#events)).
-- Random exploration predicts bets that wobble without tracking any change, which costs output in calm. Reasoning is a setting we report beside every score ([reasoning](../harness/models.md#reasoning)).
+- Random exploration predicts bets that wobble without tracking any change, which costs output in the No change scenario. Reasoning is a setting we report beside every score ([reasoning](../harness/models.md#reasoning)).
 
 ## Gupta et al. 2025: coin flips and Bayes
 
@@ -277,4 +277,4 @@ Jensen Zhang, Jing Yang and Keze Wang (Sun Yat-sen University). "Large Language 
 **Why it matters here.**
 
 - Lean on Gupta for the numbers. The useful idea is the error split, which separates a model with bad starting beliefs from one that updates badly. The empty and pre-filled warm-up cells pull the same two apart ([TODO](../../TODO.md#pilot)).
-- A low γ means fast forgetting. That looks quick in a switch and jumpy in shock and calm. It would also make the calm rounds before a shock count for little, so the "dips recover" lesson that shock then switch tests would never form ([scenarios](../design/scenarios.md#shapes-we-test)).
+- A low γ means fast forgetting. That looks quick in the One switch scenario and jumpy in the One shock and No change scenarios. It would also make the calm rounds before a shock count for little, so the "dips recover" lesson that the Shock then switch scenario tests would never form ([scenarios](../design/scenarios.md#shapes-we-test)).

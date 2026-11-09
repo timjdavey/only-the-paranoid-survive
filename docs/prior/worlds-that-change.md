@@ -27,7 +27,7 @@ Ziwei Ye. "Set-shifting Behavioral Test for Harnessed Agents." COLM 2026 Worksho
 **Watch out for.** A failed call is certain, so one failure gives the change away. A false alarm is almost impossible, which means the copies with no change test very little.
 
 **Why it matters here.**
-- **The copies with no change are the nearest thing to our calm scenario on the same world**, but they are reported beside the score, not in it. Our calm and shock scenarios count in the same headline as switch and drift, see [scoring](../design/scoring.md#how-we-score).
+- **The copies with no change are the nearest thing to our No change scenario on the same world**, but they are reported beside the score, not in it. Our No change and One shock scenarios count in the same headline as the One switch and Slow drift scenarios, see [scoring](../design/scoring.md#how-we-score).
 - **Our leader keeps paying after a switch**, so one bad round proves nothing. That is the noisy version the authors list as future work.
 - **The adaptive prompt's large effect** is why nothing tells our agent the world might change, see [interface](../design/interface.md#how-the-agent-plays). gpt-5.5 calling old and new tools together is a [look](../glossary.md) without a switch, which our bets show directly.
 
@@ -86,8 +86,8 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 
 **Why it matters here.**
 - **It is the closest study in method.** Their event tape is our [tape](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill is the shape of our fraction of the oracle.
-- **Their oracle is fair and ours is not.** Ours knows each round's levels, so even a perfect reader cannot score 1 on shock, see [baselines](../design/baselines.md#fixed-baselines). A fair one would be the parked [Bayesian baseline](../design/baselines.md#not-yet).
-- **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with memory makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our calm and shock scenarios put a price on overreacting.
+- **Their oracle is fair and ours is not.** Ours knows each round's levels, so even a perfect reader cannot score 1 in the One shock scenario, see [baselines](../design/baselines.md#fixed-baselines). A fair one would be the parked [Bayesian baseline](../design/baselines.md#not-yet).
+- **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with memory makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our No change and One shock scenarios put a price on overreacting.
 - We don't measure their split between knowing and acting, because asking for a view on change tells the agent change is the question, see [rejected](../design/interface.md#rejected).
 
 ## KellyBench (Grady et al. 2026): a season of football bets
@@ -125,7 +125,7 @@ Thomas Grady, Kip Parker, Iliyan Zarov, Henry Course, Chengxi Taylor and Ross Ta
 **Why it matters here.**
 - **A bankroll that compounds adds sizing and ruin**, which the authors say made losses worse. That is why our budget is the same every round and the payout is linear, see [payout](../design/mechanics.md#payout) and the compounding bankroll row in [rejected](../design/interface.md#rejected).
 - **The change is the real season**, so nobody can say when it began or what a good agent should have done. Our tape fixes both, and the oracle sets the ceiling.
-- **There is no copy where nothing changes**, so a model that bets less after losses can't be told from one that noticed something. Our shock scenario is that copy.
+- **There is no copy where nothing changes**, so a model that bets less after losses can't be told from one that noticed something. Our One shock scenario is that copy.
 - Writing Kelly code and never using it says a tool on hand is not a tool used. The [notepad and compute](../pilot/checks.md#notepad-and-compute) check measures how often each tool is used.
 
 ## Bazaar (Ahmed et al. 2026): pricing when customers' tastes swap
@@ -165,9 +165,9 @@ Shocked customers only, the last ten rounds against rounds 26 to 30.
 - The introduction credits Opus 4.6 at its highest effort with $2.22 per win, but its table row says $2.39.
 
 **Why it matters here.**
-- **The unshocked customers share a run with the shocked ones but get no score of their own**, so false alarms on them go uncounted. Our calm and shock scenarios are scored on their own seeds.
+- **The unshocked customers share a run with the shocked ones but get no score of their own**, so false alarms on them go uncounted. Our No change and One shock scenarios are scored on their own seeds.
 - **"Revision, not detection"** is the decoy risk in our switch. A model that notices the leader fall and moves everything to the runner-up misses a sleeper that rose, see [events](../design/mechanics.md#events).
-- **The fastest learners adapted worst.** That is what [shock then switch](../design/scenarios.md#shapes-we-test) tests: a lesson learnt well becomes the wrong one.
+- **The fastest learners adapted worst.** That is what the [Shock then switch scenario](../design/scenarios.md#shapes-we-test) tests: a lesson learnt well becomes the wrong one.
 - The lock-in ledger is one reason notes stay out of the headline, see [notepad and compute](../pilot/checks.md#notepad-and-compute).
 - Thompson sampling beating half the models on profit is why simple strategies run before any model, see [baseline order](../pilot/checks.md#baseline-order). A swap makes the old offer lose outright, unlike our leader.
 
@@ -278,4 +278,4 @@ Harsh Goel, Aditya Sai Ellendula, Vaishnav Tadiparthi, Ehsan Moradi Pari, Hossei
 **Why it matters here.**
 - **It is the cleanest measure of knowing and not acting**: a correct belief and a stale action. We don't ask for the belief, see [rejected](../design/interface.md#rejected), so we only see the action.
 - **Their fix is a trigger outside the model.** Our agent never gets one, see [tools](../design/interface.md#tools), so this predicts an LLM left alone keeps going.
-- **Their teammate's switch is always real**, so a jumpy trigger costs only a replan. Our calm and shock scenarios put a price on jumpiness.
+- **Their teammate's switch is always real**, so a jumpy trigger costs only a replan. Our No change and One shock scenarios put a price on jumpiness.

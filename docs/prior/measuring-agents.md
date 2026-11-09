@@ -4,7 +4,7 @@ These studies shape how we measure, not what we measure. METR's time horizon is 
 
 - **The best known agent scale leaves our question out on purpose.** METR's tasks rarely change "unless directly acted upon by the agent", and the authors list that as a limit.
 - **Models often know they are being tested, and it changes what they do.** They spot agent tests best, which is what our game is.
-- **What a model says about a test is not what it registers.** So we score what it does. A model that suspects a test and pokes about pays for it in calm and shock.
+- **What a model says about a test is not what it registers.** So we score what it does. A model that suspects a test and pokes about pays for it in the No change and One shock scenarios.
 
 ## METR's time horizon (Kwa et al. 2025): success against task length
 
@@ -73,7 +73,7 @@ Bronson Schoen et al. (Apollo Research and OpenAI). "Stress Testing Deliberative
 
 **Why it matters here.**
 
-- **In our game suspicion would show as extra looks or an early move.** A model that thinks "this is a test about change" may poke at the field or jump at the first dip. Calm and shock score that as lost output, so suspicion costs it in the [headline](../design/scoring.md#how-we-score).
+- **In our game suspicion would show as extra looks or an early move.** A model that thinks "this is a test about change" may poke at the field or jump at the first dip. The No change and One shock scenarios score that as lost output, so suspicion costs it in the [headline](../design/scoring.md#how-we-score).
 - **Skins make the world look real.** The prompt dresses the engine in a story and never mentions change ([skins](../harness/skins.md), [interface](../design/interface.md#how-the-agent-plays)). That lowers the cue, though it can't remove it.
 - **Newer models may suspect more.** Capability training alone raised awareness tenfold, so later models in a comparison may read our game as a test more often.
 
@@ -109,7 +109,7 @@ AUC, from Table 1.
 
 **Why it matters here.**
 
-- **Assume they could tell.** Our game is an agent run in a made-up world, which is where models spot tests best. The plan is not to hide the test perfectly but to price what it changes, which calm and shock do.
+- **Assume they could tell.** Our game is an agent run in a made-up world, which is where models spot tests best. The plan is not to hide the test perfectly but to price what it changes, which the No change and One shock scenarios do.
 - **Never ask.** Being asked was itself a cue, so nothing in our prompt or tools asks whether this is a test.
 
 ## Heidari et al. 2026: awareness inside the model versus aloud

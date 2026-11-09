@@ -6,9 +6,9 @@ These are calculated scores based on fixed strategies.
 
 | Baseline | Betting rule | What it settles |
 |---|---|---|
-| Oracle | 100 on the channel with the highest level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 on shock |
+| Oracle | 100 on the channel with the highest level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 in the One shock scenario |
 | Steady | 100 on the channel with the highest level in the current regime. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
-| Stale | The oracle's round 1 bets, held to the end | The complacent floor. Matches the regime oracle on calm and shock, so the suite separates it only on switch and drift |
+| Stale | The oracle's round 1 bets, held to the end | The complacent floor. Matches the regime oracle in the No change and One shock scenarios, so the suite separates it only in scenarios with a switch or drift |
 | Uniform | 10 on every channel, every round | What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
 
 ## Timestral
@@ -32,7 +32,7 @@ One run per row. The bets are whole numbers to 100, as on the [interface](interf
 ## Checks
 
 - **Timestral** must pass a gap test and a rounding watch before we trust it, see [pilot](../pilot/checks.md#timestral-checks).
-- **The baselines must land in the expected order** on switch and calm, see [pilot](../pilot/checks.md#baseline-order).
+- **The baselines must land in the expected order** in the One switch and No change scenarios, see [pilot](../pilot/checks.md#baseline-order).
 
 ## Not yet
 

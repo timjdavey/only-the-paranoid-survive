@@ -4,7 +4,7 @@
 
 - **Each round the agent bets a fixed budget across channels**, see [interface](interface.md). Its bets are its belief: a small bet on a channel is a look, a large one is a switch.
 - **A run scores output as a fraction of what the [oracle](baselines.md), which knows each round's levels, would earn on the same seed.** This sits between 0 and 1 and strips out luck in the world's levels.
-- **A scenario score is the plain mean of its runs.** Every model plays the same seeds, see [below](#seeds). The gap reads directly as the scenario's failure mode: in calm it is jumpiness, in shock overreaction, in switch underreaction.
+- **A scenario score is the plain mean of its runs.** Every model plays the same seeds, see [below](#seeds). The gap reads directly as the scenario's failure mode: in the No change scenario it is jumpiness, in the One shock scenario overreaction, in the One switch scenario underreaction.
 - **The headline is the geometric mean across [scenarios](scenarios.md).** A model must do well on every shape to score highly. One bad scenario drags the whole figure down.
 
 ## Seeds
@@ -22,7 +22,7 @@
 ## Error bars
 
 - **An error bar says how sure we are of a score** (epistemic uncertainty). It is the [spread](#spread) divided by the square root of the number of seeds, so more seeds shrink it. It points at the true mean, which we never see, but it is computed from the runs we have.
-- **Scenario.** Resample the seeds with replacement, take the plain mean each time, and report the 2.5th and 97.5th percentiles (a percentile bootstrap). Not SD/√n: run scores sit in [0, 1] and bunch near 1 in calm, and a bootstrap can never put a bar above 1. No geometric mean at this level.
+- **Scenario.** Resample the seeds with replacement, take the plain mean each time, and report the 2.5th and 97.5th percentiles (a percentile bootstrap). Not SD/√n: run scores sit in [0, 1] and bunch near 1 in the No change scenario, and a bootstrap can never put a bar above 1. No geometric mean at this level.
 - **Headline.** Resample seeds within each scenario, then take the geometric mean of the scenario means. Never resample scenarios. They are a fixed list of questions, not a sample.
 - **The weakest scenario sets the bar.** In logs each scenario adds its relative error, bar over score. A scenario at 0.3 ± 0.05 widens the headline far more than one at 0.9 ± 0.05.
 - **Gaps between models.** Every model plays the same seeds, so draw one set of seed indices and apply it to both models each time. The world's luck cancels. Report the difference with its paired interval.
@@ -31,7 +31,7 @@
 ## Spread
 
 - **Spread says how far one run lands from another** (aleatoric uncertainty). It does not shrink with more seeds, it only gets estimated better. Spread and error bar come from the same runs: the SD of the run scores is the spread, and that SD over √n is the error bar.
-- **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/checks.md#repeats) measures the split once and we report it as a number, such as "two fifths of the spread on shock is sampling".
+- **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/checks.md#repeats) measures the split once and we report it as a number, such as "two fifths of the spread in the One shock scenario is sampling".
 - **Why it is reported, not just absorbed.** Two models can share a mean while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: overreacting on some worlds and not others is jumpiness.
 - **How it is shown.** A strip of per-seed run scores next to each scenario's bar, and the 10th percentile run score beside the mean.
 - **Why the headline still plays each seed once.** For a fixed run budget, more seeds always shrinks the error bar faster than repeats of a seed. Repeats only buy the split.
