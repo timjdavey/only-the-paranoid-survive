@@ -9,7 +9,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 
 ## Code
 - Write the engine from its [spec](docs/specs/engine/README.md), tests first.
-- Write specs for skins and analysis, see [specs](docs/specs/README.md). The harness spec assumes the skins names in [layout](docs/harness/layout.md#four-layers), so the skins spec should keep them.
+- Write the analysis spec, see [specs](docs/specs/README.md). The engine, skins and harness specs are written.
 - Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first.
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before a held-out run.

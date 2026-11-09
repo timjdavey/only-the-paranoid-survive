@@ -59,16 +59,15 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 
 ## Names from the skins layer
 
-The harness uses these skins names, from [layout](../../harness/layout.md#four-layers) and [skins](../../harness/skins.md). The skins spec, to come, fixes their signatures. Until then this page assumes:
+The harness imports these from `paranoid.skins`. Their signatures and behaviour are in the [skins spec](../skins/README.md#exports), and what the harness reads from a skin is in [what the harness reads](../skins/README.md#what-the-harness-reads).
 
-| Name | Assumed signature |
+| Name | What the harness uses it for |
 |---|---|
-| `Skin` | A frozen dataclass with the fields in [what a skin file holds](../../harness/skins.md#what-a-skin-file-holds) |
-| `load_skins(path: str \| None = None) -> Mapping[str, Skin]` | Every skin by name. The example skin always. `PARANOID_SKINS` when set |
-| `render_system_prompt(skin: Skin) -> str` | The four-part system prompt, see [prompts](../../harness/prompts.md#system-prompt) |
-| `render_record(skin: Skin, record: Record) -> str` | The record as CSV in the skin's channel names, see [user message](../../harness/prompts.md#user-message). The one way the harness renders a record |
-| `lint(text: str) -> list[str]` | The banned words found, empty when clean |
-| `prompt_hash(skin: Skin) -> str` | The first 12 hex characters of the SHA-256 of every skin field as canonical JSON, sorted keys, no whitespace. So it covers the system prompt, the channel names, the tool name, text and parameter text, `bad_call`, `no_call` and `question`: everything fixed that a model sees. Same skin, same hash, on every machine |
+| `Skin`, `SkinError` | The skin a run plays. `SkinError` covers `LintError`, so a bad skin is one error on load |
+| `load_skins` | Every skin by name, the example skin always, see [task settings](task.md#task-settings) |
+| `render_system_prompt`, `render_record` | The system prompt and the record, the one way the harness renders either, see [each round](solver.md#each-round) |
+| `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
+| `lint_text` | The banned word check on messages and replies, see [tests](tests.md) and [command](command.md) |
 
 ## Conventions
 

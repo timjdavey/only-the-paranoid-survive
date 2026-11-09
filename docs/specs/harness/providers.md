@@ -67,7 +67,7 @@ TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (q
 
 - **`JevAPI`** takes a `client: JevClient`. The default is `TypesafeClient`, a thin wrapper over `typesafe-sdk` that is imported lazily, so the default install needs the package only when Jev runs. Tests pass a fake.
 - **State** is the text of the system message and the text of the user message in `input`, joined by two newlines. That is exactly what an LLM sees this round, notes included when the pilot turns them on.
-- **Question and options** are the skin's `question` and `channels`, in channel index order. The provider loads the skin by `store.skin` with `load_skins()`, which caches.
+- **Question and options** are the skin's `question` and `channels`, in channel index order. The provider loads the skin by `store.skin` from `load_skins()`, called once per process and kept.
 - **Bets** are `split_budget(answer.probabilities, budget)`, see [`split_budget`](../engine/policies.md#split_budget). A probability under 0.005 of the budget gets 0 unless a leftover point falls to it. An answer with the wrong number of probabilities, a negative one, or all zeros raises `ValueError`.
 - **Logged** on the message's `metadata`: `probabilities`, `confidence` and `raw`.
 - **No memory.** The client is called once a round with the state as given. Nothing is kept between rounds, see [Jev](../../harness/providers.md#jev).

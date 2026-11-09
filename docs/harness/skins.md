@@ -1,6 +1,6 @@
 # Skins
 
-A skin is the story dressed over the engine, see [glossary](../glossary.md). This page is how a skin is written and where it lives. Why skins exist is in the [README](../../README.md#design).
+A skin is the story dressed over the engine, see [glossary](../glossary.md). This page is how a skin is written and where it lives. Why skins exist is in the [README](../../README.md#design). What the code must do with one is in the [skins spec](../specs/skins/README.md).
 
 ## What a skin file holds
 
@@ -8,12 +8,11 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 
 | Field | What it is |
 |---|---|
-| `name` | Short id, used in log metadata |
+| `name` | Short id, the file stem, used in log metadata. Results tables publish it, so a held-out skin's name is opaque, never a word from its story |
 | `channels` | Ten names. Which one leads is drawn per seed by the [ladder](../design/mechanics.md#the-ladder) |
 | `intro` | Who the agent is and what it runs |
 | `rules` | The budget of 100 points, the ten channels by name, and that points are whole numbers adding up to 100 |
-| `how_points_earn` | What a point buys and what a reading means |
-| `reading_note` | How a small spend gives a rough reading |
+| `how_points_earn` | What a point buys, what a reading means, and that a small spend gives a rough reading |
 | `ask` | The record is below, place this round's points with the tool |
 | `tool_name` | The tool's name as the model sees it |
 | `tool_text` | The tool's description |
@@ -33,12 +32,12 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `example` | `src/paranoid/skins/example.toml` | Yes. The one in published logs |
 | The held-out skins | A private repo, mounted at `PARANOID_SKINS` | No |
 
-- `load_skins(path)` reads every TOML file in the folder. With `PARANOID_SKINS` unset only `example` loads.
+- `load_skins(path)` reads every TOML file in the folder, and `load_skin(path)` reads one. With `PARANOID_SKINS` unset only `example` loads. See [skin](../specs/skins/skin.md#load_skins).
 - The private repo holds two folders and nothing else: `skins/`, a plain folder of TOML files, and `seeds/`, the held-out seeds. `PARANOID_SKINS` and `PARANOID_SEEDS` point at them. See [contamination](contamination.md#two-seed-sets).
 
 ## Lint
 
-- Every field is linted on load against the [banned words](prompts.md#banned-words).
+- Every field the model reads is linted on load against the [banned words](prompts.md#banned-words). `name` is the one field it never reads, so it is the one field not linted.
 - Every rendered prompt is checked for the facts in [what every skin must say](prompts.md#what-every-skin-must-say).
 - A skin that fails to lint does not load. There is no override flag.
 - The test suite renders the full prompt for every loaded skin and lints the result, so the record and tool text are linted too.
