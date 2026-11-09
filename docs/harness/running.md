@@ -15,7 +15,7 @@
 | A baseline | `inspect eval paranoid --model baseline/complacent` |
 | Smoke test with no model | `inspect eval paranoid --model mockllm/model --limit 2` |
 | The proof of concept list | `uv run paranoid poc`, which reads `configs/models/poc.toml` |
-| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) |
+| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md). What each writes is in the [pilot spec](../specs/harness/pilot.md) |
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/`, see the [analysis command](../specs/analysis/command.md) |
 | Rebuild the pilot results | `uv run paranoid analyse pilot` |

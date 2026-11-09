@@ -1,6 +1,6 @@
 # Engine checks
 
-The first half of the pilot, a short run before the full study to settle the knobs.
+The first half of the pilot, a short run before the full study to settle the knobs. What each check's cell runs and writes, exactly, is the [harness pilot spec](../specs/harness/pilot.md#engine-cells), and what its table shows is the [analysis pilot spec](../specs/analysis/pilot.md#sections).
 
 - **These run on tapes and the fixed baselines.** No model and no network, so thousands of seeds cost nothing.
 - **Run them first.** The [provider checks](provider-checks.md) need a model and cost tokens, so they wait until these pass.

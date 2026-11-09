@@ -1,6 +1,6 @@
 # Provider checks
 
-The second half of the pilot, a short run before the full study to settle the knobs.
+The second half of the pilot, a short run before the full study to settle the knobs. What each check's cell runs and writes, exactly, is the [harness pilot spec](../specs/harness/pilot.md#provider-cells), and what its table shows is the [analysis pilot spec](../specs/analysis/pilot.md#sections).
 
 - **These need a model behind a provider**, so they cost tokens. That covers LLMs, Timestral and Jev.
 - **Run them once the [engine checks](engine-checks.md) pass.** The noise grid, read noise and baseline order they settle are fixed by then.
