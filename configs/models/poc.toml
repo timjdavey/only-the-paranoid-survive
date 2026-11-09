@@ -69,7 +69,7 @@ kind = "baseline"
 reasoning = "n/a"
 
 [[model]]
-id = "baseline/stale"
+id = "baseline/complacent"
 kind = "baseline"
 reasoning = "n/a"
 

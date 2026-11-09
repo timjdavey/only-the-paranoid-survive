@@ -52,7 +52,7 @@ Rui Wang et al. "AdaExploreBench: Benchmarking LLM Agents for Proactive Explorat
 **Watch out for.** The abstract implies GPT-6-Sol (61.9) is the best model, but its own table puts Gemini-3.8-Flash higher. The prompt also warns that the rule may change, so the agent is told what to look for.
 
 **Why it matters here.**
-- **It is the closest benchmark in design.** One silent change, and a score that runs from a floor to an oracle, like our score as a fraction of the [Perfect baseline](../design/baselines.md#fixed-baselines) with the Stale and Uniform baselines as floors.
+- **It is the closest benchmark in design.** One silent change, and a score that runs from a floor to an oracle, like our score as a fraction of the [Perfect baseline](../design/baselines.md#fixed-baselines) with the Complacent and Uniform baselines as floors.
 - **Their oracle knows the true rule, as our Perfect baseline knows each round's levels.** Neither plays the part of a yardstick that sees only what the agent sees. For us that is the Bayesian baseline, parked under [not yet](../design/baselines.md#not-yet).
 - **Forced probing did nothing**, so a look has to be the agent's own idea. That is why our prompt never asks for one, and a look is just a small bet, see [interface](../design/interface.md#how-the-agent-plays).
 - **The kind of change matters.** Swaps were noticed far more than reversals. Our switch sometimes has a sleeper rising and sometimes not, drawn per seed, so no one kind is learnable, see [events](../design/mechanics.md#events).
@@ -205,7 +205,7 @@ Issa Sugiura, Daichi Hattori, Kazuo Araragi, Keita Ogawa, Shota Onose, Taro Maki
 
 **Why it matters here.**
 - **The surge is announced and passes**, so it tests planning for a known event. It says nothing about telling a passing shock from a lasting one, or about when moving is the mistake.
-- **Idle drift is sensible-sounding reasoning with no action.** In our game that is holding the round 1 bets, which is the Stale baseline, so it is scored, not hidden, see [baselines](../design/baselines.md#fixed-baselines).
+- **Idle drift is sensible-sounding reasoning with no action.** In our game that is holding the round 1 bets, which is the Complacent baseline, so it is scored, not hidden, see [baselines](../design/baselines.md#fixed-baselines).
 - A supply chain with credit and lags is the kind of system we keep as a possible second game, see the controller row in [rejected](../design/interface.md#rejected). This one has no oracle and no copy where nothing changes.
 
 ## Allen and McDonald 2026: a strategy class simulation
@@ -244,7 +244,7 @@ Saiful Haq et al. "Is your LLM trapped in a Mental Set? Investigative study on h
 
 **In short.** After six problems that need a long arithmetic method, do Llama-3.1 and GPT-4o keep using it when a shortcut would do? Like Allen and McDonald, the old method still works after the switch.
 
-**Why it matters here.** That is our [switch](../design/mechanics.md#events), where the leader keeps paying, and of the Stale baseline in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign the earlier problems carried over, since the extra steps came from chain of thought alone.
+**Why it matters here.** That is our [switch](../design/mechanics.md#events), where the leader keeps paying, and of the Complacent baseline in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign the earlier problems carried over, since the extra steps came from chain of thought alone.
 
 ## Goel et al. 2026: a teammate who switches tasks
 

@@ -31,9 +31,9 @@ Each round the solver:
 
 ## Providers
 
-- **Registered** under the `inspect_ai` entry point in `pyproject.toml`, so `--model baseline/stale` resolves.
+- **Registered** under the `inspect_ai` entry point in `pyproject.toml`, so `--model baseline/complacent` resolves.
 - **Each implements `generate`** and returns a `submit` tool call, never text. The solver cannot tell a provider from an LLM.
-- **Baselines** read the store, which holds the tape and the record, and call the engine's policy functions. The Perfect and Discerning baselines read the tape. The Stale baseline reads round 1. The Uniform baseline reads nothing.
+- **Baselines** read the store, which holds the tape and the record, and call the engine's policy functions. The Perfect and Discerning baselines read the tape. The Complacent baseline reads round 1. The Uniform baseline reads nothing.
 - **Jev and Timestral** read the record and call out, see [adapters](adapters.md).
 
 ## Metrics

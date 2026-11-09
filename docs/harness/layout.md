@@ -47,5 +47,5 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 ## Naming
 
 - **Package** `paranoid`. The repo name stays as it is.
-- **Providers** are `baseline/<name>`, `jev/<model>` and `timestral/<policy>`, so `--model baseline/stale` works like `--model anthropic/<model>`.
+- **Providers** are `baseline/<name>`, `jev/<model>` and `timestral/<policy>`, so `--model baseline/complacent` works like `--model anthropic/<model>`.
 - **Glossary words in code too**, see [glossary](../glossary.md). A tape is a tape, not a world or a trajectory.

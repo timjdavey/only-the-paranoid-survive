@@ -58,7 +58,7 @@ Studies where nothing changes are on their own pages.
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | The reward ratio jumps | No | Noisy | n/a | Ideal detector | No |
 | [Nassar et al. 2010](people.md#nassar-et-al-2010-a-learning-rate-that-rises-with-surprise) | People, predicting the next number | The mean jumps | No | Noisy | Yes | Reduced Bayesian learner | Yes, through prediction error |
 | [Gallistel et al. 2014](people.md#gallistel-et-al-2014-step-hold-and-take-it-back) | People, tracking a hidden share | The odds jump rarely | No | Noisy | Yes | Their own model | Yes, false alarm rates reported |
-| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Perfect baseline above, Stale and Uniform baselines below, on the same seeds | Yes, the No change and One shock scenarios are in the headline |
+| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Perfect baseline above, Complacent and Uniform baselines below, on the same seeds | Yes, the No change and One shock scenarios are in the headline |
 
 ### The closest studies
 

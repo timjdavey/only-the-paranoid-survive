@@ -13,7 +13,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 
 | Column | Meaning |
 |---|---|
-| `id` | The inspect model string, such as `anthropic/claude-haiku-5-5` or `baseline/stale` |
+| `id` | The inspect model string, such as `anthropic/claude-haiku-5-5` or `baseline/complacent` |
 | `kind` | `llm`, `baseline`, `jev` or `timestral`. Tells the analysis which rows are floors and ceilings |
 | `reasoning` | The [reasoning setting](../glossary.md). One value in `poc.toml`, a list in `full.toml` where each value is its own result row |
 | `released` | Release date, from Epoch's `date` column. Full study only |

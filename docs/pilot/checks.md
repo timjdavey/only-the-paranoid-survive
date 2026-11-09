@@ -33,8 +33,8 @@ Noise is the difficulty knob. It has three dials, own-weather scale, persistence
 
 - **Question.** How many rounds a run lasts, and in which round the shock or switch hits.
 - **Run.** The fixed baselines in the One shock and One switch scenarios, at a few game lengths and switch rounds.
-- **Measure.** How far the Discerning baseline pulls ahead of the Stale baseline after the switch, and how many rounds that takes.
-- **Decide.** Enough calm rounds before the change to set a habit, and enough rounds after it for the Discerning baseline to pull clear of the Stale baseline. Longer runs cost more, see [cost per run](#cost-per-run).
+- **Measure.** How far the Discerning baseline pulls ahead of the Complacent baseline after the switch, and how many rounds that takes.
+- **Decide.** Enough calm rounds before the change to set a habit, and enough rounds after it for the Discerning baseline to pull clear of the Complacent baseline. Longer runs cost more, see [cost per run](#cost-per-run).
 
 ## Reading roughness
 
@@ -50,8 +50,8 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 - **Question.** Do the fixed baselines land in the order we expect.
 - **Run.** Every [baseline](../design/baselines.md) in the One switch and No change scenarios.
 - **Measure.** Their scores, against these orders of the baselines:
-  - **One switch scenario:** Perfect > Discerning > Timestral > Stale > Uniform.
-  - **No change scenario:** Stale ≈ Perfect ≈ Discerning.
+  - **One switch scenario:** Perfect > Discerning > Timestral > Complacent > Uniform.
+  - **No change scenario:** Complacent ≈ Perfect ≈ Discerning.
 - **Decide.** If the order breaks, the [noise](#noise) is likely too high or a baseline is wrong. Fix it before any model runs.
 
 ## Timestral checks
