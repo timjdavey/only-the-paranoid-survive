@@ -9,7 +9,7 @@
 ```
 paranoid analyse [results] [logs ...] [--out docs/results] [--name poc]
                  [--models configs/models/poc.toml] [--recognition logs/pilot/recognition.csv]
-                 [--plots] [--dry-run]
+                 [--plots] [--eci-read-on YYYY-MM-DD] [--dry-run]
 paranoid analyse pilot [--logs logs/pilot] [--out docs/pilot] [--dry-run]
 paranoid analyse cost [logs ...] [--models configs/models/poc.toml] [--seeds N] [--prices configs/prices.toml]
 paranoid analyse gap <log-a> <log-b>
@@ -24,16 +24,17 @@ def analyse(argv: Sequence[str]) -> int
 ### Dispatch
 
 - **Registered** in `pyproject.toml` as `analyse = "paranoid.analysis.cli:analyse"` in the `paranoid.commands` group. The harness's `main` passes the arguments after `analyse`.
-- **The subcommand defaults to `results`.** `paranoid analyse logs/` is `paranoid analyse results logs/`, as [running](../../harness/running.md#commands) shows. A first argument that is not a known subcommand is taken as a path.
+- **The subcommand defaults to `results`.** `paranoid analyse logs/` is `paranoid analyse results logs/`, as [running](../../harness/running.md#commands) shows. A first argument that is a subcommand name is the subcommand, even when a path of that name exists, so a folder called `cost` is passed as `./cost` or after `results`. Anything else is a path.
 - **`logs` defaults to `logs/`** for `results` and `cost`.
 - **Returns 0 on success and 1 on a `ValueError`**, whose message it prints, as the harness command does, see [subcommands](../harness/command.md#subcommands). Any other exception propagates.
 
 ### `results`
 
-1. `load_runs(logs)`, then print the report: logs read with sample counts, logs skipped, logs dropped as duplicates and which won, errored samples per log, see [the report](runs.md#the-report).
-2. Load `--recognition` when the file exists, for the `¶` flag, see [flags](scores.md#flags).
-3. `write_results(runs, out, name, models=..., recognition=..., plots=...)`, then print each path written.
-4. **`--dry-run`** does step 1 and 2 and prints what step 3 would write, and writes nothing.
+1. `load_runs(logs)`, then print the report: logs read with sample counts, logs skipped, logs dropped as duplicates and which won, errored samples per log, mixed numpy versions, see [the report](runs.md#the-report).
+2. `load_recognition(--recognition)` when the file exists, for the `§` and `¶` flags, see [flags](scores.md#flags).
+3. `write_results(runs, out, name, models=..., recognition=..., plots=...)`, then print each path written. `--name` must be a bare file stem, see [tables](tables.md#the-results-page).
+4. **`--plots` with a models file that has `eci` values needs `--eci-read-on`**, the date the values were read from Epoch's CSV, for the credit on the ECI plot, see [trend plots](plots.md#trend-plots). Without it the command returns 1 before writing anything. The ECI values themselves come from the models file. The analysis never fetches them.
+5. **`--dry-run`** does steps 1 and 2 and prints what step 3 would write, and writes nothing.
 
 ### `pilot`
 
@@ -45,13 +46,14 @@ def analyse(argv: Sequence[str]) -> int
 
 ### `gap`
 
-`load_runs([a, b])`, then `paired_gap` between the two logs' result rows, printed as a table with one row per scenario and the headline. The two logs must be one result row each, else `ValueError` naming what differs, see [paired gap](scores.md#paired-gap).
+`load_runs([a, b])`, then `paired_gap` between the two logs' result rows, printed as a table with one row per scenario and the headline. Each log must hold exactly one result row, else `ValueError` naming the log and the keys it holds. The two rows may be the same key, which prints zeros, see [paired gap](scores.md#paired-gap).
 
 ## Invariants
 
 - `analyse` reads no key and opens no network connection.
-- Nothing is written outside `--out`, and nothing at all with `--dry-run`.
+- Nothing is written outside `--out`, for any `--name`, and nothing at all with `--dry-run`.
 - `paranoid analyse` twice on the same logs writes the same bytes, see [tables](tables.md#invariants).
+- No subcommand prints a recognition reply, a seed value from a held-out set or a word of a skin but its name.
 
 ## Not decided
 

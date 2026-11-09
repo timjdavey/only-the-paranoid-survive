@@ -9,9 +9,12 @@ Four plots: the strip of run scores behind every bar, the trait profile, the two
 ```python
 def strip_plot(runs: pd.DataFrame, key: ResultKey, out: Path) -> Path
 def profile_plot(scores: pd.DataFrame, out: Path) -> Path
-def trend_plot(headlines: pd.DataFrame, models: Path, x: Literal["released", "eci"], out: Path) -> Path
+def trend_plot(headlines: pd.DataFrame, models: Sequence[ModelRow], x: Literal["released", "eci"],
+               out: Path, *, eci_read_on: date | None = None) -> Path
 def noise_plot(runs: pd.DataFrame, thresholds: Sequence[Threshold], out: Path) -> Path
 ```
+
+Each takes a table from [scores](scores.md) or the run table after [`mean_over_epochs`](runs.md#mean-over-epochs), and the path to write. No plot function reads a file.
 
 ## Behaviour
 
@@ -31,10 +34,10 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 
 ### Trend plots
 
-- **One point per result row**, headline on the y axis with its bar, `released` or `eci` from the models file on the x axis, see [trend plots](../../harness/models.md#trend-plots). A row whose model has no value for `x` is left out and listed in the figure's footer.
+- **One point per result row**, headline on the y axis with its bar, `released` or `eci` from the model rows on the x axis, see [trend plots](../../harness/models.md#trend-plots). A row whose model has no value for `x` is left out and listed in the figure's footer.
 - **Settings of one model are joined by a line**, in `REASONING` order. On the ECI plot they stack in a column, as the design says.
 - **Provider rows** have neither date nor ECI, so they are drawn as horizontal lines across the plot, named.
-- **The ECI plot credits Epoch AI**: a footer reading `ECI from Epoch AI, CC BY 4.0, read on <date>`, the date from the models file's own comment or the `read_on` the caller passes. Never a plot without it.
+- **The ECI plot credits Epoch AI**: a footer reading `ECI from Epoch AI, CC BY 4.0, read on <date>`, the date from `eci_read_on`. With `x="eci"` and no date it raises `ValueError`. Never a plot without the credit. The ECI values come from the models file alone, see [command](command.md#results), so the layer opens no network connection.
 
 ### Noise plot
 
@@ -48,13 +51,13 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 - **SVG only**, written with `metadata={"Date": None}` and `rcParams["svg.hashsalt"]` fixed to `"paranoid"`, so a rerun gives equal bytes.
 - **Fixed figure sizes**: the strip plot 12 by 3 inches, the rest 6 by 4. No tight layout that depends on font metrics the machine may not share; margins are set by hand.
 - **One palette** of eight colours, colour-blind safe, used in order. Baseline marks are greys. Text is the default font with a fallback list, so a missing font changes glyphs and never layout.
-- **The title names the skin and seed set**, and the noise setting when it is not the default. Nothing else from a skin, and no seed value, appears on any plot.
+- **The title names the skin and seed set**, and the noise setting when it is not the default. Nothing else from a skin, and no seed value, appears on any plot. Every string drawn is a [guarded](runs.md#guards) one or a number.
 - **Returns the path written.**
 
 ## Invariants
 
 - Each function called twice on the same inputs writes byte-identical files.
-- No plot reads anything the run table does not hold.
+- No plot reads anything the run table does not hold, and no plot function opens a file but the one it writes.
 - The ECI plot's SVG contains the credit text.
 
 ## Not decided

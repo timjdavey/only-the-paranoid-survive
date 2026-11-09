@@ -10,6 +10,10 @@ _Not run yet._
 
 _Not run yet._
 
+## Recognition
+
+_Not run yet._
+
 ## Up against down
 
 _Not run yet._
@@ -43,6 +47,14 @@ _Not run yet._
 _Not run yet._
 
 ## Notepad and compute
+
+_Not run yet._
+
+## Rolling conversation
+
+_Not run yet._
+
+## Warm up
 
 _Not run yet._
 
