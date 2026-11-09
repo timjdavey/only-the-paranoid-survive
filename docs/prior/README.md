@@ -25,7 +25,7 @@ These pages collect what others have found on that question, in LLMs, in people 
 
 If you know the field, our game may look like a drifting bandit: an agent picks between options whose payoffs wander, as in [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit). It looks like that, but no study below has all of these.
 
-- **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the One switch and Slow drift scenarios. The headline is a geometric mean, so a model can't make up for false alarms with quick switches ([scoring](../design/scoring.md#how-we-score)).
+- **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the One switch and Slow drift scenarios. The weakest trait is reported beside the headline, so a model can't hide false alarms behind quick switches ([scoring](../design/scoring.md#how-we-score)).
 - **Bad luck comes in streaks, and the whole market has bad weeks.** Each channel's weather has persistence, so a bad stretch fades rather than stops. A shared factor moves every channel at once ([generator](../design/mechanics.md#each-round)).
 - **A look costs, and a look tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
 - **The old plan keeps paying.** After a switch the leader is still well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.

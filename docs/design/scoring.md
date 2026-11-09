@@ -10,7 +10,7 @@
 - **Zero is knowing nothing and one is knowing the regime.** The [Uniform baseline](baselines.md) bets evenly and learns nothing. The [Discerning baseline](baselines.md) knows every channel's base level, so it holds through a shock and moves the round a switch lands. The score is the share of the value of that knowledge the model captured.
 - **Seeds are pooled, not scored one by one.** Add up the model's gain over every seed and divide by the total gap, so a seed with more on offer counts for more. See [pooling seeds](#pooling-seeds).
 - **The Complacent baseline is a mark on every bar, not the floor.** Where there is a switch it lands near 0.55, so a model below the mark is visibly complacent and a model above it has acted. Where there is no switch it sits at 1 with the Discerning baseline.
-- **The headline is the geometric mean across [scenarios](scenarios.md)**, each scenario score floored at 0. A model must do well in every scenario to score highly. One bad scenario drags the whole figure down.
+- **The headline is the plain mean across [scenarios](scenarios.md)**, reported with the weakest trait named beside it. A negative scenario score counts as it is. The mean says how good a model is overall, and the weakest trait says where it fails.
 
 A worked One switch run, output over 40 rounds:
 
@@ -45,7 +45,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 | [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | Boiling frog: never acts, as no single round looks bad |
 
 - **Composure and patience differ.** Composure ignores noise when nothing is happening. Patience holds through a real dip that passes.
-- **The trait profile is the five scores side by side.** The headline combines them, so a model can't buy one trait with another.
+- **The trait profile is the five scores side by side.** The headline averages them, so the weakest trait is named beside it: a model can buy one trait with another in the mean, but not in that number.
 
 ## Seeds
 
@@ -76,16 +76,17 @@ Two One switch seeds. Each seed draws its own switch size and timing, so one has
 - **Pooling is a mean weighted by gap.** Seed A has twice the gap, so its run score counts twice as much. A point missed counts the same whichever seed it was missed on.
 - **A small gap gets a small say.** A run score can land well outside 0 to 1 on one seed, but its weight is its gap, so it can't swing the scenario score far.
 
-## Why a pool within and a geometric mean across
+## Why a pool within and a plain mean across
 
 - **Seeds are one question asked many times**, so we want the expected gain. [Pooling](#pooling-seeds) is that gain, weighted by what each world had on offer. A geometric mean over seeds would punish one unlucky world, which is noise, not a trait.
-- **Scenarios are different questions** and we want an AND. The geometric mean makes one bad trait pull the headline down, where a plain mean would let a strong trait hide it.
+- **Scenarios are different questions in one unit.** Every scenario score is a share of the same kind of gap, so adding them means something. A plain mean with equal weights is the simplest prior to state, and a reader with a base rate can reweight the profile, see [limits](limits.md).
+- **Why not a geometric mean.** It cannot take a negative score, and flooring at 0 makes a near miss and a disaster read the same. It only differs from the plain mean when one scenario sits far below the rest, which is the case where it breaks. The weakest trait gives that AND as a second number without the maths problem.
 
 ## Error bars
 
 - **An error bar says how sure we are of a score** (epistemic uncertainty). It shrinks with more seeds. It points at the true score, which we never see, but it is computed from the runs we have.
-- **Scenario.** Resample the seeds with replacement, recompute the pooled ratio each time, and report the 2.5th and 97.5th percentiles (a percentile bootstrap). Not SD/√n: a ratio is not a mean, and run scores bunch near 1 in the No change scenario. No geometric mean at this level.
-- **Headline.** Resample seeds within each scenario, then take the geometric mean of the scenario scores. Never resample scenarios. They are a fixed list of questions, not a sample.
+- **Scenario.** Resample the seeds with replacement, recompute the pooled ratio each time, and report the 2.5th and 97.5th percentiles (a percentile bootstrap). Not SD/√n: a ratio is not a mean, and run scores bunch near 1 in the No change scenario.
+- **Headline.** Resample seeds within each scenario, then take the plain mean of the scenario scores. Never resample scenarios. They are a fixed list of questions, not a sample. The weakest trait's bar is that scenario's bar.
 - **The weakest scenario sets the bar.** In logs each scenario adds its relative error, bar over score. A scenario at 0.3 ± 0.05 widens the headline far more than one at 0.9 ± 0.05.
 - **Gaps between models.** Every model plays the same seeds, so draw one set of seed indices and apply it to both models each time. The world's luck cancels. Report the difference with its paired interval.
 - **The unit is the seed.** If a seed is ever played more than once, average its repeats first and resample seeds, not runs. Pooling repeats counts one world twice and shrinks the bar falsely.
@@ -116,7 +117,7 @@ The full study headline. The proof of concept reports the headline at one noise 
 
 - **Keep the prize loud, raise the noise.** On the grid every event is pinned in level points, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. Only the weather scale moves, see [difficulty](mechanics.md#difficulty). A fainter change would be a smaller prize, and a model that ignores a change not worth catching is right to.
 - **The axis is signal to noise**: the switch size in level points over the weather's SD per round. It means the same thing in every edition, so a harder edition extends the grid to lower settings instead of starting a new chart.
-- **At each setting, compute the headline.** The No change and One shock scenarios get harder with noise too, as rougher readings tempt more false alarms, so the AND stays inside the sweep.
+- **At each setting, compute the headline.** The No change and One shock scenarios get harder with noise too, as rougher readings tempt more false alarms, so false alarms cost inside the sweep too.
 - **The Complacent baseline is the reference floor.** Its headline does not move with noise, as it never reads anything. Fit a logistic curve of the model's headline against the log of signal to noise and read off the setting at which the model sits half way between the Complacent baseline's headline and 1. That is the noise threshold: the noisiest world the model still reads. Lower is better. Report the 80% crossing beside it, as METR does.
 - **The crossing does not depend on the floor.** Half way from the Complacent to the Discerning baseline is the same world whether the scale starts at the Uniform baseline or at the Complacent one.
 - **Error bar.** Resample seeds at every setting and refit.

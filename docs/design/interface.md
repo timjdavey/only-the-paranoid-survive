@@ -37,7 +37,7 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 |---|---|
 | Pick one channel a round | One reading a round is too little evidence. Even an ideal reader mostly misses the switch by round 40. A look costs a whole round's output, and doubt only shows across several rounds |
 | Pick one channel and a stake | The old coin flip game. Sizing a stake is a maths skill of its own that blurs with belief, and asking "how much do you move" every round hints that change is the question |
-| Compounding bankroll | The right stake is a Kelly fraction, so the game tests bet sizing as much as spotting a change. Early luck multiplies through the run, so variance swamps model differences. Ruin scores zero and collapses the geometric mean |
+| Compounding bankroll | The right stake is a Kelly fraction, so the game tests bet sizing as much as spotting a change. Early luck multiplies through the run, so variance swamps model differences. Ruin scores zero on that seed and swamps the pool |
 | Cash as a safe channel | Models park in cash whenever unsure, so the No change scenario needs an extra cost to stay readable |
 | Stop or continue, one irreversible switch | Clean detection delay, but binary, so no graded doubt |
 | Ask for a probability the regime changed | The most direct measure, but it tells the agent change is the question |

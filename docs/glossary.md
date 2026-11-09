@@ -76,7 +76,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Scenario score | The share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. 0 is knowing nothing, 1 is knowing the regime. See [scoring](design/scoring.md#how-we-score) |
 | Run score | One seed's share of that gap, shown as a dot. It can land outside 0 to 1 on one seed. The scenario score pools seeds so it rarely does |
-| Headline | One score per model: the geometric mean of its scenario scores, each floored at 0. See [scoring](design/scoring.md#how-we-score) |
+| Headline | One score per model: the plain mean of its five scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
+| Weakest trait | The lowest of a model's five scenario scores, named. The AND the headline alone does not give |
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every edition shares. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/checks.md#noise-grid) |

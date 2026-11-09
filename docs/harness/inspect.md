@@ -40,5 +40,6 @@ Each round the solver:
 
 - **Scenario score** is a custom metric per scenario: the model's gain over the Uniform baseline summed over seeds, divided by the Discerning baseline's gain summed over seeds. Not a mean of per-sample ratios.
 - **Error bars** are a custom metric: percentile bootstrap over seeds within a scenario.
-- **Headline** is a custom metric: geometric mean of the scenario scores, each floored at 0, bootstrapped by resampling seeds within each scenario.
+- **Headline** is a custom metric: the plain mean of the scenario scores, bootstrapped by resampling seeds within each scenario.
+- **Weakest trait** is a custom metric: the lowest scenario score and the name of its trait.
 - **Gaps between models** are paired by seed in the [analysis](layout.md) layer, as they need two logs.

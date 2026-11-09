@@ -213,7 +213,7 @@ Matthew R. Nassar, Robert C. Wilson, Benjamin Heasly and Joshua I. Gold. "An App
 
 **Why it matters here.**
 
-- **Fig. 10 is our trade-off.** A high hazard wins in the One switch scenario and loses in the No change and One shock scenarios. The geometric mean [headline](../design/scoring.md#how-we-score) is built so that you can't buy one with the other.
+- **Fig. 10 is our trade-off.** A high hazard wins in the One switch scenario and loses in the No change and One shock scenarios. The weakest trait beside the [headline](../design/scoring.md#how-we-score) shows when a model has bought one with the other.
 - **A cheap family of baselines with human meaning.** A high or low hazard gives a jumpy or a cautious player. Discounting surprise stands in for one that notices too little, and a belief in drift suits our ramps and [drift](../design/mechanics.md#events). It would sit beside the [parked Bayesian baseline](../design/baselines.md#not-yet).
 - **People expect too many changes**, which predicts false alarms in the No change and One shock scenarios, as [Massey and Wu](#massey-and-wu-2005-system-neglect) do.
 - **Two catches.** It tracks one number, so it would run once per channel and miss the shared factor. And the weather's persistence has to sit in its noise, or every bad stretch reads as a change.
