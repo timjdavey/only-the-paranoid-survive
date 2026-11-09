@@ -10,11 +10,11 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 ## Generator
 
-The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels run 0 to 100. Every run on a seed replays the same tape, and the tapes of public seeds are published with the engine. Held-out seeds' tapes are not, see [contamination](../harness/contamination.md#two-seed-sets).
+The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels are not clipped, so one can go below 0 in a deep shock. Every run on a seed replays the same tape, and the tapes of public seeds are published with the engine. Held-out seeds' tapes are not, see [contamination](../harness/contamination.md#two-seed-sets).
 
 ### Each round
 
-    level = base level + own weather + loading × shared factor, clipped to 0 to 100
+    level = base level + own weather + loading × shared factor
 
 | Part | What it is | Set by |
 |---|---|---|
@@ -25,7 +25,7 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
 - **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
-- **Base levels sit mid-range**, so clipping at 0 or 100 is rare.
+- **Base levels sit mid-range**, so a level rarely goes below 0. Nothing breaks when it does: the score is a share of a gap and the headline a plain mean, so a negative round is just a bad round. Clipping was only there for the geometric mean, which is gone, see [scoring](scoring.md#why-a-pool-within-and-a-plain-mean-across).
 - **One seed, twin tapes.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and One switch tapes match until the event begins, see [seeds](scoring.md#seeds).
 
 ### The ladder
@@ -75,7 +75,7 @@ Off by default. Each one closes a tell a model could learn.
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
 - **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
-- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. The pilot sets k, see [reading roughness](../pilot/checks.md#reading-roughness).
+- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/checks.md#reading-roughness).
 - **Why.** A look costs something, so paranoia has a price. You know a market by being in it.
 - **Output is paid at the true levels**, while each reading carries read noise. So the output line is a clean reading of the agent's whole split, and a model can learn more from it than from any one channel. This is why the weather scale, not read noise, is the grid's dial. Whether output should instead be summed from the noisy readings is open.
 

@@ -8,7 +8,7 @@ The frozen text the agent sees. Each round is one call with this system prompt a
 |---|---|---|
 | Skin, rules, tool text | System prompt | Stable across rounds, so it caches. One place to lint |
 | The record | The only user message | Grows one row a round |
-| The bets | A `submit` tool call | Forced where the provider allows. Elsewhere the prompt says to call it, and a text reply is a miss, never a decision |
+| The bets | A `submit` tool call | Forced where the provider allows. Elsewhere the prompt says to call it. A text reply is never a decision: it gets a retry, see [retry rule](#retry-rule) |
 
 ## System prompt skeleton
 
@@ -47,11 +47,18 @@ Returns the level of each funded channel and the output. A sum that is not 100 r
 
     The ten numbers add up to {sum}, not 100. Send them again.
 
+A reply with no tool call returns:
+
+    Place this round's points with the submit tool.
+
 ## Retry rule
 
-- Up to three tries a round. A bad sum and a reply with no tool call both count.
-- After the third miss the round holds last round's bets, or uniform in round 1, and the store flags the round.
-- Flagged rounds are counted and reported beside the score. A model with many is not scored.
+- **A round ends only on a valid `submit` call.** The harness never places bets for the agent, so a failed call is never read as a decision.
+- **A bad sum or a reply with no call gets a neutral message**, see [tool text](#tool-text), and the model tries again. A reply cut off by max tokens counts as no call, see [sampling](models.md#sampling).
+- **Every retry is counted** in the store. The share of rounds that needed one is reported beside every score.
+- **Ten tries a round at most**, so a broken model can't loop forever. After the tenth the run stops with an error and inspect plays the seed again once.
+- **A run that errors twice scores as the Uniform baseline on that seed**, a gain of 0. Every model stays scored on every seed, so the pairing holds, and failing to answer never earns more than knowing nothing.
+- **A mark, never a drop.** Every model is scored. A scenario where the retry share passes the mark in [decisions](../pilot/decisions.md) gets a mark on its bar.
 
 ## Banned words
 

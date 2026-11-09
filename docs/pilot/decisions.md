@@ -20,6 +20,7 @@ One row per check in [checks](checks.md) and per knob the [generator](../design/
 | Switch size in level points on the noise grid | | | |
 | Loading range and ladder ranges | | | |
 | Warm up: empty record or pre-filled | | | |
+| Retry share that marks a bar, see [retry rule](../harness/prompts.md#retry-rule) | | | |
 
 - **A decision is a number or a yes or no**, plus one line on why if the run surprised us.
 - **Once a row is filled it is frozen.** Changing it means a new pilot and a new row.

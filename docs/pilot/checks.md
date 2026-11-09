@@ -103,5 +103,5 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 ## Cost per run
 
 - **Question.** What the full study costs.
-- **Measure.** Tokens per run for each model, from the [seeds](#seeds) and [repeats](#repeats) runs.
+- **Measure.** Tokens per run for each model, from the [seeds](#seeds) and [repeats](#repeats) runs. Also the share of replies cut off by max tokens, which should be close to 0, see [sampling](../harness/models.md#sampling).
 - **Decide.** Tokens per run × seeds × scenarios × models gives the budget. If it is too high, cut seeds before scenarios, as every scenario feeds the headline.

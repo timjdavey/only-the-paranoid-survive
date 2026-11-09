@@ -3,7 +3,7 @@
 ## How the agent plays
 
 - **Each round the agent bets a fixed budget across ten channels.** It places ten whole number bets that sum to 100, say 55 on one channel, 15 and 10 on two more, 5 on four others and 0 on the rest. Whole numbers to 100 is how budgets are talked about in every skin, the sum check is exact, and models fumble decimals more than they fumble percentages.
-- **It places all ten bets every round.** Bets that do not sum to 100 get a neutral error and a retry, so a bad call is never read as a decision. Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
+- **It places all ten bets every round.** Bets that do not sum to 100, or a reply with no bets, get a neutral message and a retry. The round ends only on a valid call, so a bad call is never read as a decision, see the [retry rule](../harness/prompts.md#retry-rule). Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
 - **Its bets are its belief.** A small bet on a new channel is a look. A large bet is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
 - **The agent sees the level of every channel it bet on**, not just total output, in the record described under [tools](#tools). A bet of 0 shows nothing. See [mechanics](mechanics.md).

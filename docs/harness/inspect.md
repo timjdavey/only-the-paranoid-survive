@@ -9,7 +9,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | A [run](../glossary.md) on one seed, scenario and skin | `Sample`, with `scenario`, `seed`, `seed_set`, `skin`, `engine_hash` and `prompt_hash` in `metadata` | The same seeds for every model falls out for free |
 | Playing a seed again, see [repeats](../pilot/checks.md#repeats) | `epochs` | Built in |
 | A [fresh call each round](../design/interface.md#tools) | A custom `@solver` round loop | Not `react` or `basic_agent`. They keep the conversation |
-| `submit(bets)` | A `@tool` that raises `ToolError` when the sum is off | The error is the neutral retry. A text reply with no call is a miss |
+| `submit(bets)` | A `@tool` that raises `ToolError` when the sum is off | The error is the neutral retry. A text reply with no call gets a retry too |
 | Game state, the tape, output so far, the record | A `StoreModel` on the sample | Written to the log, so a run can be replayed from any round |
 | A run's output beside its baselines | A custom `@scorer` that records the run's output and the Uniform and Discerning baselines' on the same tape | Three numbers per sample. The run score is their ratio |
 | Scenario score | A custom `@metric` per scenario: summed gain over summed gap | Not a mean of per-sample ratios, see [scoring](../design/scoring.md#how-we-score) |
@@ -25,7 +25,7 @@ Each round the solver:
 
 1. Renders the system prompt from the skin and the record from the store, see [prompts](prompts.md).
 2. Calls `generate` with the `submit` tool. Forced where the provider allows it. Current Claude models reject a forced tool, so there the choice is `auto` and the prompt says to call `submit`.
-3. Reads the tool call. A bad sum returns a `ToolError` and the model tries again. A reply with no tool call is a miss too. Three misses and the round holds last round's bets and the store flags it.
+3. Reads the tool call. A bad sum returns a `ToolError` and the model tries again. A reply with no tool call gets a reminder and tries again too. The store counts each retry. After ten tries the solver raises an error, and `--retry-on-error 1` plays the seed again once. See the [retry rule](prompts.md#retry-rule).
 4. Plays the bets through the engine and appends the readings and output to the record.
 5. Repeats until the tape ends. Nothing from this round's messages survives into the next.
 
