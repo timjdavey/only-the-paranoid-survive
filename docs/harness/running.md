@@ -17,7 +17,7 @@
 | The proof of concept list | `uv run paranoid poc`, which reads `configs/models/poc.toml` |
 | A pilot cell | `uv run paranoid pilot seeds`, one name per check in [checks](../pilot/checks.md) |
 | Browse logs | `inspect view` |
-| Rebuild the results tables | `uv run paranoid analyse logs/` |
+| Rebuild the results tables and CSVs | `uv run paranoid analyse logs/` |
 
 - **Task args:** `scenario`, `seeds`, `skin`, `rounds`, `tools` (none, notes, compute) and `inertia`. Defaults are the frozen study settings.
 - **`seeds`** takes `public`, `held-out`, or a range of public seeds such as `0-4`. `held-out` needs `PARANOID_SEEDS` set, see [contamination](contamination.md#two-seed-sets).

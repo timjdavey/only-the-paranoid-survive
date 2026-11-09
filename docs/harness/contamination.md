@@ -14,6 +14,7 @@ What is published and what is held back, and why.
 | Logs from the example skin on public seeds | `results/logs/` | Yes |
 | Logs from a held-out skin or a held-out seed | Nowhere. They stay on the machine that ran them | No |
 | Results tables | `docs/results/` | Yes, scores per scenario with skin names only |
+| Run CSVs | `docs/results/` | Yes, one row per run. Held-out seeds by position, not value |
 
 ## Why
 
@@ -40,7 +41,7 @@ Every scenario has two [seed sets](../glossary.md).
 Epoch's FrontierMath lesson was that a holdout matters, and so does who can see it.
 
 - **The maintainers only.** No lab sees held-out seeds, tapes or logs, funders included.
-- **Results publish one score per scenario.** Never a held-out seed, a tape, or a round-by-round log.
+- **Results publish one score per run.** Never a held-out seed, a tape, or a round-by-round log.
 - **Providers see what they serve.** A run through an API shows the provider that run's readings. So we use zero data retention where a provider offers it.
 - **Fresh held-out seeds each edition.** Readings a provider kept from one edition are no use on the next. Old models are rerun on the new set, not carried over.
 
