@@ -50,11 +50,15 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | `gave_up` | 1 when the run gave up, else 0 |
 | `bad_calls`, `no_calls`, `cut_offs` | From the store |
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
+| `look_points` | The mean of `budget − max(bets)` over the agent's rounds before the first event's `onset`, or over every agent round when the config has no events. Empty when the agent played no such round. Looking when nothing is wrong, see [up against down](../../pilot/provider-checks.md#up-against-down) |
+| `sleeper_round` | The first agent round at or after the onset of the event that made `tape.sleeper` with at least 1 point on it. `0` when it never happens, empty when `tape.sleeper` is `None` |
+| `notes_calls`, `compute_calls` | From the store, the pilot tools' calls, see [notes](solver.md#notes) |
 
 - **The baselines replay the agent's warm up.** `play(policy, tape, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
-- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](command.md#pilot-cells). The score needs them whatever the agent's config, so `gain` plays them against a tape made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_tape` never reads the cap, see [config](../engine/config.md#fields).
+- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](pilot.md). The score needs them whatever the agent's config, so `gain` plays them against a tape made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_tape` never reads the cap, see [config](../engine/config.md#fields).
 - **Every number comes from the record's rounded outputs**, never from the tape's levels, see [readings](../engine/game.md#readings). The agent and the scorer agree on every number.
 - **The baselines are deterministic**, so across epochs they are constant and the mean reducer leaves them alone.
+- **The pilot's four keys cost nothing new.** `look_points` and `sleeper_round` read the tape the scorer already holds for the baselines, and the two counts come from the store. They are in `Score.value` because the analysis reads scores and never the store or a message, see [privacy](../analysis/runs.md#privacy).
 - **The scorer never reads the messages.** The store is the run.
 
 ### Pooling

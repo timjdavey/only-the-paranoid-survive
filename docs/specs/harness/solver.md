@@ -63,7 +63,7 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 
 Pilot only, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute).
 
-- **`notes(text)`** replaces `store.notes` with the first `notes_cap` characters of `text` and returns the text as stored. Nothing is appended, nothing is kept from an earlier call.
+- **`notes(text)`** replaces `store.notes` with the first `notes_cap` characters of `text`, adds one to `store.notes_calls`, and returns the text as stored. Nothing is appended, nothing is kept from an earlier call.
 - **Next round** the stored text comes back as a second content block on the user message, after the record, never as an assistant message. A tool message with no tool call before it is rejected by the Anthropic API, and an assistant message would read as the agent's own words.
 - **Length is logged** by the store itself, as `len(store.notes)`.
 - **A reply that calls `notes` and not the skin's tool is a no call**, see [tries](#tries).
@@ -73,7 +73,7 @@ Pilot only, see [notepad and compute](../../pilot/provider-checks.md#notepad-and
 Pilot only. Needs `uv sync --extra sandbox` and Docker.
 
 - **Before each round** the solver writes `render_record(skin, store.record())` to `record.csv` in the sandbox's working directory, so the code sees the record and nothing else.
-- **`compute(code)`** runs `python3 -I -c <code>` in the sandbox with a 30 second timeout, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`.
+- **`compute(code)`** runs `python3 -I -c <code>` in the sandbox with a 30 second timeout, adds one to `store.compute_calls`, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`. The two counts reach the log through the score, see [scoring one run](scorer.md#scoring-one-run), as the pilot's [notepad check](../../pilot/provider-checks.md#notepad-and-compute) asks how often each tool is used.
 - **The sandbox is locked down.** The code is the model's and is untrusted. `compose.yaml` sets `network_mode: none`, mounts nothing from the host, passes no environment, runs the root filesystem read only with a small writable working directory, and caps memory, processes and CPU with `mem_limit`, `pids_limit`, `cpus` and `no-new-privileges`. So the code can reach neither the engine nor a seed, and a memory or fork bomb ends inside the container, not on the machine.
 - **The compose file is found from the module**, `Path(__file__).parent / "compose.yaml"`, never from the working directory, and `pyproject.toml` ships it as package data.
 

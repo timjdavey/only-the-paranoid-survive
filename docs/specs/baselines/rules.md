@@ -80,8 +80,8 @@ Every number is **pilot to confirm**.
 
 ## Pilot decides
 
-- `look`, `window`, `fall_points`, `tell_points` and `scout_rounds` for the hedge rule, from [the tell](../../pilot/engine-checks.md#the-tell) and [reading roughness](../../pilot/engine-checks.md#reading-roughness).
-- `s` and `n` for the Scout rule, from [Streaks](../../pilot/engine-checks.md#streaks) and [Up and down](../../pilot/engine-checks.md#up-and-down).
+- `look` and `scout_rounds` from [reading roughness](../../pilot/engine-checks.md#reading-roughness), `window` from [Streaks](../../pilot/engine-checks.md#streaks), and `fall_points` and `tell_points` from [the tell](../../pilot/engine-checks.md#the-tell), as the [defaults](#defaults) table says.
+- `s` from [Up and down](../../pilot/engine-checks.md#up-and-down) and `n` from [Streaks](../../pilot/engine-checks.md#streaks).
 
 ## Not decided
 
