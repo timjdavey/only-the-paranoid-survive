@@ -4,7 +4,7 @@ What the agent sees. Each round is one call with a system prompt and one user me
 
 - **The [frame](../glossary.md) is fixed.** Every prompt states the same facts, listed under [what every skin must say](#what-every-skin-must-say).
 - **The wording belongs to the skin.** Each skin words the frame itself, so the wording shown here is only the example skin's. A held-out skin words it differently, see [contamination](contamination.md#why).
-- **Changing a word changes the study.** Each rendered prompt is hashed and the hash goes in the log as `prompt_hash`.
+- **Changing a word changes the study.** The rendered system prompt and the tool text are hashed and the hash goes in the log as `prompt_hash`, see the [skins spec](../specs/skins/render.md#prompt-hash).
 
 ## Placement
 
@@ -22,7 +22,7 @@ Four parts in this order, each filled by a skin field, see [skins](skins.md#what
 |---|---|---|
 | Intro | `intro` | Who the agent is and what it runs |
 | Rules | `rules` | The budget, the ten channels by name, whole numbers that add up to 100 |
-| How points earn | `how_points_earn`, `reading_note` | The level of each funded channel is reported. No points report nothing. A small spend gives a rough reading |
+| How points earn | `how_points_earn` | The level of each funded channel is reported. No points report nothing. A small spend gives a rough reading |
 | Ask | `ask` | The record is below. Place this round's points with the tool |
 
 The example skin's wording, with its channel names left as brackets:
@@ -88,12 +88,14 @@ A reply with no tool call returns `no_call`:
 
 ## Banned words
 
-The lint fails if the rendered system prompt, record, tool text or the skin's Jev question contains any of these, in any case or inflection:
+The lint fails if the rendered system prompt, record, tool text or the skin's Jev question contains any of these, in any case or inflection, with or without a prefix such as un or re:
 
     check, change, shift, switch, shock, drift, trend, anomaly, regime,
-    climate, detect, monitor, watch, alert, stable, volatile
+    climate, detect, monitor, watch, alert, stable, volatile,
+    benchmark, canary, paranoid
 
-- The list lives in `paranoid.skins.lint`. Add a word there first, then here.
+- The last three name the study itself, so a skin that says one has told the model where it is.
+- The list lives in `paranoid.skins.lint`. Add a word there first, then here. How a word is matched is in the [skins spec](../specs/skins/lint.md#words).
 - Skin text is linted on load, so a private skin cannot slip one in.
 
 ## Canary

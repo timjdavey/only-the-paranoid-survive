@@ -39,6 +39,6 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 | Layer | Spec | Status |
 |---|---|---|
 | engine | [engine/](engine/) | Written, no code yet |
-| skins | | To come |
+| skins | [skins/](skins/) | Written, no code yet |
 | harness | | To come |
 | analysis | | To come |

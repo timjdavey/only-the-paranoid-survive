@@ -56,6 +56,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 
 - **Learning the game.** Anyone can generate as many tapes as they like from the public engine. That teaches how the worlds work, not the worlds we test on.
 - **The answer to that is a harder game**, not more secrets. See the hard variants in [scenarios](../design/scenarios.md#scenarios-we-test).
+- **The record's column words.** `round`, `_bet`, `_level` and `output` head every skin's record today, whatever its story. Whether a skin should name those too is open, see the [skins spec](../specs/skins/render.md#open).
 
 ## Canary
 
