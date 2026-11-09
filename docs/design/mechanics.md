@@ -41,11 +41,11 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 
 | Shape | What it edits | Who moves | Drawn per seed |
 |---|---|---|---|
-| Shock | An impulse into the shared factor that decays. With its sign flipped it is a **boom** | Every channel by its loading, so most fall and the hedge rises. In a boom most rise and the hedge falls | Depth in sigmas, onset round, half-life, profile: sharp fall and slow climb, or slow slide and quick rebound. The sign is set by the scenario |
+| Shock | An impulse into the shared factor that decays | Every channel by its loading, so most fall and the hedge rises | Depth in sigmas, onset round, half-life, profile: sharp fall and slow climb, or slow slide and quick rebound |
 | Switch | A base level | The leader falls, a **sleeper** in the field rises past the leader's level, or both. The sleeper's loading is redrawn so it stops moving with its old group. Where the scenario says so, a sleeper rises short of the leader instead, or an earlier switch is undone | Size in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, which sleeper rises, and the direction where the scenario leaves it open |
 | Drift | A base level, slowly | As a switch, over many more rounds | Slope in sigmas per round, length, profile: linear or logistic |
 
-- **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. A look at any unfunded channel tells them apart. A look at the hedge tells them apart fastest. A boom's tell is the hedge falling while the field rises.
+- **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. A look at any unfunded channel tells them apart. A look at the hedge tells them apart fastest.
 - **Why a switch comes in three kinds.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When the leader falls and a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. When only a sleeper rises, nothing in the agent's record moves and the test is whether it was looking at all. The [Down switch scenario](scenarios.md#scenarios-we-test) draws the first two per seed, so a model cannot learn that a fall always comes with a riser, or never does. The Up switch scenario pins the third.
 - **The old plan keeps paying.** A switch leaves the leader well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 
@@ -53,7 +53,7 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 
 - **A minimum gap** between events, set per scenario. Events may still overlap, so a shock can land mid-drift.
 - **No two alike.** Each event redraws its numbers and lands on different weather, and a second switch hits a different channel unless the scenario says it undoes the first, as in the Up switch then down switch scenario. A tape is rejected if consecutive events of the same kind differ in fewer than two draws.
-- **A hard variant strings more.** More shocks before the switch, or a longer drift. Length and count come from the pilot, see [TODO](../../TODO.md#pilot).
+- **A hard variant strings more, or stretches.** More shocks before the switch, a longer drift, or a sleeper's rise spread over many rounds, which is the Up drift we [skip](scenarios.md#scenarios-we-skip). Length and count come from the pilot, see [TODO](../../TODO.md#pilot).
 
 ### Difficulty
 

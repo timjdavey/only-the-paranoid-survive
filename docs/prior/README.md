@@ -92,7 +92,6 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) | Gallistel 2001, Behrens, Wilson, Coda-Forno, Bazaar |
 | [Switch then shock scenario](../design/scenarios.md#scenarios-we-test) | Gallistel 2014 (taking it back), Schubert (own choices), Bazaar (revision) |
 | [Up switch then down switch scenario](../design/scenarios.md#scenarios-we-test) | Set-shifting (going back), Gama (recurring drift) |
-| [One boom scenario](../design/scenarios.md#scenarios-we-test) | Massey and Wu, Nassar (surprise against the recent past) |
 | [Scenarios we skip](../design/scenarios.md#scenarios-we-skip) | Behrens, Wang |
 | [Score from a floor to a ceiling on the same seeds](../design/scoring.md#how-we-score) | AdaExploreBench, STOCKTAKE |
 | [Pairing models by seed](../design/scoring.md#error-bars) | METR (correlated errors), STOCKTAKE (event tape) |
