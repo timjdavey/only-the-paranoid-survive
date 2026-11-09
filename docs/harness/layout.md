@@ -14,7 +14,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 | Layer | Package | Depends on | What it exports |
 |---|---|---|---|
 | engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_tape`, `Tape`, `Game`, `Record`, `play`, the fixed policies. Forecast policies come with the Timestral provider, see the [engine spec](../specs/engine/policies.md#parked) |
-| skins | `paranoid.skins` | engine | `Skin`, `load_skin`, `load_skins`, `render_system_prompt`, `render_record`, `prompt_hash`, `lint`, `lint_text`, `BANNED_WORDS`, `CANARY`, see the [skins spec](../specs/skins/README.md) |
+| skins | `paranoid.skins` | engine | `Skin`, `SkinError`, `load_skin`, `load_skins`, `render_system_prompt`, `render_record`, `prompt_hash`, `lint`, `lint_text`, `LintError`, `CANARY` and the lint's word lists, see the [skins spec](../specs/skins/README.md#exports) |
 | harness | `paranoid.harness` | skins, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
 | analysis | `paranoid.analysis` | harness, pandas | `load_runs`, tables, CSVs, bootstrap, plots |
 

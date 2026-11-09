@@ -9,12 +9,11 @@
 ```python
 @dataclass(frozen=True)
 class Skin:
-    name: str                               # short id. Equals the file stem, goes in log metadata
+    name: str                               # short id, the file stem. Goes in log metadata, never to the model
     channels: tuple[str, ...]               # ten names, in channel index order
     intro: str                              # who the agent is and what it runs
     rules: str                              # the budget of 100, the ten channels by name, whole numbers adding up to 100
-    how_points_earn: str                    # what a point buys and what a reading means
-    reading_note: str                       # a small spend gives a rough reading
+    how_points_earn: str                    # what a point buys, what a reading means, a small spend gives a rough reading
     ask: str                                # the record is below, place this round's points with the tool
     tool_name: str                          # the tool's name as the model sees it
     tool_text: str                          # the tool's description
@@ -22,7 +21,7 @@ class Skin:
     no_call: str                            # the retry message for a reply with no tool call
     question: str                           # Jev's choice question, see providers
 
-class SkinError(ValueError): ...            # a skin file or a Skin that is not well formed
+class SkinError(ValueError): ...            # a skin file or a Skin that is not well formed. LintError is one too
 
 def load_skin(path: Path) -> Skin
 def load_skins(path: Path | None = None) -> Mapping[str, Skin]
@@ -37,11 +36,11 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 
 `__post_init__` normalises, then raises `SkinError` if any of these hold. Lint is separate, see [lint](lint.md), so a test can build a skin that fails lint.
 
-- **Normalise first.** Every `str` field and every channel name has `\r\n` replaced by `\n`, then leading and trailing whitespace stripped. The stored value is the normalised one, so one file hashes the same on every OS.
+- **Normalise first.** Every `str` field and every channel name has `\r\n` and `\r` replaced by `\n`, trailing whitespace removed from every line, Unicode normalised to NFC, then leading and trailing whitespace stripped. `channels` is stored as a `tuple` whatever sequence was passed. The stored values are the normalised ones, so one file hashes the same on every OS and in every editor, and two spellings of one accented name are one name.
 - `name` does not match `^[a-z][a-z0-9_]*$`.
 - Any `str` field is empty after stripping.
-- `channels` does not have exactly ten entries. Ten is the [frame](../../glossary.md), and the engine default `channels` is ten, see [config](../engine/config.md#defaults). The harness never pairs a skin with a config of another size.
-- Any channel name is empty, or contains `,`, `"`, `\n` or `\r`. These are the characters `Record.to_csv` rejects, see [record](../engine/game.md#record), so a bad name fails here and never mid-run.
+- `channels` does not have exactly ten entries. Ten is the [frame](../../glossary.md), and the engine default `channels` is ten, see [config](../engine/config.md#defaults). The harness checks a skin against its config before round 1, see [what the harness reads](README.md#what-the-harness-reads).
+- Any channel name is empty, or contains `,`, `"` or `\n`. These are the characters `Record.to_csv` rejects, see [record](../engine/game.md#record), so a bad name fails here and never mid-run.
 - Two channel names are equal ignoring case.
 - `tool_name` does not match `^[a-z][a-z0-9_]{0,63}$`. Every provider accepts a name of that shape.
 
@@ -49,16 +48,16 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 
 One file per skin, one table, no nesting.
 
-- **Every field of `Skin` is a top-level key** of the same name. `channels` is an array of ten strings, every other key a string. Multi-line strings use TOML's `"""` form.
+- **Every field of `Skin` but `name` is a top-level key** of the same name. `channels` is an array of ten strings, every other key a string. Multi-line strings use TOML's `"""` form.
 - **Every key is required.** A missing key, an unknown key, or a value of the wrong type raises `SkinError` naming the key. So a typo in a key name fails on load rather than silently dropping a part of the prompt.
-- **`name` equals the file stem.** `example.toml` holds `name = "example"`. A mismatch raises `SkinError`.
+- **`name` is the file stem.** `example.toml` is the skin `example`. There is no `name` key, so a file cannot disagree with its own name. A stem that fails the `name` pattern, such as `Rome.toml`, raises `SkinError`.
 - **Comments are free.** The example skin's first line is a comment holding the [canary](lint.md#canary). Held-out skins may carry it or not, as they are never published.
 - **No templating.** A skin writes the ten names, the number 100 and its tool name into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
 
 ### `load_skin`
 
-- **`load_skin(path)`** reads the file with `tomllib`, builds a `Skin`, calls `lint(skin)`, and returns it.
-- **Errors in order.** A file that does not exist or is not valid TOML raises `SkinError` with the path. Then the key checks above. Then `Skin`'s own validation. Then `LintError` from the lint. Each names the file.
+- **`load_skin(path)`** reads the file with `tomllib`, builds a `Skin` with the stem as `name`, calls `lint(skin)`, and returns it.
+- **Errors in order.** A file that does not exist or is not valid TOML raises `SkinError` with the path. Then the key checks above. Then `Skin`'s own validation, the stem included. Then `LintError` from the lint. Each names the file.
 
 ### `load_skins`
 
@@ -66,7 +65,9 @@ One file per skin, one table, no nesting.
 - **Then the held-out folder**, if there is one. `path` when given, else the folder `PARANOID_SKINS` names, else nothing. `PARANOID_SKINS` set to an empty string counts as unset. A `path` given explicitly wins over the variable.
 - **A folder that does not exist or is not a directory** raises `SkinError`.
 - **Every file in the folder whose name ends `.toml`** is loaded with `load_skin`, in sorted filename order. Other files are ignored, subfolders are not walked. The private repo keeps `skins/` a plain folder of TOML files, see [skins](../../harness/skins.md#where-skins-live).
-- **Names are unique.** A held-out skin named `example`, or two files with one `name`, raises `SkinError`.
+- **One bad file fails the call.** `load_skins` raises the `SkinError` or `LintError` the first bad file raises, naming it. It never skips a file, so a held-out skin that fails to lint is never quietly left out of a run.
+- **Names are unique.** A held-out skin named `example` raises `SkinError`. Two files cannot share a stem, so that is the one way to clash.
+- **Held-out names are opaque.** A skin's name is published in every results table, see [contamination](../../harness/contamination.md#public-and-held-out), so a held-out skin is `held_out_a`, never a word from its story. The lint cannot check this, so a reviewer does.
 - **The result is a `types.MappingProxyType`**, keys in sorted order, so the harness cannot swap a skin under a name that is already in a log.
 - **The harness picks by name.** The `skin` task arg defaults to `example`, see [running](../../harness/running.md#commands). A name not in the mapping is a harness error, not a skins one.
 
@@ -78,8 +79,8 @@ One file per skin, one table, no nesting.
 
 ## Invariants
 
-- Every `str` field on a built `Skin` is non-empty, stripped, and free of `\r`.
-- `len(skin.channels) == 10`, every name is CSV safe, and no two are equal ignoring case.
+- Every `str` field on a built `Skin` is non-empty, stripped, in NFC, free of `\r`, and has no trailing whitespace on any line.
+- `len(skin.channels) == 10`, `skin.channels` is a `tuple`, every name is CSV safe, and no two are equal ignoring case.
 - `load_skins()` always contains `"example"`, and `load_skins()["example"].name == "example"`.
 - Every skin `load_skins` returns has passed `lint`.
 - A `Skin` is immutable. Two skins built from the same file are equal and hash alike.
@@ -91,5 +92,5 @@ See [tests](tests.md#skin).
 
 ## Open
 
-- **Whether `reading_note` stays its own field.** It is separate so a pilot cell can drop it and see whether the agent still looks. If no such cell runs, fold it into `how_points_earn`.
 - **Whether a skin should carry what a round stands for** as its own field, so the pilot can swap "week" for "minute" on one engine, see [future](../../design/future.md).
+- **Whether to pilot the reading note.** `how_points_earn` ends with the line that a small spend gives a rough reading. A pilot cell that drops it to see whether the agent still looks needs a second TOML file with the line cut, not a field of its own.
