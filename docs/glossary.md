@@ -83,6 +83,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or a look |
 | Look | A small bet on a channel the agent isn't backing, to read its level. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees) |
 | Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot cell, see [task spec](specs/harness/task.md#warm-up). `warm_up` in code |
+| Give up | What the solver does after ten failed tries in one round: the run ends there, with no error, and scores as the Uniform baseline on that seed. See [solver spec](specs/harness/solver.md#tries). `gave_up` in code |
 
 ## Scoring
 
@@ -117,7 +118,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Seed | The number that fixes a run's world: every channel's noise for every round, drawn up front |
 | Twin tapes | The tapes one seed makes across scenarios. They share the ladder, the weather and the onset round, so they match until the events differ. See [seeds](design/scoring.md#seeds) |
-| Seed set | The fixed list of seeds a scenario plays. Each scenario has two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
+| Seed set | The fixed list of seeds every scenario plays, so seed *i* is the same world across scenarios. There are two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
 | Public seeds | Seeds published in this repo with their tapes. For the pilot, the example logs and anyone checking our work |
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
 | Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. See [contamination](harness/contamination.md) |

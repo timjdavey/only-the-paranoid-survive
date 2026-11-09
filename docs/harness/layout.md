@@ -14,7 +14,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 | Layer | Package | Depends on | What it exports |
 |---|---|---|---|
 | engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_tape`, `Tape`, `Game`, `Record`, `play`, the fixed policies. Forecast policies come with the Timestral provider, see the [engine spec](../specs/engine/policies.md#parked) |
-| skins | `paranoid.skins` | engine | `Skin`, `render_system_prompt`, `render_record`, `lint`, `load_skins` |
+| skins | `paranoid.skins` | engine | `Skin`, `render_system_prompt`, `render_record`, `lint`, `load_skins`, `prompt_hash` |
 | harness | `paranoid.harness` | skins, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
 | analysis | `paranoid.analysis` | harness, pandas | `load_runs`, tables, CSVs, bootstrap, plots |
 
@@ -31,7 +31,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
     pyproject.toml  .env.example
     configs/
       models/      poc.toml and full.toml. See models.md
-      seeds/       public seeds, one file per scenario, once the engine exists. Held-out seeds are private, see contamination.md
+      seeds/       public.txt, the one list every scenario plays, once the engine exists. Held-out seeds are private, see contamination.md
       grid.toml    the noise grid, see docs/specs/harness/task.md
     docs/
       design/      why. The decisions

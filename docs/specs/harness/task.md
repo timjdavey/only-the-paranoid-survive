@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`paranoid` is the one inspect task. It turns the task args into a dataset of samples, one per scenario per seed, each carrying the scenario, the seed and the knobs in its metadata. `RunStore` is the per-sample state the solver, the tools, the providers and the scorer share. The design is in [inspect](../../harness/inspect.md#the-mapping) and [running](../../harness/running.md#commands).
+`paranoid` is the one inspect task. It turns the task args into a dataset of samples, one per scenario per seed, each carrying the scenario, the seed and the knobs in its metadata. `RunStore` is the per-sample state the solver, the tools, the providers and the scorer share. The design is in [inspect](../../harness/inspect.md#the-mapping) and [running](../../harness/running.md#commands). `tool_choice` is not a task arg: the solver decides it from the model, see [each round](solver.md#each-round).
 
 ## Interface
 
@@ -17,7 +17,7 @@ def paranoid(
     inertia: int | None = None,       # sets ScenarioConfig.inertia_cap
     warm_up: str | None = None,       # "<baseline>:<rounds>", such as "complacent:5"
     own_scale: float | None = None,   # one noise grid setting. Pins events in level points
-    tool_choice: str = "forced",      # "forced" or "auto", see solver.md
+    rolling: bool = False,            # keep the conversation across rounds, pilot only, see solver.md
 ) -> Task
 
 class StoredRow(BaseModel):
@@ -28,37 +28,40 @@ class StoredRow(BaseModel):
 
 class RunStore(StoreModel):
     scenario: str = ""
-    seed: int = 0
+    seed_set: str = ""                # "public" or "held-out"
+    seed_index: int = 0               # the position in the seed list. Never the held-out value, see below
     skin: str = ""
     rounds: int | None = None
     inertia: int | None = None
     own_scale: float | None = None
+    tool_choice: str = ""             # "forced" or "auto", as the solver resolved it
     rows: list[StoredRow] = []        # the record so far, warm up rows first
     warm_up_rounds: int = 0
-    open: bool = False                # True while a round is waiting for a valid submit
+    awaiting_submit: bool = False     # True while a round is waiting for a valid submit
     tries: list[int] = []             # generate calls per round the agent played. 1 means first time
+    gave_up: bool = False             # True after max_tries failed tries in one round, see solver.md
     bad_calls: int = 0
     no_calls: int = 0
     cut_offs: int = 0
     notes: str = ""
+    def seed(self) -> int             # load_seeds(self.seed_set)[self.seed_index]
     def config(self) -> ScenarioConfig
-    def tape(self) -> Tape            # make_tape(self.config(), self.seed), cached by (engine_hash, seed)
+    def tape(self) -> Tape            # make_tape(self.config(), self.seed()), cached by (engine_hash, seed)
     def record(self) -> Record
     def game(self) -> Game            # Game(self.tape(), self.record())
     def round(self) -> int            # len(rows) + 1
 
 def scenario_config(name: str, *, rounds: int | None = None, inertia: int | None = None,
                     own_scale: float | None = None) -> ScenarioConfig
-def load_seeds(scenario: str, seed_set: Literal["public", "held-out"]) -> list[int]
-def parse_seeds(arg: str, scenario: str) -> list[tuple[int, int]]   # (position, seed) pairs
-def prompt_hash(skin: Skin) -> str
+def load_seeds(seed_set: Literal["public", "held-out"]) -> list[int]
+def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 ```
 
 ## Behaviour
 
 ### Scenarios and config
 
-- **`scenario`** is `"all"`, one code name from `SCENARIOS`, or a comma list such as `"one_shock,down_switch"`. `"all"` is the eight in `SCENARIOS` order. An unknown name raises `ValueError` naming it.
+- **`scenario`** is `"all"`, one code name from `SCENARIOS`, or a comma list such as `"one_shock,down_switch"`. `"all"` is the eight in `SCENARIOS` order. An unknown name raises `ValueError` naming it, before any file is read or path is built.
 - **`scenario_config`** starts from `SCENARIOS[name]` and applies the knobs with `dataclasses.replace`, so the engine's validation runs again:
   - `rounds` replaces `rounds`.
   - `inertia` replaces `inertia_cap`.
@@ -68,11 +71,11 @@ def prompt_hash(skin: Skin) -> str
 
 ### Seeds
 
+- **One list, every scenario.** There are two seed files, and every scenario plays the same one. Seed *i* is position *i* in all eight scenarios, so twin tapes line up in one log by construction, see [seeds](../../design/scoring.md#seeds). A scenario never has a list of its own.
 - **Seed files** hold one seed per line, as a whole number. Blank lines and lines starting with `#` are skipped. A repeated seed raises `ValueError`.
-- **Public seeds** are read from `configs/seeds/<scenario>.txt`. **Held-out seeds** from `$PARANOID_SEEDS/<scenario>.txt`. `held-out` with `PARANOID_SEEDS` unset raises `ValueError` that names the variable, see [two seed sets](../../harness/contamination.md#two-seed-sets).
+- **Public seeds** are read from `configs/seeds/public.txt`. **Held-out seeds** from `$PARANOID_SEEDS/held-out.txt`. `held-out` with `PARANOID_SEEDS` unset raises `ValueError` that names the variable, see [two seed sets](../../harness/contamination.md#two-seed-sets).
 - **`parse_seeds`** returns `(position, seed)` pairs in file order. `"public"` and `"held-out"` give the whole list. A range `"a-b"` gives positions `a` to `b` inclusive of the public list, and `"a"` is `"a-a"`. A position past the end of the list, or `b < a`, raises `ValueError`.
 - **A position is not a seed value.** Public seeds are 0 up and usually equal their position, but the harness never assumes it. The analysis reports held-out seeds by position, see [layout](../../harness/layout.md#what-each-layer-does).
-- **One seed set per eval.** The eight scenarios share one `seeds` arg, so twin tapes line up across scenarios in one log, see [seeds](../../design/scoring.md#seeds).
 
 ### Dataset
 
@@ -83,28 +86,29 @@ def prompt_hash(skin: Skin) -> str
 | Key | Value |
 |---|---|
 | `scenario` | The code name |
-| `seed`, `seed_index` | The seed value and its position in its list |
-| `seed_set`, `seeds_arg` | `"public"` or `"held-out"`, and the `seeds` arg as typed |
+| `seed_set`, `seed_index`, `seeds_arg` | `"public"` or `"held-out"`, the position in that list, and the `seeds` arg as typed |
+| `seed` | The seed value, **public seeds only**. A held-out sample has no `seed` key |
 | `skin` | The skin name |
 | `engine_hash`, `generator_version`, `numpy_version` | From the engine, see [engine hash](../engine/config.md#engine-hash) |
-| `prompt_hash` | See below |
-| `rounds`, `inertia`, `own_scale`, `tools`, `warm_up`, `tool_choice` | The knobs, as resolved. `rounds` is the config's final value |
+| `prompt_hash` | The skin's hash, from the skins layer, see [names from the skins layer](README.md#names-from-the-skins-layer) |
+| `harness_version` | The `paranoid` package version, with the short git SHA when run from a checkout, as `0.1.0+2f13c9a`. The two hashes do not cover the solver, so this is what says which round loop played |
+| `rounds`, `inertia`, `own_scale`, `tools`, `warm_up`, `rolling` | The knobs, as resolved. `rounds` is the config's final value |
 
-- **The seed value is in the metadata.** A log from a held-out seed holds the full prompt anyway, so it never leaves the machine, see [contamination](../../harness/contamination.md#public-and-held-out). The analysis layer, not the log, keeps held-out seeds to positions.
+- **A held-out seed's value is never in the log.** Not in the metadata, not in the store, not in the score. The store holds `seed_set` and `seed_index`, and `seed()` reads the value from the seed file at run time. The engine is public, so one leaked seed is eight leaked worlds, where a leaked record is one run. A held-out log is still as private as its skin, see [contamination](../../harness/contamination.md#public-and-held-out), and the engine spec says the same, see [tape](../engine/tape.md#interface).
 
 ### Task settings
 
-- **`solver`** is `round_loop(skin, tools, tool_choice)`. **`scorer`** is `gain()`.
-- **`retry_on_error=1`** and **`fail_on_error=False`**, set here and never on the command line, see [retry rule](../../harness/prompts.md#retry-rule). A sample that errors twice has no score, and the metrics count it as a gain of 0, see [missing seeds](scorer.md#missing-seeds).
+- **`solver`** is `round_loop(skin, tools, rolling=rolling)`. **`scorer`** is `gain()`. The solver picks the tool choice from the model, see [each round](solver.md#each-round).
+- **`retry_on_error=1`** and **`fail_on_error=0.1`**, set here and never on the command line. A model that cannot call the tool never raises, it gives up and is scored, see [giving up](scorer.md#giving-up). So an error is infrastructure: a timeout, a rate limit, a provider down. inspect plays the sample again once, and if more than a tenth of samples still error the eval fails, so a half-empty log cannot pass as a result.
 - **Epochs** reduce by `"mean"`. Repeats of a seed are averaged before any metric sees them, see [error bars](../../design/scoring.md#error-bars).
-- **`sandbox`** is `("docker", "src/paranoid/harness/compose.yaml")` only when `tools` includes `compute`, else none, see [compute](solver.md#compute).
+- **`sandbox`** is `("docker", <path>)` only when `tools` includes `compute`, else none. The path is the module's own `compose.yaml`, see [compute](solver.md#compute).
 - **Skins** load with `load_skins()`, which reads `PARANOID_SKINS` when set. A `skin` that is not loaded raises `ValueError` listing the loaded names.
 - **`tools`** is a comma list drawn from `notes` and `compute`, or `none`. Anything else raises `ValueError`.
 
 ### Store
 
-- **The solver fills the store on round 1** from the sample's metadata: `scenario`, `seed`, `skin` and the knobs. Everything else starts empty.
-- **`config()`, `tape()`, `record()` and `game()` are derived**, never stored. `tape()` caches per `(engine_hash, seed)` in a module-level dict, so forty rounds and the scorer build one tape. The cache holds tapes, not arrays in the store, so nothing on the tape reaches the log.
+- **The solver fills the store on round 1** from the sample's metadata: `scenario`, `seed_set`, `seed_index`, `skin` and the knobs. Everything else starts empty. The store repeats the metadata because the tools and the providers see the store and not the sample.
+- **`seed()`, `config()`, `tape()`, `record()` and `game()` are derived**, never stored. `tape()` caches per `(engine_hash, seed)` in a module-level LRU of 1024 tapes, so forty rounds and the scorer build one tape and a long eval does not grow without bound. The cache holds tapes, not arrays in the store, so nothing on the tape reaches the log.
 - **`rows` is the record.** `record()` builds a `Record` from them in order. `Game(tape, record)` validates them, see [starting part way](../engine/game.md#starting-part-way).
 - **The store is written to the log by inspect**, so a run can be rebuilt from any round by replaying `rows[:r]` against the tape.
 
@@ -115,18 +119,12 @@ def prompt_hash(skin: Skin) -> str
 - **Warm up rows score nothing** for the agent, and the baselines it is scored against are summed over the same rounds it played, see [scoring one run](scorer.md#scoring-one-run).
 - The warm up cell is in [decisions](../../pilot/decisions.md#provider-checks) as "Warm up: empty record or pre-filled".
 
-### Prompt hash
-
-- **`prompt_hash(skin)`** is the first 12 hex characters of the SHA-256 of `render_system_prompt(skin)`, the skin's `tool_text`, `bad_call` and `no_call`, joined by `"\n"` and encoded as UTF-8.
-- **It covers the fixed text only.** The user message grows every round and is the record, which the store already holds.
-- **Changing a word changes the hash**, see [prompts](../../harness/prompts.md). The same skin gives the same hash on every machine.
-
 ## Invariants
 
 - The same task args give the same dataset, with the same ids in the same order.
 - Every sample's `engine_hash` equals `engine_hash(store.config())` once the store is filled.
-- `RunStore` has no field that holds an array, a tape or a level the agent did not see.
-- `len(store.rows) ≤ store.config().rounds` at all times, and equals it when a run ends without error.
+- `RunStore` has no field that holds an array, a tape, a level the agent did not see, or a held-out seed's value.
+- `len(store.rows) ≤ store.config().rounds` at all times, and equals it unless the run gave up.
 - `store.round() == len(store.rows) + 1`.
 
 ## Tests
@@ -136,4 +134,3 @@ See [tests](tests.md#task).
 ## Open
 
 - Whether `seeds` should also take a held-out range, such as `held-out:0-4`, for a cheap check on the private set. Not needed for the pilot.
-- `inspect_ai`'s `retry_on_error` plays an errored sample again once. Confirm it does not also retry a `RoundError` inside the same sample, which would give a round more than ten tries.

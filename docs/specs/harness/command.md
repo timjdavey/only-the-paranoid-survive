@@ -21,16 +21,17 @@ class ModelRow:
     id: str                            # the inspect model string
     kind: Literal["llm", "baseline", "jev", "timestral"]
     reasoning: tuple[str, ...]         # one or more of the grid, or ("n/a",) for a provider row
+    reasoning_kind: Literal["effort", "budget", "n/a"]   # what the provider takes, see Reasoning below
     max_tokens: int | None = None      # the model's own output limit, see models.md
     released: date | None = None
     eci: float | None = None
     notes: str = ""
 
 REASONING = ("off", "low", "medium", "high", "max", "on")
+EFFORT_PREFIXES = ("openai/", "anthropic/", "google/", "openrouter/")
 
 def load_models(path: str | Path) -> list[ModelRow]
 def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
-def tool_choice_for(row: ModelRow, reasoning: str) -> Literal["forced", "auto"]
 ```
 
 ## Behaviour
@@ -44,9 +45,11 @@ def tool_choice_for(row: ModelRow, reasoning: str) -> Literal["forced", "auto"]
 ### Models config
 
 - **`load_models`** reads a TOML file of `[[model]]` tables with the columns in [models](../../harness/models.md#columns). `reasoning` may be a string or a list. Every row gets a `ModelRow`.
+- **`reasoning_kind`** is `"n/a"` for a provider row. For an `llm` row it is the file's `reasoning_kind` column when present, else `"effort"` when `id` starts with one of `EFFORT_PREFIXES` and `"budget"` otherwise. The column is for the exceptions, such as `claude-haiku-4-5`, which is an Anthropic model that takes only a budget.
 - **Validation** raises `ValueError` naming the row when:
   - `kind` is not one of the four, or `id` does not start with `baseline/`, `jev/` or `timestral/` when `kind` says it should, or does when it should not.
   - A `reasoning` value is not in `REASONING`, or a provider row has any value but `n/a`, or an `llm` row has `n/a`.
+  - `reasoning_kind` in the file is not `effort` or `budget`, or is set on a provider row.
   - Two rows share `id` and a `reasoning` value.
   - `max_tokens`, when present, is not a positive whole number.
 - **The two configs in `configs/models/`** both load clean. A test checks it, see [tests](tests.md#command).
@@ -55,34 +58,30 @@ def tool_choice_for(row: ModelRow, reasoning: str) -> Literal["forced", "auto"]
 
 `generate_config(row, reasoning)` maps the shared grid to inspect's `GenerateConfig`, see [reasoning](../../harness/models.md#reasoning).
 
-| Setting | `GenerateConfig` |
-|---|---|
-| `off` | Nothing set. The provider's default, which is no thinking where it can be off |
-| `low`, `medium`, `high` | `reasoning_effort` of the same name where the provider takes an effort. Else `reasoning_tokens` from the budget table |
-| `max` | `reasoning_effort="xhigh"` where the provider takes it, else the provider's highest effort, else the `max` budget |
-| `on` | Nothing set. The model thinks and will not be told otherwise |
-| `n/a` | Nothing set |
+| Setting | `reasoning_kind = "effort"` | `reasoning_kind = "budget"` |
+|---|---|---|
+| `off` | Nothing set. The provider's default, which is no thinking where it can be off | The same |
+| `low`, `medium`, `high` | `reasoning_effort` of the same name | `reasoning_tokens` from the budget table |
+| `max` | `reasoning_effort="xhigh"`. inspect maps it to the provider's highest effort where there is no `xhigh` | The `max` budget |
+| `on` | Nothing set. The model thinks and will not be told otherwise | The same |
+| `n/a` | Nothing set | Nothing set |
 
-- **The budget table** for providers that take only a token budget: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. These are a convention to verify against each provider before the first run, see [Open](#open).
+- **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. These are a convention to verify against each provider before the first run, see [Open](#open).
 - **`max_tokens`** is set from the row when present, else left to the provider's default, see [sampling](../../harness/models.md#sampling).
 - **Temperature is never set.**
 
-### Tool choice
-
-- **`tool_choice_for`** returns `"auto"` when the row's `id` starts with `anthropic/` and `reasoning` is not `off` or `n/a`, else `"forced"`. Claude rejects a forced tool with thinking on, see [the round loop](../../harness/inspect.md#the-round-loop).
-- The value goes to the task as `-T tool_choice=...`, see [task](task.md#interface).
-
 ### `poc`
 
-- **For every row and every `reasoning` value** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ..., "tool_choice": ...}, config=generate_config(row, r), log_dir=..., limit=..., max_connections=4)`. Provider rows pass `model_args` as the provider needs, none by default.
-- **Order.** Provider rows first, baselines before Jev and Timestral, then LLM rows in file order. The baselines are cheap and their logs are what the LLM logs are read against.
+- **For every row and every `reasoning` value** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
+- **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens.
+- **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own tape, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
 - **`--only <id>`** runs one row. **`--limit`** caps samples per eval, as inspect does. **`--dry-run`** prints each eval call and runs nothing.
 - **A Timestral row with the extra missing** is skipped with one line saying so, and `poc` carries on. A missing key for an LLM row is left to inspect, which fails that eval, and `poc` carries on to the next row and returns 1 at the end.
 - **Logs** go to `--log-dir`, named by inspect. Each holds the metadata in [dataset](task.md#dataset), so the analysis layer can tell them apart without the config.
 
 ### Pilot cells
 
-`paranoid pilot <check>` runs one cell. Each is a function in `pilot.py`, named below. Measures and decisions are on the pilot pages, the function writes the data they need.
+`paranoid pilot <check>` runs one cell. Each is a function in the `pilot/` package, one module per pilot page, named below. Measures and decisions are on the pilot pages, the function writes the data they need.
 
 | Check | Needs a model | What it runs | Writes |
 |---|---|---|---|
@@ -103,13 +102,13 @@ def tool_choice_for(row: ModelRow, reasoning: str) -> Literal["forced", "auto"]
 | `timestral` | Yes | The gap test on a hand-built record, determinism twice on one input, then every `timestral/` row at every grid setting | A CSV for the gap test and determinism, and eval logs |
 | `notepad` | Yes | One LLM row with `tools` at `none`, `notes`, `compute` on the `seeds` seeds | Three eval logs |
 | `rolling` | Yes | One LLM row on One shock and Down switch, with `rolling` off and on | Two eval logs |
-| `inertia` | No | The baselines with `inertia` at 10 and 20 on Down switch and Slow drift | A CSV |
-| `cost` | No | Tokens per run read from the `seeds` and `repeats` logs | A CSV: model, mean tokens, cut off share |
 | `warm-up` | Yes | One LLM row with `warm_up` unset and at `complacent:5` | Two eval logs |
 
-- **Every CSV has one row per seed, never a tape.** The pilot runs on public seeds, so its outputs are publishable, see [contamination](../../harness/contamination.md#public-and-held-out).
+- **Every CSV has one row per seed, never a tape.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one.
 - **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
+- **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.
+- **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`.
 
 ## Invariants
 
@@ -124,6 +123,5 @@ See [tests](tests.md#command).
 
 ## Open
 
-- **The budget table and the effort names per provider are to verify** against inspect's `GenerateConfig` and each provider's API before the first run, see the "to verify" notes in [`full.toml`](../../../configs/models/full.toml).
-- **Whether `tool_choice_for` needs more rows than Anthropic.** Add a provider here when a run shows it refusing a forced tool.
+- **The budget table and the effort names per provider are to verify** against inspect's `GenerateConfig` and each provider's API before the first run, see the "to verify" notes in [`full.toml`](../../../configs/models/full.toml). `EFFORT_PREFIXES` is a first guess for the same reason.
 - **The pilot cells' exact grids** are first guesses. The pilot pages say what each measures, the function may widen a grid without a spec change, as long as the CSV columns hold.

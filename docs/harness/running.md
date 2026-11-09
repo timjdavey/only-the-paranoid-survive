@@ -19,9 +19,9 @@
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/` |
 
-- **Task args:** `scenario`, `seeds`, `skin`, `rounds`, `tools` (none, notes, compute), `inertia`, `warm_up`, `own_scale` and `tool_choice`, see the [task spec](../specs/harness/task.md). Defaults are the frozen study settings. `scenario` defaults to all eight, so one log holds a headline, see [inspect](inspect.md#metrics).
+- **Task args:** `scenario`, `seeds`, `skin`, `rounds`, `tools` (none, notes, compute), `inertia`, `warm_up`, `own_scale` and `rolling`, see the [task spec](../specs/harness/task.md). Defaults are the frozen study settings. `scenario` defaults to all eight, so one log holds a headline, see [inspect](inspect.md#metrics). Tool choice is picked from the model, not passed.
 - **`seeds`** takes `public`, `held-out`, or a range of positions in the public list such as `0-4`. `held-out` needs `PARANOID_SEEDS` set, see [contamination](contamination.md#two-seed-sets).
-- **Every log records** the engine hash, the prompt hash, the skin name and the seed set in metadata.
+- **Every log records** the engine hash, the prompt hash, the harness version, the skin name and the seed set in metadata. A held-out seed is recorded by position, never by value.
 
 ## Logs
 

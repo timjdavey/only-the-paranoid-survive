@@ -1,5 +1,6 @@
 # Proof of concept model list. Columns are explained in docs/harness/models.md.
 # Verify every third-party id against its provider before the first run.
+# No baseline rows: every sample's score already holds all six baselines' outputs, see docs/specs/harness/scorer.md.
 
 [[model]]
 id = "anthropic/claude-haiku-5-5"
@@ -55,25 +56,4 @@ reasoning = "n/a"
 [[model]]
 id = "timestral/odds-bet-aware"
 kind = "timestral"
-reasoning = "n/a"
-
-[[model]]
-id = "baseline/perfect"
-kind = "baseline"
-reasoning = "n/a"
-notes = "The ceiling. Every score is a fraction of it"
-
-[[model]]
-id = "baseline/discerning"
-kind = "baseline"
-reasoning = "n/a"
-
-[[model]]
-id = "baseline/complacent"
-kind = "baseline"
-reasoning = "n/a"
-
-[[model]]
-id = "baseline/uniform"
-kind = "baseline"
 reasoning = "n/a"

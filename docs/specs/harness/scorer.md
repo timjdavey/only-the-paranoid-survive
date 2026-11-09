@@ -11,7 +11,7 @@
 def gain() -> Scorer
 # Score.value: dict with the keys in the table below
 # Score.answer: store.record().to_csv() with default names
-# Score.metadata: scenario, seed, seed_index, engine_hash
+# Score.metadata: scenario, seed_set, seed_index, engine_hash. seed too, for a public seed only
 
 BOOTSTRAP_DRAWS = 1000
 BOOTSTRAP_SEED = 0
@@ -40,17 +40,18 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | Key | Value |
 |---|---|
 | `output` | The sum of `row.output` over the rounds the agent played, `rows[warm_up_rounds:]` |
-| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the same rounds, from `play(policy, tape)` with the run's warm up record as its start, see [play](../engine/game.md#play) |
-| `gain` | `output − uniform` |
+| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, tape)` with the run's warm up record as its start, see [play](../engine/game.md#play) |
+| `gain` | `output − uniform`, or 0 when the run gave up, see [giving up](#giving-up) |
 | `gap` | `discerning − uniform` |
 | `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread) |
-| `rounds`, `warm_up_rounds` | Rounds the agent played, rounds a baseline played first |
+| `rounds`, `warm_up_rounds` | `len(tries)`: the rounds the agent played, plus the one it gave up on if it did. And the rounds a baseline played first |
 | `retries` | `sum(tries) − len(tries)`, the generate calls beyond the first per round |
 | `retry_rounds` | Rounds with `tries > 1` |
+| `gave_up` | 1 when the run gave up, else 0 |
 | `bad_calls`, `no_calls`, `cut_offs` | From the store |
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
 
-- **The baselines replay the agent's warm up.** `play(policy, tape, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are then summed over the same rounds as the agent's.
+- **The baselines replay the agent's warm up.** `play(policy, tape, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
 - **Every number comes from the record's rounded outputs**, never from the tape's levels, see [readings](../engine/game.md#readings). The agent and the scorer agree on every number.
 - **The baselines are deterministic**, so across epochs they are constant and the mean reducer leaves them alone.
 - **The scorer never reads the messages.** The store is the run.
@@ -64,16 +65,17 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 
 - **Group by `sample_metadata["scenario"]`.** Within a group, each `SampleScore` is one seed, already averaged over epochs by inspect's reducer.
 - **Score** is `pooled_score` over the group's `gain` and `gap`. **`lo` and `hi`** are its bootstrap.
-- **`n`** is the number of seeds expected, `failed` the number with no score, see below.
+- **`n`** is the number of seeds scored, `failed` the number that gave up, see below.
 
-### Missing seeds
+### Giving up
 
-A sample that errored twice has no `SampleScore`, see [task settings](task.md#task-settings). The [retry rule](../../harness/prompts.md#retry-rule) says it scores as the Uniform baseline on that seed.
+A run that hit ten failed tries in one round gave up, see [tries](solver.md#tries). The [retry rule](../../harness/prompts.md#retry-rule) says it scores as the Uniform baseline on that seed.
 
-- **The expected seeds** come from `parse_seeds(seeds_arg, scenario)` with `seeds_arg` from any present sample's metadata. The seed files must be where they were at eval time.
-- **Each missing seed adds `gain = 0`** and a `gap` of `discerning − uniform` from `play` on that seed's tape, built with the same knobs and warm up as the present samples.
-- **A group with every seed missing** has a score of 0 and `failed == n`.
+- **The scorer still runs**, as the solver raised nothing. `gave_up` is 1, `gain` is 0 whatever the agent earned before it stopped, so `run_score` is 0. `output` keeps the real partial sum for the reader. `gap` is the full gap, so the seed keeps its weight in the pool.
+- **`failed`** counts them per scenario. A group where every run gave up has a score of 0 and `failed == n`.
 - **It never happens silently.** `failed` is in the value, and the analysis layer marks the bar.
+- **Nothing is rebuilt.** Every number a metric needs is in `Score.value`, so a log scores the same with no seed file, no `PARANOID_SEEDS` and no engine, and `--limit 2` scores two seeds rather than reporting the rest as failed.
+- **An errored sample is infrastructure**, see [task settings](task.md#task-settings). It has no `SampleScore` and is in no metric. inspect's own log says how many errored, and the eval fails past a tenth.
 
 ### Headline
 
@@ -87,7 +89,7 @@ A sample that errored twice has no `SampleScore`, see [task settings](task.md#ta
 
 ### Retry share
 
-- **Per scenario and overall**, `sum(retry_rounds) / sum(rounds)` over the scored samples. Missing seeds count their `rounds` as all retried, as they ended in ten failed tries.
+- **Per scenario and overall**, `sum(retry_rounds) / sum(rounds)` over the scored samples. A run that gave up counts its last round as retried, as its ten tries say.
 - **`cut_off_share`** is `sum(cut_offs) / sum(rounds)` overall, kept apart so a cap problem cannot pass as a model problem, see [sampling](../../harness/models.md#sampling).
 - The share that marks a bar is a pilot decision, see [decisions](../../pilot/decisions.md#provider-checks).
 
@@ -100,8 +102,8 @@ A sample that errored twice has no `SampleScore`, see [task settings](task.md#ta
 
 - A run of `baseline/uniform` has `gain == 0` and a run of `baseline/discerning` has `gain == gap`, exactly, on every seed and warm up. So their scenario scores are 0 and 1.
 - `pooled_score` equals the gap-weighted mean of the run scores.
-- The same log gives the same metrics on every machine.
-- No metric reads the tape for a seed that has a score. Only missing seeds rebuild one.
+- The same log gives the same metrics on every machine, with no seed file and no engine.
+- No metric reads a tape. The scorer is the only reader, and only through the store.
 - `perfect ≥ discerning` on every seed, see [P6](../engine/tests.md#policies).
 
 ## Tests

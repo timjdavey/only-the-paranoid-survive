@@ -75,10 +75,12 @@ TIMESTRAL_POLICIES: Mapping[str, Callable[[np.ndarray, int], Bets]]   # id -> (q
 ### Timestral
 
 - **`TimestralAPI`** takes a `forecaster: Forecaster`. The default loads `mistralai/Timestral-209M` on CPU, imported lazily from the `timestral` extra. Without the extra, construction raises `ImportError` that names `uv sync --extra timestral`. Tests pass a fake.
+- **Pinned.** `pyproject.toml` pins the Timestral package to one git commit, and the loader passes a weights `revision`, so a rerun loads the same code and the same weights. Both are named in the row's `notes` in the models config. An unpinned git install is a supply chain risk and a reproducibility hole at once.
 - **Input** is `readings`, shape `(len(rows), channels)`, each row's readings with `NaN` where the bet was 0. For `odds-bet-aware`, `bets` is the same shape with the past bets, else `None`, see [Timestral](../../harness/providers.md#timestral).
 - **Round 1 is `uniform`.** With no rows there is nothing to forecast, so the first split is `uniform`'s, which also reads every channel once.
 - **Output** is `(channels, 21)` quantiles for next round, in ascending quantile order. Index 10 is the median. The levels are the ones the Timestral package reports, see [Open](#open).
-- **Determinism and cache.** `torch.manual_seed(0)` before each forecast. The result is cached under `$PARANOID_CACHE`, default `~/.cache/paranoid/timestral/`, keyed by the SHA-256 of the model id and the input arrays' bytes and shapes. A cache hit never calls the model, so a rerun replays the same bets. The key is logged on the message's `metadata` as `cache_key`, with the quantiles.
+- **Determinism and cache.** `torch.set_num_threads(1)` once and `torch.manual_seed(0)` before each forecast, as CPU inference can differ across thread counts. The result is cached under `$PARANOID_CACHE`, default `~/.cache/paranoid/timestral/`, keyed by the SHA-256 of the model id, the weights revision, the input arrays' bytes and shapes, and whether `bets` was passed. A cache hit never calls the model, so a rerun replays the same bets. The key is logged on the message's `metadata` as `cache_key`, with the quantiles.
+- **The cache is as private as a log.** It holds forecasts of the readings a run saw, so after a held-out run it stays on the machine like the log does, see [contamination](../../harness/contamination.md#public-and-held-out).
 - **`TIMESTRAL_POLICIES`** turns quantiles into bets, one entry per id in the [glossary](../../glossary.md#the-study):
 
 | Id | Bets |

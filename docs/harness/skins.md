@@ -17,6 +17,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `ask` | The record is below, place this round's points with the tool |
 | `tool_name` | The tool's name as the model sees it |
 | `tool_text` | The tool's description |
+| `bets_text` | The description of the tool's one parameter, the ten whole numbers in channel order |
 | `bad_call` | The retry message for any bets the engine rejects. One generic message, no slots |
 | `no_call` | The retry message for a reply with no tool call |
 | `question` | Jev's choice question, see [providers](providers.md#jev). Linted like every other skin field |

@@ -1,5 +1,5 @@
 # Full study model list. Fill in when budget lands. Columns are explained in docs/harness/models.md.
-# Every non-LLM row in poc.toml (baselines, Jev, Timestral) runs here too. Every LLM the full study sweeps is listed below.
+# Every non-LLM row in poc.toml (Jev, Timestral) runs here too. Every LLM the full study sweeps is listed below.
 # released and eci come from Epoch AI's https://epoch.ai/data/eci_scores.csv (CC BY 4.0), read on 2026-11-09.
 # Each reasoning value is its own result row. Values marked "to verify" in notes need checking against the provider before the first run.
 #
@@ -19,6 +19,7 @@ kind = "llm"
 released = 2025-10-15
 eci = 142.8
 reasoning = ["off", "high"]
+reasoning_kind = "budget"
 notes = "No effort setting, so high is a thinking token budget. Past its earliest retirement date, run it first"
 
 [[model]]
