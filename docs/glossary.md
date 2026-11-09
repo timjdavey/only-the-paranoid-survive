@@ -79,7 +79,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Headline | One score per model: the plain mean of its five scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
 | Weakest trait | The lowest of a model's five scenario scores, named. The AND the headline alone does not give |
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
-| Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every edition shares. See [difficulty](design/mechanics.md#difficulty) |
+| Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/checks.md#noise-grid) |
 | Trait | What one scenario tests, named as the virtue a high score shows. See [traits](design/scoring.md#traits) |
 | Composure | The No change scenario's trait. Ignoring noise when nothing is happening |
@@ -103,7 +103,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Seed set | The fixed list of seeds a scenario plays. Each scenario has two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
 | Public seeds | Seeds published in this repo with their tapes. For the pilot, the example logs and anyone checking our work |
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
-| Edition | One release of the benchmark: frozen generator defaults, a noise grid and fresh held-out seeds. Editions share the signal to noise axis. See [contamination](harness/contamination.md) |
+| Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. See [contamination](harness/contamination.md) |
 | Contamination | A model having seen the benchmark in training |
 
 ## Adding a word

@@ -116,13 +116,13 @@ Two One switch seeds. Each seed draws its own switch size and timing, so one has
 The full study headline. The proof of concept reports the headline at one noise setting. The full study plays a [noise grid](../pilot/checks.md#noise-grid) and reports where the model gives out, the way a hearing test raises the babble behind the words until you stop catching them.
 
 - **Keep the prize loud, raise the noise.** On the grid every event is pinned in level points, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. Only the weather scale moves, see [difficulty](mechanics.md#difficulty). A fainter change would be a smaller prize, and a model that ignores a change not worth catching is right to.
-- **The axis is signal to noise**: the switch size in level points over the weather's SD per round. It means the same thing in every edition, so a harder edition extends the grid to lower settings instead of starting a new chart.
+- **The axis is signal to noise**: the switch size in level points over the weather's SD per round. It means the same thing in every release, so a harder release extends the grid to lower settings instead of starting a new chart.
 - **At each setting, compute the headline.** The No change and One shock scenarios get harder with noise too, as rougher readings tempt more false alarms, so false alarms cost inside the sweep too.
 - **The Complacent baseline is the reference floor.** Its headline does not move with noise, as it never reads anything. Fit a logistic curve of the model's headline against the log of signal to noise and read off the setting at which the model sits half way between the Complacent baseline's headline and 1. That is the noise threshold: the noisiest world the model still reads. Lower is better. Report the 80% crossing beside it, as METR does.
 - **The crossing does not depend on the floor.** Half way from the Complacent to the Discerning baseline is the same world whether the scale starts at the Uniform baseline or at the Complacent one.
 - **Error bar.** Resample seeds at every setting and refit.
 - **Off the grid.** A model that never crosses within the grid reads "off the quiet end" (saturated, extend the grid) or "off the noisy end", never a number.
-- **Editions join on the axis.** Adjacent editions overlap by two settings, and a fixed set of anchor models is rerun on each.
+- **Releases join on the axis.** Adjacent releases overlap by two settings, and a fixed set of anchor models is rerun on each.
 - **The grid is set from baselines, not models.** The pilot places it so the hedge rule and Timestral baselines span a full curve, before any model runs.
 
 ## Extension: inertia

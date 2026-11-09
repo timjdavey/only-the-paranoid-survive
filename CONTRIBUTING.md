@@ -35,4 +35,4 @@ This matters most.
 - The prompt text in [prompts](docs/harness/prompts.md).
 - Any number in [decisions](docs/pilot/decisions.md) once filled.
 - The public seed lists in `configs/seeds/`.
-- The held-out seed lists. They change only with a new edition, see [contamination](docs/harness/contamination.md#who-can-see-them).
+- The held-out seed lists. They change only with a new release, see [contamination](docs/harness/contamination.md#who-can-see-them).

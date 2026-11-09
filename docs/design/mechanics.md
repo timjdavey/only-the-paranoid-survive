@@ -21,7 +21,7 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 | Base level | The channel's mean when nothing is happening | The ladder below, drawn per seed |
 | Own weather | The channel's wobble. It has persistence, so a bad stretch fades rather than stops | Scale and persistence, per scenario |
 | Shared factor | One hidden series every channel loads on. Good and bad weeks for everyone | Scale per scenario, persistence as own weather |
-| Loading | How much the channel moves with the shared factor. Uneven, drawn per seed from about 0.3 to 1. One channel draws a negative loading and is the **hedge** | Range per edition |
+| Loading | How much the channel moves with the shared factor. Uneven, drawn per seed from about 0.3 to 1. One channel draws a negative loading and is the **hedge** | Range per release |
 
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
 - **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
@@ -58,9 +58,9 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 ### Difficulty
 
 - **Signal to noise is the axis.** The size of a switch in level points over the weather's SD per round. With a high ratio one reading settles whether a dip is a shock or a switch. With a low one it takes many rounds.
-- **Three dials move it**, all set per scenario: own-weather scale, persistence and shared-factor scale. Persistence is frozen within an edition, as it changes what a bad stretch means. The weather scale is the dial the [noise grid](../pilot/checks.md#noise-grid) turns.
+- **Three dials move it**, all set per scenario: own-weather scale, persistence and shared-factor scale. Persistence is frozen within a release, as it changes what a bad stretch means. The weather scale is the dial the [noise grid](../pilot/checks.md#noise-grid) turns.
 - **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the prize would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting.
-- **A harder edition extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
+- **A harder release extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
 
 ### Hard-variant knobs
 
@@ -83,7 +83,7 @@ Off by default. Each one closes a tell a model could learn.
 
 - **Every number on this page is a field on `ScenarioConfig`** in the engine, with a default, so the engine is built from this page alone. A hash of the config goes in every log, see [layout](../harness/layout.md).
 - **A run is 40 rounds by default.** The pilot moves this and the other defaults, see [decisions](../pilot/decisions.md).
-- **An edition freezes them.** The defaults, the noise grid and the held-out seeds together are one edition, see [contamination](../harness/contamination.md#who-can-see-them). Editions share the signal to noise axis, so scores from different editions sit on one chart.
+- **A release freezes them.** The defaults, the noise grid and the held-out seeds together are one release, see [contamination](../harness/contamination.md#who-can-see-them). Releases share the signal to noise axis, so scores from different releases sit on one chart.
 
 ## Rejected
 
