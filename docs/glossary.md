@@ -58,6 +58,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Event | One move the world makes, with its own onset and numbers drawn per seed. See [events](design/mechanics.md#events) |
 | Shape | The kind of move an event makes: a shock, a switch or a drift. "A shock" is short for an event whose shape is a shock |
 | Shock | A dip in every channel through the shared factor, which passes |
+| Impulse | The decaying dip a shock adds. Into the shared factor by default, so every channel feels it by its loading. Onto the leader's level alone with the one-channel shock knob, so its base level never moves |
 | Switch | A lasting change in base levels that changes which channel pays best. The leader falls, a sleeper rises past it, or both |
 | Drift | A switch stretched over many more rounds |
 | Profile | The form an event takes within its shape, drawn per seed. A shock falls sharply and climbs slowly, or slides and rebounds. A drift is linear or logistic |

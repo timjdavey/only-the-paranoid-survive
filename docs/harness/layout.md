@@ -13,7 +13,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 
 | Layer | Package | Depends on | What it exports |
 |---|---|---|---|
-| engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_tape`, `Tape`, `Game`, `Record`, `play`, the fixed and forecast policies. See the [engine spec](../specs/engine/) |
+| engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_tape`, `Tape`, `Game`, `Record`, `play`, the fixed policies. Forecast policies come with the Timestral provider, see the [engine spec](../specs/engine/policies.md#parked) |
 | skins | `paranoid.skins` | engine | `Skin`, `render_system_prompt`, `render_record`, `lint`, `load_skins` |
 | harness | `paranoid.harness` | skins, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
 | analysis | `paranoid.analysis` | harness, pandas | `load_runs`, tables, CSVs, bootstrap, plots |
