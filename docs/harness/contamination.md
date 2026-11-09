@@ -34,7 +34,7 @@ Every scenario has two [seed sets](../glossary.md).
 
 - **The headline plays held-out seeds on held-out skins.** Everything public stays reproducible, but none of it is the headline.
 - **Held-out seeds are drawn at random from a huge range.** The engine is public, so a seed from 0 to 1,000 could be found by trying every one.
-- **How many held-out seeds** is the number the [seeds check](../pilot/checks.md#seeds) gives. The pilot itself runs on public seeds, as its logs are published.
+- **How many held-out seeds** is the number the [seeds check](../pilot/provider-checks.md#seeds) gives. The pilot itself runs on public seeds, as its logs are published.
 
 ## Who can see them
 

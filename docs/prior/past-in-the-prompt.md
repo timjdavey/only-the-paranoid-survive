@@ -1,6 +1,6 @@
 # A past in the prompt
 
-Each round our agent gets a fresh call with its own record of play as a CSV in the prompt. It keeps no notes and has no rolling conversation, see [tools](../design/interface.md#tools). These studies show what a past in the prompt does to a model, and they back those choices, the [notepad pilot check](../pilot/checks.md#notepad-and-compute) and the [warm-up cell](../../TODO.md#pilot).
+Each round our agent gets a fresh call with its own record of play as a CSV in the prompt. It keeps no notes and has no rolling conversation, see [tools](../design/interface.md#tools). These studies show what a past in the prompt does to a model, and they back those choices, the [notepad pilot check](../pilot/provider-checks.md#notepad-and-compute) and the [warm-up cell](../../TODO.md#pilot).
 
 - **Whose choice it was changes how hard a model holds on.** The same past pulls harder when the model thinks it made the choices. Our record is framed as the agent's own.
 - **Notes a model writes itself can make things worse.** They lose detail when rewritten and can lock in a wrong lesson. That is why notes are not in the headline.
@@ -117,7 +117,7 @@ Jingyu Liu et al. "When History Fails to Become Experience: Action Calibration i
 - Labelling outcomes helped every model and cut repeated actions from 36.9% to 32.2%. A trained calibrator added 5.1 points.
 
 **Why it matters here.**
-- Notes scoring below the full history is one reason the headline plays with the full record and no notes, see [notepad and compute](../pilot/checks.md#notepad-and-compute).
+- Notes scoring below the full history is one reason the headline plays with the full record and no notes, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute).
 - Labelled outcomes helped, and our record labels every level with its channel and its bet ([user message](../harness/prompts.md#user-message)).
 - The last 3 steps alone did worst. That backs giving the whole record rather than a `read_record` tool with a default window, which [interface](../design/interface.md#rejected) rejects.
 
@@ -230,7 +230,7 @@ Kuan-Yen Chen, Fang-Yi Su, Shih-Yen Lin, Bao Li and Jung-Hsien Chiang. "The Self
 
 **Why it matters here.**
 - This is why there is no rolling conversation ([interface](../design/interface.md#rejected)). The agent's own reasoning would pile up in the one role it won't question.
-- The record goes in as the user message ([placement](../harness/prompts.md#placement)). In the [notepad check](../pilot/checks.md#notepad-and-compute) notes come back as a tool message, never as the agent's own words.
+- The record goes in as the user message ([placement](../harness/prompts.md#placement)). In the [notepad check](../pilot/provider-checks.md#notepad-and-compute) notes come back as a tool message, never as the agent's own words.
 - One sentence vouching for a claim switched checking off. Skin text should never vouch for the leader.
 
 ## ACE 2025: notes that collapse when rewritten
@@ -256,7 +256,7 @@ Qizheng Zhang et al. (Stanford, SambaNova and UC Berkeley). "Agentic Context Eng
 - A lesson writer told to plant harmful lessons every step cut accuracy to 66.7. Every fifth step it still helped, at 76.1 (Table 17).
 
 **Why it matters here.**
-- Our `notes(text)` tool in the [notepad check](../pilot/checks.md#notepad-and-compute) replaces the file whole, which is the collapse case. Its length is capped and logged, so collapse would show.
+- Our `notes(text)` tool in the [notepad check](../pilot/provider-checks.md#notepad-and-compute) replaces the file whole, which is the collapse case. Its length is capped and logged, so collapse would show.
 - Our levels are noisy with persistence, so feedback is never clean. An agent that rewrites its notes after a bad stretch may write a shock in as a rule, which is overreaction on paper.
 
 ## Fork-and-Flush 2026: a fresh session on old work
@@ -284,4 +284,4 @@ Ziyang Cai et al. (Microsoft Research). "Fork-and-Flush: Escaping Idea Basins in
 **Why it matters here.**
 - Our fresh call each round is a flush every round. Their flush helped, but the files still carried the old approach, so our record may carry the agent's own habits forward too.
 - In the warm-up cell the record carries a baseline's habits. Which baseline fills it is a choice to fix and report.
-- Progress summaries didn't free the agent, one more reason notes are [not in the headline](../pilot/checks.md#notepad-and-compute).
+- Progress summaries didn't free the agent, one more reason notes are [not in the headline](../pilot/provider-checks.md#notepad-and-compute).

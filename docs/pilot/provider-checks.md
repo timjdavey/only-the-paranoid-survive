@@ -1,6 +1,9 @@
-# Pilot
+# Provider checks
 
-A short run before the full study to settle the knobs.
+The second half of the pilot, a short run before the full study to settle the knobs.
+
+- **These need a model behind a provider**, so they cost tokens. That covers LLMs, Timestral and Jev.
+- **Run them once the [engine checks](engine-checks.md) pass.** The noise grid, read noise and baseline order they settle are fixed by then.
 
 ## Seeds
 
@@ -20,46 +23,14 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 - **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
 - **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
-## Noise grid
-
-Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#difficulty) is its axis: the switch size in level points over the weather's SD per round. The full study plays a fixed grid of settings and reads the [noise threshold](../design/scoring.md#noise-threshold) off it.
-
-- **Question.** Which settings make the grid, and which dial moves them.
-- **Run.** The fixed [baselines](../design/baselines.md) in the One shock and One switch scenarios, with events pinned in level points, at five or so settings of the weather scale. Persistence and the shared-factor scale are held at one value each.
-- **Measure.** The hedge rule and Timestral baselines' scenario scores at each setting, and whether the [baseline order](#baseline-order) holds throughout.
-- **Decide.** A grid of three to five settings on which the hedge rule's curve runs from near 1 down to near the Complacent baseline, so the grid spans a full curve before any model plays. The proof of concept setting is one point on it. The grid is set from baselines alone, never from how flat the model scores look.
-
-## Game length and switch round
-
-- **Question.** How many rounds a run lasts, and in which round the shock or switch hits.
-- **Run.** The fixed baselines in the One shock and One switch scenarios, at a few game lengths and switch rounds.
-- **Measure.** How far the Discerning baseline pulls ahead of the Complacent baseline after the switch, and how many rounds that takes.
-- **Decide.** Enough calm rounds before the change to set a habit, and enough rounds after it for the Discerning baseline to pull clear of the Complacent baseline. Longer runs cost more, see [cost per run](#cost-per-run).
-
-## Reading roughness
-
-A small bet gives a rough reading and a large bet a clean one, see [what the agent sees](../design/mechanics.md#what-the-agent-sees). That rewards a look, and is how it works in the real world.
-
-- **Question.** How fast the read noise shrinks as the bet grows.
-- **Run.** The Timestral top pick with looks [baselines](../design/baselines.md#timestral) at 1, 2 and 5 points, at a few strengths of read noise.
-- **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output.
-- **Decide.** One strength, where a look is worth its cost but no look tells the whole story.
-
-## Baseline order
-
-- **Question.** Do the fixed baselines land in the order we expect.
-- **Run.** Every [baseline](../design/baselines.md) in the One switch and No change scenarios.
-- **Measure.** Their scores, against these orders of the baselines:
-  - **One switch scenario:** Perfect > Discerning > hedge rule > Timestral > Complacent > Uniform.
-  - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
-- **Decide.** If the order breaks, the [noise](#noise-grid) is likely too high or a baseline is wrong. Fix it before any model runs.
-
 ## Timestral checks
 
 Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).
 
 - **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, Timestral odds cannot look and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
+- **On the grid.** Timestral top pick and Timestral odds at every setting on the [noise grid](engine-checks.md#noise-grid). Each should land between the hedge rule baseline and the Complacent baseline, as in the [baseline order](engine-checks.md#baseline-order).
+- **Looks.** Timestral top pick with looks at 1, 2 and 5 points, at the read noise [reading roughness](engine-checks.md#reading-roughness) chose. This confirms a look is still worth its cost for a forecaster, not just for the hedge rule baseline.
 
 ## Notepad and compute
 

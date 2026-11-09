@@ -15,7 +15,7 @@
 - **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record, so the agent finds the leader itself in the first rounds. The pilot also runs a cell where the record starts pre-filled by a baseline, see [TODO](../../TODO.md#pilot).
 - **This is the same setup Jev and Timestral get.** History in, bets out. See [below](#models-that-cannot-place-bets).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
-- **No scratchpad or calculator in the headline.** Whether they change play is a [pilot check](../pilot/checks.md#notepad-and-compute).
+- **No scratchpad or calculator in the headline.** Whether they change play is a [pilot check](../pilot/provider-checks.md#notepad-and-compute).
 
 | Tool | Takes | Returns |
 |---|---|---|
@@ -47,4 +47,4 @@ Jev and Timestral are stateless and do not write text, so each gets a thin adapt
 | Controller with feedback | Prices both failures naturally, but the score becomes a cost rather than a share of the gap between the Uniform and Discerning baselines, and the model has to reason about a system whose past carries into the present. Kept as a second game to check the skill carries over |
 | Three channels | Where to go is a coin flip, there is no room for a decoy, and the No change scenario saturates so it stops separating models |
 | A `read_record` tool | Lets a model never look, and then lazy and confident read the same. A default row count is a hidden choice about how far back it can see, which is the thing the Slow drift scenario tests |
-| A rolling conversation | The agent's own reasoning piles up, and that is the one place a model will not question a claim ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Cost grows with the square of the game length. Out of the headline, but what it changes is a [pilot check](../pilot/checks.md#rolling-conversation) |
+| A rolling conversation | The agent's own reasoning piles up, and that is the one place a model will not question a claim ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Cost grows with the square of the game length. Out of the headline, but what it changes is a [pilot check](../pilot/provider-checks.md#rolling-conversation) |

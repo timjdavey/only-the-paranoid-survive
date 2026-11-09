@@ -15,7 +15,7 @@
 | A baseline | `inspect eval paranoid --model baseline/complacent` |
 | Smoke test with no model | `inspect eval paranoid --model mockllm/model --limit 2` |
 | The proof of concept list | `uv run paranoid poc`, which reads `configs/models/poc.toml` |
-| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [checks](../pilot/checks.md) |
+| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) |
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/` |
 
@@ -33,4 +33,4 @@
 
 - `--limit` caps samples. Try any new model with `--limit 2` first.
 - `--max-connections` per provider. Default 4.
-- Token counts per run come from the [pilot](../pilot/checks.md#cost-per-run).
+- Token counts per run come from the [pilot](../pilot/provider-checks.md#cost-per-run).

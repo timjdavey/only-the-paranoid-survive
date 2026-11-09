@@ -24,7 +24,7 @@ People react to the signals in front of them and too little to the system that m
 - We [baseline](docs/design/baselines.md) a model's performance against various strategies. 
 - A model has to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md). The headline scores that one skill. Whether it predicts how an agent does on real work is a claim to test, see [themes](docs/prior/themes.md).
 - We [score](docs/design/scoring.md) each scenario as the share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. So 0 is knowing nothing and 1 is knowing the climate. The headline is the plain mean across scenarios, reported with the weakest trait beside it.
-- A [pilot](docs/pilot/checks.md) settles the knobs, such as how many seeds, before the full run.
+- A pilot settles the knobs, such as how many seeds, before the full run. [Engine checks](docs/pilot/engine-checks.md) run first on tapes and fixed baselines, then [provider checks](docs/pilot/provider-checks.md) with models.
 - The full study plays a grid of noise levels on one signal to noise axis and reports the [noise threshold](docs/design/scoring.md#noise-threshold), the noisiest world a model still reads. Harder releases extend the grid rather than start a new chart.
 - It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.
 - What the game gives up, and what checks each gap, is in [limits](docs/design/limits.md).

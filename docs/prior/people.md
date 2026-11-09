@@ -151,7 +151,7 @@ Cade Massey and George Wu. "Detecting Regime Shifts: The Causes of Under- and Ov
 **Why it matters here.**
 
 - **It is the clearest prediction of which way an agent errs.** The No change and One shock scenarios are stable systems with noisy signals, so system neglect predicts false alarms there. A switch at low noise is the other corner, where it predicts a late move. See [scenarios](../design/scenarios.md#scenarios-we-test).
-- **Our noise dials move the game across their map.** The [pilot](../pilot/checks.md#noise-grid) sets own-weather scale, persistence and shared-factor scale, so we can check whether the error flips with them.
+- **Our noise dials move the game across their map.** The [pilot](../pilot/engine-checks.md#noise-grid) sets own-weather scale, persistence and shared-factor scale, so we can check whether the error flips with them.
 
 ## Brown and Steyvers 2009: naming a change versus predicting through it
 
@@ -185,7 +185,7 @@ Gallistel et al. "The Rat Approximates an Ideal Detector of Changes in Rates of 
 
 **Why it matters here.**
 
-- **This is learned complacency in animals.** A long past with no change slowed detection. That is the habit the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) sets up, and the reason the [pilot](../pilot/checks.md#game-length-and-switch-round) wants enough calm rounds before a change to set a habit.
+- **This is learned complacency in animals.** A long past with no change slowed detection. That is the habit the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) sets up, and the reason the [pilot](../pilot/engine-checks.md#game-length-and-switch-round) wants enough calm rounds before a change to set a habit.
 - **The open question is whether the slowing is rational.** An ideal detector that learns the change rate would also slow down. Whether models slow down more than that is what we'd ask.
 
 ## Nassar et al. 2010: a learning rate that rises with surprise

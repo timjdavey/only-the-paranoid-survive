@@ -28,4 +28,4 @@ Jev and Timestral do not write text, so each gets a provider that turns what it 
 
 - **Provider names** are `timestral/top-pick`, `timestral/odds`, `timestral/look-1`, `timestral/look-2`, `timestral/look-5` and `timestral/odds-bet-aware`. One run per policy.
 - **The policies are engine functions.** Quantiles in, bets out, with no Timestral import, so they are tested on made up quantiles and reused by the Bayesian baseline later.
-- **Checks** before trusting it are in the [pilot](../pilot/checks.md#timestral-checks).
+- **Checks** before trusting it are in the [pilot](../pilot/provider-checks.md#timestral-checks).

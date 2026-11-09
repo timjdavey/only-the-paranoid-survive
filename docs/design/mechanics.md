@@ -19,8 +19,8 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 | Part | What it is | Set by |
 |---|---|---|
 | Base level | The channel's mean when nothing is happening | The ladder below, drawn per seed |
-| Own weather | The channel's wobble. It has persistence, so a bad stretch fades rather than stops | Scale and persistence, per scenario |
-| Shared factor | One hidden series every channel loads on. Good and bad weeks for everyone | Scale per scenario, persistence as own weather |
+| Own weather | The channel's wobble. It has persistence, so a bad stretch fades rather than stops | Scale and persistence, per release |
+| Shared factor | One hidden series every channel loads on. Good and bad weeks for everyone | Scale per release, persistence as own weather |
 | Loading | How much the channel moves with the shared factor. Uneven, drawn per seed from about 0.3 to 1. One channel draws a negative loading and is the **hedge** | Range per release |
 
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
@@ -58,7 +58,7 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 ### Difficulty
 
 - **Signal to noise is the axis.** The size of a switch in level points over the weather's SD per round. With a high ratio one reading settles whether a dip is a shock or a switch. With a low one it takes many rounds.
-- **Three dials move it**, all set per scenario: own-weather scale, persistence and shared-factor scale. Persistence is frozen within a release, as it changes what a bad stretch means. The weather scale is the dial the [noise grid](../pilot/checks.md#noise-grid) turns.
+- **Three dials move it**, all set per release and picked in the [engine checks](../pilot/engine-checks.md#weather): own-weather scale, persistence and shared-factor scale. Every scenario shares them, so twin tapes keep the same weather. The own-weather scale is the axis the [noise grid](../pilot/engine-checks.md#noise-grid) turns. Persistence never moves within a release, as it changes what a bad stretch means.
 - **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the prize would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting.
 - **A harder release extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
 
@@ -75,7 +75,7 @@ Off by default. Each one closes a tell a model could learn.
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
 - **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
-- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/checks.md#reading-roughness).
+- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
 - **Why.** A look costs something, so paranoia has a price. You know a market by being in it.
 - **Output is paid at the true levels**, while each reading carries read noise. So the output line is a clean reading of the agent's whole split, and a model can learn more from it than from any one channel. This is why the weather scale, not read noise, is the grid's dial. Whether output should instead be summed from the noisy readings is open.
 

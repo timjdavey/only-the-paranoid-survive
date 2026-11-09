@@ -2,6 +2,10 @@
 
 Written by `uv run paranoid analyse` from the pilot logs. Do not edit by hand. The decisions taken from these tables are in [decisions](decisions.md).
 
+## Weather
+
+_Not run yet._
+
 ## Seeds and repeats
 
 _Not run yet._

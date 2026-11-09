@@ -29,7 +29,7 @@ The model's missing 0.24 is lag, looks and a wrong destination. None of it is we
 - **The Discerning baseline is reachable.** It knows the climate, not the weather, so its only edge over an ideal reader is zero lag, and lag is what we want to price. The Perfect baseline knows each round's weather too, so part of the gap to it is luck nobody could read. It stays in the table as a mark for how much luck was on offer, and divides nothing.
 - **The Uniform baseline is not a strategy.** It is what knowing nothing earns, so it needs no case per scenario and it is the same floor for any scenario we add. The Complacent baseline would give more range where there is a switch, but it equals the Discerning baseline where there is not, which makes the ratio 0 ÷ 0.
 - **The denominator never gets close to zero.** The Discerning baseline holds the leader or better and the Uniform baseline earns the average of ten channels, and the ladder puts the leader well above that average on every seed.
-- **Scores outside 0 to 1 are possible on one seed.** Lucky weather can lift a run above the Discerning baseline, and a run can fall below the Uniform baseline. Both are reported as they come. Pooled over seeds they wash out, and the [baseline order](../pilot/checks.md#baseline-order) check reports any player that sits above the Discerning baseline where nothing changes.
+- **Scores outside 0 to 1 are possible on one seed.** Lucky weather can lift a run above the Discerning baseline, and a run can fall below the Uniform baseline. Both are reported as they come. Pooled over seeds they wash out, and the [baseline order](../pilot/engine-checks.md#baseline-order) check reports any player that sits above the Discerning baseline where nothing changes.
 - **A yardstick must not peek.** A Bayesian yardstick that sees only what the agent saw depends on what the agent chose to look at, so a lazy agent gets a lenient yardstick. Bayesian, CUSUM and the hedge rule are fine as [players](baselines.md) with their own marks. Only the denominator must be independent of the agent's play.
 
 ## Traits
@@ -53,7 +53,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 - **One seed, twin tapes.** Seed *i* draws the same ladder, weather and onset round in every scenario, so the One shock and One switch tapes match until the event begins and differ only in what it is. A model's gap between the two is paired on one world, and a move at onset reads as a hit on one tape and a false alarm on the other.
 - **One fixed set of seeds per scenario, the same set for every model.** A model is compared with a rival on the same worlds, not on a different roll of the dice, so the gaps between models are tighter.
 - **The headline plays the held-out seeds.** Public seeds are for checking our work, and the gap between the two is reported beside the headline. See [contamination](../harness/contamination.md#two-seed-sets).
-- **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the pool absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/checks.md#seeds).
+- **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the pool absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/provider-checks.md#seeds).
 
 ## Pooling seeds
 
@@ -94,7 +94,7 @@ Two One switch seeds. Each seed draws its own switch size and timing, so one has
 ## Spread
 
 - **Spread says how far one run lands from another** (aleatoric uncertainty). It does not shrink with more seeds, it only gets estimated better. It is the SD of the run scores, each seed's own share of the gap.
-- **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/checks.md#repeats) measures the sampling share once and we report it as a number, such as "two fifths of the spread in the One shock scenario is sampling".
+- **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/provider-checks.md#repeats) measures the sampling share once and we report it as a number, such as "two fifths of the spread in the One shock scenario is sampling".
 - **Why it is reported, not just absorbed.** Two models can share a score while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: overreacting on some worlds and not others is poor composure.
 - **How it is shown.** A strip of per-seed run scores next to each scenario's bar, and the 10th percentile run score beside it.
 - **Why the headline still plays each seed once.** For a fixed run budget, more seeds always shrinks the error bar faster than repeats of a seed. Repeats only buy the sampling share.
@@ -113,7 +113,7 @@ Two One switch seeds. Each seed draws its own switch size and timing, so one has
 
 ## Noise threshold
 
-The full study headline. The proof of concept reports the headline at one noise setting. The full study plays a [noise grid](../pilot/checks.md#noise-grid) and reports where the model gives out, the way a hearing test raises the babble behind the words until you stop catching them.
+The full study headline. The proof of concept reports the headline at one noise setting. The full study plays a [noise grid](../pilot/engine-checks.md#noise-grid) and reports where the model gives out, the way a hearing test raises the babble behind the words until you stop catching them.
 
 - **Keep the prize loud, raise the noise.** On the grid every event is pinned in level points, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. Only the weather scale moves, see [difficulty](mechanics.md#difficulty). A fainter change would be a smaller prize, and a model that ignores a change not worth catching is right to.
 - **The axis is signal to noise**: the switch size in level points over the weather's SD per round. It means the same thing in every release, so a harder release extends the grid to lower settings instead of starting a new chart.
@@ -128,4 +128,4 @@ The full study headline. The proof of concept reports the headline at one noise 
 ## Extension: inertia
 
 - **A fixed budget is forgiving.** A model that never moves still earns most of the output. The scenario score prices that: the Complacent baseline sits near 0.55 where there is a switch, so never moving forfeits nearly half the range on its own.
-- **A cap on how far bets can move each round** would amplify the lateness signal further. It is switched on only if the [pilot](../pilot/checks.md#inertia) still finds the gaps between models too small to read.
+- **A cap on how far bets can move each round** would amplify the lateness signal further. It is switched on only if the [pilot](../pilot/provider-checks.md#inertia) still finds the gaps between models too small to read.

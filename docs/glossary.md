@@ -39,6 +39,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Shared factor | One hidden series every channel loads on, so channels have good and bad weeks together |
 | Loading | How much a channel moves with the shared factor. Uneven across channels |
 | Hedge | The one channel with a negative loading. It rises when everything else falls |
+| Tell | The hedge rising while the field falls. It marks a shock rather than a switch. See [the tell](pilot/engine-checks.md#the-tell) |
 | Leader | The channel that pays best when a run starts |
 | Runner-up | The second best channel at the start. The obvious fallback |
 | Field | The other channels, including the hedge |
@@ -81,7 +82,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Weakest trait | The lowest of a model's five scenario scores, named. The AND the headline alone does not give |
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
-| Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/checks.md#noise-grid) |
+| Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/engine-checks.md#noise-grid) |
 | Trait | What one scenario tests, named as the virtue a high score shows. See [traits](design/scoring.md#traits) |
 | Composure | The No change scenario's trait. Ignoring noise when nothing is happening |
 | Patience | The One shock scenario's trait. Holding through a dip that passes |
