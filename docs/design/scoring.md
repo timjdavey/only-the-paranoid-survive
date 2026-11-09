@@ -44,10 +44,18 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 | [Up switch](scenarios.md#scenarios-we-test) | Curiosity | Looks at the field when nothing is wrong | Contentment: the old plan still pays, so it never looks |
 | [Shock then switch](scenarios.md#scenarios-we-test) | Unlearning | Drops "dips recover" once it stops being true | Learned complacency |
 | [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | Boiling frog: never acts, as no single round looks bad |
+| [Switch then shock](scenarios.md#scenarios-we-test) | Conviction | Holds a plan it just chose through a dip that passes | Second thoughts: the first bad round on the new plan sends it back to the old one |
+| [Up switch then down switch](scenarios.md#scenarios-we-test) | Recall | Goes back to a plan it has seen pay when the change undoes itself | Burnt bridges: treats the old leader as finished, so relearns a climate it has already seen, or never returns |
+| [One boom](scenarios.md#scenarios-we-test) | Perspective | Judges a fall from a peak against the long record, not the peak | Anchoring: reads the end of a good spell as a decline, and moves |
+| [Up drift](scenarios.md#scenarios-we-test) | Diligence | Keeps looking long enough for a slow rise to add up | A glance, not a watch: one look shows nothing, so the looking stops |
+| [Short rise](scenarios.md#scenarios-we-test) | Selectivity | Moves only for a rise that beats the plan | Distraction: chases a channel that is improving but still worse |
 
 - **Composure and patience differ.** Composure ignores noise when nothing is happening. Patience holds through a real dip that passes.
 - **Composure and curiosity pull against each other.** Every look costs in the No change scenario and is the only way to score in the Up switch scenario. A model buys one with the other unless its looks are small and steady.
-- **The trait profile is the six scores side by side.** The headline averages them, so the weakest trait is named beside it: a model can buy one trait with another in the mean, but not in that number.
+- **Curiosity and selectivity pull the other way.** The look that finds the sleeper in the Up switch scenario tempts a move in the Short rise scenario, where the sleeper never passes the leader.
+- **Conviction and recall pull against each other.** A model that always goes back scores in the Up switch then down switch scenario and not in the Switch then shock scenario. One that never goes back does the reverse.
+- **The trait profile is the eleven scores side by side.** The headline averages them, so the weakest trait is named beside it: a model can buy one trait with another in the mean, but not in that number.
+- **Four scenarios ask the agent to hold and seven ask it to move.** Holding is right throughout the No change, One shock, One boom and Short rise scenarios, so the Complacent baseline sits at 1 in each. Equal weights are still the prior, see [limits](limits.md).
 
 ## Seeds
 

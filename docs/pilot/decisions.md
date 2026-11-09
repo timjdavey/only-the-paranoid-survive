@@ -17,6 +17,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | Events per run and minimum gap | | | |
 | Switch size in level points on the noise grid | | | |
 | [Up and down](engine-checks.md#up-and-down), sleeper share, rise size in level points and the Scout rule's `n` | | | |
+| [Up and down](engine-checks.md#up-and-down), Short rise end level as a share of the gap between runner-up and leader | | | |
 | Loading range and ladder ranges | | | |
 
 ## Provider checks

@@ -53,7 +53,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Event | One move the world makes, with its own onset and numbers drawn per seed. See [events](design/mechanics.md#events) |
 | Shape | The kind of move an event makes: a shock, a switch or a drift. "A shock" is short for an event whose shape is a shock |
-| Shock | A dip in every channel through the shared factor, which passes |
+| Shock | A dip in every channel through the shared factor, which passes. Its upward twin is a boom |
+| Boom | A shock with its sign flipped: a rise in every channel through the shared factor, which passes. The hedge falls |
 | Switch | A lasting change in base levels that changes which channel pays best. The leader falls, a sleeper rises past it, or both |
 | Drift | A switch stretched over many more rounds |
 | Profile | The form an event takes within its shape, drawn per seed. A shock falls sharply and climbs slowly, or slides and rebounds. A drift is linear or logistic |
@@ -64,6 +65,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Up switch scenario | One switch the leader never feels: a sleeper rises past it and the leader holds. `up_switch` in code |
 | Shock then switch scenario | One shock, a gap, then one switch. `shock_then_switch` in code |
 | Slow drift scenario | One drift. `slow_drift` in code |
+| Switch then shock scenario | One switch the leader feels, a gap, then one shock. `switch_then_shock` in code |
+| Up switch then down switch scenario | A sleeper rises past the leader, a gap, then falls back to its old level. `up_switch_then_down_switch` in code |
+| One boom scenario | One boom. `one_boom` in code |
+| Up drift scenario | One drift where a sleeper rises past the leader over many rounds. `up_drift` in code |
+| Short rise scenario | One switch where a sleeper rises to just below the leader and stays there. `short_rise` in code |
 | Hard variant | A harder version of a scenario: more shocks before the switch, or a longer drift |
 
 ## How the agent plays
@@ -80,8 +86,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Scenario score | The share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. 0 is knowing nothing, 1 is knowing the climate. See [scoring](design/scoring.md#how-we-score) |
 | Run score | One seed's share of that gap, shown as a dot. It can land outside 0 to 1 on one seed. The scenario score pools seeds so it rarely does |
-| Headline | One score per model: the plain mean of its six scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
-| Weakest trait | The lowest of a model's six scenario scores, named. The AND the headline alone does not give |
+| Headline | One score per model: the plain mean of its eleven scenario scores. Reported with the weakest trait beside it. See [scoring](design/scoring.md#how-we-score) |
+| Weakest trait | The lowest of a model's eleven scenario scores, named. The AND the headline alone does not give |
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/engine-checks.md#noise-grid) |
@@ -92,6 +98,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Curiosity | The Up switch scenario's trait. Looking when nothing is wrong |
 | Unlearning | The Shock then switch scenario's trait. Dropping "dips recover" once it stops being true |
 | Vigilance | The Slow drift scenario's trait. Noticing a decline that has no sudden move |
+| Conviction | The Switch then shock scenario's trait. Holding a plan it just chose through a dip that passes |
+| Recall | The Up switch then down switch scenario's trait. Going back to a plan it has seen pay when the change undoes itself |
+| Perspective | The One boom scenario's trait. Judging a fall from a peak against the long record, not the peak |
+| Diligence | The Up drift scenario's trait. Looking long enough for a slow rise to add up |
+| Selectivity | The Short rise scenario's trait. Moving only for a rise that beats the plan |
 | Trait profile | A model's scores across scenarios, one per trait. The signal the headline combines |
 | Error bar | How sure we are of a score. Spread over √seeds, so it shrinks with more seeds (epistemic uncertainty). See [scoring](design/scoring.md#error-bars) |
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |

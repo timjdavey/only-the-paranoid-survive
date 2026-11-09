@@ -51,7 +51,7 @@ Picks the shared-factor scale. The tell is the hedge rising while the field fall
 - **Measure.**
   - **Below zero.** The share of channel rounds with a level below 0 at the noisiest setting. Levels are not clipped, see [generator](../design/mechanics.md#generator).
   - **Pinning.** The Discerning baseline's output minus the Complacent baseline's, in level points, at each setting. It should be the same across the grid, see [difficulty](../design/mechanics.md#difficulty).
-  - **Twin tapes.** The One shock and Down switch tapes of one seed are identical until onset, and the Up switch and No change tapes are identical on every channel but the sleeper. These are tests in the engine suite, not decisions.
+  - **Twin tapes.** The One shock and Down switch tapes of one seed are identical until onset, and the Up switch and No change tapes are identical on every channel but the sleeper. The Switch then shock tape matches Down switch until the shock, the Up switch then down switch tape matches Up switch until the fall, the Short rise tape matches Up switch on every channel but the sleeper's end level, One boom mirrors One shock from the same onset, and Up drift shares Slow drift's onset. These are tests in the engine suite, not decisions.
   - **Sparklines.** The median tape of the leader in each scenario, plotted beside its sparkline in [scenarios](../design/scenarios.md#scenarios-we-test).
 - **Decide.** If levels below 0 are common, the base ladder moves up. If pinning drifts, events are not pinned in level points. A sparkline that does not look like its median tape is redrawn.
 
@@ -91,14 +91,18 @@ A switch comes in three kinds, see [events](../design/mechanics.md#events): the 
   - **Sleeper share.** How many Down switch tapes draw a sleeper.
   - **Prize on offer.** The Discerning baseline's output minus the Complacent baseline's, in level points, on fall-only, fall-with-riser and rise-only tapes.
   - **Reading a rise.** The Scout rule's scenario score on Up switch at each `s`, and the round it moves. Its false moves and its cost in output on No change.
-- **Decide.** The sleeper share and the rise size in level points, so the three kinds put a comparable prize on offer. And whether a one-point look reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited.
+- **Decide.** The sleeper share and the rise size in level points, so the three kinds put a comparable prize on offer. And whether a one-point look reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited. The same check runs on Up drift tapes, where the rise is slower. And the Short rise end level, as a band between the runner-up and the leader, so that a looker sees a real move and the Scout rule does not move on a near tie.
 
 ## Baseline order
 
 - **Question.** Do the fixed baselines land in the order we expect.
-- **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in the Down switch, Up switch and No change scenarios.
+- **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in every scenario.
 - **Measure.** Their scores, against these orders:
   - **Down switch scenario:** Perfect > Discerning > hedge rule > Complacent > Uniform.
   - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The hedge rule never moves here, so it sits with the Complacent baseline minus its look.
   - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
+  - **Switch then shock scenario:** as Down switch. The hedge rises in the shock, so the hedge rule holds the new best.
+  - **Up switch then down switch and Up drift scenarios:** as Up switch. The Scout rule keeps scouting after a move, so it sees the sleeper fall and the leader hold.
+  - **One boom scenario:** as No change. At the fade the hedge climbs while the field falls, so the hedge rule reads a shock and holds.
+  - **Short rise scenario:** Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule. Report how far the Scout rule falls below, which is the price of moving on a near tie.
 - **Decide.** If the order breaks, the [noise](#noise-grid) is likely too high or a baseline is wrong. Fix it before any model runs. Where Timestral lands is a [provider check](provider-checks.md#timestral-checks).

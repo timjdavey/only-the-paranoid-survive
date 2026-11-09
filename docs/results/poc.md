@@ -5,6 +5,6 @@ The first run of the full harness on the [proof of concept model list](../harnes
 - **One skin only**, so skin sensitivity is not measured, see [scoring](../design/scoring.md#spread).
 - **Scores run from the Uniform baseline at 0 to the Discerning baseline at 1** per scenario, and the headline is the plain mean, with the weakest trait beside it, see [scoring](../design/scoring.md#how-we-score).
 
-| Model | No change | One shock | Down switch | Up switch | Shock then switch | Slow drift | Headline | Weakest trait |
-|---|---|---|---|---|---|---|---|---|
-| _Not run yet_ | | | | | | | | |
+| Model | No change | One shock | Down switch | Up switch | Shock then switch | Slow drift | Switch then shock | Up switch then down switch | One boom | Up drift | Short rise | Headline | Weakest trait |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| _Not run yet_ | | | | | | | | | | | | | |
