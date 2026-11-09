@@ -1,53 +1,47 @@
 # Only the paranoid survive
 
-**A benchmark for how well an agent tells a change in the dynamics of a system from a run of ordinary bad luck.**
+_A benchmark for how well an agent acts when presented with a shock to a system that returns to normal vs a shock that creates a new normal._
 
 ## Motivation
 
-In the 1980s Intel's memory chip business was declining. The board thought it was simply a bad patch, so advised staying the course while innovating on the margin. Instead Andy Grove their CEO saw the industry had fundamentally shifted. He moved the company out of memory entirely and into processors to become one of the best performing companies of the century.
+In the 1980s Intel's memory chip business was declining. The board thought it was simply a bad sales patch, so advised staying the course while innovating on the margin. Instead Andy Grove their CEO saw the industry had fundamentally shifted. He moved the company out of memory entirely and into processors to become one of the best performing companies of the century.
 
-Keynes supposedly wrote "When the facts change, I change my mind. What do you do sir?" But that understates the hard bit, the difficulty is spotting the warning signals that they have changed. Grove wrote about this in his book *Only the Paranoid Survive* (Currency Doubleday, 1996).
+Keynes supposedly wrote "When the facts change, I change my mind. What do you do sir?" But that understates the hard part which is spotting that things have actually changed rather than it just being volatility. Grove wrote about this in his book *Only the Paranoid Survive*.
 
-There is a long line of famous companies which acted too slowly: Blockbuster, Kodak, Blackberry. However the reverse is also true with companies like Peloton and Hopin betting too hard on a new normal.
+There is a long line of famous companies which acted too slowly to fundamental change: Blockbuster, Kodak, Blackberry. However the reverse is also true with companies like Peloton and Hopin betting too hard on a new normal, when it's surprising how resilient systems are and tend to regress to the mean. These stories are clear with hindsight, but is why we need to measure both scenarios.
 
-As agents take on longer jobs, the more likely the world will change under them. The more autonomous they become, the more they will need to tell a change in how the world works from a bad month, and update their strategies when it is the former. That is the skill we measure. Its everyday form is knowing when the notes you are working from have gone stale.
+As agents take on longer jobs and interact with long running complex systems, the more likely they will face these situations. The more autonomous they become the more they will need to be able to adapt appropriately.
+
+People react to the signals in front of them and too little to the system that makes them. So they overreact when the world is stable and the signals are noisy, and underreact when the world is changing and the signals are precise. This is called [system neglect](docs/prior/people.md#massey-and-wu-2005-system-neglect). Whether agents share the bias, and which way they lean, is the question.
 
 
-## Test design
+## Design
 
-- **A simple game wrapped in a narrative.** We wrap the core cybernetics style engine inside a variety of different story skins. This way we can control the environment and outputs, while also eliciting realistic responses. Such as ad-channels or factory lines.
-- **Betting mechanics.** Each week the agent splits a budget across ten options and sees what each of its bets paid back (like splitting budget across paid marketing channels). The higher the bet the clearer the signal, but also potentially the higher the gains / losses.
-- **Weather like periods.** The bets are not purely stochastic. Good and bad stretches last a while and then fade, where options rise and fall together to simulate real systems. But stable enough to feel like a typical static "game" which can be understood.
-- **A quiet change.** Many rounds in, we change a key dynamic of the game. The change is like a boiling frog, where a previous plan will only fail slowly.
-- **Baselined with no change.** Every game is replayed on the same initial setup but now with no fundamental change. So we can measure if any of the models are too jumpy.
-- **Baselined against scripted players.** Every model is scored in game output against four [baselines](docs/design/baselines.md): a perfect one, who is told the exact system, a Bayesian one, who sees only what the agent sees, and stale and uniform ones, who act with only a simple strategy.
+- The study is built around a simple cybernetics game engine.
+- The agent plays by betting a fixed budget across channels each round. See [interface](docs/design/interface.md).
+- The payout is linear, noise is the difficulty knob, and the agent only sees the channels it bets on. See [mechanics](docs/design/mechanics.md).
+- That engine then has a set of _narrative skins_ around it. So that the model thinks it is a real situation and so is more likely to act accordingly. But also this helps with contamination, as we can publish the game engine but disguise the game skin.
+- We [baseline](docs/design/baselines.md) a model's performance against various strategies. 
+- A model has to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md). The headline scores that one skill. Whether it predicts how an agent does on real work is a claim to test, see [themes](docs/prior/themes.md).
+- We [score](docs/design/scoring.md) each scenario as the share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. So 0 is knowing nothing and 1 is knowing the climate. The headline is the plain mean across scenarios, reported with the weakest trait beside it.
+- A pilot settles the knobs, such as how many seeds, before the full run. [Engine checks](docs/pilot/engine-checks.md) run first on tapes and fixed baselines, then [provider checks](docs/pilot/provider-checks.md) with models.
+- The full study plays a grid of noise levels on one signal to noise axis and reports the [noise threshold](docs/design/scoring.md#noise-threshold), the noisiest world a model still reads. Harder releases extend the grid rather than start a new chart.
+- It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.
+- What the game gives up, and what checks each gap, is in [limits](docs/design/limits.md).
+- Studies we'd like to run beyond the headline are in [future](docs/design/future.md).
 
-The full design is in [docs/design](docs/design/README.md), and the game rules and code layout are in [docs/spec](docs/spec/README.md).
-Also see the [glossary](docs/glossary.md) for full outline of terms.
+## Repo
+
+- The code is four layers, engine, skins, harness and analysis, each importing only the one below. See [layout](docs/harness/layout.md).
+- The harness is [inspect_ai](docs/harness/inspect.md). Setup and commands are in [running](docs/harness/running.md).
+- The engine, the public seeds and this repo are public. The held-out skins and held-out seeds are private. See [contamination](docs/harness/contamination.md).
 
 ## Contribution
 
-We've specifically designed the study to focus on the following:
-
-1. **A number which can be tracked across releases.** The full study's main score, discernment, measures the faintest change a model acts on, which is scored against the perfect baseline. Once models get as close to it as inference allows, the parameters of the game are too easy, so the change becomes more subtle. Similar to the hearing aid analogy.
-2. **Paranoia isn't enough.** Most tests only measure being blind to change. However, being too jumpy is also a failure mode. So we purposefully have a setup to measure the false alarms rate.
-3. **The changes are masked.** In most studies which measure change the dynamic shift is abrupt telegraphing the change instantly and clearly. Meaning you're testing a models basic bayesian statistical capabilities, rather than judgement. Like the real world, it has to navigate a system without understanding the exact dynamics inside the black box. With unlikely streaks blurring real change.
-4. **Different kinds of change, not just different sizes.** Under the hood the world is built from a few parts, and we change only one of them. The first version of the benchmark, the proof of concept, changes only how well one option pays. The full study also changes how options affect each other, how fast extra spend stops paying, and which option gets the credit for a result. A player that watches each option on its own can't spot these - it needs to investigate holistically.
-
-See [prior](docs/prior/README.md) for more details. 
-
-## Reported
-
-- **Performance**, the main score of the proof of concept. It measures the agent's output in the game against four baselines, the perfect one being a true ceiling that no model can beat. This means it covers both noticing a change and appropriately acting on that change. It's the practical measure you want when trusting a model to complete economically valuable work.
-- **Discernment**, the main score of the full study. Surgically measures the main aim of this benchmark, of identifying changes in dynamics.
-
-Above are the headline figures we care about specifically for this task. But there are other skills compound into making these possible which we aim to measure independently. See [measure-headline.md](docs/design/measure-headline.md) for the headlines, and [measure-failure.md](docs/design/measure-failure.md) for where a model loses output.
+See [CONTRIBUTING](CONTRIBUTING.md).
 
 ## Results
 
 To come.
 
 
-## Motivation
-
-This project isn't simply about getting the results. It is also a personal study in feeling my way toward what best practices exist when working with agents to build studies. This is why documents such as [TODO](TODO.md), [decisions.md](docs/design/decisions.md) and [requirements.md](docs/design/requirements.md) exist. They are a form of research harness - answering the question of what context, SKILLs, frameworks does an agent need to make good design decisions. Although ironically having structured documents like decisions.md is great for any human reviewing this study too.

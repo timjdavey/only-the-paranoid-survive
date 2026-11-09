@@ -1,72 +1,49 @@
 # Baselines
 
-**The scripted players every score is read against. None uses a model, and all of them play every seed.**
+## Fixed baselines
 
-## In brief
+These are calculated scores based on fixed strategies.
 
-Each round the agent splits a fixed budget across ten units and sees what each one yields. A bigger share buys more volume, but with less for each extra pound, and a share under a told threshold buys nothing. Each unit has a hidden level, the chance that one piece of its volume yields. Before round 1 the agent reads a record of 200 past rounds, which ends on a split we call the standing split. Some rounds in, a change lowers one standing unit's level and raises a unit the standing split ignores. A dip looks the same at first but recovers. A seed fixes the luck, so every player on a seed sees the same dice.
-
-How to read a score:
-
-- **Four baselines mark the chart.** The perfect one is a ceiling no model can pass. The Bayesian one is the best inferrer we can build, and a model may beat it. The stale and uniform ones are floors.
-- **Scores are in expected output**, what a split is worth at the true levels with the dice and the weather left out. See [Why each round is scored on expected output](decisions.md#why-each-round-is-scored-on-expected-output).
-- **A proportion of the perfect baseline follows**, as a derived number, never as the headline.
-
-## The four baselines
-
-| Baseline | What it knows | What it does each round | What it marks | Can a model beat it? |
-|---|---|---|---|---|
-| Perfect | The true levels | Plays the best split for them | The most any split could earn | No |
-| Bayesian | What the agent sees | Infers the levels and splits on a sample | What was knowable, and when | Yes |
-| Stale | The levels before the change | Holds their best split for all 40 rounds | What stale notes earn | Yes |
-| Uniform | Nothing | Splits the budget evenly over the ten units | What knowing nothing earns | Yes |
-
-**Perfect baseline.** It is told the true levels every round, so it sees the change the round it starts and knows a dip for what it is. It plays the best split for those levels, given the falling return on share and the threshold. Expected output is scored at those same levels, so no split can earn more. It is a few lines of code on top of the generator and needs no record. We don't call it an oracle, because prior work uses that word for fairer players.
-
-**Bayesian baseline.** It sees only what the agent sees. It keeps a belief about every unit's level, about whether a fall is a dip or a shift, and about when a change began, and each round it splits on a sample from that belief. Sampling means a unit it is unsure of sometimes draws high and gets a look. It also plays the previous operator, damped, who wrote the record. The gap between it and the perfect baseline is the price of having to infer.
-
-**Stale baseline.** It plays the best split for the levels before the change, which is the perfect baseline's round 1 split, and holds it to the end. It needs no record. The standing split the agent inherits is the previous operator's last split, and sits within a hair of it.
-
-**Uniform baseline.** It splits the budget evenly over the ten units every round. The gap between it and the stale baseline is what knowing the old levels is worth, which the agent can only learn from the record.
-
-## How a score reads against them
-
-Made up numbers, pooled over the same seeds:
-
-| Player | Expected output | Proportion of perfect |
+| Baseline | Betting rule | What it settles |
 |---|---|---|
-| Uniform baseline | 236,000 | 0.82 |
-| Stale baseline | 274,000 | 0.95 |
-| Model P | 279,000 | 0.97 |
-| Bayesian baseline | 282,000 | 0.98 |
-| Perfect baseline | 288,000 | 1.00 |
+| Discerning baseline | 100 on the channel with the highest base level. Holds through a shock, moves the round a switch lands | The ceiling. A scenario score of 1, see [scoring](scoring.md). Its one edge over an ideal reader is zero lag, which is the thing we price |
+| Uniform baseline | 10 on every channel, every round | The floor. A scenario score of 0. What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
+| Complacent baseline | The Discerning baseline's round 1 bets, held to the end | A mark on every bar. Near 0.55 where there is a switch, so it says whether a model acted at all. Equals the Discerning baseline where nothing changes |
+| Perfect baseline | 100 on the channel with the highest level this round | A mark for how much weather luck was on offer. It divides nothing: it chases weather no reader can see, so nobody could reach it |
+| Hedge rule baseline | A few points on the hedge, the rest on the leader. When the leader falls and the hedge does not rise, it spreads a look over the field for a round or two, then moves to the best reading | The simplest player that reads the tell. A mark on every bar, and a reference curve on the [noise grid](../pilot/engine-checks.md#noise-grid). It never moves in the Up switch scenario, as the leader never falls |
+| Scout rule baseline | `s` points on each of the nine other channels, the rest on its pick. It moves to a channel whose mean of its last `n` readings beats the pick's over the same rounds, `n` rounds running, unless the hedge's mean over those rounds is above its earlier average. It keeps scouting after a move | The hedge rule that looks everywhere, all the time, so it reads a rise as well as a fall. The reference curve for the Up switch scenario. `s` and `n` come from the [pilot](../pilot/engine-checks.md#up-and-down) |
 
-| Where a model sits | What it means |
+- **The hedge rule and the Scout rule differ only in when they look.** The hedge rule looks at one channel and acts on a fall. The Scout rule looks at every channel every round, which costs `9s` points in the No change scenario and finds the sleeper in the Up switch scenario. Between them they bracket a model's choice: how much to look when nothing is wrong. In noisy worlds the Scout rule can whipsaw, which shows on the noise grid as its curve falling below the Complacent baseline at the noisy end. That is the price of constant looking, and worth seeing.
+- **Players may read their own record. The yardstick may not.** The Discerning baseline reads the tape, so the score is the same whatever the agent chose to look at. A Bayesian or CUSUM player that reads its own record is a fine mark, see [not yet](#not-yet), but never a denominator, as a lazy agent would get a lenient yardstick.
+
+## Timestral
+
+[Timestral](https://github.com/mistralai/timestral) is a forecaster. It guesses each channel's level next round, and a policy we wrote turns that guess into bets. It only learns about a channel by betting on it.
+
+- **What it sees:** each channel's past levels, but only for the rounds it bet on that channel. Every other round is a gap, which Timestral handles.
+- **Why levels and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
+- **What it gives back:** a range of guesses, low to high, for each channel's level next round. That is 21 quantiles per channel.
+- **What it never sees:** the skin. So it shows how much reading the story helps.
+
+The policy that turns the forecast into bets is ours. One run per row. The bets are whole numbers to 100, as on the [interface](interface.md) page.
+
+| Baseline | How it bets | What it tells us |
+|---|---|---|
+| Timestral top pick | 100 on the channel it forecasts highest. The other channels go dark, so it only moves when its own channel's forecast falls below its last memory of another | How far forecasting gets you with no looking |
+| Timestral odds | Splits the 100 by each channel's chance of being the best. The less sure it is, the more it spreads, and so the more it looks | Whether a forecaster's own doubt makes it look the right amount. Dropped if it fails the [gap test](../pilot/provider-checks.md#timestral-checks) |
+| Timestral top pick with looks, 1 / 2 / 5 | 1, 2 or 5 points on each of the other nine channels, the rest on its top pick, which gets 91, 82 or 55 | Whether a look size we choose by hand does better than Timestral's own doubt |
+| Timestral odds, bet aware | As Timestral odds, but its past bets go in alongside the levels | Whether it learns that a small bet gives a rough reading |
+
+## Checks
+
+- **Timestral** must pass a gap test and a rounding watch before we trust it, see [pilot](../pilot/provider-checks.md#timestral-checks).
+- **The baselines must land in the expected order** in the Down switch, Up switch and No change scenarios, see [pilot](../pilot/engine-checks.md#baseline-order).
+
+## Not yet
+
+| Baseline | Why not yet |
 |---|---|
-| At the perfect line | No split could have earned more |
-| Above the Bayesian line | It beat the best inferrer we built |
-| Between stale and Bayesian | It acted on the change, but later or less fully than was knowable |
-| Below the stale line | Its doubt cost more than it won |
-
-## Check baselines
-
-The other baselines tune the game and check the measures. They don't mark the chart. Most are the Bayesian baseline with one part changed.
-
-| Check baseline | How it is built | What it checks |
-|---|---|---|
-| Retune | Sides pooled, so each kind is one belief | That the readings tell moving share among favoured units from finding the ignored one |
-| Dip-only | Its belief that a change can last is switched off | That the change passes for a dip for about ten rounds |
-| Jumpy | Switching bar lowered | That moving too early costs output in the no-change run |
-| Cautious | Switching bar raised | That waiting too long costs output once the change starts |
-| Hedging | Standing units' share halved | That holding back from the standing units shows up |
-| Fixed | Switch at a set round, split at random, or look at a set share | That no fixed strategy scores well |
-| CUSUM | A textbook change detector, fed the weather model | How much evidence the agent waited for |
-
-See [Why the baselines set the difficulty](decisions.md#why-the-baselines-set-the-difficulty).
-
-## Checks before any model plays
-
-1. **The order holds.** Perfect beats Bayesian beats stale on every amplitude, the size of the fall, with Bayesian over stale by a margin set in `params.yaml`.
-2. **No trick pays.** Every fixed baseline scores well below the Bayesian baseline.
-3. **The floor never switches.** The stale baseline catches no change.
-4. **The record matches the floor.** The standing split is within a hair of the stale baseline's split. See [Why the standing split still pays](decisions.md#why-the-standing-split-still-pays).
+| Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid as a player: it bets on past readings only, so there is no loop. Never the yardstick, as what it could know depends on what it looked at. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
+| CUSUM | The textbook change detector: sum how much each reading favours a change, move when the sum crosses a line. Swept from hasty to patient it draws the trade between delay and false alarms. Add it once the hedge rule has run |
+| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the hedge rule or the Timestral top pick with looks row |
+| Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises, and blind in the Up switch scenario as it never looks past the runner-up. Add it once the [pilot](../pilot/engine-checks.md#up-and-down) shows how often a sleeper rises |

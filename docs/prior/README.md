@@ -1,100 +1,126 @@
 # Prior work
 
+Our game asks one question. When results drop, is it a shock that will pass or a switch to a new normal? Hold on through a switch and you are Kodak. Jump at a shock and you are Peloton. The [motivation](../../README.md#motivation) tells the Intel story behind it.
+
+These pages collect what others have found on that question, in LLMs, in people and in animals. Start here for the big picture, then dip into a page for the detail on any one study.
+
 | Page | What's in it |
 |---|---|
-| [Worlds that change](worlds-that-change.md) | Studies that change the world under the agent |
-| [People, and the Bayesian baseline](people.md) | Studies of people, and the methods behind the Bayesian baseline |
-| [A past in the prompt](past-in-the-prompt.md) | Studies that put a past in front of the model |
+| [Worlds that change](worlds-that-change.md) | Agent benchmarks where the world moves under the agent |
+| [Learning from results](learning-from-results.md) | How LLMs learn from noisy results, in bandits and belief tasks |
+| [A past in the prompt](past-in-the-prompt.md) | What a record, notes or a plan in the prompt does to a model |
+| [People, and ideal observers](people.md) | Studies of people and rats, and the maths of spotting a change |
 | [Measuring agents](measuring-agents.md) | METR's time horizon, and studies of models that suspect a test |
-| [Themes](themes.md) | How the game connects to Epoch AI's learning on the fly, METR's time horizon and other open questions about agents, each a claim to test |
-| [Glossary](../glossary.md) | The one word we use for each idea in the design |
+| [Themes](themes.md) | Bigger open questions about agents that this game speaks to |
 
-## At a glance
+## What the literature says
 
-If you know the literature, our game may look like a drifting bandit: an agent picks between options whose payoffs wander over time, as in Zhang, Mellor and Shapiro, and BanditBench. It has that shape, but three things set it apart, and no study below has all three.
+- **Models fail both ways.** Some studies find them too slow to let go of an old option. Others find them pulled hard by the latest result. Often the same model does both. See [which way do models fail](#which-way-do-models-fail).
+- **Most studies only count being late.** A false alarm is left out of the score or can't happen at all.
+- **Bad luck almost never comes in streaks.** Nearly every study draws each result fresh, so three bad rounds in a row are strong evidence. Only STOCKTAKE has a false alarm that looks real for a while.
+- **The old plan usually stops working outright.** Once the change lands, the old option loses or fails. Real businesses rarely get that clear a signal.
+- **Warning the agent changes everything.** One line in the prompt saying "switch when a tool fails" moved one model from 0.14 to 0.86 ([Set-shifting](worlds-that-change.md#set-shifting-2026-tool-groups-that-stop-working)). Many studies give that warning.
 
-1. **Bad luck comes in streaks.** In our game a bad month is ordinary, so a run of poor results doesn't prove anything changed. Every game is also played on the same luck with nothing changed, which we call the no-change run, and it holds a dip that starts exactly like the real change before it recovers. In the other studies each result is drawn fresh, so a streak is strong evidence. The one exception is STOCKTAKE, with a single false alarm that lasts a week.
-2. **The old split still pays after the change.** The unit the agent relied on never pays off less than 55% of the time, so keeping the old split loses only to the best split available. Elsewhere the old choice mostly stops working once the change lands: in one study a reversed option wins only 20% of the time, in another an old tool fails on every call.
-3. **We score against [baselines](../design/baselines.md)**, from a ceiling no model can pass down to the best inferrer we can build and two floors. The no-change run counts in the same score, on the same luck, so a false alarm costs as much as a miss.
+## How our game differs
 
-Two more things go beyond a drifting bandit, explained in [Why this is more than a drifting bandit](../design/decisions.md#why-this-is-more-than-a-drifting-bandit):
+If you know the field, our game may look like a drifting bandit: an agent picks between options whose payoffs wander, as in [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit). It looks like that, but no study below has all of these.
 
-- **A change can alter how the units work**, not just raise or lower one unit's payoff. The proof of concept moves a payoff only, and the full study adds the rest.
-- **Nothing tells the agent the world might change.** No prompt, story or tool mentions it. It has to spot it from the record of past play.
+- **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the Down switch and Slow drift scenarios. The weakest trait is reported beside the headline, so a model can't hide false alarms behind quick switches ([scoring](../design/scoring.md#how-we-score)).
+- **Bad luck comes in streaks, and the whole market has bad weeks.** Each channel's weather has persistence, so a bad stretch fades rather than stops. A shared factor moves every channel at once ([generator](../design/mechanics.md#each-round)).
+- **A look costs, and a look tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
+- **The old plan keeps paying.** After a switch the leader is still well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
+- **Nothing tells the agent the world might change.** No prompt, story or tool mentions it ([interface](../design/interface.md#how-the-agent-plays)).
+- **A right lesson can go wrong.** In the Shock then switch scenario, an agent that rightly held through the shock has learnt "dips recover", and is primed to miss the real change ([scenarios](../design/scenarios.md#scenarios-we-test)).
 
-| Study | Setting | Change | Old plan still pays after it? | Feedback | Agent's past | Scored against | No-change control |
+## Studies where the world changes
+
+Studies where nothing changes are on their own pages.
+
+| Study | Setting | Change | Old plan still pays? | Feedback | Told change may come? | Scored against | Does a false alarm cost? |
 |---|---|---|---|---|---|---|---|
-| [Coda-Forno et al. 2023](past-in-the-prompt.md#coda-forno-et-al-2023-meta-in-context-learning) | Bandits and regression, GPT-3 | None | n/a | Noisy | Up to 4 earlier tasks | UCB, greedy, Bayesian regression | No |
-| [Mazaheri and Mazaheri 2026](past-in-the-prompt.md#mazaheri-and-mazaheri-2026-one-past-audit-makes-verifiers-lenient) | Checking maths proofs | None | n/a | None | One earlier episode | Human labels | Filler of the same length |
-| [Schubert et al. 2024](past-in-the-prompt.md#schubert-et-al-2024-asymmetric-belief-updating) | Two-armed bandits, Claude v1.3 | None | n/a | Noisy | Own or someone else's choices | Fitted learning rates | No |
-| [IBIS 2026](past-in-the-prompt.md#ibis-2026-inertia-in-search-agents) | Web search agents | None | n/a | None | Own action or results handed over | Human labels | No |
-| [Kumaran et al. 2025](past-in-the-prompt.md#kumaran-et-al-2025-whose-first-answer-it-was) | Two-option questions with advice | None | n/a | Advice from another model | Own first answer, shown, hidden or credited to another model | Ideal observer | First answer hidden |
-| [Ge, Zhang and Vorobeychik 2026](past-in-the-prompt.md#ge-zhang-and-vorobeychik-2026-the-description-history-gap) | One-shot lotteries | None | n/a | None | Stated odds or a list of past payoffs | Expected value maximiser | No |
-| [Liu et al. 2026](past-in-the-prompt.md#liu-et-al-2026-history-that-never-becomes-experience) | ALFWorld, WebShop and others | None | n/a | Exact | Within the episode | Task success | Shuffled history |
-| [Haq et al. 2025](past-in-the-prompt.md#haq-et-al-2025-mental-sets-in-llms) | 12 arithmetic problems | Problem type switches | Yes, the long method still works | Exact | Earlier problems | Nothing | Problems with no lead-in |
-| [BanditBench 2025](worlds-that-change.md#banditbench-nie-et-al-2025-in-context-exploration) | Bandits | None | n/a | Noisy | None | UCB and LinUCB | No |
-| [Wang, Ward and Zhang 2026](worlds-that-change.md#wang-ward-and-zhang-2026-reversal-learning) | Two options that swap | Many swaps | No, the old option wins 20% | Noisy | Within the run | People | No |
-| [Set-shifting 2026](worlds-that-change.md#set-shifting-2026-tool-groups-that-stop-working) | Tool groups in an agent harness | Up to 3 silent shifts | No, old tools always fail | Exact | Within the session | Nothing | Resumed copies, beside the score |
-| [AdaExploreBench 2026](worlds-that-change.md#adaexplorebench-2026-hidden-rules-that-drift) | Hidden decision rules | One drift | No, accuracy falls 27 points | Exact | None | All-knowing oracle | No-drift setting, averages only |
-| [STOCKTAKE 2026](worlds-that-change.md#stocktake-2026-a-fair-oracle-for-supply-chains) | 26-week supply chain | Six hidden factors drift | Partly, the supplier degrades by bands | Noisy | None | Bayes filter on the agent's own view | Same event tape for every policy |
-| [Gupta et al. 2025](worlds-that-change.md#gupta-et-al-2025-coin-flips-and-bayes) | Coin flips, beliefs only | One switch, in one experiment | No, 75% heads becomes 25% | Noisy | None | Beta posterior | No |
-| [Zhang et al. 2025](worlds-that-change.md#zhang-et-al-2025-llms-in-a-drifting-bandit) | Four-armed bandit | Every arm drifts all the time | Partly, a good arm fades rather than fails | Noisy | None | People, and fitted exploration models | No |
-| [KellyBench 2026](worlds-that-change.md#kellybench-grady-et-al-2026-a-season-of-football-bets) | A season of football bets | The real season, which shifts | Unclear, no model had an edge to begin with | Noisy | None | Final bankroll, human baselines and an expert rubric | No |
-| [Behrens et al. 2007](people.md#behrens-et-al-2007-people-learn-faster-when-the-world-is-volatile) | People, blue or green | Many swaps | No | Noisy | None | Hierarchical Bayesian learner | Stable phase |
-| [Bleser et al. 2026](people.md#bleser-et-al-2026-true-and-false-beliefs-about-volatility) | People, told the rule will or won't change | One flip per block | No | Noisy | None | Rescorla-Wagner fits | Stable blocks |
-| [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a regime shift | At most one shift | n/a, beliefs only | Noisy | None | Bayesian posterior | No |
-| [Brown and Steyvers 2009](people.md#brown-and-steyvers-2009-naming-a-change-versus-predicting-through-it) | People, a hidden source that jumps | Many jumps | No | Noisy | None | Particle filter fits | No |
-| [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | Ratio of reward rates jumps | No | Noisy | Many earlier sessions, with or without change | Ideal detector | No |
-| **Our game** | A budget split across ten units, after reading 200 rounds of past play | One unit slowly falls and one it ignored rises past it, or a dip that recovers | Yes, never below 55% | Noisy, in streaks | Past play by a baseline, and notes the agent wrote itself | Perfect and Bayesian baselines above, stale and uniform baselines below, on the same luck | No-change run on the same luck, counted in the score |
+| [Wang, Ward and Zhang 2026](learning-from-results.md#wang-ward-and-zhang-2026-reversal-learning) | Two options that swap, LLMs | Many swaps | No, the old option wins 20% | Noisy | Yes | People | No, a switch after a loss counts as good |
+| [Gupta et al. 2025](learning-from-results.md#gupta-et-al-2025-coin-flips-and-bayes) | Coin flips, beliefs only | Down switch, in one experiment | No, 75% heads becomes 25% | Noisy | No | Beta posterior | n/a |
+| [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit) | Four-armed bandit, LLMs and people | Every arm drifts all the time | Partly, a good arm fades rather than fails | Noisy | Not stated | People, and fitted exploration models | No |
+| [Zhang, Yang and Wang 2025](learning-from-results.md#zhang-yang-and-wang-2025-discounted-bayesian-filters) | Die rolls and samples, beliefs only | One change | No | Noisy | No | Discounted Bayesian filter | n/a |
+| [Set-shifting 2026](worlds-that-change.md#set-shifting-2026-tool-groups-that-stop-working) | Tool groups in an agent harness | Up to 3 silent shifts | No, old tools always fail | Exact | No, except one arm | Task success | Hardly, one failed call reveals the change |
+| [AdaExploreBench 2026](worlds-that-change.md#adaexplorebench-2026-hidden-rules-that-drift) | Hidden decision rules | One drift | No, accuracy falls 27 points | Exact | Yes, "may or may not change" | Oracle that knows the rule | No |
+| [STOCKTAKE 2026](worlds-that-change.md#stocktake-2026-a-fair-oracle-for-supply-chains) | 26 week supply chain | Six hidden factors drift | Partly, the supplier degrades by bands | Noisy, with a week-long false alarm | Not stated | Bayes filter on the agent's own view | No, calm-week overreactions are left out |
+| [KellyBench 2026](worlds-that-change.md#kellybench-grady-et-al-2026-a-season-of-football-bets) | A season of football bets | The real season | Unclear, no model had an edge | Noisy | Not stated | Bankroll, people and an expert rubric | Not separately |
+| [Bazaar 2026](worlds-that-change.md#bazaar-ahmed-et-al-2026-pricing-when-customers-tastes-swap) | Pricing for hidden customers | Half the customers swap tastes once | No, the old offer loses | Partial, the winning offer only | No | Oracle that knows each customer | No, unchanged customers get no result |
+| [CoffeeBench 2026](worlds-that-change.md#coffeebench-sugiura-et-al-2026-a-coffee-supply-chain-with-a-demand-surge) | A coffee supply chain | A demand surge that passes | n/a | Market results | Yes, the dates are in the prompt | Net income, no oracle | No |
+| [Allen and McDonald 2026](worlds-that-change.md#allen-and-mcdonald-2026-a-strategy-class-simulation) | Business school strategy game | The core business declines, a new one grows | Yes, the core still earns | Scripted, the same every run | No | MBA students | No |
+| [Goel et al. 2026](worlds-that-change.md#goel-et-al-2026-a-teammate-who-switches-tasks) | Kitchen game with a teammate | The teammate switches tasks | No, the stale task is wasted | The teammate's moves | n/a | A replanning agent, RL agents | Only as extra replans |
+| [Haq et al. 2025](worlds-that-change.md#haq-et-al-2025-mental-sets-in-llms) | 12 arithmetic problems | Problem type switches | Yes, the long method still works | Exact | No | Nothing | n/a |
+| [Behrens et al. 2007](people.md#behrens-et-al-2007-people-learn-faster-when-the-world-is-volatile) | People, blue or green | Many swaps | No | Noisy | No | Hierarchical Bayesian learner | Stable phase reported |
+| [Bleser et al. 2026](people.md#bleser-et-al-2026-true-and-false-beliefs-about-volatility) | People, told the rule will or won't change | One flip per block | No | Noisy | Yes, half the time falsely | Fitted learning rates | Yes, stable blocks reported |
+| [Massey and Wu 2005](people.md#massey-and-wu-2005-system-neglect) | People, spotting a switch | At most one shift | n/a, beliefs only | Noisy | Yes | Bayesian posterior | Yes, overreaction is a finding |
+| [Brown and Steyvers 2009](people.md#brown-and-steyvers-2009-naming-a-change-versus-predicting-through-it) | People, a hidden source that jumps | Many jumps | No | Noisy | Not stated | Particle filter fits | No |
+| [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | The reward ratio jumps | No | Noisy | n/a | Ideal detector | No |
+| [Nassar et al. 2010](people.md#nassar-et-al-2010-a-learning-rate-that-rises-with-surprise) | People, predicting the next number | The mean jumps | No | Noisy | Yes | Reduced Bayesian learner | Yes, through prediction error |
+| [Gallistel et al. 2014](people.md#gallistel-et-al-2014-step-hold-and-take-it-back) | People, tracking a hidden share | The odds jump rarely | No | Noisy | Yes | Their own model | Yes, false alarm rates reported |
+| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Discerning baseline above, Uniform baseline below, Complacent and Perfect baselines as marks, on the same seeds | Yes, the No change and One shock scenarios are in the headline |
 
 ### The closest studies
 
-- **STOCKTAKE is closest in method.** Its yardstick player sees only what the agent sees, every player faces the same events, and it has a false alarm that looks real for a week, much like the dip in our no-change run.
-- **AdaExploreBench is closest in shape.** One silent change, and a score that runs from a do-nothing floor to an all-knowing oracle, like ours.
-- **Set-shifting is the only one with a matched no-change copy** of every run, but it reports that copy beside the score, not inside it.
+- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees, which makes it depend on what the agent chose to look at. Ours, the [Discerning baseline](../design/baselines.md#fixed-baselines), knows the climate but not the weather, so it is the same for every player and reachable in expectation.
+- **AdaExploreBench is closest in design.** One silent change, and a score that runs from a floor to a ceiling. Theirs is all-knowing. Ours, the Discerning baseline, knows the climate but not the weather.
+- **Set-shifting is the only one with a matched no-change copy** of every run. It reports that copy beside the score, not inside it. Our No change and One shock scenarios are inside the headline.
 
-[Bazaar](worlds-that-change.md#bazaar-ahmed-et-al-2026-pricing-when-customers-tastes-swap)'s unaffected customers share a run with the affected ones but get no result of their own. None of these gives both runs the same luck.
+## Which way do models fail?
 
-### Acting too early is the least studied failure
+Most studies only count being too slow. Wang counts a switch after a loss as good. STOCKTAKE leaves calm-week overreactions out of every score. AdaExploreBench doesn't count false alarms. Yet the studies disagree about which way models fail.
 
-Most studies only count being too slow. Wang counts a switch after a loss as good, STOCKTAKE leaves overreactions in calm weeks out of every score, and AdaExploreBench doesn't count false alarms. Yet the studies disagree about which way models fail:
+- **Too slow.** Wang finds models rarely switch after a loss. Set-shifting finds many lock into one routine. Bazaar's fastest learners adapted worst after the change.
+- **Too jumpy.** Gupta finds some models forget after a couple of flips. [Kumaran](past-in-the-prompt.md#kumaran-et-al-2025-whose-first-answer-it-was) finds they give too much weight to advice that disagrees with them. [Horowitz and Plonsky](learning-from-results.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result.
 
-- **Too slow.** Wang finds models rarely switch after a loss.
-- **Too jumpy.** Gupta finds some models forget after a couple of flips, Kumaran finds they give too much weight to advice that disagrees with them, and [Horowitz and Plonsky](worlds-that-change.md#horowitz-and-plonsky-2025-a-pull-towards-the-latest-result) find a strong pull towards the latest result.
+People research offers a way to predict the direction. Massey and Wu find people overreact when the world is stable and the signals are noisy, and underreact when it is changeable and the signals are precise. The No change and One shock scenarios are the first case. A switch at low noise is the second. Because every scenario feeds the headline, our score settles which way each model leans.
 
-Bleser tests both directions in people, but tells them up front how changeable the world is. Massey and Wu predict the direction from the world alone: people overreact when the world is stable and the signals are noisy, which is exactly our no-change run. Our score settles it, because whatever an agent loses by overreacting there counts against it.
-
-### Where each study bears on the design
+## Where each study bears on the design
 
 | Part of the design | Studies |
 |---|---|
-| [Why weather has memory](../design/decisions.md#why-weather-has-memory) | STOCKTAKE (a false alarm that looks real for a week), Massey and Wu (system neglect in a stable world), Zhang (slow drift) |
-| [Why a change is a typed event](../design/decisions.md#why-a-change-is-a-typed-event) | AdaExploreBench (swapped fields noticed three times as often as reversals) |
-| [Why the yoked dip](../design/decisions.md#why-the-yoked-dip) | STOCKTAKE (canal closure and false alarm), Set-shifting (resumed copies), Bazaar (unshocked customers), Massey and Wu |
-| [Why the agent writes its own notes](../design/decisions.md#why-the-agent-writes-its-own-notes) | Schubert, IBIS, Barkett, Kumaran, Fresh Memory, Stale Plans, STALE, ACE, Fork-and-Flush |
-| [Why the record comes from a baseline](../design/decisions.md#why-the-record-comes-from-a-baseline-and-its-style-is-a-factor) | BanditBench (example runs in the prompt), Coda-Forno, Liu |
-| [Why a budget split](../design/decisions.md#why-a-budget-split) | Haghani and Dewey, KellyBench, Wang (lose-shift), all from the [coin flip game we dropped](../spec/alternatives.md#why-the-coin-flip-game-was-dropped) |
-| [Why split doubting from switching](../design/decisions.md#why-split-doubting-from-switching) | Mazaheri, STOCKTAKE, Set-shifting |
-| [Why four baselines, and why the perfect one is the ceiling](../design/decisions.md#why-four-baselines-and-why-the-perfect-one-is-the-ceiling) | Adams and MacKay, Wilson, Behrens, STOCKTAKE, Mellor and Shapiro, Nassar, Gallistel 2014 |
-| [Complacency as a parameter, not a history](../design/decisions.md#complacency-as-a-parameter-not-a-history) | Coda-Forno, Behrens, Wilson, Gallistel, Massey and Wu |
-| [Why discernment is the full study headline](../design/decisions.md#why-discernment-is-the-full-study-headline) | METR, Wichmann and Hill, Mazaheri (sensitivity and bar), Miller (paired error bars) |
-| [Why the game is hard to game](../design/decisions.md#why-the-game-is-hard-to-game) | Set-shifting and AdaExploreBench (what a hint in the prompt does), Bleser (false warnings), the papers on [test awareness](measuring-agents.md) |
-| [Why the baselines set the difficulty](../design/decisions.md#why-the-baselines-set-the-difficulty) | Bazaar, BanditBench |
-| [Why four skins over one interface](../design/decisions.md#why-four-skins-over-one-interface) | Allen and McDonald (a masked game models couldn't name) |
-| [Future work](../design/future.md): [an inherited plan](../design/future.md#what-the-agent-knows-before-it-starts) | Ge, BanditBench, Krishnamurthy, Liu, the Self-Correction Illusion, Kumaran (whose notes they are), ACE, Fresh Memory, Stale Plans |
-| Future work: [full live run](../design/future.md#what-the-agent-knows-before-it-starts) | Schubert, IBIS |
-| Future work: [doubt question](../design/future.md#how-the-agent-can-act) | STOCKTAKE, STALE, Bleser, Brown and Steyvers, Schmied, Goel, KellyBench |
-| Future work: [later kinds of change](../design/future.md#how-the-world-changes) | Wang, AdaExploreBench |
-| Future work: [expensive switching](../design/future.md#how-the-agent-can-act) | Barkett |
-| Future work: [ergodic tries](../design/future.md#what-the-agent-knows-before-it-starts) | Coda-Forno, Mazaheri |
-| Future work: [human baseline](../design/future.md#whether-it-holds-outside-our-game) | Behrens, Bleser, Wang, Haghani and Dewey, Zhang |
-| Future work: [real task and second game](../design/future.md#whether-it-holds-outside-our-game) | STOCKTAKE, Bazaar, CoffeeBench, Allen and McDonald |
+| [Weather with persistence](../design/mechanics.md#each-round) | STOCKTAKE, Zhang 2025, Massey and Wu, Horowitz and Plonsky |
+| [Shock or switch, the shared factor and the hedge](../design/mechanics.md#events) | Mellor and Shapiro (all arms switch or one), Schmied (trying every arm once), Zhang 2025, AdaExploreBench |
+| [The old plan keeps paying](../design/mechanics.md#events) | Allen and McDonald, STOCKTAKE, Zhang 2025, Haq. The opposite: Wang, Set-shifting, Bazaar |
+| [A look costs](../design/mechanics.md#what-the-agent-sees) | BanditBench, Krishnamurthy, Zhang 2025, Horowitz and Plonsky |
+| [Linear payout](../design/mechanics.md#payout) and [no bankroll](../design/interface.md#rejected) | KellyBench, Haghani and Dewey |
+| [Bets are belief](../design/interface.md#how-the-agent-plays) | Gallistel 2014 (step and hold) |
+| [Nothing tells the agent](../design/interface.md#how-the-agent-plays) | Set-shifting, AdaExploreBench, Wang, Bleser, Nassar |
+| [Not asking for a chance of change](../design/interface.md#rejected) | Brown and Steyvers, Bleser, STALE, Goel, STOCKTAKE, Schmied |
+| [A fresh call each round, record in the prompt](../design/interface.md#tools) | Self-Correction Illusion, IBIS, Kumaran, Schubert, Barkett, Horowitz and Plonsky |
+| [No change and One shock scenarios](../design/scenarios.md#scenarios-we-test) | Massey and Wu, Nassar, Haghani and Dewey, Gupta, Kumaran |
+| [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) | Gallistel 2001, Behrens, Wilson, Coda-Forno, Bazaar |
+| [Scenarios we skip](../design/scenarios.md#scenarios-we-skip) | Behrens, Wang, Set-shifting (going back), Gallistel 2014 (taking it back) |
+| [Score from a floor to a ceiling on the same seeds](../design/scoring.md#how-we-score) | AdaExploreBench, STOCKTAKE |
+| [Pairing models by seed](../design/scoring.md#error-bars) | METR (correlated errors), STOCKTAKE (event tape) |
+| [Fixed baselines](../design/baselines.md#fixed-baselines) | BanditBench, Bazaar (Thompson sampling) |
+| [Bayesian baseline, parked](../design/baselines.md#not-yet) | Adams and MacKay, Wilson, Mellor and Shapiro, Nassar, Gallistel 2014 |
+| [Notepad and compute](../pilot/provider-checks.md#notepad-and-compute) | Liu, ACE, Fork-and-Flush, Bazaar, Krishnamurthy |
+| [Warm-up record](../../TODO.md#pilot) | BanditBench (example runs), Coda-Forno, Schmied (frequency bias), Fork-and-Flush |
+| [Reasoning setting](../harness/models.md#reasoning) | Mazaheri, Ge, Schmied, Zhang 2025 |
+| [Skins and contamination](../harness/contamination.md) | Allen and McDonald (masking), Needham, Schoen, Heidari |
+
+## Ideas we parked
+
+Some studies mattered most to ideas the design has since dropped or parked. They stay here in case those ideas come back.
+
+| Idea | Where it stands | Studies |
+|---|---|---|
+| Ask the agent how likely a change is | Rejected, as it tells the agent change is the question ([interface](../design/interface.md#rejected)) | STALE, Goel, STOCKTAKE, Schmied, KellyBench, Bleser, Brown and Steyvers |
+| Hand the agent a plan written by someone else | Not in the design. The record is the agent's own play | Kumaran, Barkett, Fresh Memory Stale Plans, STALE, Self-Correction Illusion, Ge, ACE |
+| Let the agent keep notes | Out of the headline, tried in the [pilot](../pilot/provider-checks.md#notepad-and-compute) | Liu, ACE, Fork-and-Flush, Bazaar |
+| A cost to switch | A conversion fee is rejected ([interface](../design/interface.md#rejected)). A cap on moves is the [inertia](../pilot/provider-checks.md#inertia) extension | Barkett, KellyBench |
+| A second game | A controller with feedback is kept as a second game ([interface](../design/interface.md#rejected)) | STOCKTAKE, Bazaar, CoffeeBench, Allen and McDonald |
+| A human baseline | Not in the design | Behrens, Bleser, Wang, Haghani and Dewey, Zhang 2025, Allen and McDonald |
 
 ## Gaps
 
 - **Not yet read in full.** Massey and Wu, Brown and Steyvers, Gallistel 2001 and the Kumaran journal version.
 - **Claude system cards.** What happened when the Sonnet 4.5 card suppressed eval awareness (sections 7.6.4 and 7.6.5) is unread, and so are later cards.
-- **Reward hacking.** The [themes table](themes.md) now links METR's, Anthropic's and Epoch's reports, but we haven't reviewed that literature.
-- **LLMs on a biased coin.** We found no one who has run LLMs on the Haghani and Dewey game, nor an LLM study of a bandit that switches once and stays switched. Both look open.
-- **Noise with memory.** Apart from STOCKTAKE's one week-long false alarm, every study above draws each result fresh. Whether models tell a bad stretch from a change when the noise itself has stretches looks open.
-- **Copying a demonstrated style.** BanditBench's example runs are the only test we found of a past that demonstrates how to play. Whether a model copies the experimentation rate of a record it reads is untested, and the pilot's history style cell is a first look.
+- **Reward hacking.** The [themes table](themes.md) links METR's, Anthropic's and Epoch's reports, but we haven't reviewed that literature.
+- **Noise with persistence.** Apart from STOCKTAKE's one week-long false alarm, every study here draws each result fresh. Whether models tell a bad stretch from a change, when the noise itself has stretches, looks open.
+- **A shared factor.** No LLM study we found has a market-wide bad week, where a look at other options tells you the dip is everyone's.
+- **A record from someone else.** BanditBench's example runs are the only test we found of a past that shows how to play. Whether a model copies the habits of a record it reads is untested. The [warm-up cell](../../TODO.md#pilot) is a first look.
+- **Forecasters as agents.** We read nothing on time-series models like Timestral, or on Jev, making decisions. Their [adapters](../design/interface.md#models-that-cannot-place-bets) rest on the design alone.
+- **Base rates.** No study here measures how often a dip turns out to be a switch in any real setting. Equal weights across scenarios are a prior, see [limits](../design/limits.md).
+- **Business strategy.** The motivation leans on Grove and on famous company stories. Apart from Allen and McDonald, we haven't reviewed the strategy research behind it.
