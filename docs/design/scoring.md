@@ -3,7 +3,7 @@
 ## How we score
 
 - **Each round the agent bets a fixed budget across channels**, see [interface](interface.md). Its bets are its belief: a small bet on a channel is a look, a large one is a switch.
-- **A run scores output as a fraction of what the [oracle](baselines.md), which knows each round's levels, would earn on the same seed.** This sits between 0 and 1 and strips out luck in the world's levels.
+- **A run scores output as a fraction of what the [Perfect baseline](baselines.md), which knows each round's levels, would earn on the same seed.** This sits between 0 and 1 and strips out luck in the world's levels.
 - **A scenario score is the plain mean of its runs.** Every model plays the same seeds, see [below](#seeds). The gap reads directly as the scenario's failure mode, see [traits](#traits).
 - **The headline is the geometric mean across [scenarios](scenarios.md).** A model must do well on every scenario to score highly. One bad scenario drags the whole figure down.
 
@@ -24,7 +24,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 
 ## Seeds
 
-- **A seed fixes the world.** It draws every channel's noise for every round up front, bet on or not, so two agents on one seed see the same world and differ only by what they do. The oracle runs on it too.
+- **A seed fixes the world.** It draws every channel's noise for every round up front, bet on or not, so two agents on one seed see the same world and differ only by what they do. The Perfect baseline runs on it too.
 - **One fixed set of seeds per scenario, the same set for every model.** A model is compared with a rival on the same worlds, not on a different roll of the dice, so the gaps between models are tighter.
 - **The headline plays the held-out seeds.** Public seeds are for checking our work, and the gap between the two is reported beside the headline. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the mean absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/checks.md#seeds).
@@ -55,7 +55,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 
 | Name | What changes between runs | Kind | Where it shows |
 |---|---|---|---|
-| Level luck | The channels' levels | Noise, removed by the oracle on the same seed | Nowhere, by design |
+| Level luck | The channels' levels | Noise, removed by the Perfect baseline on the same seed | Nowhere, by design |
 | Sampling spread | Nothing. Same seed, same skin, run again | Aleatoric, more seeds don't shrink it | A share of the spread, from the pilot |
 | World spread | The seed | Aleatoric, more seeds don't shrink it | The per-seed dots |
 | Spread | The seed, each played once, so both mixed | Aleatoric, more seeds don't shrink it | The dots and the 10th percentile run |

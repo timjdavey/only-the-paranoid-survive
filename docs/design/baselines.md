@@ -6,10 +6,10 @@ These are calculated scores based on fixed strategies.
 
 | Baseline | Betting rule | What it settles |
 |---|---|---|
-| Oracle | 100 on the channel with the highest level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 in the One shock scenario |
-| Steady | 100 on the channel with the highest level in the current regime. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
-| Stale | The oracle's round 1 bets, held to the end | The complacent floor. Matches steady in the No change and One shock scenarios, so the suite separates it only in scenarios with a switch or drift |
-| Uniform | 10 on every channel, every round | What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
+| Perfect baseline | 100 on the channel with the highest level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 in the One shock scenario |
+| Discerning baseline | 100 on the channel with the highest base level. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
+| Stale baseline | The Perfect baseline's round 1 bets, held to the end | The complacent floor. Matches the Discerning baseline in the No change and One shock scenarios, so the suite separates it only in scenarios with a switch or drift |
+| Uniform baseline | 10 on every channel, every round | What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
 
 ## Timestral
 
@@ -39,5 +39,5 @@ One run per row. The bets are whole numbers to 100, as on the [interface](interf
 | Baseline | Why not yet |
 |---|---|
 | Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid: it bets on past readings only, so there is no loop. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
-| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below stale. With a switch rule it is the constant look row |
+| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Stale baseline. With a switch rule it is the constant look row |
 | Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises. Add it once the pilot shows how often a sleeper rises |

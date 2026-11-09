@@ -11,7 +11,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | A [fresh call each round](../design/interface.md#tools) | A custom `@solver` round loop | Not `react` or `basic_agent`. They keep the conversation |
 | `submit(bets)` | A `@tool` that raises `ToolError` when the sum is off | The error is the neutral retry. A text reply with no call is a miss |
 | Game state, the tape, output so far, the record | A `StoreModel` on the sample | Written to the log, so a run can be replayed from any round |
-| Fraction of the oracle | A custom `@scorer` that runs the oracle on the same tape | One number per sample, 0 to 1 |
+| Fraction of the Perfect baseline | A custom `@scorer` that runs the Perfect baseline on the same tape | One number per sample, 0 to 1 |
 | Mean per scenario | `grouped(mean(), "scenario")` | See [scoring](../design/scoring.md) |
 | Error bars and the headline | Custom `@metric`s | Bootstrap seeds within a scenario, never across |
 | Baselines, Jev, Timestral | Custom `ModelAPI` providers | Same solver, same seeds, same logs as an LLM |
@@ -33,7 +33,7 @@ Each round the solver:
 
 - **Registered** under the `inspect_ai` entry point in `pyproject.toml`, so `--model baseline/stale` resolves.
 - **Each implements `generate`** and returns a `submit` tool call, never text. The solver cannot tell a provider from an LLM.
-- **Baselines** read the store, which holds the tape and the record, and call the engine's policy functions. Oracle and steady read the tape. Stale reads round 1. Uniform reads nothing.
+- **Baselines** read the store, which holds the tape and the record, and call the engine's policy functions. The Perfect and Discerning baselines read the tape. The Stale baseline reads round 1. The Uniform baseline reads nothing.
 - **Jev and Timestral** read the record and call out, see [adapters](adapters.md).
 
 ## Metrics

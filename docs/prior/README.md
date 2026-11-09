@@ -58,12 +58,12 @@ Studies where nothing changes are on their own pages.
 | [Gallistel et al. 2001](people.md#gallistel-et-al-2001-rats-that-have-seen-no-change) | Rats, two levers | The reward ratio jumps | No | Noisy | n/a | Ideal detector | No |
 | [Nassar et al. 2010](people.md#nassar-et-al-2010-a-learning-rate-that-rises-with-surprise) | People, predicting the next number | The mean jumps | No | Noisy | Yes | Reduced Bayesian learner | Yes, through prediction error |
 | [Gallistel et al. 2014](people.md#gallistel-et-al-2014-step-hold-and-take-it-back) | People, tracking a hidden share | The odds jump rarely | No | Noisy | Yes | Their own model | Yes, false alarm rates reported |
-| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Oracle above, stale and uniform below, on the same seeds | Yes, the No change and One shock scenarios are in the headline |
+| **Our game** | Bets of 100 points across ten channels | A shock, switch or drift, alone or in a row | Yes, the leader stays well above zero | Noisy and streaky, only on channels bet on, rougher on small bets | No | Perfect baseline above, Stale and Uniform baselines below, on the same seeds | Yes, the No change and One shock scenarios are in the headline |
 
 ### The closest studies
 
-- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees. Ours, the [oracle](../design/baselines.md#fixed-baselines), knows each round's levels. A yardstick that sees only what the agent sees is the [parked Bayesian baseline](../design/baselines.md#not-yet).
-- **AdaExploreBench is closest in design.** One silent change, and a score that runs from a floor to an all-knowing oracle, like ours.
+- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees. Ours, the [Perfect baseline](../design/baselines.md#fixed-baselines), knows each round's levels. A yardstick that sees only what the agent sees is the [parked Bayesian baseline](../design/baselines.md#not-yet).
+- **AdaExploreBench is closest in design.** One silent change, and a score that runs from a floor to an all-knowing ceiling, like our Perfect baseline.
 - **Set-shifting is the only one with a matched no-change copy** of every run. It reports that copy beside the score, not inside it. Our No change and One shock scenarios are inside the headline.
 
 ## Which way do models fail?
@@ -91,7 +91,7 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [No change and One shock scenarios](../design/scenarios.md#scenarios-we-test) | Massey and Wu, Nassar, Haghani and Dewey, Gupta, Kumaran |
 | [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) | Gallistel 2001, Behrens, Wilson, Coda-Forno, Bazaar |
 | [Scenarios we skip](../design/scenarios.md#scenarios-we-skip) | Behrens, Wang, Set-shifting (going back), Gallistel 2014 (taking it back) |
-| [Score as a fraction of the oracle](../design/scoring.md#how-we-score) | AdaExploreBench, STOCKTAKE |
+| [Score as a fraction of the Perfect baseline](../design/scoring.md#how-we-score) | AdaExploreBench, STOCKTAKE |
 | [Pairing models by seed](../design/scoring.md#error-bars) | METR (correlated errors), STOCKTAKE (event tape) |
 | [Fixed baselines](../design/baselines.md#fixed-baselines) | BanditBench, Bazaar (Thompson sampling) |
 | [Bayesian baseline, parked](../design/baselines.md#not-yet) | Adams and MacKay, Wilson, Mellor and Shapiro, Nassar, Gallistel 2014 |

@@ -23,7 +23,7 @@ People react to the signals in front of them and too little to the system that m
 - That engine then has a set of _narrative skins_ around it. So that the model thinks it is a real situation and so is more likely to act accordingly. But also this helps with contamination, as we can publish the game engine but disguise the game skin.
 - We [baseline](docs/design/baselines.md) a models performance against various strategies. 
 - A model has to respond appropriately in a variety of different [scenarios](docs/design/scenarios.md). The headline scores that one skill. Whether it predicts how an agent does on real work is a claim to test, see [themes](docs/prior/themes.md).
-- We [score](docs/design/scoring.md) each scenario as the mean over seeds of a model's output as a fraction of an oracle's, and take the geometric mean across scenarios as the headline. So it needs to perform well across all scenarios to score highly.
+- We [score](docs/design/scoring.md) each scenario as the mean over seeds of a model's output as a fraction of the Perfect baseline's, and take the geometric mean across scenarios as the headline. So it needs to perform well across all scenarios to score highly.
 - A [pilot](docs/pilot/checks.md) settles the knobs, such as how many seeds, before the full run.
 - This study avoids becoming saturated by extending the game. Increasing the number of shocks before a switch; or more subtle drift into a switch.
 - It has been designed so that we can test [Jev](https://docs.typesafe.ai/introduction) and [Timestral](https://github.com/mistralai/timestral) alongside classic LLMs.

@@ -58,13 +58,13 @@ kind = "timestral"
 reasoning = "n/a"
 
 [[model]]
-id = "baseline/oracle"
+id = "baseline/perfect"
 kind = "baseline"
 reasoning = "n/a"
 notes = "The ceiling. Every score is a fraction of it"
 
 [[model]]
-id = "baseline/steady"
+id = "baseline/discerning"
 kind = "baseline"
 reasoning = "n/a"
 

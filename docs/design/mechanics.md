@@ -5,7 +5,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 ## Payout
 
 - **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
-- **So the oracle goes all in** on the channel with the highest level. A split across channels only ever means doubt or a look. See [scoring](scoring.md).
+- **So the Perfect baseline goes all in** on the channel with the highest level. A split across channels only ever means doubt or a look. See [scoring](scoring.md).
 - **Output and levels are reported to one decimal place.**
 
 ## Generator
@@ -83,7 +83,7 @@ Off by default. Each one closes a tell a model could learn.
 
 | Option | Why not |
 |---|---|
-| Concave payout | The oracle splits too, so a split stops reading as belief. The agent has to be told the curve and do the maths, and a model bad at the maths looks like a model full of doubt |
+| Concave payout | The Perfect baseline splits too, so a split stops reading as belief. The agent has to be told the curve and do the maths, and a model bad at the maths looks like a model full of doubt |
 | A sigma per channel | With a fixed budget that does not compound and a linear payout, sigma never changes which channel is best. It adds risk maths the score never rewards |
 | Every channel visible | A look is free, so a calm agent and a paranoid one only differ by jumpiness. A forecaster then wins by reading series, which is a different study |
 | A hand-written table of means plus independent noise | Streaks cannot happen by chance, so three bad rounds prove too much. Every repeat of a shock is identical. No market-wide weeks, so a look never says "everyone is down" |

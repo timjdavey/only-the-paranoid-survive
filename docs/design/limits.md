@@ -8,5 +8,5 @@
 | **The stories cut both ways.** Kodak and Peloton are picked with hindsight | They motivate the question. The grounding is the human finding of system neglect, see [people](../prior/people.md#massey-and-wu-2005-system-neglect) | The No change and One shock scenarios sit in the headline, so holding on and jumping both cost |
 | **One skin in the proof of concept.** A model could be good at one story | Skin sensitivity is a finding, not an error, see [spread](scoring.md#spread) | More skins in the full study, each with its own headline |
 | **No human baseline.** A score compares models with each other, not with people | Comparing models over time needs no human anchor | Not planned. Massey and Wu's map says which way people err |
-| **The change never reacts to the agent.** Real plans often wear out because they are leaned on | A reactive change muddies the oracle, the seeds and the error bars | Not planned |
+| **The change never reacts to the agent.** Real plans often wear out because they are leaned on | A reactive change muddies the Perfect baseline, the seeds and the error bars | Not planned |
 | **Switching is free.** A model that never moves still earns most of the output | The score prices lateness every round. A fee leaks into every trait | The [inertia](scoring.md#extension-inertia) extension, if the pilot finds scores flat |

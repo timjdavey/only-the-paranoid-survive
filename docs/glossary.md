@@ -13,8 +13,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
-| Baseline | A fixed strategy run through the same game and score as the models. See [baselines](design/baselines.md) |
-| Oracle | The baseline that knows each round's levels. Every score is a fraction of what it earns |
+| Baseline | A fixed strategy run through the same game and score as the models. A fixed baseline's name always ends in "baseline", so it never reads as a plain adjective. See [baselines](design/baselines.md) |
+| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. Every score is a fraction of what it earns. `baseline/perfect` in code |
+| Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. `baseline/discerning` in code |
+| Stale baseline | The baseline that holds its round 1 bets to the end. `baseline/stale` in code |
+| Uniform baseline | The baseline that bets 10 on every channel, every round. `baseline/uniform` in code |
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 
