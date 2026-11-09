@@ -10,7 +10,7 @@ The first half of the pilot, a short run before the full study to settle the kno
 
 The three weather dials are set per release, see [difficulty](../design/mechanics.md#difficulty). The own-weather scale is the axis of the [noise grid](#noise-grid). These checks pick the other two, persistence and the shared-factor scale, and check the tapes they make.
 
-- **Streaks and The tell run first**, at the proof of concept weather scale.
+- **Streaks and The tell run first**, at a starting own-weather scale. The noise grid then picks the proof of concept setting around it.
 - **Luck on offer and Tape sanity** check every setting the noise grid tries.
 
 ### Streaks
