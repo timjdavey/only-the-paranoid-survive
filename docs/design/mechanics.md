@@ -77,7 +77,11 @@ Off by default. Each one closes a tell a model could learn.
 - **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
 - **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
 - **Why.** A look costs something, so paranoia has a price. You know a market by being in it.
-- **Output is paid at the true levels**, while each reading carries read noise. So the output line is a clean reading of the agent's whole split, and a model can learn more from it than from any one channel. This is why the weather scale, not read noise, is the grid's dial. Whether output should instead be summed from the noisy readings is open.
+- **Output is paid at the true levels, on purpose**, while each reading carries read noise. A business knows its revenue to the penny but only roughly which channel drove it.
+  - **It adds little beyond the readings.** Summing the readings the way output is summed already gives output to within an SD of k ÷ 10, whatever the split. So output is worth one clean reading of the agent's own mix, and nothing about any one channel.
+  - **It can't name the shape.** A dip in output says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes a look, see [events](#events).
+  - **It can't sharpen a small look.** With 99 on the leader and 1 on the hedge, output minus the leader's reading gives the hedge with an SD of about 10k, against k for the look itself.
+  - **This is why the weather scale, not read noise, is the grid's dial.**
 
 ## Defaults
 
@@ -95,3 +99,4 @@ Off by default. Each one closes a tell a model could learn.
 | A hand-written table of means plus independent noise | Streaks cannot happen by chance, so three bad rounds prove too much. Every repeat of a shock is identical. No market-wide weeks, so a look never says "everyone is down" |
 | Two or three factors, with events on loadings | Most realistic, but scenarios become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. A hard variant once one factor saturates |
 | Shocks that hit one channel only | A look cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |
+| Output summed from the noisy readings | It only adds one noise term with an SD of k ÷ 10, which changes little, see [what the agent sees](#what-the-agent-sees). And it breaks the skin, since no business estimates its own revenue |

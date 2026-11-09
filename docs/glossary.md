@@ -31,7 +31,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Word | What it means |
 |---|---|
 | Channel | One of the things the agent can put budget on. Each pays out at its own level |
-| Level | A channel's true payout, which its noisy output sits around. Never called a mean: that word is kept for averaging over runs |
+| Level | A channel's true payout, which its noisy reading sits around. Never called a mean: that word is kept for averaging over runs |
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |
 | Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |

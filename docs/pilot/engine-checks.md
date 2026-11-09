@@ -77,6 +77,7 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 - **Question.** How fast the read noise shrinks as the bet grows.
 - **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge, at a few strengths of read noise.
 - **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output.
+- **Output is exact,** so the agent always knows its own mix's level. Read noise only prices looks at single channels, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 - **Decide.** One strength, where a look is worth its cost but no look tells the whole story. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with looks.
 
 ## Baseline order
