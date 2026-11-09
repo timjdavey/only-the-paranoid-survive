@@ -115,7 +115,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 
 ### Warm up
 
-- **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name], tape, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of [`POLICIES`](providers.md#baseline). `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
+- **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name], tape, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of the baselines layer's [`POLICIES`](../baselines/policies.md#policies), built at its defaults. `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
 - **The agent then plays rounds `k + 1` to `rounds`.** Its round 1 user message shows `k` rows it did not place, see [user message](../../harness/prompts.md#user-message).
 - **Warm up rows score nothing** for the agent, and the baselines it is scored against are summed over the same rounds it played, see [scoring one run](scorer.md#scoring-one-run).
 - The warm up cell is in [decisions](../../pilot/decisions.md#provider-checks) as "Warm up: empty record or pre-filled".

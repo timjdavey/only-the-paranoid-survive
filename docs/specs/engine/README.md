@@ -1,6 +1,6 @@
 # Engine spec
 
-The engine is the game with no story. It turns a scenario and a seed into a [tape](../../glossary.md), plays bets against it, keeps the [record](../../design/interface.md#tools), and holds every fixed [baseline](../../design/baselines.md) as a pure function from what it may see to bets. It is deterministic, depends on numpy only, and knows nothing about skins, inspect_ai or any model. Why the game is the way it is lives in [mechanics](../../design/mechanics.md), [interface](../../design/interface.md) and [scenarios](../../design/scenarios.md).
+The engine is the game with no story. It turns a scenario and a seed into a [tape](../../glossary.md), plays bets against it, keeps the [record](../../design/interface.md#tools), and says what a policy may see, so the [baselines layer](../baselines/README.md) can hold every fixed [baseline](../../design/baselines.md) as a pure function from that view to bets. It is deterministic, depends on numpy only, and knows nothing about skins, inspect_ai or any model. Why the game is the way it is lives in [mechanics](../../design/mechanics.md), [interface](../../design/interface.md) and [scenarios](../../design/scenarios.md).
 
 ## Pages
 
@@ -9,12 +9,12 @@ The engine is the game with no story. It turns a scenario and a seed into a [tap
 | [config](config.md) | `ScenarioConfig`, the event specs, the eight scenarios, proposed defaults, `engine_hash` |
 | [tape](tape.md) | `make_tape`: seed streams, the ladder, weather, the shared factor, events, pinning, `Tape` |
 | [game](game.md) | `Game`, `Record`, `Row`, `play`, bet validation |
-| [policies](policies.md) | `View`, `Policy`, the six fixed baselines, what each may see |
+| [view](view.md) | `View`, `Start`, `Policy`, what a policy may see, and `split_budget` |
 | [tests](tests.md) | Every test the engine suite runs, with the page it checks |
 
 ## Exports
 
-`paranoid.engine` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#four-layers).
+`paranoid.engine` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -25,9 +25,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tap
 | `Game`, `BetError` | The round loop | [game](game.md) |
 | `Record`, `Row` | The agent's play so far | [game](game.md) |
 | `play` | `(Policy, Tape, ...) -> Record`, a whole run with no model | [game](game.md) |
-| `View`, `Policy`, `Start`, `split_budget` | What a policy sees and what it is, and the largest-remainder split | [policies](policies.md) |
-| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | The fixed baselines, as instances | [policies](policies.md) |
-| `HedgeRule`, `ScoutRule` | The two baselines with parameters, for pilot sweeps | [policies](policies.md) |
+| `View`, `Policy`, `Start`, `split_budget` | What a policy sees and what it is, and the largest-remainder split | [view](view.md) |
 
 ## What the layers above read
 
@@ -35,8 +33,9 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 
 | Layer | Its list |
 |---|---|
-| skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_tape`, `SCENARIOS` and `uniform` in its tests |
-| harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the tape, the game, `play`, the policies and `split_budget` |
+| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Policy`, `Bets`, `Tape`, `Record` and `split_budget`, and `play`, `make_tape` and `SCENARIOS` in its tests |
+| skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_tape` and `SCENARIOS` in its tests |
+| harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the tape, the game, `play`, `Policy` and `split_budget` |
 
 ## Modules
 
@@ -47,10 +46,10 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
       tape.py        make_tape, Tape, Event
       game.py        Game, BetError, play
       record.py      Record, Row
-      policies.py    View, Start, Policy, the six baselines
+      view.py        View, Start, Policy, split_budget
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.engine` only.
-- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#four-layers).
+- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
 
 ## Conventions
 

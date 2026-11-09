@@ -34,7 +34,7 @@ class Game:
     round: int                              # the round about to be played, from 1
     done: bool                              # round > tape.config.rounds
     def __init__(self, tape: Tape, record: Record | None = None)
-    def view(self, peeks: bool) -> View     # what a policy may see this round, see policies.md
+    def view(self, peeks: bool) -> View     # what a policy may see this round, see view.md
     def play(self, bets: Sequence[int]) -> Row     # the row it appended
 
 def play(policy: Policy, tape: Tape, *, max_rounds: int | None = None, record: Record | None = None) -> Record
@@ -87,14 +87,14 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 ### `view`
 
-- **`game.view(peeks)`** builds the `View` for the round about to be played: `round`, `channels`, `budget`, `start` from the tape's ladder, the game's record, and `tape` when `peeks` is true, else `None`. See [policies](policies.md#view).
-- The baseline provider in the harness plays a policy round by round through the solver, so it calls `view` and `play` itself. `play` below is the same loop with no solver.
+- **`game.view(peeks)`** builds the `View` for the round about to be played: `round`, `channels`, `budget`, `start` from the tape's ladder, the game's record, and `tape` when `peeks` is true, else `None`. See [view](view.md#view).
+- The baseline provider in the harness plays a [baselines layer](../baselines/README.md) policy round by round through the solver, so it calls `view` and `play` itself, see [baseline](../harness/providers.md#baseline). `play` below is the same loop with no solver.
 
 ### `play`
 
 - **`play(policy, tape)`** builds `Game(tape, record)`, then until the game is done or `max_rounds` rounds have been played: calls `policy(game.view(policy.peeks))` and plays the bets. It returns the game's record.
 - **`max_rounds`** caps how many rounds this call plays, counted from where the record left off. `None` plays to the end. So `play(complacent, tape, max_rounds=5)` is a five-round warm-up record.
-- **A `BetError` from a policy propagates.** A baseline that bets badly is a bug, not an agent to retry.
+- **A `BetError` from a policy propagates.** A baseline that bets badly is a bug, not an agent to retry, see [conventions](../baselines/README.md#conventions).
 
 ## Invariants
 

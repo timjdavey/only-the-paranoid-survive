@@ -1,5 +1,7 @@
 # Baselines
 
+What each baseline is for. What each one does, exactly, is the [baselines spec](../specs/baselines/README.md).
+
 ## Fixed baselines
 
 These are calculated scores based on fixed strategies.

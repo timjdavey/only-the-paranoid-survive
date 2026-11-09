@@ -40,7 +40,7 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | Key | Value |
 |---|---|
 | `output` | The sum of `row.output` over the rounds the agent played, `rows[warm_up_rounds:]` |
-| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, tape)` with the run's warm up record as its start, see [play](../engine/game.md#play) |
+| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, tape)` with the run's warm up record as its start, each policy at its defaults from the [baselines layer](../baselines/README.md#exports), see [play](../engine/game.md#play) |
 | `gain` | `output − uniform`, or 0 when the run gave up, see [giving up](#giving-up) |
 | `gap` | `discerning − uniform` |
 | `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread) |
@@ -104,7 +104,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 - `pooled_score` equals the gap-weighted mean of the run scores.
 - The same log gives the same metrics on every machine, with no seed file and no engine.
 - No metric reads a tape. The scorer is the only reader, and only through the store.
-- `perfect ≥ discerning` on every seed, see [EP6](../engine/tests.md#policies).
+- `perfect ≥ discerning` on every seed, see [BP5](../baselines/tests.md#policies).
 
 ## Not decided
 

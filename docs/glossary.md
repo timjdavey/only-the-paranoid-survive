@@ -26,6 +26,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Timestral odds | The Timestral baseline that splits its bets by each channel's chance of being the best. `timestral/odds` in code |
 | Timestral top pick with looks | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/look-1`, `look-2` and `look-5` in code |
 | Timestral odds, bet aware | Timestral odds, also told its past bets. `timestral/odds-bet-aware` in code |
+| Forecast rule | A rule that turns a forecast's quantiles into a split. Timestral's bets go through one, and a Bayesian baseline would too. `ForecastRule` in code. See [forecast](specs/baselines/forecast.md) |
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 | Spec | The contract a layer of the code is written to and tested against. One folder per layer in [specs](specs/README.md). Design pages say why, specs say what |

@@ -35,7 +35,7 @@ Each round the solver:
 - **Registered** under the `inspect_ai` entry point in `pyproject.toml`, so `--model baseline/complacent` resolves.
 - **Each implements `generate`** and returns a `submit` tool call, never text. The solver cannot tell a provider from an LLM.
 - **A provider ignores the messages it is sent** and reads the store instead. The record an LLM sees and the tape a baseline sees are both on the sample. This leans on inspect's per-sample `store()` being in scope inside `generate`, which is to be confirmed when the harness is built.
-- **Baselines** call the engine's policy functions. The Perfect and Discerning baselines read the tape. The Complacent baseline reads round 1. The Uniform baseline reads nothing.
+- **Baselines** call the [baselines layer](../specs/baselines/README.md)'s policies. The Perfect and Discerning baselines read the tape. The Complacent baseline reads round 1. The Uniform baseline reads nothing.
 - **Jev and Timestral** read the record and call out, see [providers](providers.md).
 
 ## Metrics

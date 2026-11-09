@@ -26,7 +26,7 @@ This matters most.
 |---|---|---|
 | A scenario | An events list in `paranoid.engine`, a row in [scenarios](docs/design/scenarios.md) | Tie it to a failure mode and test its reverse |
 | A skin | A TOML file, see [skins](docs/harness/skins.md) and [writing a skin](docs/harness/writing-a-skin.md) | It must pass the lint. Held-out skins go in the private repo |
-| A baseline | A pure policy in `paranoid.engine`, a provider in `paranoid.harness`, a row in [baselines](docs/design/baselines.md) | Check the [baseline order](docs/pilot/engine-checks.md#baseline-order) still holds |
+| A baseline | A pure policy in `paranoid.baselines` and a key in its `POLICIES`, see the [baselines spec](docs/specs/baselines/README.md), a row in [baselines](docs/design/baselines.md). The harness then plays it as `baseline/<name>` with no change | Check the [baseline order](docs/pilot/engine-checks.md#baseline-order) still holds |
 | Seeds | Public seeds in `configs/seeds/public.txt`, held-out seeds in the private repo's `held-out.txt`. One list for every scenario, see [contamination](docs/harness/contamination.md#two-seed-sets) | Never publish a held-out seed, its tape or a log that played it |
 | A model | A row in `configs/models/` | Say its reasoning setting |
 | A pilot check | A section in [engine checks](docs/pilot/engine-checks.md) if it needs no model, else in [provider checks](docs/pilot/provider-checks.md), and a row in [decisions](docs/pilot/decisions.md) | |
