@@ -1,6 +1,6 @@
 # Skins
 
-A skin is the story dressed over the engine, see [glossary](../glossary.md). This page is how a skin is written and where it lives. Why skins exist is in the [README](../../README.md#design).
+A skin is the story dressed over the engine, see [glossary](../glossary.md). This page is how a skin is written and where it lives. Why skins exist is in the [README](../../README.md#design). What the code must do with one is in the [skins spec](../specs/skins/README.md).
 
 ## What a skin file holds
 
@@ -32,7 +32,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `example` | `src/paranoid/skins/example.toml` | Yes. The one in published logs |
 | The held-out skins | A private repo, mounted at `PARANOID_SKINS` | No |
 
-- `load_skins(path)` reads every TOML file in the folder. With `PARANOID_SKINS` unset only `example` loads.
+- `load_skins(path)` reads every TOML file in the folder, and `load_skin(path)` reads one. With `PARANOID_SKINS` unset only `example` loads. See [skin](../specs/skins/skin.md#load_skins).
 - The private repo holds two folders and nothing else: `skins/`, a plain folder of TOML files, and `seeds/`, the held-out seeds. `PARANOID_SKINS` and `PARANOID_SEEDS` point at them. See [contamination](contamination.md#two-seed-sets).
 
 ## Lint

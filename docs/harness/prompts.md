@@ -4,7 +4,7 @@ What the agent sees. Each round is one call with a system prompt and one user me
 
 - **The [frame](../glossary.md) is fixed.** Every prompt states the same facts, listed under [what every skin must say](#what-every-skin-must-say).
 - **The wording belongs to the skin.** Each skin words the frame itself, so the wording shown here is only the example skin's. A held-out skin words it differently, see [contamination](contamination.md#why).
-- **Changing a word changes the study.** Each rendered prompt is hashed and the hash goes in the log as `prompt_hash`.
+- **Changing a word changes the study.** The rendered system prompt and the tool text are hashed and the hash goes in the log as `prompt_hash`, see the [skins spec](../specs/skins/render.md#prompt-hash).
 
 ## Placement
 
