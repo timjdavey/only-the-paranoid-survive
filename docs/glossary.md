@@ -12,6 +12,9 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
 | Seed | The number that fixes a run's world: every channel's noise for every round, drawn up front |
+| Seed set | The fixed list of seeds a scenario plays. Each scenario has two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
+| Public seeds | Seeds published in this repo with their tapes. For the pilot, the example logs and anyone checking our work |
+| Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
 | Channel | One of the things the agent can put budget on. Each pays out at its own level |
 | Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
 | Scenario | A pattern of change we put each model through. See [scenarios](design/scenarios.md) |

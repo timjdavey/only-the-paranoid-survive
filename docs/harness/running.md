@@ -20,13 +20,14 @@
 | Rebuild the results tables | `uv run paranoid analyse logs/` |
 
 - **Task args:** `scenario`, `seeds`, `skin`, `rounds`, `tools` (none, notes, compute) and `inertia`. Defaults are the frozen study settings.
-- **Every log records** the engine hash, the prompt hash and the skin name in metadata.
+- **`seeds`** takes `public`, `held-out`, or a range of public seeds such as `0-4`. `held-out` needs `PARANOID_SEEDS` set, see [contamination](contamination.md#two-seed-sets).
+- **Every log records** the engine hash, the prompt hash, the skin name and the seed set in metadata.
 
 ## Logs
 
 - Written to `logs/`, gitignored.
-- A log holds the full prompt, so logs from a private skin never leave the machine. See [contamination](contamination.md).
-- Published logs come from the public skin only and go in `results/logs/`.
+- A log holds the full prompt and every reading, so logs from a held-out skin or a held-out seed never leave the machine. See [contamination](contamination.md).
+- Published logs come from the example skin on public seeds only and go in `results/logs/`.
 
 ## Cost guard
 

@@ -6,7 +6,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 
 | Design | inspect | Note |
 |---|---|---|
-| A [run](../glossary.md) on one seed, scenario and skin | `Sample`, with `scenario`, `seed`, `skin`, `engine_hash` and `prompt_hash` in `metadata` | The same seeds for every model falls out for free |
+| A [run](../glossary.md) on one seed, scenario and skin | `Sample`, with `scenario`, `seed`, `seed_set`, `skin`, `engine_hash` and `prompt_hash` in `metadata` | The same seeds for every model falls out for free |
 | Playing a seed again, see [repeats](../pilot/checks.md#repeats) | `epochs` | Built in |
 | A [fresh call each round](../design/interface.md#tools) | A custom `@solver` round loop | Not `react` or `basic_agent`. They keep the conversation |
 | `submit(bets)` | A `@tool` that raises `ToolError` when the sum is off | The error is the neutral retry. A text reply with no call is a miss |

@@ -10,7 +10,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 ## Generator
 
-The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels run 0 to 100. Every run on a seed replays the same tape, and tapes are published with the engine.
+The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels run 0 to 100. Every run on a seed replays the same tape, and the tapes of public seeds are published with the engine. Held-out seeds' tapes are not, see [contamination](../harness/contamination.md#two-seed-sets).
 
 ### Each round
 

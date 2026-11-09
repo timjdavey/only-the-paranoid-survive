@@ -9,6 +9,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 
 ## Code
 - Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first.
-- `configs/seeds/` once the engine exists.
+- `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
+- Ask each provider in `configs/models/` for zero data retention before a held-out run.
 - The canary GUID once the example skin exists, see [contamination](docs/harness/contamination.md#canary).
 - Verify the model ids in `configs/models/poc.toml` before the first run.

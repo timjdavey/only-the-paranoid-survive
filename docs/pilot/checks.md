@@ -7,9 +7,9 @@ A short run before the full study to settle the knobs.
 Sizes the [error bar](../design/scoring.md#error-bars).
 
 - **Question.** How many seeds a scenario needs.
-- **Run.** One model, one scenario, say shock. Twenty seeds played once.
+- **Run.** One model, one scenario, say shock. Twenty public seeds played once, as pilot logs are published. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Measure.** The SD of the run score across seeds. This is the [spread](../design/scoring.md#spread).
-- **Decide.** Seeds per scenario = (SD ÷ target error bar)², rounded up. The target is a fraction, say a fifth, of the smallest gap between [baselines](../design/baselines.md) we want to read.
+- **Decide.** Seeds per scenario = (SD ÷ target error bar)², rounded up. The target is a fraction, say a fifth, of the smallest gap between [baselines](../design/baselines.md) we want to read. This sizes the held-out seed set.
 
 ## Repeats
 

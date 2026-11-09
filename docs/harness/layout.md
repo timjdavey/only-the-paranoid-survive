@@ -31,7 +31,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
     pyproject.toml  .env.example
     configs/
       models/      poc.toml and full.toml. See models.md
-      seeds/       one file per scenario, once the engine exists
+      seeds/       public seeds, one file per scenario, once the engine exists. Held-out seeds are private, see contamination.md
     docs/
       design/      why. The decisions
       harness/     how. This folder

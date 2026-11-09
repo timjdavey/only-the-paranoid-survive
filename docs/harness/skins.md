@@ -26,7 +26,7 @@ One TOML file per skin. Each field fills a bracket in the [system prompt](prompt
 | The held-out skins | A private repo, mounted at `PARANOID_SKINS` | No |
 
 - `load_skins(path)` reads every TOML file in the folder. With `PARANOID_SKINS` unset only `example` loads.
-- The private repo is a plain folder of TOML files and nothing else.
+- The private repo holds two folders and nothing else: `skins/`, a plain folder of TOML files, and `seeds/`, the held-out seeds. `PARANOID_SKINS` and `PARANOID_SEEDS` point at them. See [contamination](contamination.md#two-seed-sets).
 
 ## Lint
 

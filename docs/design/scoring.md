@@ -11,6 +11,7 @@
 
 - **A seed fixes the world.** It draws every channel's noise for every round up front, bet on or not, so two agents on one seed see the same world and differ only by what they do. The oracle runs on it too.
 - **One fixed set of seeds per scenario, the same set for every model.** A model is compared with a rival on the same worlds, not on a different roll of the dice, so the gaps between models are tighter.
+- **The headline plays the held-out seeds.** Public seeds are for checking our work, and the gap between the two is reported beside the headline. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the mean absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/checks.md#seeds).
 
 ## Why a mean within and a geometric mean across
