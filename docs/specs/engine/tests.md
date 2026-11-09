@@ -102,7 +102,7 @@ With `hypothesis`, kept fast with a small example count.
 
 ## Pilot decides
 
-- ET22 doubles as [Tape sanity](../../pilot/engine-checks.md#tape-sanity) in the pilot, which runs it at every grid setting and records the numbers. Baseline order is [BP7](../baselines/tests.md#policies).
+- ET22 doubles as [Tape sanity](../../pilot/engine-checks.md#tape-sanity) in the pilot, which runs it at every grid setting and records the numbers. Baseline order is the pilot's, with the part no knob can change in [BP7](../baselines/tests.md#policies).
 
 ## Not decided
 

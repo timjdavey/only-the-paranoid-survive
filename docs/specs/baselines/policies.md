@@ -7,16 +7,22 @@ The four fixed baselines with no parameters, and `POLICIES`, the mapping from th
 ## Interface
 
 ```python
-uniform: Policy        # peeks = False
-discerning: Policy     # peeks = True
-complacent: Policy     # peeks = False
-perfect: Policy        # peeks = True
+@dataclass(frozen=True)
+class Uniform: ...                          # peeks: ClassVar[bool] = False
+@dataclass(frozen=True)
+class Discerning: ...                       # peeks: ClassVar[bool] = True
+@dataclass(frozen=True)
+class Complacent: ...                       # peeks: ClassVar[bool] = False
+@dataclass(frozen=True)
+class Perfect: ...                          # peeks: ClassVar[bool] = True
 
-POLICIES: Mapping[str, Policy | type[Policy]]
-# uniform, discerning, complacent, perfect as instances. hedge_rule and scout_rule as HedgeRule and ScoutRule
+uniform, discerning, complacent, perfect: Policy   # one instance of each
+
+POLICIES: Mapping[str, Callable[..., Policy]]
+# the six baseline/<name> names to the six classes, so POLICIES[name](**args) builds any baseline
 ```
 
-- Each of the four is an instance of a frozen dataclass with no fields, see [conventions](README.md#conventions).
+- The four classes have no fields, so one instance of each is exported by name and the classes are not exported. `POLICIES` carries them, see [conventions](README.md#conventions).
 - `POLICIES` has exactly six keys, the names in the [glossary](../../glossary.md#the-study) after `baseline/`. Assigning to it raises `TypeError`.
 
 ## Behaviour
@@ -36,15 +42,14 @@ POLICIES: Mapping[str, Policy | type[Policy]]
 
 ### `POLICIES`
 
-- **Instances and classes.** `uniform`, `discerning`, `complacent` and `perfect` map to the instances above. `hedge_rule` and `scout_rule` map to the classes `HedgeRule` and `ScoutRule`, so a caller can build one with parameters.
-- **Parameters come as strings.** inspect passes `-M look=1` as `{"look": "1"}`, so the harness builds a class entry with `POLICIES[name](**args)` after casting each value to the dataclass field's type, see [baseline](../harness/providers.md#baseline). The cast is the harness's. The errors are this layer's:
-  - An unknown field raises `TypeError` from the dataclass, which the harness reports as `ValueError` naming the known fields.
-  - A class entry with no arguments is the engine's default instance: `POLICIES["hedge_rule"]() == hedge_rule`.
-  - An instance entry takes no arguments. The harness raises `ValueError` if any are given.
+- **Every entry is a class.** `Uniform`, `Discerning`, `Complacent`, `Perfect`, `HedgeRule` and `ScoutRule`, under the glossary names. So the harness builds any baseline the same way, `POLICIES[name](**args)`, and never asks which kind of entry it holds.
+- **Built with no arguments, every entry equals its exported instance.** `POLICIES["hedge_rule"]() == hedge_rule` and `POLICIES["uniform"]() == uniform`.
+- **Parameters come as strings.** inspect passes `-M look=1` as `{"look": "1"}`. The harness casts each value to the dataclass field's type and calls the class, see [baseline](../harness/providers.md#baseline). A field the class does not have raises `TypeError` from the dataclass, which is how a class with no fields rejects any argument at all. What the harness tells the user is its rule, not this layer's.
 - **Every entry is a `Policy`** once built, with `peeks` and `__call__`, see [conventions](README.md#conventions).
 
 ## Invariants
 
+- Every entry in `POLICIES`, built at its defaults, returns a valid split for every view: `channels` ints, none negative, summing to `budget`.
 - `complacent` on round 1 equals `discerning` on round 1, on every tape.
 - `discerning` and `complacent` are equal on every round of a No change tape.
 - `perfect`'s output is at least `discerning`'s on every seed of every scenario.

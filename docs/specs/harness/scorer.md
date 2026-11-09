@@ -52,6 +52,7 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
 
 - **The baselines replay the agent's warm up.** `play(policy, tape, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
+- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](command.md#pilot-cells). The score needs them whatever the agent's config, so `gain` plays them against a tape made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_tape` never reads the cap, see [config](../engine/config.md#fields).
 - **Every number comes from the record's rounded outputs**, never from the tape's levels, see [readings](../engine/game.md#readings). The agent and the scorer agree on every number.
 - **The baselines are deterministic**, so across epochs they are constant and the mean reducer leaves them alone.
 - **The scorer never reads the messages.** The store is the run.

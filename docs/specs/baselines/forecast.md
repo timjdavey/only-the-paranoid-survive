@@ -43,12 +43,12 @@ FORECAST_RULES: Mapping[str, ForecastRule]   # "top-pick", "odds", "look-1", "lo
 |---|---|
 | `TopPick` | `budget` on the channel with the highest median, `quantiles[:, 10]`. Ties go to the lowest index |
 | `TopPickWithLooks(look)` | `look` on every channel but the top pick, `budget − look × (channels − 1)` on it. 91, 82 or 55 on the pick at the defaults for `look_1`, `look_2`, `look_5` |
-| `Odds(draws)` | `split_budget(p, budget)` where `p[c]` is the share of `draws` draws in which channel `c` is highest. Each draw takes one value per channel from its quantile function by linear interpolation over `QUANTILE_LEVELS`, with `default_rng(0)`, so the same quantiles give the same split on every call |
+| `Odds(draws)` | `split_budget(p, budget)` where `p[c]` is the share of `draws` draws in which channel `c` is highest. Each draw takes one value per channel from its quantile function by linear interpolation over `QUANTILE_LEVELS`, with `default_rng(0)`, so the same quantiles give the same split on every call. A draw below the first level or above the last takes the end quantile, as `np.interp` does |
 
-- **A channel with no reading yet** has a `NaN` row. `TopPick` and `TopPickWithLooks` treat its median as lowest. `Odds` gives it no draws, so it gets 0 unless a leftover point falls to it, see [`split_budget`](../engine/view.md#split_budget).
+- **A channel with no reading yet** has a `NaN` row. `TopPick` and `TopPickWithLooks` treat its median as lowest, and `Odds` gives it no draws. So `TopPick` gives it 0, `Odds` gives it 0 unless a leftover point falls to it, see [`split_budget`](../engine/view.md#split_budget), and `TopPickWithLooks` gives it `look`, which is how a dark channel gets read. `NaN` rows are masked before any argmax, as `np.argmax` returns the first `NaN`.
 - **Every channel `NaN`** raises `ValueError`. There is nothing to forecast from, and the caller should have bet `uniform` instead, as the Timestral provider does on round 1, see [Timestral](../harness/providers.md#timestral).
 - **`look × (channels − 1)` must be below `budget`**, else `ValueError` when the rule is called, as `channels` is the array's.
-- **A wrong shape** raises `ValueError`: not two dimensions, or the last axis not `len(QUANTILE_LEVELS)`.
+- **A bad array** raises `ValueError`: not two dimensions, the last axis not `len(QUANTILE_LEVELS)`, a row that is partly `NaN`, or a finite row that is not ascending. The rules never sort. Crossed quantiles are the forecaster's to fix, so the Timestral provider sorts each row before it calls a rule, see [Timestral](../harness/providers.md#timestral).
 - **A tiny share rounds to 0.** `Odds` can give a channel a bet of 0 and so a blank reading next round. The pilot watches how often, see [Timestral checks](../../pilot/provider-checks.md#timestral-checks).
 
 ## Defaults

@@ -24,6 +24,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tap
 | `make_tape`, `Tape`, `Event` | `(ScenarioConfig, int) -> Tape` and its result | [tape](tape.md) |
 | `Game`, `BetError` | The round loop | [game](game.md) |
 | `Record`, `Row` | The agent's play so far | [game](game.md) |
+| `Bets` | `tuple[int, ...]`, one whole number per channel summing to the budget | [game](game.md) |
 | `play` | `(Policy, Tape, ...) -> Record`, a whole run with no model | [game](game.md) |
 | `View`, `Policy`, `Start`, `split_budget` | What a policy sees and what it is, and the largest-remainder split | [view](view.md) |
 
@@ -35,7 +36,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 |---|---|
 | baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Policy`, `Bets`, `Tape`, `Record` and `split_budget`, and `play`, `make_tape` and `SCENARIOS` in its tests |
 | skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_tape` and `SCENARIOS` in its tests |
-| harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the tape, the game, `play`, `Policy` and `split_budget` |
+| harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the tape, the game, `Bets`, `play`, `Policy` and `split_budget` |
 
 ## Modules
 

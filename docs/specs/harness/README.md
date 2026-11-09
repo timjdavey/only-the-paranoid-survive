@@ -67,7 +67,7 @@ The harness imports these from `paranoid.engine`. Their behaviour is in the [eng
 |---|---|
 | `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION` | The config a sample plays, and the hash and version in its metadata, see [scenarios and config](task.md#scenarios-and-config) |
 | `make_tape`, `Tape` | The tape the store rebuilds from config and seed, see [store](task.md#store) |
-| `Game`, `Record`, `Row`, `BetError` | The round the `submit` tool plays and the rows the store keeps, see [submit](solver.md#submit) |
+| `Game`, `Record`, `Row`, `Bets`, `BetError` | The round the `submit` tool plays, the rows the store keeps and the split a provider returns, see [submit](solver.md#submit) |
 | `play` | Warm up rows, and every baseline's output in the score, see [warm up](task.md#warm-up) and [scoring one run](scorer.md#scoring-one-run) |
 | `Policy` | The type the baseline provider holds, see [baseline](providers.md#baseline) |
 | `split_budget` | Jev's probabilities into bets, see [Jev](providers.md#jev) |

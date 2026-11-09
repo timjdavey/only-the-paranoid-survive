@@ -22,10 +22,6 @@ The baselines named in [not yet](../../design/baselines.md#not-yet), with what i
 - **Shape.** A `Policy` with `peeks` false: `budget` split between `start.leader` and `start.runner_up`, with a switch rule like the hedge rule's fall test on the leader. A cheap win when only the leader falls, a decoy when a sleeper rises, and blind in the Up switch scenario as it never looks past the runner-up.
 - **Waits for** [Up and down](../../pilot/engine-checks.md#up-and-down) showing how often a sleeper rises.
 
-### Fixed split
-
-- **Not planned.** Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the hedge rule or `TopPickWithLooks`, see [not yet](../../design/baselines.md#not-yet).
-
 ## Not decided
 
 - Whether the Bayesian baseline's quantiles should come from a closed form or from samples. Decide when it is written, after Timestral has run.

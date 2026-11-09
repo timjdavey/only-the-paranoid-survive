@@ -19,7 +19,7 @@ The baselines layer holds every fixed [baseline](../../design/baselines.md) as a
 | Name | Kind | Page |
 |---|---|---|
 | `uniform`, `discerning`, `complacent`, `perfect` | The four fixed baselines, as instances | [policies](policies.md) |
-| `POLICIES` | Read only `Mapping[str, Policy | type[Policy]]`, the six `baseline/<name>` names | [policies](policies.md) |
+| `POLICIES` | Read only `Mapping[str, Callable[..., Policy]]`, the six `baseline/<name>` names to their classes | [policies](policies.md) |
 | `HedgeRule`, `ScoutRule` | Frozen dataclasses with parameters, for the pilot sweeps | [rules](rules.md) |
 | `hedge_rule`, `scout_rule` | `HedgeRule()` and `ScoutRule()` at the defaults | [rules](rules.md) |
 | `ForecastRule`, `QUANTILE_LEVELS`, `ODDS_DRAWS` | The protocol, the quantile grid and the draw count | [forecast](forecast.md) |
@@ -61,16 +61,14 @@ What each layer above takes from this one is listed on that layer's README, so e
 
 ## Conventions
 
-- **Every policy is an instance of a frozen dataclass with `__call__` and a `peeks` class attribute.** A plain function with an attribute bolted on does not satisfy the engine's `Policy` protocol for a type checker. So the harness treats every entry in `POLICIES` alike.
+- **Every policy is an instance of a frozen dataclass with `__call__` and `peeks` declared `ClassVar[bool]`.** A plain function with an attribute bolted on does not satisfy the engine's `Policy` protocol for a type checker. A `ClassVar` is not a field, so `peeks` is never a constructor argument and the harness's `-M` cast cannot reach it, see [baseline](../harness/providers.md#baseline). So the harness treats every entry in `POLICIES` alike.
 - **A policy is pure.** Same view, same split. No state between calls. A rule with state recomputes it from the record each round, or caches by record length and gets the same answer.
-- **Only the yardstick peeks.** `discerning` and `perfect` read the tape. Every other policy has `peeks` false, works with `view.tape = None` and never reads it, see [view](../engine/view.md#view) and [why these two baselines](../../design/scoring.md#why-these-two-baselines).
+- **Only the yardstick peeks.** `discerning` and `perfect` read the tape. Every other policy has `peeks` false, works with `view.tape = None` and never reads it, see [view](../engine/view.md#view) and [why these two baselines](../../design/scoring.md#why-these-two-baselines). A peeking baseline's bets follow the tape, so a log of `baseline/discerning` on a held-out seed is as private as the seed, see [contamination](../../harness/contamination.md#public-and-held-out).
 - **A baseline that bets badly is a bug.** Every policy returns a valid split for its view, or raises. Nothing here retries, see [play](../engine/game.md#play).
 - **The layer writes no text.** Nothing here renders a prompt or a message. The skins layer renders, the harness logs.
 - **Bets are written as `budget` on a channel** on these pages, meaning every point on it and 0 elsewhere.
 
 ## Invariants
 
-- Every policy in `POLICIES`, built at its defaults, returns a valid split for every view: `channels` ints, none negative, summing to `budget`.
 - A policy with `peeks` false returns the same split whether `view.tape` is the tape or `None`.
 - No policy edits the view, the record or the tape. The tape's arrays are read only, see [tape](../engine/tape.md#interface).
-- Every forecast rule returns a valid split for any quantile array with at least one finite row.
