@@ -42,11 +42,11 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 | Shape | What it edits | Who moves | Drawn per seed |
 |---|---|---|---|
 | Shock | An impulse into the shared factor that decays | Every channel by its loading, so most fall and the hedge rises | Depth in sigmas, onset round, half-life, profile: sharp fall and slow climb, or slow slide and quick rebound |
-| Switch | A base level | The leader falls. Sometimes a **sleeper** in the field also rises past the leader's old level, and its loading is redrawn so it stops moving with its old group | Size in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, whether a sleeper rises and which |
+| Switch | A base level | The leader falls, a **sleeper** in the field rises past the leader's level, or both. The sleeper's loading is redrawn so it stops moving with its old group | Size in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, which sleeper rises, and the direction where the scenario leaves it open |
 | Drift | A base level, slowly | As a switch, over many more rounds | Slope in sigmas per round, length, profile: linear or logistic |
 
 - **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. A look at any unfunded channel tells them apart. A look at the hedge tells them apart fastest.
-- **Why a switch sometimes has a riser.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. Mixing the two per seed means a model cannot learn that a fall always comes with a riser, or never does.
+- **Why a switch comes in three kinds.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When the leader falls and a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. When only a sleeper rises, nothing in the agent's record moves and the test is whether it was looking at all. The [Down switch scenario](scenarios.md#scenarios-we-test) draws the first two per seed, so a model cannot learn that a fall always comes with a riser, or never does. The Up switch scenario pins the third.
 - **The old plan keeps paying.** A switch leaves the leader well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 
 ### Stringing events
@@ -59,7 +59,7 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 
 - **Signal to noise is the axis.** The size of a switch in level points over the weather's SD per round. With a high ratio one reading settles whether a dip is a shock or a switch. With a low one it takes many rounds.
 - **Three dials move it**, all set per release and picked in the [engine checks](../pilot/engine-checks.md#weather): own-weather scale, persistence and shared-factor scale. Every scenario shares them, so twin tapes keep the same weather. The own-weather scale is the axis the [noise grid](../pilot/engine-checks.md#noise-grid) turns. Persistence never moves within a release, as it changes what a bad stretch means.
-- **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the prize would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting.
+- **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the prize would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. A rise is pinned the same way, as the sleeper's end level above the leader's.
 - **A harder release extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
 
 ### Hard-variant knobs
@@ -80,6 +80,7 @@ Off by default. Each one closes a tell a model could learn.
 - **Output is paid at the true levels, on purpose**, while each reading carries read noise. A business knows its revenue to the penny but only roughly which channel drove it.
   - **It adds little beyond the readings.** Summing the readings the way output is summed already gives output to within an SD of k ÷ 10, whatever the split. So output is worth one clean reading of the agent's own mix, and nothing about any one channel.
   - **It can't name the shape.** A dip in output says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes a look, see [events](#events).
+  - **It can't see a rise.** A sleeper rising on a channel with a bet of 0 changes nothing the agent sees. The Up switch scenario is invisible without a look.
   - **It can't sharpen a small look.** With 99 on the leader and 1 on the hedge, output minus the leader's reading gives the hedge with an SD of about 10k, against k for the look itself.
   - **This is why the weather scale, not read noise, is the grid's dial.**
 

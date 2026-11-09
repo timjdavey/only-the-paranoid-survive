@@ -16,6 +16,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Baseline order](engine-checks.md#baseline-order) | | | |
 | Events per run and minimum gap | | | |
 | Switch size in level points on the noise grid | | | |
+| [Up and down](engine-checks.md#up-and-down), sleeper share, rise size in level points and the Scout rule's `n` | | | |
 | Loading range and ladder ranges | | | |
 
 ## Provider checks
@@ -24,6 +25,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 |---|---|---|---|
 | [Seeds](provider-checks.md#seeds) | | | |
 | [Repeats](provider-checks.md#repeats) | | | |
+| [Up against down](provider-checks.md#up-against-down) | | | |
 | [Timestral checks](provider-checks.md#timestral-checks) | | | |
 | [Notepad and compute](provider-checks.md#notepad-and-compute) | | | |
 | [Rolling conversation](provider-checks.md#rolling-conversation) | | | |

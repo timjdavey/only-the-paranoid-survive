@@ -10,8 +10,10 @@ These are calculated scores based on fixed strategies.
 | Uniform baseline | 10 on every channel, every round | The floor. A scenario score of 0. What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
 | Complacent baseline | The Discerning baseline's round 1 bets, held to the end | A mark on every bar. Near 0.55 where there is a switch, so it says whether a model acted at all. Equals the Discerning baseline where nothing changes |
 | Perfect baseline | 100 on the channel with the highest level this round | A mark for how much weather luck was on offer. It divides nothing: it chases weather no reader can see, so nobody could reach it |
-| Hedge rule baseline | A few points on the hedge, the rest on the leader. When the leader falls and the hedge does not rise, it moves to the best channel it can see | The simplest player that reads the tell. A mark on every bar, and a reference curve on the [noise grid](../pilot/engine-checks.md#noise-grid) |
+| Hedge rule baseline | A few points on the hedge, the rest on the leader. When the leader falls and the hedge does not rise, it spreads a look over the field for a round or two, then moves to the best reading | The simplest player that reads the tell. A mark on every bar, and a reference curve on the [noise grid](../pilot/engine-checks.md#noise-grid). It never moves in the Up switch scenario, as the leader never falls |
+| Scout rule baseline | `s` points on each of the nine other channels, the rest on its pick. It moves to a channel whose mean of its last `n` readings beats the pick's over the same rounds, `n` rounds running, unless the hedge's mean over those rounds is above its earlier average. It keeps scouting after a move | The hedge rule that looks everywhere, all the time, so it reads a rise as well as a fall. The reference curve for the Up switch scenario. `s` and `n` come from the [pilot](../pilot/engine-checks.md#up-and-down) |
 
+- **The hedge rule and the Scout rule differ only in when they look.** The hedge rule looks at one channel and acts on a fall. The Scout rule looks at every channel every round, which costs `9s` points in the No change scenario and finds the sleeper in the Up switch scenario. Between them they bracket a model's choice: how much to look when nothing is wrong. In noisy worlds the Scout rule can whipsaw, which shows on the noise grid as its curve falling below the Complacent baseline at the noisy end. That is the price of constant looking, and worth seeing.
 - **Players may read their own record. The yardstick may not.** The Discerning baseline reads the tape, so the score is the same whatever the agent chose to look at. A Bayesian or CUSUM player that reads its own record is a fine mark, see [not yet](#not-yet), but never a denominator, as a lazy agent would get a lenient yardstick.
 
 ## Timestral
@@ -35,7 +37,7 @@ The policy that turns the forecast into bets is ours. One run per row. The bets 
 ## Checks
 
 - **Timestral** must pass a gap test and a rounding watch before we trust it, see [pilot](../pilot/provider-checks.md#timestral-checks).
-- **The baselines must land in the expected order** in the Down switch and No change scenarios, see [pilot](../pilot/engine-checks.md#baseline-order).
+- **The baselines must land in the expected order** in the Down switch, Up switch and No change scenarios, see [pilot](../pilot/engine-checks.md#baseline-order).
 
 ## Not yet
 
@@ -44,4 +46,4 @@ The policy that turns the forecast into bets is ours. One run per row. The bets 
 | Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid as a player: it bets on past readings only, so there is no loop. Never the yardstick, as what it could know depends on what it looked at. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
 | CUSUM | The textbook change detector: sum how much each reading favours a change, move when the sum crosses a line. Swept from hasty to patient it draws the trade between delay and false alarms. Add it once the hedge rule has run |
 | Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the hedge rule or the Timestral top pick with looks row |
-| Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises. Add it once the pilot shows how often a sleeper rises |
+| Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises, and blind in the Up switch scenario as it never looks past the runner-up. Add it once the [pilot](../pilot/engine-checks.md#up-and-down) shows how often a sleeper rises |

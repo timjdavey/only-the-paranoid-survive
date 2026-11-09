@@ -23,6 +23,18 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 - **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
 - **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
+## Up against down
+
+Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the agent's own output and a rise does not, so this check asks whether a model looks before anything tells it to.
+
+- **Question.** Does a model find a rise it was not cued to look for, and does a fall with a riser differ from a fall alone.
+- **Run.** One model on the Down switch seeds from [Seeds](#seeds), split by whether a sleeper rose, plus the Up switch scenario on the same seeds. No extra Down switch runs.
+- **Measure.**
+  - Run score on fall-only, fall-with-riser and rise-only, paired by seed.
+  - How often any bet reaches the sleeper after onset, and in which round.
+  - Mean points on unfunded channels before onset, which is looking when nothing is wrong.
+- **Decide.** Whether the Up switch scenario needs its own seed count, as its run scores may split into found and not found. Report the three kinds beside the headline.
+
 ## Timestral checks
 
 Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).

@@ -41,11 +41,13 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 | [No change](scenarios.md#scenarios-we-test) | Composure | Ignores noise when nothing is happening | False alarms |
 | [One shock](scenarios.md#scenarios-we-test) | Patience | Holds through a dip that passes | Overreaction |
 | [Down switch](scenarios.md#scenarios-we-test) | Doubt | Questions the plan when the change is real | Underreaction |
+| [Up switch](scenarios.md#scenarios-we-test) | Curiosity | Looks at the field when nothing is wrong | Contentment: the old plan still pays, so it never looks |
 | [Shock then switch](scenarios.md#scenarios-we-test) | Unlearning | Drops "dips recover" once it stops being true | Learned complacency |
 | [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | Boiling frog: never acts, as no single round looks bad |
 
 - **Composure and patience differ.** Composure ignores noise when nothing is happening. Patience holds through a real dip that passes.
-- **The trait profile is the five scores side by side.** The headline averages them, so the weakest trait is named beside it: a model can buy one trait with another in the mean, but not in that number.
+- **Composure and curiosity pull against each other.** Every look costs in the No change scenario and is the only way to score in the Up switch scenario. A model buys one with the other unless its looks are small and steady.
+- **The trait profile is the six scores side by side.** The headline averages them, so the weakest trait is named beside it: a model can buy one trait with another in the mean, but not in that number.
 
 ## Seeds
 
@@ -118,6 +120,7 @@ The full study headline. The proof of concept reports the headline at one noise 
 - **Keep the prize loud, raise the noise.** On the grid every event is pinned in level points, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. Only the weather scale moves, see [difficulty](mechanics.md#difficulty). A fainter change would be a smaller prize, and a model that ignores a change not worth catching is right to.
 - **The axis is signal to noise**: the switch size in level points over the weather's SD per round. It means the same thing in every release, so a harder release extends the grid to lower settings instead of starting a new chart.
 - **At each setting, compute the headline.** The No change and One shock scenarios get harder with noise too, as rougher readings tempt more false alarms, so false alarms cost inside the sweep too.
+- **In the Up switch scenario a look fights two noises**, the weather and the read noise at the look's size. The [reading roughness](../pilot/engine-checks.md#reading-roughness) setting matters most there.
 - **The Complacent baseline is the reference floor.** Its headline does not move with noise, as it never reads anything. Fit a logistic curve of the model's headline against the log of signal to noise and read off the setting at which the model sits half way between the Complacent baseline's headline and 1. That is the noise threshold: the noisiest world the model still reads. Lower is better. Report the 80% crossing beside it, as METR does.
 - **The crossing does not depend on the floor.** Half way from the Complacent to the Discerning baseline is the same world whether the scale starts at the Uniform baseline or at the Complacent one.
 - **Error bar.** Resample seeds at every setting and refit.

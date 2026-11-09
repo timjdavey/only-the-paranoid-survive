@@ -15,14 +15,15 @@ The three weather dials are set per release, see [difficulty](../design/mechanic
 
 ### Streaks
 
-Picks persistence.
+Picks persistence, and the Scout rule's streak `n`.
 
 - **Question.** How long a bad stretch lasts by chance, against how fast a real switch shows.
 - **Run.** A thousand No change and Down switch tapes at persistence 0, 0.5, 0.8 and 0.9.
 - **Measure.**
   - On the No change tapes, the longest run of rounds where the leader's level sits below the runner-up's.
   - On the Down switch tapes, the rounds from onset until the leader sits below the runner-up and stays there.
-- **Decide.** A value where a three round streak of the leader below the runner-up is ordinary on No change, say in one tape in five, but the switch still separates within a handful of rounds.
+  - On the No change tapes, the longest run of rounds where some field channel's one-point reading beats the leader's, which is what the [Scout rule baseline](../design/baselines.md#fixed-baselines) acts on.
+- **Decide.** A value where a three round streak of the leader below the runner-up is ordinary on No change, say in one tape in five, but the switch still separates within a handful of rounds. Then `n`: a streak of a field reading above the leader's that is rare on No change, say in one tape in twenty.
 
 ### The tell
 
@@ -50,7 +51,7 @@ Picks the shared-factor scale. The tell is the hedge rising while the field fall
 - **Measure.**
   - **Below zero.** The share of channel rounds with a level below 0 at the noisiest setting. Levels are not clipped, see [generator](../design/mechanics.md#generator).
   - **Pinning.** The Discerning baseline's output minus the Complacent baseline's, in level points, at each setting. It should be the same across the grid, see [difficulty](../design/mechanics.md#difficulty).
-  - **Twin tapes.** The One shock and Down switch tapes of one seed are identical until onset. This is a test in the engine suite, not a decision.
+  - **Twin tapes.** The One shock and Down switch tapes of one seed are identical until onset, and the Up switch and No change tapes are identical on every channel but the sleeper. These are tests in the engine suite, not decisions.
   - **Sparklines.** The median tape of the leader in each scenario, plotted beside its sparkline in [scenarios](../design/scenarios.md#scenarios-we-test).
 - **Decide.** If levels below 0 are common, the base ladder moves up. If pinning drifts, events are not pinned in level points. A sparkline that does not look like its median tape is redrawn.
 
@@ -60,7 +61,7 @@ Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#diffi
 
 - **Question.** Which settings make the grid.
 - **Run.** The fixed [baselines](../design/baselines.md) in the One shock and Down switch scenarios, with events pinned in level points, at five or so settings of the own-weather scale. Persistence and the shared-factor scale hold at the values [Streaks](#streaks) and [The tell](#the-tell) chose.
-- **Measure.** The hedge rule baseline's scenario scores at each setting, and whether the [baseline order](#baseline-order) holds throughout. Timestral's curve on the grid is a [provider check](provider-checks.md#timestral-checks).
+- **Measure.** The hedge rule baseline's scenario scores at each setting, and whether the [baseline order](#baseline-order) holds throughout. The Scout rule baseline's curve is measured beside it, on Up switch tapes too, but the grid is set from the hedge rule alone. Timestral's curve on the grid is a [provider check](provider-checks.md#timestral-checks).
 - **Decide.** A grid of three to five settings on which the hedge rule's curve runs from near 1 down to near the Complacent baseline, so the grid spans a full curve before any model plays. The proof of concept setting is one point on it. The grid is set from baselines alone, never from how flat the model scores look.
 
 ## Game length and switch round
@@ -75,16 +76,29 @@ Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#diffi
 A small bet gives a rough reading and a large bet a clean one, see [what the agent sees](../design/mechanics.md#what-the-agent-sees). That rewards a look, and is how it works in the real world.
 
 - **Question.** How fast the read noise shrinks as the bet grows.
-- **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge, at a few strengths of read noise.
-- **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output.
+- **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge, and the Scout rule baseline with 1, 2 and 5 points on every other channel, at a few strengths of read noise.
+- **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output. The Scout rule shows the same for a rise, which is where a look's size bites hardest, see [Up and down](#up-and-down).
 - **Output is exact,** so the agent always knows its own mix's level. Read noise only prices looks at single channels, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 - **Decide.** One strength, where a look is worth its cost but no look tells the whole story. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with looks.
+
+## Up and down
+
+A switch comes in three kinds, see [events](../design/mechanics.md#events): the leader falls, the leader falls and a sleeper rises, or only a sleeper rises. The first two are drawn per seed in the Down switch scenario, the third is the Up switch scenario.
+
+- **Question.** How a rise compares with a fall for the baselines, how often the Down switch scenario draws a sleeper, and whether a look can read a rise.
+- **Run.** A thousand Down switch and Up switch tapes, plus No change tapes, at the proof of concept setting, with the Discerning, Complacent, hedge rule and Scout rule baselines. The Scout rule plays at `s` of 1, 2 and 5.
+- **Measure.**
+  - **Sleeper share.** How many Down switch tapes draw a sleeper.
+  - **Prize on offer.** The Discerning baseline's output minus the Complacent baseline's, in level points, on fall-only, fall-with-riser and rise-only tapes.
+  - **Reading a rise.** The Scout rule's scenario score on Up switch at each `s`, and the round it moves. Its false moves and its cost in output on No change.
+- **Decide.** The sleeper share and the rise size in level points, so the three kinds put a comparable prize on offer. And whether a one-point look reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited.
 
 ## Baseline order
 
 - **Question.** Do the fixed baselines land in the order we expect.
-- **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in the Down switch and No change scenarios.
+- **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in the Down switch, Up switch and No change scenarios.
 - **Measure.** Their scores, against these orders:
   - **Down switch scenario:** Perfect > Discerning > hedge rule > Complacent > Uniform.
+  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The hedge rule never moves here, so it sits with the Complacent baseline minus its look.
   - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
 - **Decide.** If the order breaks, the [noise](#noise-grid) is likely too high or a baseline is wrong. Fix it before any model runs. Where Timestral lands is a [provider check](provider-checks.md#timestral-checks).
