@@ -14,10 +14,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
 | Baseline | A fixed strategy run through the same game and score as the models. A fixed baseline's name always ends in "baseline", so it never reads as a plain adjective. See [baselines](design/baselines.md) |
-| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. Every score is a fraction of what it earns. `baseline/perfect` in code |
-| Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. `baseline/discerning` in code |
-| Complacent baseline | The baseline that holds its round 1 bets to the end. `baseline/complacent` in code |
-| Uniform baseline | The baseline that bets 10 on every channel, every round. `baseline/uniform` in code |
+| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer. It divides nothing. `baseline/perfect` in code |
+| Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. The ceiling: a scenario score of 1. `baseline/discerning` in code |
+| Complacent baseline | The baseline that holds the Discerning baseline's round 1 bets to the end. A mark on every scenario's bar, near 0.55 where there is a switch. `baseline/complacent` in code |
+| Uniform baseline | The baseline that bets 10 on every channel, every round. The floor: a scenario score of 0. `baseline/uniform` in code |
+| Hedge rule baseline | A few points on the hedge, the rest on the leader. It switches when the leader falls and the hedge does not rise. The simplest player that reads the tell. `baseline/hedge_rule` in code |
 | Timestral top pick | The Timestral baseline that puts 100 on the channel it forecasts highest. `timestral/top-pick` in code |
 | Timestral odds | The Timestral baseline that splits its bets by each channel's chance of being the best. `timestral/odds` in code |
 | Timestral top pick with looks | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/look-1`, `look-2` and `look-5` in code |
@@ -73,7 +74,12 @@ Use these words in prose and in code. Add a word here before using it on any oth
 
 | Word | What it means |
 |---|---|
-| Headline | One score per model: the geometric mean of its scenario scores. See [scoring](design/scoring.md#how-we-score) |
+| Scenario score | The share of the gap between the Uniform and Discerning baselines a model earned, pooled over seeds. 0 is knowing nothing, 1 is knowing the regime. See [scoring](design/scoring.md#how-we-score) |
+| Run score | One seed's share of that gap, shown as a dot. It can land outside 0 to 1 on one seed. The scenario score pools seeds so it rarely does |
+| Headline | One score per model: the geometric mean of its scenario scores, each floored at 0. See [scoring](design/scoring.md#how-we-score) |
+| Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
+| Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every edition shares. See [difficulty](design/mechanics.md#difficulty) |
+| Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/checks.md#noise-grid) |
 | Trait | What one scenario tests, named as the virtue a high score shows. See [traits](design/scoring.md#traits) |
 | Composure | The No change scenario's trait. Ignoring noise when nothing is happening |
 | Patience | The One shock scenario's trait. Holding through a dip that passes |
@@ -92,10 +98,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Word | What it means |
 |---|---|
 | Seed | The number that fixes a run's world: every channel's noise for every round, drawn up front |
+| Twin tapes | The tapes one seed makes across scenarios. They share the ladder, the weather and the onset round, so they match until the events differ. See [seeds](design/scoring.md#seeds) |
 | Seed set | The fixed list of seeds a scenario plays. Each scenario has two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
 | Public seeds | Seeds published in this repo with their tapes. For the pilot, the example logs and anyone checking our work |
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
-| Edition | One release of the benchmark, with fresh held-out seeds. See [contamination](harness/contamination.md) |
+| Edition | One release of the benchmark: frozen generator defaults, a noise grid and fresh held-out seeds. Editions share the signal to noise axis. See [contamination](harness/contamination.md) |
 | Contamination | A model having seen the benchmark in training |
 
 ## Adding a word

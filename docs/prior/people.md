@@ -151,7 +151,7 @@ Cade Massey and George Wu. "Detecting Regime Shifts: The Causes of Under- and Ov
 **Why it matters here.**
 
 - **It is the clearest prediction of which way an agent errs.** The No change and One shock scenarios are stable systems with noisy signals, so system neglect predicts false alarms there. A switch at low noise is the other corner, where it predicts a late move. See [scenarios](../design/scenarios.md#scenarios-we-test).
-- **Our noise dials move the game across their map.** The [pilot](../pilot/checks.md#noise) sets own-weather scale, persistence and shared-factor scale, so we can check whether the error flips with them.
+- **Our noise dials move the game across their map.** The [pilot](../pilot/checks.md#noise-grid) sets own-weather scale, persistence and shared-factor scale, so we can check whether the error flips with them.
 
 ## Brown and Steyvers 2009: naming a change versus predicting through it
 

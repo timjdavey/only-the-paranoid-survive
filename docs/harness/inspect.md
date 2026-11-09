@@ -11,8 +11,8 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | A [fresh call each round](../design/interface.md#tools) | A custom `@solver` round loop | Not `react` or `basic_agent`. They keep the conversation |
 | `submit(bets)` | A `@tool` that raises `ToolError` when the sum is off | The error is the neutral retry. A text reply with no call is a miss |
 | Game state, the tape, output so far, the record | A `StoreModel` on the sample | Written to the log, so a run can be replayed from any round |
-| Fraction of the Perfect baseline | A custom `@scorer` that runs the Perfect baseline on the same tape | One number per sample, 0 to 1 |
-| Mean per scenario | `grouped(mean(), "scenario")` | See [scoring](../design/scoring.md) |
+| A run's output beside its baselines | A custom `@scorer` that records the run's output and the Uniform and Discerning baselines' on the same tape | Three numbers per sample. The run score is their ratio |
+| Scenario score | A custom `@metric` per scenario: summed gain over summed gap | Not a mean of per-sample ratios, see [scoring](../design/scoring.md#how-we-score) |
 | Error bars and the headline | Custom `@metric`s | Bootstrap seeds within a scenario, never across |
 | Baselines, Jev, Timestral | Custom `ModelAPI` providers | Same solver, same seeds, same logs as an LLM |
 | `notes` and `compute`, pilot only | `StoreModel` for notes, an inspect sandbox for compute | The sandbox is an optional extra |
@@ -38,7 +38,7 @@ Each round the solver:
 
 ## Metrics
 
-- **Scenario score** is `grouped(mean(), "scenario")`.
+- **Scenario score** is a custom metric per scenario: the model's gain over the Uniform baseline summed over seeds, divided by the Discerning baseline's gain summed over seeds. Not a mean of per-sample ratios.
 - **Error bars** are a custom metric: percentile bootstrap over seeds within a scenario.
-- **Headline** is a custom metric: geometric mean of the scenario means, bootstrapped by resampling seeds within each scenario.
+- **Headline** is a custom metric: geometric mean of the scenario scores, each floored at 0, bootstrapped by resampling seeds within each scenario.
 - **Gaps between models** are paired by seed in the [analysis](layout.md) layer, as they need two logs.

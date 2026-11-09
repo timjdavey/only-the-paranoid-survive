@@ -5,7 +5,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 ## Payout
 
 - **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
-- **So the Perfect baseline goes all in** on the channel with the highest level. A split across channels only ever means doubt or a look. See [scoring](scoring.md).
+- **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or a look. See [scoring](scoring.md).
 - **Output and levels are reported to one decimal place.**
 
 ## Generator
@@ -26,6 +26,7 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
 - **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
 - **Base levels sit mid-range**, so clipping at 0 or 100 is rare.
+- **One seed, twin tapes.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and One switch tapes match until the event begins, see [seeds](scoring.md#seeds).
 
 ### The ladder
 
@@ -56,7 +57,10 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 
 ### Difficulty
 
-Three dials, all set per scenario: own-weather scale, persistence and shared-factor scale. With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds. Raise a dial to keep the test from saturating.
+- **Signal to noise is the axis.** The size of a switch in level points over the weather's SD per round. With a high ratio one reading settles whether a dip is a shock or a switch. With a low one it takes many rounds.
+- **Three dials move it**, all set per scenario: own-weather scale, persistence and shared-factor scale. Persistence is frozen within an edition, as it changes what a bad stretch means. The weather scale is the dial the [noise grid](../pilot/checks.md#noise-grid) turns.
+- **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the prize would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting.
+- **A harder edition extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
 
 ### Hard-variant knobs
 
@@ -73,11 +77,13 @@ Off by default. Each one closes a tell a model could learn.
 - **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
 - **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. The pilot sets k, see [reading roughness](../pilot/checks.md#reading-roughness).
 - **Why.** A look costs something, so paranoia has a price. You know a market by being in it.
+- **Output is paid at the true levels**, while each reading carries read noise. So the output line is a clean reading of the agent's whole split, and a model can learn more from it than from any one channel. This is why the weather scale, not read noise, is the grid's dial. Whether output should instead be summed from the noisy readings is open.
 
 ## Defaults
 
 - **Every number on this page is a field on `ScenarioConfig`** in the engine, with a default, so the engine is built from this page alone. A hash of the config goes in every log, see [layout](../harness/layout.md).
 - **A run is 40 rounds by default.** The pilot moves this and the other defaults, see [decisions](../pilot/decisions.md).
+- **An edition freezes them.** The defaults, the noise grid and the held-out seeds together are one edition, see [contamination](../harness/contamination.md#who-can-see-them). Editions share the signal to noise axis, so scores from different editions sit on one chart.
 
 ## Rejected
 

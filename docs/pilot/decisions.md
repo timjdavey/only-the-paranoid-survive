@@ -6,7 +6,7 @@ One row per check in [checks](checks.md) and per knob the [generator](../design/
 |---|---|---|---|
 | [Seeds](checks.md#seeds) | | | |
 | [Repeats](checks.md#repeats) | | | |
-| [Noise](checks.md#noise) | | | |
+| [Noise grid](checks.md#noise-grid) | | | |
 | [Game length and switch round](checks.md#game-length-and-switch-round) | | | |
 | [Reading roughness](checks.md#reading-roughness) | | | |
 | [Baseline order](checks.md#baseline-order) | | | |
@@ -17,6 +17,7 @@ One row per check in [checks](checks.md) and per knob the [generator](../design/
 | [Cost per run](checks.md#cost-per-run) | | | |
 | Events per run and minimum gap | | | |
 | Persistence and scales per scenario | | | |
+| Switch size in level points on the noise grid | | | |
 | Loading range and ladder ranges | | | |
 | Warm up: empty record or pre-filled | | | |
 

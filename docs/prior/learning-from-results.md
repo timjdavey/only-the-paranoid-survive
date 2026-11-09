@@ -190,7 +190,7 @@ Haomiaomiao Wang, Tomás E. Ward and Lili Zhang. "Comparative reversal learning 
 **Why it matters here.**
 
 - Perseveration is close to how long our agent stays on the leader after a switch. Their prompt warned of change and models still stuck. Ours never warns ([how the agent plays](../design/interface.md#how-the-agent-plays)), so expect more stickiness, not less.
-- They count a high lose-shift rate as good. In our game shifting after a loss is right after a switch and wrong in a shock, which is why the One switch and One shock scenarios feed one headline ([scenarios](../design/scenarios.md#scenarios-we-test)). We score output against the Perfect baseline and fit no learning rule, which sidesteps the problem they warn of.
+- They count a high lose-shift rate as good. In our game shifting after a loss is right after a switch and wrong in a shock, which is why the One switch and One shock scenarios feed one headline ([scenarios](../design/scenarios.md#scenarios-we-test)). We score output between the Uniform and Discerning baselines and fit no learning rule, which sidesteps the problem they warn of.
 - Their many swaps are our repeated switches, a scenario we skip for now ([scenarios we skip](../design/scenarios.md#scenarios-we-skip)).
 
 ## Zhang et al. 2025: LLMs in a drifting bandit

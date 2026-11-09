@@ -6,10 +6,13 @@ These are calculated scores based on fixed strategies.
 
 | Baseline | Betting rule | What it settles |
 |---|---|---|
-| Perfect baseline | 100 on the channel with the highest level this round | The ceiling. Every score is a fraction of it, see [scoring](scoring.md). It chases a shock dip if another channel beats the trough, so nobody scores 1 in the One shock scenario |
-| Discerning baseline | 100 on the channel with the highest base level. Holds through a shock, moves at a switch | What patience earns against the ceiling. Not a denominator, as a model can beat it in a shock |
-| Complacent baseline | The Perfect baseline's round 1 bets, held to the end | The floor for never updating. Matches the Discerning baseline in the No change and One shock scenarios, so the suite separates it only in scenarios with a switch or drift |
-| Uniform baseline | 10 on every channel, every round | What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
+| Discerning baseline | 100 on the channel with the highest base level. Holds through a shock, moves the round a switch lands | The ceiling. A scenario score of 1, see [scoring](scoring.md). Its one edge over an ideal reader is zero lag, which is the thing we price |
+| Uniform baseline | 10 on every channel, every round | The floor. A scenario score of 0. What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
+| Complacent baseline | The Discerning baseline's round 1 bets, held to the end | A mark on every bar. Near 0.55 where there is a switch, so it says whether a model acted at all. Equals the Discerning baseline where nothing changes |
+| Perfect baseline | 100 on the channel with the highest level this round | A mark for how much weather luck was on offer. It divides nothing: it chases weather no reader can see, so nobody could reach it |
+| Hedge rule baseline | A few points on the hedge, the rest on the leader. When the leader falls and the hedge does not rise, it moves to the best channel it can see | The simplest player that reads the tell. A mark on every bar, and a reference curve on the [noise grid](../pilot/checks.md#noise-grid) |
+
+- **Players may read their own record. The yardstick may not.** The Discerning baseline reads the tape, so the score is the same whatever the agent chose to look at. A Bayesian or CUSUM player that reads its own record is a fine mark, see [not yet](#not-yet), but never a denominator, as a lazy agent would get a lenient yardstick.
 
 ## Timestral
 
@@ -38,6 +41,7 @@ The policy that turns the forecast into bets is ours. One run per row. The bets 
 
 | Baseline | Why not yet |
 |---|---|
-| Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid: it bets on past readings only, so there is no loop. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
-| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the Timestral top pick with looks row |
+| Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid as a player: it bets on past readings only, so there is no loop. Never the yardstick, as what it could know depends on what it looked at. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
+| CUSUM | The textbook change detector: sum how much each reading favours a change, move when the sum crosses a line. Swept from hasty to patient it draws the trade between delay and false alarms. Add it once the hedge rule has run |
+| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the hedge rule or the Timestral top pick with looks row |
 | Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises. Add it once the pilot shows how often a sleeper rises |

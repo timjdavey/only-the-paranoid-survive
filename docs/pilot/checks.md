@@ -20,14 +20,14 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 - **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
 - **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
-## Noise
+## Noise grid
 
-Noise is the difficulty knob. It has three dials, own-weather scale, persistence and shared-factor scale, see [difficulty](../design/mechanics.md#difficulty). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
+Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#difficulty) is its axis: the switch size in level points over the weather's SD per round. The full study plays a fixed grid of settings and reads the [noise threshold](../design/scoring.md#noise-threshold) off it.
 
-- **Question.** What settings of the three dials make shock and switch hard to tell apart for a while, but not forever.
-- **Run.** The fixed [baselines](../design/baselines.md) in the One shock and One switch scenarios, at a few settings of each dial.
-- **Measure.** How far apart the baseline scores land at each setting, and whether the [baseline order](#baseline-order) holds.
-- **Decide.** The three dials per scenario. If the base score is flat across models, raise them. Raising them later is also how the study avoids saturating.
+- **Question.** Which settings make the grid, and which dial moves them.
+- **Run.** The fixed [baselines](../design/baselines.md) in the One shock and One switch scenarios, with events pinned in level points, at five or so settings of the weather scale. Persistence and the shared-factor scale are held at one value each.
+- **Measure.** The hedge rule and Timestral baselines' scenario scores at each setting, and whether the [baseline order](#baseline-order) holds throughout.
+- **Decide.** A grid of three to five settings on which the hedge rule's curve runs from near 1 down to near the Complacent baseline, so the grid spans a full curve before any model plays. The proof of concept setting is one point on it. The grid is set from baselines alone, never from how flat the model scores look.
 
 ## Game length and switch round
 
@@ -50,9 +50,9 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 - **Question.** Do the fixed baselines land in the order we expect.
 - **Run.** Every [baseline](../design/baselines.md) in the One switch and No change scenarios.
 - **Measure.** Their scores, against these orders of the baselines:
-  - **One switch scenario:** Perfect > Discerning > Timestral > Complacent > Uniform.
-  - **No change scenario:** Complacent ≈ Perfect ≈ Discerning.
-- **Decide.** If the order breaks, the [noise](#noise) is likely too high or a baseline is wrong. Fix it before any model runs.
+  - **One switch scenario:** Perfect > Discerning > hedge rule > Timestral > Complacent > Uniform.
+  - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
+- **Decide.** If the order breaks, the [noise](#noise-grid) is likely too high or a baseline is wrong. Fix it before any model runs.
 
 ## Timestral checks
 
@@ -96,7 +96,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
-- **Question.** Is the base score too flat to separate models.
+- **Question.** Are the gaps between models too small to read, even with the Complacent baseline sitting near 0.55.
 - **Measure.** The gaps between models in the One switch and Slow drift scenarios, from the main pilot runs.
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 
