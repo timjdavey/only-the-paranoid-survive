@@ -18,6 +18,10 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. `baseline/discerning` in code |
 | Complacent baseline | The baseline that holds its round 1 bets to the end. `baseline/complacent` in code |
 | Uniform baseline | The baseline that bets 10 on every channel, every round. `baseline/uniform` in code |
+| Timestral top pick | The Timestral baseline that puts 100 on the channel it forecasts highest. `timestral/top-pick` in code |
+| Timestral odds | The Timestral baseline that splits its bets by each channel's chance of being the best. `timestral/odds` in code |
+| Timestral top pick with looks | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/look-1`, `look-2` and `look-5` in code |
+| Timestral odds, bet aware | Timestral odds, also told its past bets. `timestral/odds-bet-aware` in code |
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 

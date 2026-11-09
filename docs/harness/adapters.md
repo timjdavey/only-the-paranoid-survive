@@ -22,10 +22,10 @@ Jev and Timestral do not write text, so each gets a provider that turns what it 
 | Device | CPU | Documented and tested upstream. Apple MPS is not, so we do not rely on it |
 | Install | Optional extra, `uv sync --extra timestral`, from git | Keeps torch out of the default install |
 | Input | One series, ten variates, levels only. A round with no bet is NaN | Levels never output, see baselines |
-| Output | 21 quantiles per channel for next round | Policies read the median and the quantiles |
-| Covariates | Past bets as `past_covariates` for the covariate row | Supported by the API |
+| Output | 21 quantiles per channel for next round | Policies read the middle guess and the spread |
+| Covariates | Past bets as `past_covariates` for Timestral odds, bet aware | Supported by the API |
 | Cache | Forecasts cached on disk by a hash of the input arrays | Deterministic, so reruns cost nothing |
 
-- **Provider names** are `timestral/argmax`, `timestral/prob-best`, `timestral/look-2`, `timestral/look-5`, `timestral/look-10` and `timestral/prob-best-cov`. One run per policy.
+- **Provider names** are `timestral/top-pick`, `timestral/odds`, `timestral/look-1`, `timestral/look-2`, `timestral/look-5` and `timestral/odds-bet-aware`. One run per policy.
 - **The policies are engine functions.** Quantiles in, bets out, with no Timestral import, so they are tested on made up quantiles and reused by the Bayesian baseline later.
 - **Checks** before trusting it are in the [pilot](../pilot/checks.md#timestral-checks).

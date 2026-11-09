@@ -26,16 +26,21 @@ reasoning = "n/a"
 notes = "See docs/harness/adapters.md"
 
 [[model]]
-id = "timestral/argmax"
+id = "timestral/top-pick"
 kind = "timestral"
 reasoning = "n/a"
 notes = "One row per policy, see docs/design/baselines.md"
 
 [[model]]
-id = "timestral/prob-best"
+id = "timestral/odds"
 kind = "timestral"
 reasoning = "n/a"
 notes = "Dropped if it fails the gap test"
+
+[[model]]
+id = "timestral/look-1"
+kind = "timestral"
+reasoning = "n/a"
 
 [[model]]
 id = "timestral/look-2"
@@ -48,12 +53,7 @@ kind = "timestral"
 reasoning = "n/a"
 
 [[model]]
-id = "timestral/look-10"
-kind = "timestral"
-reasoning = "n/a"
-
-[[model]]
-id = "timestral/prob-best-cov"
+id = "timestral/odds-bet-aware"
 kind = "timestral"
 reasoning = "n/a"
 

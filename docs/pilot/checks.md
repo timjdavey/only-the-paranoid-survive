@@ -41,7 +41,7 @@ Noise is the difficulty knob. It has three dials, own-weather scale, persistence
 A small bet gives a rough reading and a large bet a clean one, see [what the agent sees](../design/mechanics.md#what-the-agent-sees). That rewards a look, and is how it works in the real world.
 
 - **Question.** How fast the read noise shrinks as the bet grows.
-- **Run.** The constant look [Timestral baselines](../design/baselines.md#timestral) at 2, 5 and 10 points, at a few strengths of read noise.
+- **Run.** The Timestral top pick with looks [baselines](../design/baselines.md#timestral) at 1, 2 and 5 points, at a few strengths of read noise.
 - **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output.
 - **Decide.** One strength, where a look is worth its cost but no look tells the whole story.
 
@@ -58,7 +58,7 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 
 Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).
 
-- **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, probability of best cannot look and is dropped.
+- **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, Timestral odds cannot look and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
 
 ## Notepad and compute

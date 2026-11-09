@@ -13,21 +13,21 @@ These are calculated scores based on fixed strategies.
 
 ## Timestral
 
-[Timestral](https://github.com/mistralai/timestral) is a forecaster, so each baseline here is its forecast plus a policy we wrote.
+[Timestral](https://github.com/mistralai/timestral) is a forecaster. It guesses each channel's level next round, and a policy we wrote turns that guess into bets. It only learns about a channel by betting on it.
 
-- **In: each channel's level history**, as one series with ten variates forecast jointly. A round with no bet on the channel goes in as NaN, which Timestral supports.
-- **Levels, never output.** Feed it output and a bet of 0 reads as a real 0. It forecasts 0, the policy puts 0 on the channel, and it is locked out for good.
-- **Out: 21 quantiles per channel** for next round's level.
-- **It never sees the skin.** That makes it a floor for how much reading the situation helps.
+- **What it sees:** each channel's past levels, but only for the rounds it bet on that channel. Every other round is a gap, which Timestral handles.
+- **Why levels and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
+- **What it gives back:** a range of guesses, low to high, for each channel's level next round. That is 21 quantiles per channel.
+- **What it never sees:** the skin. So it shows how much reading the story helps.
 
-One run per row. The bets are whole numbers to 100, as on the [interface](interface.md) page.
+The policy that turns the forecast into bets is ours. One run per row. The bets are whole numbers to 100, as on the [interface](interface.md) page.
 
-| Baseline | Betting rule | What it is a floor for |
+| Baseline | How it bets | What it tells us |
 |---|---|---|
-| Argmax | 100 on the channel with the highest median | Forecast, never look. It switches only when the forecast for the channel it bet on falls below what it remembers of another |
-| Probability of best | Each channel's bet is the chance it has the highest level, read off the quantiles | Forecast, and look as much as its own doubt says. The look size is Timestral's, not ours. Kept only if it passes the [gap test](../pilot/checks.md#timestral-checks) |
-| Constant look, 2 / 5 / 10 | That many points on every other channel, the rest on the highest median | Forecast plus a dumb look of a size we chose |
-| Probability of best, bets as covariate | As probability of best, with its bets passed in as a past covariate | Whether it can learn that a small bet gives a rough reading |
+| Timestral top pick | 100 on the channel it forecasts highest. The other channels go dark, so it only moves when its own channel's forecast falls below its last memory of another | How far forecasting gets you with no looking |
+| Timestral odds | Splits the 100 by each channel's chance of being the best. The less sure it is, the more it spreads, and so the more it looks | Whether a forecaster's own doubt makes it look the right amount. Dropped if it fails the [gap test](../pilot/checks.md#timestral-checks) |
+| Timestral top pick with looks, 1 / 2 / 5 | 1, 2 or 5 points on each of the other nine channels, the rest on its top pick, which gets 91, 82 or 55 | Whether a look size we choose by hand does better than Timestral's own doubt |
+| Timestral odds, bet aware | As Timestral odds, but its past bets go in alongside the levels | Whether it learns that a small bet gives a rough reading |
 
 ## Checks
 
@@ -39,5 +39,5 @@ One run per row. The bets are whole numbers to 100, as on the [interface](interf
 | Baseline | Why not yet |
 |---|---|
 | Bayesian | A belief that knows the engine's family, run through the same policies as Timestral. It is valid: it bets on past readings only, so there is no loop. Parked until Timestral has run, as the hazard prior is a dial we would have to pre register |
-| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the constant look row |
+| Fixed split | Incumbent plus a fixed split that never acts pays for a look it never uses, so it sits below the Complacent baseline. With a switch rule it is the Timestral top pick with looks row |
 | Barbell | Leader plus the round 1 runner-up. A cheap win when only the leader falls, a decoy when a [sleeper](mechanics.md#events) rises. Add it once the pilot shows how often a sleeper rises |
