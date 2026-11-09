@@ -18,6 +18,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | `reasoning` | The [reasoning setting](../glossary.md). One value in `poc.toml`, a list in `full.toml` where each value is its own result row |
 | `released` | Release date, from Epoch's `date` column. Full study only |
 | `eci` | The model's [ECI](../glossary.md), a snapshot from Epoch's [CSV](https://epoch.ai/data/eci_scores.csv). Full study only |
+| `max_tokens` | The model's own output limit, set only where the provider's default is lower, see [sampling](#sampling). Optional |
 | `notes` | Anything a reader needs, such as a rate limit or an id to verify |
 
 ## Reasoning

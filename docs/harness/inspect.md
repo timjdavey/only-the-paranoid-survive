@@ -11,7 +11,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | Playing a seed again, see [repeats](../pilot/provider-checks.md#repeats) | `epochs`, reduced by the mean | Repeats of a seed are averaged before any metric sees them, as the [error bars](../design/scoring.md#error-bars) require |
 | A [fresh call each round](../design/interface.md#tools) | A custom `@solver` round loop | Not `react` or `basic_agent`. They keep the conversation |
 | `submit(bets)` | A `@tool` that raises `ToolError` with the skin's `bad_call` when the engine rejects the bets | The error is the neutral retry. A text reply with no call gets a retry too |
-| Game state, the tape, output so far, the record | A `StoreModel` on the sample | Written to the log, so a run can be replayed from any round |
+| Game state: the scenario, the seed, the record, the retry counts | A `StoreModel` on the sample, see the [task spec](../specs/harness/task.md#store) | Written to the log, so a run can be replayed from any round. The tape is rebuilt from the seed, never stored, see [tape](../specs/engine/tape.md#interface) |
 | A run's output beside its baselines | A custom `@scorer` that records the run's output and the Uniform and Discerning baselines' on the same tape | The run score is the gain over the gap, see [pooling seeds](../design/scoring.md#pooling-seeds) |
 | A run that errors twice, see the [retry rule](prompts.md#retry-rule) | `retry_on_error=1` and `fail_on_error=False` on the `@task`. The metrics read a sample with no score as a gain of 0 | Set in the task, not on the command line, so nobody can forget them |
 | Scenario score, error bars, headline, weakest trait | Custom `@metric`s grouped by the `scenario` field, see [metrics](#metrics) | Bootstrap seeds within a scenario, never across |
@@ -28,7 +28,7 @@ Each round the solver:
 2. Calls `generate` with the `submit` tool. Forced where the provider allows it. Claude takes a forced tool with thinking off and rejects one with thinking on, so there the choice is `auto` and the prompt says to call `submit`. See [reasoning](models.md#reasoning).
 3. Reads the tool call. Bets the engine rejects return a `ToolError` with the skin's `bad_call`, and the model tries again. A reply with no tool call gets a reminder and tries again too. The store counts each retry. After ten tries the solver raises an error and inspect plays the seed again once. See the [retry rule](prompts.md#retry-rule).
 4. Plays the bets through the engine and appends the readings and output to the record.
-5. Repeats until the tape ends. Nothing from this round's messages survives into the next. The one exception is the pilot's notes file, which comes back next round as a tool message, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute).
+5. Repeats until the tape ends. Nothing from this round's messages survives into the next. The one exception is the pilot's notes file, which comes back next round in the user message below the record, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute).
 
 ## Providers
 
