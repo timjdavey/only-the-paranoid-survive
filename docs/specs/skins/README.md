@@ -1,6 +1,6 @@
 # Skins spec
 
-The skins layer dresses the engine in a story. A skin is one TOML file: the names of the ten channels and the text that words the [frame](../../glossary.md) for the agent. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
+The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the four words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
 
 ## Pages
 
@@ -25,6 +25,15 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the name
 | `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES` | The lint's word lists, pinned by the test suite | [lint](lint.md) |
 | `CANARY` | The canary line, as a string | [lint](lint.md#canary) |
 
+## Names from the engine
+
+The skins layer imports these from `paranoid.engine`. Their behaviour is in the [engine spec](../engine/README.md#exports), and the engine's side of this boundary is [what the layers above read](../engine/README.md#what-the-layers-above-read).
+
+| Name | What the skins layer uses it for |
+|---|---|
+| `Record`, `Row` | The rows `render_record` writes, see [record](render.md#record) |
+| `play`, `make_tape`, `SCENARIOS`, `uniform` | Records for the test suite only, see [tests](tests.md) |
+
 ## Modules
 
     src/paranoid/skins/
@@ -47,12 +56,12 @@ The harness takes a `Skin` from `load_skins` and uses it in five places, see [in
 | Harness part | Reads |
 |---|---|
 | System prompt | `render_system_prompt(skin)` |
-| User message | `render_record(skin, record)` |
+| User message | `render_record(skin, record)`, which uses `skin.channels` and the four column words |
 | The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bets_text`, `skin.bad_call`, `skin.no_call` |
 | The Jev provider | `skin.question`, with `skin.channels` as the options, see [providers](../../harness/providers.md#jev) |
 | Log metadata | `skin.name`, `prompt_hash(skin)` |
 
-- **The harness checks `len(skin.channels) == config.channels` before round 1.** A skin always has ten names and the default config ten channels, but a pilot config can have fewer. An empty record cannot tell, so without the check a mismatch fails at round 2, see [record](render.md#record).
+- **The harness checks `len(skin.channels) == config.channels` when the task is built.** A skin has one name per channel, and a pilot config can have fewer than the study's ten. An empty record cannot tell, so without the check a mismatch fails at round 2 rather than at `paranoid()`, see [task settings](../harness/task.md#task-settings) and [record](render.md#record).
 
 ## Conventions
 

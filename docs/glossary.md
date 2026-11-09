@@ -50,6 +50,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Field | The other channels, including the hedge |
 | Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
 | Tape | The true level of every channel in every round, as one seed produces it. Saved and replayed |
+| Column words | The four words a skin gives the record's header: the round column, the bet suffix, the level suffix and the output column. `round_word`, `bet_word`, `level_word`, `output_word` in code. See [render](specs/skins/render.md#record) |
 
 ## How the world changes
 

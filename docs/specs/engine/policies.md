@@ -53,7 +53,7 @@ scout_rule: Policy     # ScoutRule() at the defaults
 
 - **Every policy is an instance of a frozen dataclass with `__call__` and a `peeks` class attribute.** A plain function with an attribute bolted on does not satisfy the `Protocol` for a type checker. The six names above are instances, so the harness treats them alike. `HedgeRule` and `ScoutRule` are exported too, for the pilot sweeps.
 - **A `View` is built by `Game.view(peeks)`**, see [game](game.md#view). Nothing else builds one.
-- **A `View` and a `Tape` are never serialised** into a log, metadata or a prompt. They hold the truth and the seed. Only the record is rendered, see [tape](tape.md#interface).
+- **A `View` is never serialised**, for the same reason as a tape, see [tape](tape.md#interface).
 
 ## Behaviour
 
@@ -129,12 +129,11 @@ Named in [not yet](../../design/baselines.md#not-yet) and [Timestral](../../desi
 - `uniform` ignores the view entirely.
 - No policy edits the view, the record or the tape. The tape's arrays are read only, see [tape](tape.md#interface).
 
-## Tests
-
-See [tests](tests.md#policies).
-
-## Open
+## Pilot decides
 
 - `look`, `window`, `fall_points`, `tell_points` and `scout_rounds` for the hedge rule, from [the tell](../../pilot/engine-checks.md#the-tell) and [reading roughness](../../pilot/engine-checks.md#reading-roughness).
 - `s` and `n` for the Scout rule, from [Streaks](../../pilot/engine-checks.md#streaks) and [Up and down](../../pilot/engine-checks.md#up-and-down).
-- The thresholds are in level points so they survive [pinning](tape.md#pinning). Whether they should scale with read noise instead is for the pilot.
+
+## Not decided
+
+- The thresholds are in level points so they survive [pinning](tape.md#pinning). Whether they should scale with read noise instead. Decide when [reading roughness](../../pilot/engine-checks.md#reading-roughness) has run.

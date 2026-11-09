@@ -25,11 +25,13 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `round_loop`, `tool_choice_for` | The round loop solver and the forced or auto rule | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
+| `JevAnswer`, `JevClient`, `Forecaster` | Jev's reply, and the two seams a test fakes | [providers](providers.md) |
 | `POLICIES`, `TIMESTRAL_POLICIES` | Baseline names to engine policies, Timestral ids to forecast rules | [providers](providers.md) |
 | `gain` | The `@scorer` | [scorer](scorer.md) |
 | `scenario_score`, `headline`, `weakest_trait`, `retry_share` | The `@metric`s | [scorer](scorer.md) |
 | `pooled_score`, `bootstrap`, `TRAITS` | The maths the metrics share, and scenario to trait | [scorer](scorer.md) |
 | `load_models`, `ModelRow`, `generate_config` | The models config and the reasoning mapping | [command](command.md) |
+| `REASONING`, `EFFORT_PREFIXES` | The reasoning grid, and the providers that take an effort rather than a budget | [command](command.md) |
 | `main` | The `paranoid` console script | [command](command.md) |
 
 ## Modules
@@ -57,6 +59,19 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 - Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py` and torch and Timestral inside `timestral.py`, imported lazily so the default install runs without them. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#four-layers).
 - `pyproject.toml` registers the providers under the `inspect_ai` entry point and `main` as the `paranoid` console script, and ships `compose.yaml` as package data.
 
+## Names from the engine
+
+The harness imports these from `paranoid.engine`. Their behaviour is in the [engine spec](../engine/README.md#exports), and the engine's side of this boundary is [what the layers above read](../engine/README.md#what-the-layers-above-read).
+
+| Name | What the harness uses it for |
+|---|---|
+| `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION` | The config a sample plays, and the hash and version in its metadata, see [scenarios and config](task.md#scenarios-and-config) |
+| `make_tape`, `Tape` | The tape the store rebuilds from config and seed, see [store](task.md#store) |
+| `Game`, `Record`, `Row`, `BetError` | The round the `submit` tool plays and the rows the store keeps, see [submit](solver.md#submit) |
+| `play` | Warm up rows, and every baseline's output in the score, see [warm up](task.md#warm-up) and [scoring one run](scorer.md#scoring-one-run) |
+| `Policy`, `HedgeRule`, `ScoutRule`, `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | `POLICIES` in the baseline provider, see [baseline](providers.md#baseline) |
+| `split_budget` | Jev's probabilities and Timestral's odds into bets, see [Jev](providers.md#jev) and [Timestral](providers.md#timestral) |
+
 ## Names from the skins layer
 
 The harness imports these from `paranoid.skins`. Their signatures and behaviour are in the [skins spec](../skins/README.md#exports), and what the harness reads from a skin is in [what the harness reads](../skins/README.md#what-the-harness-reads).
@@ -77,5 +92,5 @@ The harness imports these from `paranoid.skins`. Their signatures and behaviour 
 - **A run never errors on the model's account.** Ten failed tries in a round is a give up, scored as a gain of 0, see [giving up](scorer.md#giving-up). An error in a log is infrastructure.
 - **Rounds are numbered from 1**, as in the [engine](../engine/README.md#conventions). The store's `rows` list is indexed from 0, so round `r` is `rows[r − 1]`.
 - **Warm up rows are not the agent's.** A record pre-filled by a baseline counts toward the record the agent sees, never toward its score, see [scorer](scorer.md#scoring-one-run).
-- **A held-out seed's value is never in a log.** The store and the metadata hold the seed set and the position, and the value is read from the seed file at run time, see [dataset](task.md#dataset).
+- **A held-out seed's value is never in a log**, see [dataset](task.md#dataset).
 - **Tests need no network and no key.** They play `mockllm/model` and the baseline provider, and fake Jev and Timestral, see [tests](tests.md).

@@ -64,7 +64,7 @@ CANARY: str                                 # in paranoid.skins.canary
 
 ### Fields
 
-`lint(skin)` first runs `lint_text` over every `str` field the model reads and every channel name. Each hit is a problem `"<field>: <entry>"`, with `channels[<i>]` as the field for a channel name.
+`lint(skin)` first runs `lint_text` over every `str` field the model reads and every channel name. Each hit is a problem `"<field>: <entry>"`, with `channels[<i>]` as the field for a channel name. The four column words head every record the model reads, so they are linted too: a `bet_word` of `shift` fails.
 
 - **`tool_name` is linted**, so a tool called `switch_bets` fails.
 - **`name` is not.** The model never reads it. It goes in log metadata only, see [skin](skin.md#load_skins).
@@ -89,7 +89,7 @@ Then it renders `render_system_prompt(skin)` and checks the facts in [what every
 Then it checks that nothing the model reads carries the canary GUID.
 
 - **The GUID** is the part of `CANARY` after `canary GUID `. The line's first half fails the [word lint](#words) on its own, as `benchmark` and `canary` are banned, so this check needs only the GUID.
-- **Checked in** the rendered system prompt, and in `tool_text`, `bets_text`, `bad_call`, `no_call` and `question`. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
+- **Checked in** the rendered system prompt, and in `tool_text`, `bets_text`, `bad_call`, `no_call`, `question` and the four column words. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
 - **`CANARY`** is the line in [contamination](../../harness/contamination.md#canary), exactly, with no trailing newline. It lives in `paranoid.skins.canary` and is exported from `paranoid.skins`.
 - **Every published file that holds prompt text carries it.** In this repo that is `example.toml`, as its first comment line, and `docs/harness/prompts.md`. The test suite checks both, see [tests](tests.md#lint).
 - **A model that can finish the line has seen our data.** The [recognition check](../../pilot/provider-checks.md#recognition) asks it to.
@@ -102,19 +102,15 @@ Then it checks that nothing the model reads carries the canary GUID.
 
 ## Invariants
 
-- `lint_text("")` is `()`, and `lint_text` of any rendered record from a clean skin is `()`, as numbers are not words.
+- `lint_text("")` is `()`, and `lint_text` of any rendered record from a clean skin is `()`, as its words are the skin's own, already linted, and numbers are not words.
 - Every entry in `BANNED_WORDS` and `PREFIXES` is lowercase letters only, and no entry in `BANNED_WORDS` is a prefix of another.
 - `lint(skin)` passes for every skin `load_skins` returns.
 - `lint` never edits the skin or renders anything but the system prompt.
 - The canary GUID does not appear in any text the model reads from a skin that loads.
 
-## Tests
-
-See [tests](tests.md#lint).
-
-## Open
+## Not decided
 
 - **Whether to ban numbers.** A skin should hold no number but 100 and ten, see [skins](../../harness/skins.md#what-a-skin-file-holds). A lint that fails any other digit run would enforce it, but blocks a story with a year or a size in it. Decide after the first held-out skin is written.
-- **The whole-numbers phrases.** `whole number` and `integer` are a first pass. A held-out skin that words the fact another way adds its phrase to `WHOLE_NUMBER_PHRASES`, and the test suite pins the list.
-- **The prefixes.** `un`, `in`, `de`, `re`, `non` are a first pass too. A word that slips through adds its prefix, and the test suite pins the list.
-- **Pilot-only tool text.** The notes and compute tools in [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute) have descriptions of their own. Whether they are skin fields or harness text run through `lint_text` is a harness spec question.
+- **The whole-numbers phrases.** `whole number` and `integer` are a first pass. A held-out skin that words the fact another way adds its phrase to `WHOLE_NUMBER_PHRASES`, and the test suite pins the list. Decide skin by skin.
+- **The prefixes.** `un`, `in`, `de`, `re`, `non` are a first pass too. A word that slips through adds its prefix, and the test suite pins the list. Decide skin by skin.
+- **Pilot-only tool text.** The notes and compute tools in [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute) have descriptions of their own. Whether they are skin fields or harness text run through `lint_text` is a harness spec question. Decide before the notepad cell is coded.

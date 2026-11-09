@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`Skin` holds one skin: the ten channel names and every piece of text the agent reads. `load_skin` reads one from a TOML file and lints it. `load_skins` gathers the example skin and every held-out skin into one mapping by name. What each field is for is in [skins](../../harness/skins.md#what-a-skin-file-holds), and where each lands in the prompt is in [prompts](../../harness/prompts.md#system-prompt).
+`Skin` holds one skin: the channel names and every piece of text the agent reads, the record's column words included. `load_skin` reads one from a TOML file and lints it. `load_skins` gathers the example skin and every held-out skin into one mapping by name. What each field is for is in [skins](../../harness/skins.md#what-a-skin-file-holds), and where each lands in the prompt is in [prompts](../../harness/prompts.md#system-prompt).
 
 ## Interface
 
@@ -10,17 +10,21 @@
 @dataclass(frozen=True)
 class Skin:
     name: str                               # short id, the file stem. Goes in log metadata, never to the model
-    channels: tuple[str, ...]               # ten names, in channel index order
+    channels: tuple[str, ...]               # one name per channel, in channel index order. Ten in the example skin
     intro: str                              # who the agent is and what it runs
-    rules: str                              # the budget of 100, the ten channels by name, whole numbers adding up to 100
+    rules: str                              # the budget of 100, the channels by name, whole numbers adding up to 100
     how_points_earn: str                    # what a point buys, what a reading means, a small spend gives a rough reading
     ask: str                                # the record is below, place this round's points with the tool
     tool_name: str                          # the tool's name as the model sees it
     tool_text: str                          # the tool's description
-    bets_text: str                          # the description of the tool's one parameter, the ten bets
+    bets_text: str                          # the description of the tool's one parameter, one bet per channel
     bad_call: str                           # the retry message for bets the engine rejects. One message, no slots
     no_call: str                            # the retry message for a reply with no tool call
     question: str                           # Jev's choice question, see providers
+    round_word: str                         # the record's first column header. "round" in the example skin
+    bet_word: str                           # the suffix of each bet column. "bet" in the example skin
+    level_word: str                         # the suffix of each level column. "level" in the example skin
+    output_word: str                        # the record's last column header. "output" in the example skin
 
 class SkinError(ValueError): ...            # a skin file or a Skin that is not well formed. LintError is one too
 
@@ -28,8 +32,8 @@ def load_skin(path: Path) -> Skin
 def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 ```
 
-- **Every field is a `str`** except `channels`, which is a tuple of ten. There are no numbers on a skin, see [conventions](README.md#conventions).
-- **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them. Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
+- **Every field is a `str`** except `channels`, which is a tuple of names. There are no numbers on a skin, see [conventions](README.md#conventions).
+- **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them, then the tool text, then the four column words of the [record](render.md#record). Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
 
 ## Behaviour
 
@@ -40,8 +44,8 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 - **Normalise first.** Every `str` field and every channel name has `\r\n` and `\r` replaced by `\n`, trailing whitespace removed from every line, Unicode normalised to NFC, then leading and trailing whitespace stripped. `channels` is stored as a `tuple` whatever sequence was passed. The stored values are the normalised ones, so one file hashes the same on every OS and in every editor, and two spellings of one accented name are one name.
 - `name` does not match `^[a-z][a-z0-9_]*$`.
 - Any `str` field is empty after stripping.
-- `channels` does not have exactly ten entries. Ten is the [frame](../../glossary.md), and the engine default `channels` is ten, see [config](../engine/config.md#defaults). The harness checks a skin against its config before round 1, see [what the harness reads](README.md#what-the-harness-reads).
-- Any channel name is empty, or contains `,`, `"` or `\n`. These are the characters `Record.to_csv` rejects, see [record](../engine/game.md#record), so a bad name fails here and never mid-run.
+- `channels` has fewer than four entries, the engine's floor, see [config](../engine/config.md#fields). The example skin has ten, as the frozen study config does. Whether a skin's count matches its config is checked when the task is built, see [task settings](../harness/task.md#task-settings).
+- Any channel name or column word is empty, or contains `,`, `"` or `\n`. Each is a word in the record's header, and any of those characters would add a column or a row to the CSV the agent reads, see [record](render.md#record). So a bad word fails here and never mid-run.
 - Two channel names are equal ignoring case.
 - `tool_name` does not match `^[a-z][a-z0-9_]{0,63}$`. Every provider accepts a name of that shape.
 
@@ -49,11 +53,11 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 
 One file per skin, one table, no nesting.
 
-- **Every field of `Skin` but `name` is a top-level key** of the same name. `channels` is an array of ten strings, every other key a string. Multi-line strings use TOML's `"""` form.
+- **Every field of `Skin` but `name` is a top-level key** of the same name. `channels` is an array of strings, one per channel, every other key a string. Multi-line strings use TOML's `"""` form.
 - **Every key is required.** A missing key, an unknown key, or a value of the wrong type raises `SkinError` naming the key. So a typo in a key name fails on load rather than silently dropping a part of the prompt.
 - **`name` is the file stem.** `example.toml` is the skin `example`. There is no `name` key, so a file cannot disagree with its own name. A stem that fails the `name` pattern, such as `Rome.toml`, raises `SkinError`.
 - **Comments are free.** The example skin's first line is a comment holding the [canary](lint.md#canary). Held-out skins may carry it or not, as they are never published.
-- **No templating.** A skin writes the ten names, the number 100 and its tool name into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
+- **No templating.** A skin writes the channel names, the number 100 and its tool name into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
 
 ### `load_skin`
 
@@ -81,17 +85,13 @@ One file per skin, one table, no nesting.
 ## Invariants
 
 - Every `str` field on a built `Skin` is non-empty, stripped, in NFC, free of `\r`, and has no trailing whitespace on any line.
-- `len(skin.channels) == 10`, `skin.channels` is a `tuple`, every name is CSV safe, and no two are equal ignoring case.
+- `len(skin.channels) >= 4`, `skin.channels` is a `tuple`, every name and column word is CSV safe, and no two names are equal ignoring case.
 - `load_skins()` always contains `"example"`, and `load_skins()["example"].name == "example"`.
 - Every skin `load_skins` returns has passed `lint`.
 - A `Skin` is immutable. Two skins built from the same file are equal and hash alike.
 - The skins layer imports nothing outside `paranoid.engine` and the standard library.
 
-## Tests
+## Not decided
 
-See [tests](tests.md#skin).
-
-## Open
-
-- **Whether a skin should carry what a round stands for** as its own field, so the pilot can swap "week" for "minute" on one engine, see [future](../../design/future.md).
+- **Whether a skin should carry what a round stands for** as its own field, so the pilot can swap "week" for "minute" on one engine, see [future](../../design/future.md). Decide when the pilot asks for a second unit.
 - **Whether to pilot the reading note.** `how_points_earn` ends with the line that a small spend gives a rough reading. A pilot cell that drops it to see whether the agent still looks needs a second TOML file with the line cut, not a field of its own.

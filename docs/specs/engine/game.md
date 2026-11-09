@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`Game` plays one run against a tape: it takes a split each round, checks it, returns the readings and output, and appends a row to the record. `Record` is the agent's own play so far, the thing the harness renders into the prompt. `play` runs a policy to the end with no model in the loop. The design is in [interface](../../design/interface.md) and [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
+`Game` plays one run against a tape: it takes a split each round, checks it, appends a row of readings and output to the record, and returns that row. `Record` is the agent's own play so far, the thing the skins layer renders into the prompt, see [render](../skins/render.md#record). `play` runs a policy to the end with no model in the loop. The design is in [interface](../../design/interface.md) and [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
 
 ## Interface
 
@@ -13,17 +13,11 @@ class BetError(ValueError):
     check: str                              # the check that failed: shape, sign, sum or inertia
 
 @dataclass(frozen=True)
-class Reading:
-    round: int
-    readings: tuple[float | None, ...]      # one per channel, None where the bet was 0, one decimal
-    output: float                           # one decimal
-
-@dataclass(frozen=True)
 class Row:
     round: int
     bets: Bets
-    readings: tuple[float | None, ...]      # what the agent saw, as in Reading.readings
-    output: float
+    readings: tuple[float | None, ...]      # one per channel, None where the bet was 0, one decimal
+    output: float                           # one decimal
 
 class Record:
     rows: Sequence[Row]                     # read only view. append is the one writer
@@ -33,7 +27,6 @@ class Record:
     def last_bets(self) -> Bets | None
     def readings_of(self, channel: int) -> list[tuple[int, float]]   # (round, reading) for rounds with a bet
     def unchanged_rounds(self) -> list[int]                           # rounds whose bets equal the round before
-    def to_csv(self, names: Sequence[str] | None = None) -> str
 
 class Game:
     tape: Tape
@@ -42,7 +35,7 @@ class Game:
     done: bool                              # round > tape.config.rounds
     def __init__(self, tape: Tape, record: Record | None = None)
     def view(self, peeks: bool) -> View     # what a policy may see this round, see policies.md
-    def play(self, bets: Sequence[int]) -> Reading
+    def play(self, bets: Sequence[int]) -> Row     # the row it appended
 
 def play(policy: Policy, tape: Tape, *, max_rounds: int | None = None, record: Record | None = None) -> Record
 ```
@@ -60,11 +53,11 @@ def play(policy: Policy, tape: Tape, *, max_rounds: int | None = None, record: R
 | `sum` | The values do not add up to `budget` |
 | `inertia` | `inertia_cap` is set, the record is not empty, and some bet differs from the round before by more than the cap |
 
-- **The message is generic.** `str(error)` is `Bad tool call: {check}.`, for logs and tests. The engine writes no text for the agent. The harness answers every `BetError` with the skin's `bad_call`, see [tool text](../../harness/prompts.md#tool-text).
+- **The message is generic.** `str(error)` is `Bad tool call: {check}.`, for logs and tests. The engine writes no text for the agent. The harness answers every `BetError` with the skin's `bad_call`, see [submit](../harness/solver.md#submit).
 - **A whole number** is any `numbers.Integral` that is not a `bool`. So `np.int64` passes, as the Jev and Timestral providers produce it, and `True`, `10.0` and `"10"` fail. A negative int passes `shape` and fails `sign`.
 - **A round advances only on a valid split.** A `BetError` leaves `round`, `record` and the tape untouched, so the same round can be tried again. The engine never counts retries, the harness does, see [retry rule](../../harness/prompts.md#retry-rule).
 - **Playing a finished game** raises `RuntimeError`.
-- **Bets are stored as a tuple of `int`**, whatever sequence was passed in.
+- **Bets are stored as a tuple of `int`**, whatever sequence was passed in, and `play` returns the row it appended, so `game.play(bets) == game.record.rows[-1]`.
 
 ### Readings
 
@@ -81,18 +74,10 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 - **A record is the rows in round order**, 1 to `len(record)`, with no gaps. `Game(tape, record)` raises `ValueError` if the rows are not 1, 2, 3… in order, if there are more rows than `tape.config.rounds`, or if a row's bets or readings do not fit the tape's `channels` and `budget`.
 - **`rows` is a read only view.** `append` is the only way to add a row and nothing removes or edits one. `copy()` returns a new record with the same rows.
-- **`to_csv`** renders the shape in [user message](../../harness/prompts.md#user-message):
-
-      round,<name>_bet × channels,<name>_level × channels,output
-
-  - Names default to `c0`, `c1`, … `c{channels−1}`. The skins layer passes the skin's channel names in channel index order.
-  - A name that contains `,`, `"`, `\n` or `\r`, or the wrong number of names, raises `ValueError`. The CSV is the agent's prompt, so no name may add a column or a row to it.
-  - Bets are written as ints, readings and output with exactly one decimal, a `None` reading as an empty field. A value that rounds to zero from below is written `0.0`, never `-0.0`.
-  - Rows end with `\n`, including the last. An empty record renders the header line only.
-  - Example, two channels for brevity: `round,c0_bet,c1_bet,c0_level,c1_level,output\n1,100,0,61.2,,61.2\n`.
+- **A record renders nothing.** The skins layer turns it into the CSV the agent reads, column words and decimals included, see [render](../skins/render.md#record). So no engine word reaches a model.
 - **`unchanged_rounds`** returns every round from 2 on whose bets equal the previous round's. The harness reports them as rounds the agent left the plan alone, see [interface](../../design/interface.md#how-the-agent-plays).
 - **`readings_of(c)`** returns `(round, reading)` pairs for the rounds where `c` had a bet, in round order. Policies read the record through it.
-- **A record carries no tape and no truth.** Nothing on it lets a reader recover a level it did not bet on. It is the one engine object the harness may render or log.
+- **A record carries no tape and no truth.** Nothing on it lets a reader recover a level it did not bet on. It is the one engine object that leaves the engine, see [conventions](README.md#conventions).
 
 ### Starting part way
 
@@ -117,15 +102,10 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 - `len(game.record)` equals the number of valid splits played plus the rows it started with.
 - Every row's readings are `None` exactly where its bets are 0.
 - Every row's output equals the exact-level sum rounded to one decimal, never the sum of the readings.
-- `record.to_csv().count("\n") == len(record) + 1`.
 - A record passed to `Game` or `play` has the same rows afterwards.
 - The engine never imports anything outside numpy and the standard library.
 
-## Tests
-
-See [tests](tests.md#game).
-
-## Open
+## Pilot decides
 
 - `read_noise_k` is pilot to confirm, see [reading roughness](../../pilot/engine-checks.md#reading-roughness).
 - Whether `inertia_cap` is ever switched on, see [inertia](../../pilot/provider-checks.md#inertia).

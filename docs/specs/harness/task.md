@@ -103,6 +103,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 - **Epochs** reduce by `"mean"`. Repeats of a seed are averaged before any metric sees them, see [error bars](../../design/scoring.md#error-bars).
 - **`sandbox`** is `("docker", <path>)` only when `tools` includes `compute`, else none. The path is the module's own `compose.yaml`, see [compute](solver.md#compute).
 - **Skins** load with `load_skins()`, which reads `PARANOID_SKINS` when set. A `skin` that is not loaded raises `ValueError` listing the loaded names.
+- **The skin must fit the config.** `paranoid()` raises `ValueError` naming the skin and the scenario when `len(skin.channels) != config.channels` for any scenario it will play. An empty record cannot tell them apart, so this is the one place a mismatch can fail before round 2. The skins side of this duty is [what the harness reads](../skins/README.md#what-the-harness-reads).
 - **`tools`** is a comma list drawn from `notes` and `compute`, or `none`. Anything else raises `ValueError`.
 
 ### Store
@@ -127,10 +128,6 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 - `len(store.rows) ≤ store.config().rounds` at all times, and equals it unless the run gave up.
 - `store.round() == len(store.rows) + 1`.
 
-## Tests
-
-See [tests](tests.md#task).
-
-## Open
+## Not decided
 
 - Whether `seeds` should also take a held-out range, such as `held-out:0-4`, for a cheap check on the private set. Not needed for the pilot.

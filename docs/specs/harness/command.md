@@ -66,7 +66,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `on` | Nothing set. The model thinks and will not be told otherwise | The same |
 | `n/a` | Nothing set | Nothing set |
 
-- **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. These are a convention to verify against each provider before the first run, see [Open](#open).
+- **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. These are a convention to verify against each provider before the first run, see [verify before code](#verify-before-code).
 - **`max_tokens`** is set from the row when present, else left to the provider's default, see [sampling](../../harness/models.md#sampling).
 - **Temperature is never set.**
 
@@ -88,7 +88,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `streaks` | No | Tapes over a grid of `persistence`, 1000 seeds each, the No change and Down switch scenarios | A CSV: setting, seed, longest run of rounds the leader reads below the runner-up by chance, and the round the Scout rule moves |
 | `tell` | No | Tapes over a grid of `factor_scale`, One shock and Down switch, 1000 seeds | A CSV: setting, seed, hedge move at the trough, and the hedge rule's hold or move |
 | `luck` | No | `perfect` minus `discerning` on every scenario at every grid setting | A CSV: scenario, setting, seed, gap |
-| `tape-sanity` | No | T22 and P12 from the [engine tests](../engine/tests.md#tape) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
+| `tape-sanity` | No | ET22 and EP12 from the [engine tests](../engine/tests.md#tape) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
 | `noise-grid` | No | Every fixed baseline on One shock, Down switch and Up switch at every setting in `configs/grid.toml`, 1000 seeds | A CSV: scenario, setting, baseline, seed, output |
 | `game-length` | No | The baselines at `rounds` of 30, 40 and 60 and `onset` ranges around the default, One shock, Down switch and the two-event scenarios | A CSV: scenario, rounds, onset, baseline, seed, output |
 | `reading-roughness` | No | `HedgeRule(look=1,2,5)` and `ScoutRule(s=1,2,5)` over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |
@@ -117,11 +117,10 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 - `paranoid poc --dry-run` runs no eval and touches no key.
 - Every engine-only cell runs with no key and no network.
 
-## Tests
+## Pilot decides
 
-See [tests](tests.md#command).
-
-## Open
-
-- **The budget table and the effort names per provider are to verify** against inspect's `GenerateConfig` and each provider's API before the first run, see the "to verify" notes in [`full.toml`](../../../configs/models/full.toml). `EFFORT_PREFIXES` is a first guess for the same reason.
 - **The pilot cells' exact grids** are first guesses. The pilot pages say what each measures, the function may widen a grid without a spec change, as long as the CSV columns hold.
+
+## Verify before code
+
+- **The budget table and the effort names per provider**, against inspect's `GenerateConfig` and each provider's API, see the "to verify" notes in [`full.toml`](../../../configs/models/full.toml). `EFFORT_PREFIXES` is a first guess for the same reason. `generate_config` waits on it.

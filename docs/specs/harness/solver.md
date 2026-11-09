@@ -57,7 +57,7 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 - **The bets go through untouched.** The harness does no coercion. A list of JSON whole numbers passes. `10.0`, `"10"` or `true` fail the engine's `shape` check, see [bets](../engine/game.md#bets).
 - **On `BetError`** the tool adds one to `store.bad_calls` and raises `ToolError(skin.bad_call)`. The engine's own message never reaches the model. The round, the record and `store.awaiting_submit` are unchanged.
 - **When `store.awaiting_submit` is false** the call raises `ToolError(skin.bad_call)` and counts as a bad call, so a second submit in one reply cannot play two rounds.
-- **On success** the tool appends a `StoredRow` from the `Reading`, sets `store.awaiting_submit = False`, and returns the header line and the last line of `render_record(skin, store.record())`. That is the round just played in the record's own shape, with no words from the harness. The record is rendered by `render_record` everywhere, the user message, this result and the compute file, so they cannot drift apart.
+- **On success** the tool appends a `StoredRow` from the `Row` the engine returns, sets `store.awaiting_submit = False`, and returns the header line and the last line of `render_record(skin, store.record())`. That is the round just played in the record's own shape, with no words from the harness. The record is rendered by `render_record` everywhere, the user message, this result and the compute file, so they cannot drift apart.
 
 ### Notes
 
@@ -94,13 +94,15 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - `store.awaiting_submit` is false whenever the solver is between rounds, and after a give up.
 - The solver raises nothing of its own. An exception in a run comes from inspect, a provider or the network.
 
-## Tests
+## Pilot decides
 
-See [tests](tests.md#solver).
+- `notes_cap`, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute).
 
-## Open
+## Not decided
 
-- `notes_cap` is **pilot to confirm**, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute).
-- Whether `rolling` runs need their own `max_tokens`, as the conversation grows with the square of the game length, see [rejected](../../design/interface.md#rejected).
-- Whether any provider but Anthropic refuses a forced tool with thinking on. Add it to `tool_choice_for` when a run shows it.
-- Whether a run needs a try budget on top of the ten a round. A model that needs five tries every round spends two hundred calls a run with no give up. The retry share marks it, and the [cost check](../../pilot/provider-checks.md#cost-per-run) prices it.
+- Whether `rolling` runs need their own `max_tokens`, as the conversation grows with the square of the game length, see [rejected](../../design/interface.md#rejected). Decide when the rolling cell runs.
+- Whether a run needs a try budget on top of the ten a round. A model that needs five tries every round spends two hundred calls a run with no give up. The retry share marks it, and the [cost check](../../pilot/provider-checks.md#cost-per-run) prices it. Decide when the cost check has run.
+
+## Verify before code
+
+- **Which providers refuse a forced tool with thinking on.** Anthropic does, and `tool_choice_for` knows it. Check the other providers in `configs/models/` before the first run and add each that does. `tool_choice_for` waits on it.

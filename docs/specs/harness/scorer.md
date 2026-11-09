@@ -10,7 +10,7 @@
 @scorer(metrics=[scenario_score(), headline(), weakest_trait(), retry_share()])
 def gain() -> Scorer
 # Score.value: dict with the keys in the table below
-# Score.answer: store.record().to_csv() with default names
+# Score.answer: render_record(skin, store.record()), the record as the agent last saw it
 # Score.metadata: scenario, seed_set, seed_index, engine_hash. seed too, for a public seed only
 
 BOOTSTRAP_DRAWS = 1000
@@ -104,13 +104,9 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 - `pooled_score` equals the gap-weighted mean of the run scores.
 - The same log gives the same metrics on every machine, with no seed file and no engine.
 - No metric reads a tape. The scorer is the only reader, and only through the store.
-- `perfect ≥ discerning` on every seed, see [P6](../engine/tests.md#policies).
+- `perfect ≥ discerning` on every seed, see [EP6](../engine/tests.md#policies).
 
-## Tests
+## Not decided
 
-See [tests](tests.md#scorer).
-
-## Open
-
-- `BOOTSTRAP_DRAWS` at 1000 is a convention, not a pilot knob. Raise it if the bars wobble between runs of the analysis at the seed counts the pilot picks.
-- Whether `failed` should also mark the bar inside inspect's own view, or only in the analysis layer's tables.
+- `BOOTSTRAP_DRAWS` at 1000 is a convention, not a pilot knob. Raise it if the bars wobble between runs of the analysis at the seed counts the pilot picks. Decide once the pilot has set its seed count.
+- Whether `failed` should also mark the bar inside inspect's own view, or only in the analysis layer's tables. Decide when the analysis spec is written.
