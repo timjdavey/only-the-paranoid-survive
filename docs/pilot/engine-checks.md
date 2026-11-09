@@ -51,7 +51,7 @@ Picks the shared-factor scale. The tell is the hedge rising while the field fall
 - **Measure.**
   - **Below zero.** The share of channel rounds with a level below 0 at the noisiest setting. Levels are not clipped, see [generator](../design/mechanics.md#generator).
   - **Pinning.** The Discerning baseline's output minus the Complacent baseline's, in level points, at each setting. It should be the same across the grid, see [difficulty](../design/mechanics.md#difficulty).
-  - **Twin tapes.** The One shock and Down switch tapes of one seed are identical until onset, and the Up switch and No change tapes are identical on every channel but the sleeper. The Switch then shock tape matches Down switch until the shock, and the Up switch then down switch tape matches Up switch until the fall. These are tests in the engine suite, not decisions.
+  - **Twin tapes.** The One shock and Down switch tapes of one seed are identical until onset, and the Up switch and No change tapes are identical on every channel but the sleeper. The Switch then shock tape matches Down switch until the shock, and the Up switch then down switch tape matches Up switch until the fall, on seeds where the Up switch sleeper does not stop short. These are tests in the engine suite, not decisions.
   - **Sparklines.** The median tape of the leader in each scenario, plotted beside its sparkline in [scenarios](../design/scenarios.md#scenarios-we-test).
 - **Decide.** If levels below 0 are common, the base ladder moves up. If pinning drifts, events are not pinned in level points. A sparkline that does not look like its median tape is redrawn.
 

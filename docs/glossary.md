@@ -48,7 +48,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Leader | The channel that pays best when a run starts |
 | Runner-up | The second best channel at the start. The obvious fallback |
 | Field | The other channels, including the hedge |
-| Sleeper | A field channel whose base level rises past the leader's in a switch |
+| Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
 | Tape | The true level of every channel in every round, as one seed produces it. Saved and replayed |
 
 ## How the world changes
@@ -61,6 +61,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Impulse | The decaying dip a shock adds. Into the shared factor by default, so every channel feels it by its loading. Onto the leader's level alone with the one-channel shock knob, so its base level never moves |
 | Switch | A lasting change in base levels that changes which channel pays best. The leader falls, a sleeper rises past it, or both |
 | Drift | A switch stretched over many more rounds |
+| Short | A sleeper's rise that stops short: it ends above the runner-up but below the leader, so the right call is to stay. Drawn on some Up switch seeds. `short` in code |
+| Undo | A switch that puts an earlier sleeper back: its base level and loading return to what they were before it rose. `kind="undo"` in code |
 | Profile | The form an event takes within its shape, drawn per seed. A shock falls sharply and climbs slowly, or slides and rebounds. A drift is linear or logistic |
 | Scenario | A list of events we put each model through. Its name always ends in "scenario", so it never reads as an event. See [scenarios](design/scenarios.md) |
 | No change scenario | No events. `no_change` in code |

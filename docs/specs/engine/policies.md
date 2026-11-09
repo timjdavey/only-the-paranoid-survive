@@ -76,7 +76,7 @@ Bets are written as `budget` on a channel, meaning every point on it and 0 elsew
 | Policy | Peeks | Split each round |
 |---|---|---|
 | `uniform` | No | `split_budget([1] × channels, budget)`. 10 each at the defaults |
-| `discerning` | Yes | `budget` on `tape.climate_leader(round)`, the highest base level this round. Ties go to the lowest index |
+| `discerning` | Yes | `budget` on `tape.climate_leader(round)`, the highest base level this round. Ties go to the lowest index. So it holds on a short Up switch seed, and in the Up switch then down switch scenario it moves to the sleeper and back |
 | `complacent` | No | `budget` on `start.leader`, every round. Equals the Discerning baseline's round 1 split |
 | `perfect` | Yes | `budget` on the channel with the highest `tape.levels[round−1]`. Ties go to the lowest index |
 | `HedgeRule(...)` | No | `look` on the hedge, the rest on its pick. Below |
@@ -93,7 +93,7 @@ The simplest player that reads the tell. State: a `pick`, a `phase` of hold or s
   - **Fall and no tell**: phase scout, `scout_start = round`.
 - **Scout.** For `scout_rounds` rounds: `look` on the hedge and `budget − look` split by `split_budget` evenly over every other channel, the pick included.
 - **Move.** On the round after the last scout round: `pick` becomes the channel, hedge excluded, with the highest mean reading over the scout rounds. Phase hold, `moved_at = round`. Bet the hold split with the new pick. The fall test then starts over on the new pick's readings.
-- It never moves in the Up switch scenario, as the leader never falls, see [baseline order](../../pilot/engine-checks.md#baseline-order).
+- It never moves in the Up switch or Up switch then down switch scenarios, as the leader never falls, see [baseline order](../../pilot/engine-checks.md#baseline-order).
 - `look ≥ 1`, else `ValueError` on construction. `look < budget`, else `ValueError` when the first view arrives.
 
 ### Scout rule
@@ -106,7 +106,7 @@ The hedge rule that looks everywhere, all the time. State: `pick` and `moved_at`
   - **Candidates** are the channels, pick and hedge excluded, whose reading beat the pick's reading in each of the last `n` rounds.
   - **Tell** when the hedge's mean over the last `n` rounds is above its mean over every earlier round since `moved_at` by more than `tell_points`. With no earlier round there is no tell.
   - **Candidates and no tell**: `pick` becomes the candidate with the highest mean reading over the last `n` rounds, `moved_at = round`, and this round's split uses the new pick.
-- It keeps scouting after a move, so it can move again.
+- It keeps scouting after a move, so it can move again. In the Up switch then down switch scenario that is how it goes back to the leader once the sleeper falls.
 - In noisy worlds it whipsaws. That is the point of it as a curve, see [fixed baselines](../../design/baselines.md#fixed-baselines).
 
 ### Parked

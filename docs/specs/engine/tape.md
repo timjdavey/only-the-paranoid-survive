@@ -85,7 +85,7 @@ From the `read_noise` stream, `read_noise_z = rng.standard_normal((rounds, chann
 
 Events are applied in order. Each event has its own stream. The first event's onset is the [onset](#onset) draw. Each later event's onset is the previous event's onset plus its `gap` draw. An event is recorded even when its onset is past the last round, and anything it would edit past the last round is cut.
 
-The channel that falls is the **climate leader at onset**, `climate_leader(onset)`, so a second switch after a first lands on the new leader.
+The channel that falls is the **climate leader at onset**, `climate_leader(onset)`, so a second switch after a first lands on the new leader. An [undo](#switch) is the one exception: it moves the earlier sleeper back, wherever that sleeper ranks.
 
 #### Draw order
 
@@ -94,7 +94,7 @@ The draws each shape makes from its own stream, in order, and the key each gets 
 | Shape | Draws, in order | Derived keys, not draws |
 |---|---|---|
 | Shock | `gap`, `profile` (if `"draw"`, sharp or slide at even odds), `depth_drawn` (from `depth_sigmas` × `own_scale`, or `depth_points`), `half_life` | `depth`, after the [cap](#shock) |
-| Switch | `gap`, `kind` (if `"draw"`, fall and rise with chance `riser_share`, else fall), `size`, `rise`, `ramp`, `sleeper` (uniform over the field minus the hedge minus any channel an earlier event moved), `sleeper_loading` (uniform from `loading`) | `fall`, the points the leader's base moves. `target`, the sleeper's end base |
+| Switch | `gap`, `kind` (if `"draw"`, fall and rise with chance `riser_share`, else fall), `size`, `rise`, `ramp`, `sleeper` (uniform over the field minus the hedge minus any channel an earlier event moved), `sleeper_loading` (uniform from `loading`), `short` (1 with chance `short_share`, else 0), `short_level` (uniform from `short_level`) | `fall`, the points the leader's base moves, or the earlier sleeper's in an undo. `target`, the sleeper's end base, or the base an undo restores |
 | Drift | `gap`, `profile` (if `"draw"`, linear or logistic at even odds), `size`, `length` | `fall`, as a switch |
 
 - **`Event.numbers` holds exactly the keys in both columns**, nothing else, so a log's columns are stable.
@@ -106,7 +106,7 @@ An impulse `s` that decays. By default it goes into the shared factor, `factor[t
 
 - **Sharp.** `s[onset] = −depth`, then `s[t] = s[t−1] × 2^(−1 / half_life)`.
 - **Slide.** Falls in a straight line over `half_life + 1` rounds, `s[onset + j] = −depth × (j + 1) / (half_life + 1)` for `j` from 0 to `half_life`, then rebounds from the trough with half-life `ceil(half_life / 2)`, `s[t] = s[t−1] × 2^(−1 / ceil(half_life / 2))`.
-- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with their row 0 loadings. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above `depth_points` high, `make_tape` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config open](config.md#open).
+- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above `depth_points` high, `make_tape` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config open](config.md#open).
 - **`one_channel_shock`.** The impulse goes into `impulse[t, l]` instead of the factor, with no loading. `base` and `factor` are untouched, so the climate does not move and the Discerning baseline holds. The cap above does not apply. `Event.channel` is `l`.
 
 #### Switch
@@ -115,7 +115,9 @@ Edits `base`, and the sleeper's `loadings`. Let `l` be the climate leader at ons
 
 - **Fall.** The leader's base ends `size` below `r`'s. `fall = base[onset−1, l] − base[onset−1, r] + size`, and `base[t, l] −= fall × f(t)`. So a fall changes who pays best on every seed, see [events](../../design/mechanics.md#events).
 - **Rise.** The sleeper's base moves in a straight line over the same ramp from its old base to `target`, then holds. `target` is the highest base of every channel but the sleeper at the end of the ramp, after any fall, plus `rise`. So the sleeper ends above the runner-up as well as the fallen leader, and the runner-up is a decoy. From `onset` on, `loadings[t, sleeper] = sleeper_loading`.
+- **Short.** When `short` is 1, `target` is instead `base[e, q] + short_level × (base[e, l] − base[e, q])`, where `e` is the row at the end of the ramp and `q` the channel with the highest base at `e` other than `l` and the sleeper. So the sleeper ends above the runner-up and below the leader, and the climate leader never changes. Validation lets `short` be 1 only when `kind` is `"rise"`, see [config](config.md#fields).
 - **`fall_and_rise`** does both. **`rise`** leaves the leader alone. **`fall`** leaves every other channel alone, and `sleeper` on the event is `None`.
+- **Undo.** Let `s` be the sleeper of the most recent earlier switch. Its base moves in a straight line over this event's ramp, from `base[onset−1, s]` back to `base[0, s]`, then holds. From `onset` on, `loadings[t, s] = loadings[0, s]`. Row 0 holds its values from before it rose, as no event moves a channel before it is a sleeper. No other channel moves. `Event.channel` is `s`, `Event.sleeper` is `None`, `fall` is the points `s` moved and `target` is `base[0, s]`. It ignores the `kind`, `size`, `rise`, `sleeper`, `sleeper_loading`, `short` and `short_level` draws.
 - `Tape.sleeper` is the last sleeper any event made, or `None`.
 
 #### Drift
@@ -141,6 +143,9 @@ What one seed guarantees across scenarios whose configs differ only in `events`.
 - One shock and Down switch `levels` are identical before the onset round.
 - Shock then switch and One shock `levels` are identical before the switch's onset.
 - Up switch and No change `levels` are identical on every channel but the sleeper.
+- Switch then shock and Down switch `levels` are identical before the shock's onset.
+- Up switch then down switch and Up switch `levels` are identical before the undo's onset, on seeds where the Up switch draws `short` as 0. On a short seed they differ on the sleeper from the first onset, as Up switch then down switch never stops short.
+- Up switch then down switch and No change `base` and `loadings`, and so `levels`, are identical once the undo's ramp is complete.
 
 ## Invariants
 
@@ -151,7 +156,8 @@ What one seed guarantees across scenarios whose configs differ only in `events`.
 - Exactly one leader, runner-up and hedge, all different, and `field` has `channels − 2` entries including the hedge.
 - At round 1, `base[0, leader] > base[0, runner_up] > base[0, c]` for every other channel, and the hedge's base is the lowest.
 - Every loading is positive except the hedge's, which is negative, until a switch redraws the sleeper's, which is positive.
-- After a fall or drift completes, the fallen channel's base is `size` below the channel that was second at onset. After a rise completes, the sleeper's base is `rise` above every other channel's.
+- After a fall or drift completes, the fallen channel's base is `size` below the channel that was second at onset. After a rise completes, the sleeper's base is `rise` above every other channel's, unless it is short, when it lies strictly between the runner-up's and the leader's.
+- After an undo completes, the undone sleeper's base and loading equal their row 0 values. In the Up switch then down switch scenario that makes `base` and `loadings` equal the No change tape's.
 - A switch or drift leaves the leader's base above 0 on every seed. If a draw would not, `make_tape` raises `ValueError`, as the config is wrong.
 - With `hedge_may_overtake` off, the hedge's `base + loading × trough` is at least `hedge_margin_points` below the leader's. Weather is not counted, see [shock](#shock).
 - Same config and seed give equal arrays and equal `engine_hash` on every call within one environment. Across numpy versions or CPUs, `allclose` at `1e-9`, see [config](config.md#engine-hash).
@@ -165,4 +171,5 @@ See [tests](tests.md#tape).
 - Every range and scale in [config defaults](config.md#defaults) is pilot to confirm.
 - Whether a drift should sometimes carry a riser, as a switch does. It does not here. Revisit after [Up and down](../../pilot/engine-checks.md#up-and-down).
 - Whether the cut at the last round for a long drift leaves the Slow drift scenario enough rounds at the new level. [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) decides.
+- Whether the Switch then shock scenario's shock, which lands 20 to 32, leaves enough rounds after it to recover before round 40. [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) decides, as it does for the other two-event scenarios.
 - How often the shock cap bites at the defaults. [The tell](../../pilot/engine-checks.md#the-tell) reports the share of seeds where `depth < depth_drawn`.

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`ScenarioConfig` holds every number the engine uses, so a scenario is data and the engine is built from [mechanics](../../design/mechanics.md) alone. The six scenarios are six configs. A hash of the config goes into every tape and every log.
+`ScenarioConfig` holds every number the engine uses, so a scenario is data and the engine is built from [mechanics](../../design/mechanics.md) alone. The eight scenarios are eight configs. A hash of the config goes into every tape and every log.
 
 ## Interface
 
@@ -21,13 +21,15 @@ class ShockSpec:
 @dataclass(frozen=True)
 class SwitchSpec:
     gap: IntRange = (8, 12)
-    kind: Literal["fall", "fall_and_rise", "rise", "draw"] = "draw"
+    kind: Literal["fall", "fall_and_rise", "rise", "undo", "draw"] = "draw"
     riser_share: float = 0.5                # chance "draw" gives fall_and_rise rather than fall
     size_sigmas: Range = (1.0, 3.0)         # how far below the runner-up's base the leader's base ends
     size_points: Range = (4.0, 12.0)
     rise_sigmas: Range = (1.0, 3.0)         # how far above every other channel's base the sleeper's base ends
     rise_points: Range = (4.0, 12.0)
     ramp: IntRange = (1, 5)                 # rounds the move is spread over, linear
+    short_share: float = 0.0                # chance a "rise" stops short of the leader
+    short_level: Range = (0.25, 0.75)       # where a short rise ends, as a share of the gap from runner-up to leader
 
 @dataclass(frozen=True)
 class DriftSpec:
@@ -87,6 +89,7 @@ def engine_hash(config: ScenarioConfig) -> str
 - **A switch or drift `size` is measured from the runner-up**, not from where the leader was. The leader's base ends `size` below the runner-up's base, so a fall changes who pays best on every seed. The points the leader actually moves are the gap to the runner-up plus `size`, see [switch](tape.md#switch).
 - **`own_scale` is the weather's SD per round**, not the SD of the innovation. [tape](tape.md) says how the AR(1) is scaled to make that so. It is the axis of the [noise grid](../../pilot/engine-checks.md#noise-grid).
 - **`persistence` never moves within a release**, see [difficulty](../../design/mechanics.md#difficulty). The engine does not enforce this, the release process does.
+- **A short rise and an undo** are the two switch moves the [Up switch](../../design/scenarios.md#scenarios-we-test) scenarios need, see [switch](tape.md#switch). `short_level` is a share, not a size, so it has no sigmas or points pair and [pinning](tape.md#pinning) leaves it alone.
 - **`hedge_margin_points`** is in level points, so it survives [pinning](tape.md#pinning). It bounds the shock depth, see [shock](tape.md#shock).
 - **`inertia_cap`** is off by default. When set, no bet may move more than this many points from the round before, see [game](game.md#bets) and [inertia](../../design/scoring.md#extension-inertia).
 - **Validation on construction.** `__post_init__` raises `ValueError` if any of these hold:
@@ -97,7 +100,9 @@ def engine_hash(config: ScenarioConfig) -> str
   - `onset` low is below 1 or `onset` high is above `rounds`.
   - `hedge_base` high is not below `field_base` low.
   - `field_base` low is above `leader_base` low minus the larger of `runner_up_gap_points` high and `runner_up_gap_sigmas` high × `own_scale`, minus `field_headroom`.
-  - In any event spec: `riser_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, or any `*_sigmas` or `*_points` range has a low at or below 0.
+  - In any event spec: `riser_share` or `short_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, or any `*_sigmas` or `*_points` range has a low at or below 0.
+  - A `SwitchSpec` has `short_share` above 0 and a `kind` other than `"rise"`, or a `short_level` low at or below 0 or high at or above 1.
+  - A `SwitchSpec` with `kind="undo"` is the first event, or the most recent `SwitchSpec` before it does not have `kind` `"rise"` or `"fall_and_rise"`.
 
 ### Scenarios
 
@@ -108,9 +113,11 @@ def engine_hash(config: ScenarioConfig) -> str
 | `no_change` | `()` | The control |
 | `one_shock` | `(ShockSpec(),)` | |
 | `down_switch` | `(SwitchSpec(kind="draw"),)` | Per seed, fall or fall and rise, see [events](../../design/mechanics.md#events) |
-| `up_switch` | `(SwitchSpec(kind="rise"),)` | The leader holds |
+| `up_switch` | `(SwitchSpec(kind="rise", short_share=0.25),)` | The leader holds. On a quarter of seeds the sleeper stops short |
 | `shock_then_switch` | `(ShockSpec(), SwitchSpec(kind="draw"))` | The switch is a down switch, `gap` rounds after the shock's onset |
 | `slow_drift` | `(DriftSpec(),)` | |
+| `switch_then_shock` | `(SwitchSpec(kind="draw"), ShockSpec())` | The switch is drawn as in `down_switch`, and the shock lands `gap` rounds after it |
+| `up_switch_then_down_switch` | `(SwitchSpec(kind="rise"), SwitchSpec(kind="undo"))` | The sleeper always rises past the leader, then the undo puts it back |
 
 - **`name` equals the key.** `SCENARIOS["one_shock"].name == "one_shock"`.
 - **The first event lands at `onset`**, which every scenario shares. So twin tapes share their onset round, see [tape](tape.md#twin-tapes). Later events land `gap` rounds after the previous event's onset.
@@ -148,6 +155,8 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `SwitchSpec.size_sigmas` | 1 to 3 | The leader ends clearly below the runner-up on every seed. With the gap it moves 12 to 28 points | Switch size row in [decisions](../../pilot/decisions.md#engine-checks) |
 | `SwitchSpec.rise_sigmas` | 1 to 3 | A sleeper clearly best once risen, but not a giveaway | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.riser_share` | 0.5 | Half the Down switch tapes draw a sleeper | [Up and down](../../pilot/engine-checks.md#up-and-down) |
+| `SwitchSpec.short_share` | 0 on the spec, 0.25 in `up_switch` | "On most seeds the sleeper rises past the leader, on some it stops short", see [scenarios](../../design/scenarios.md#scenarios-we-test) | Short share row in [decisions](../../pilot/decisions.md#engine-checks) |
+| `SwitchSpec.short_level` | 0.25 to 0.75 | Clear of the runner-up, so a looker sees a real move, and clear of the leader, so the Scout rule does not move on a near tie | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.ramp` | 1 to 5 | [events](../../design/mechanics.md#events) | Fixed by design |
 | `DriftSpec.size_sigmas`, `length` | 1 to 3, 15 to 25 | The Down switch stretched: with the gap, about 0.5 to 1.9 points a round | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `gap` | 8 to 12 | Room for a habit to re-form after a shock | Events per run row in [decisions](../../pilot/decisions.md#engine-checks) |

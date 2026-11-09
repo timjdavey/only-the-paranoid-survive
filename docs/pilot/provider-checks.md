@@ -47,7 +47,7 @@ Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down
   - Run score on fall-only, fall-with-riser, rise-past and rise-short, paired by seed.
   - How often any bet reaches the sleeper after onset, and in which round.
   - Mean points on unfunded channels before onset, which is looking when nothing is wrong.
-  - The gap between the Up switch and Up switch then down switch run scores, paired by seed, which is what the revert cost.
+  - The gap between the Up switch and Up switch then down switch run scores, paired by seed on the seeds where the Up switch sleeper does not stop short, which is what the revert cost.
   - The gap between the Down switch and Switch then shock run scores, paired by seed, which is what the whipsaw cost.
 - **Decide.** Whether the Up switch scenario needs its own seed count, as its run scores may split into found and not found. Report the four kinds beside the headline.
 

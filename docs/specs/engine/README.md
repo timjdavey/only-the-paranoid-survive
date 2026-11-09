@@ -6,7 +6,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tap
 
 | Page | What it specifies |
 |---|---|
-| [config](config.md) | `ScenarioConfig`, the event specs, the six scenarios, proposed defaults, `engine_hash` |
+| [config](config.md) | `ScenarioConfig`, the event specs, the eight scenarios, proposed defaults, `engine_hash` |
 | [tape](tape.md) | `make_tape`: seed streams, the ladder, weather, the shared factor, events, pinning, `Tape` |
 | [game](game.md) | `Game`, `Reading`, `Record`, `play`, bet validation |
 | [policies](policies.md) | `View`, `Policy`, the six fixed baselines, what each may see |
@@ -19,7 +19,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tap
 | Name | Kind | Page |
 |---|---|---|
 | `ScenarioConfig`, `ShockSpec`, `SwitchSpec`, `DriftSpec` | Frozen dataclasses | [config](config.md) |
-| `SCENARIOS` | Read only `Mapping[str, ScenarioConfig]`, the six scenarios by code name | [config](config.md) |
+| `SCENARIOS` | Read only `Mapping[str, ScenarioConfig]`, the eight scenarios by code name | [config](config.md) |
 | `engine_hash`, `GENERATOR_VERSION` | `(ScenarioConfig) -> str` and the int it covers | [config](config.md) |
 | `make_tape`, `Tape`, `Event` | `(ScenarioConfig, int) -> Tape` and its result | [tape](tape.md) |
 | `Game`, `Reading`, `BetError` | The round loop | [game](game.md) |
