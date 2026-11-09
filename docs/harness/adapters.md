@@ -10,7 +10,7 @@ Jev and Timestral do not write text, so each gets a provider that turns what it 
 - **State** is the rendered system prompt and record, the same text an LLM sees.
 - **One choice question**, in the skin's words: which channel should the budget go on this round. Ten criteria, one per channel, named and described by the skin.
 - **Bets** are the probability map times 100, rounded by largest remainder so they sum to 100. The raw probabilities and Jev's confidence go in the log.
-- **What it tests.** Jev's own doubt sets the look size, so it is a floor for spread as belief with no reasoning at all.
+- **What it tests.** Jev's own doubt sets the look size, so it is a floor for a split as belief with no reasoning at all.
 
 ## Timestral
 

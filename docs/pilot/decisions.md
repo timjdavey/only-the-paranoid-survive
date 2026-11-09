@@ -16,7 +16,7 @@ One row per check in [checks](checks.md) and per knob the [generator](../design/
 | [Inertia](checks.md#inertia) | | | |
 | [Cost per run](checks.md#cost-per-run) | | | |
 | Events per run and minimum gap | | | |
-| Memory and spreads per scenario | | | |
+| Persistence and scales per scenario | | | |
 | Loading range and ladder ranges | | | |
 | Warm up: empty record or pre-filled | | | |
 

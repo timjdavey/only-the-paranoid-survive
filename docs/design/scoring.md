@@ -4,8 +4,23 @@
 
 - **Each round the agent bets a fixed budget across channels**, see [interface](interface.md). Its bets are its belief: a small bet on a channel is a look, a large one is a switch.
 - **A run scores output as a fraction of what the [oracle](baselines.md), which knows each round's levels, would earn on the same seed.** This sits between 0 and 1 and strips out luck in the world's levels.
-- **A scenario score is the plain mean of its runs.** Every model plays the same seeds, see [below](#seeds). The gap reads directly as the scenario's failure mode: in the No change scenario it is jumpiness, in the One shock scenario overreaction, in the One switch scenario underreaction.
-- **The headline is the geometric mean across [scenarios](scenarios.md).** A model must do well on every shape to score highly. One bad scenario drags the whole figure down.
+- **A scenario score is the plain mean of its runs.** Every model plays the same seeds, see [below](#seeds). The gap reads directly as the scenario's failure mode, see [traits](#traits).
+- **The headline is the geometric mean across [scenarios](scenarios.md).** A model must do well on every scenario to score highly. One bad scenario drags the whole figure down.
+
+## Traits
+
+Each scenario tests one trait, named as the virtue a high score shows. A low score is that trait's failure mode.
+
+| Scenario | Trait | What a high score means | Failure mode |
+|---|---|---|---|
+| [No change](scenarios.md#scenarios-we-test) | Composure | Ignores noise when nothing is happening | False alarms |
+| [One shock](scenarios.md#scenarios-we-test) | Patience | Holds through a dip that passes | Overreaction |
+| [One switch](scenarios.md#scenarios-we-test) | Doubt | Questions the plan when the change is real | Underreaction |
+| [Shock then switch](scenarios.md#scenarios-we-test) | Unlearning | Drops "dips recover" once it stops being true | Learned complacency |
+| [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | Boiling frog: never acts, as no single round looks bad |
+
+- **Composure and patience differ.** Composure ignores noise when nothing is happening. Patience holds through a real dip that passes.
+- **The trait profile is the five scores side by side.** The headline combines them, so a model can't buy one trait with another.
 
 ## Seeds
 
@@ -31,10 +46,10 @@
 ## Spread
 
 - **Spread says how far one run lands from another** (aleatoric uncertainty). It does not shrink with more seeds, it only gets estimated better. Spread and error bar come from the same runs: the SD of the run scores is the spread, and that SD over √n is the error bar.
-- **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/checks.md#repeats) measures the split once and we report it as a number, such as "two fifths of the spread in the One shock scenario is sampling".
-- **Why it is reported, not just absorbed.** Two models can share a mean while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: overreacting on some worlds and not others is jumpiness.
+- **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/checks.md#repeats) measures the sampling share once and we report it as a number, such as "two fifths of the spread in the One shock scenario is sampling".
+- **Why it is reported, not just absorbed.** Two models can share a mean while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: overreacting on some worlds and not others is poor composure.
 - **How it is shown.** A strip of per-seed run scores next to each scenario's bar, and the 10th percentile run score beside the mean.
-- **Why the headline still plays each seed once.** For a fixed run budget, more seeds always shrinks the error bar faster than repeats of a seed. Repeats only buy the split.
+- **Why the headline still plays each seed once.** For a fixed run budget, more seeds always shrinks the error bar faster than repeats of a seed. Repeats only buy the sampling share.
 - **Skins are a sensitivity, not an error.** If a model scores 0.8 on one story and 0.6 on another with the same engine and seed, that is a finding: the story swayed it (skin sensitivity). Averaging skins and widening the bar would hide the most interesting number, so skins are never resampled and never pooled into a headline. **The proof of concept runs one skin**, so skin sensitivity is a named layer we do not measure yet. When more skins run, each gets its own headline and the gap between them is reported beside it.
 - **Scenario differences are not spread either.** A gap between scenarios is the signal (trait profile). It gets no bar and is never resampled.
 

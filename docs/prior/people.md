@@ -4,7 +4,7 @@ Long before LLMs, psychologists asked how people and animals tell a passing blip
 
 - **People err both ways, and the world predicts which.** They overreact when the world is stable and the signals are noisy, and underreact when it is the reverse ([Massey and Wu](#massey-and-wu-2005-system-neglect)). Our No change and One shock scenarios are the stable, noisy case.
 - **A long calm past slows people and rats down.** Rats that have seen no change for many sessions are slow to notice one ([Gallistel 2001](#gallistel-et-al-2001-rats-that-have-seen-no-change)). That is the habit our Shock then switch scenario tests.
-- **An ideal observer is easy to write down and hard to fit to our game.** The standard methods assume fresh noise and sudden jumps. Our weather has memory and our switches ramp.
+- **An ideal observer is easy to write down and hard to fit to our game.** The standard methods assume fresh noise and sudden jumps. Our weather has persistence and our switches ramp.
 
 ## Behrens et al. 2007: people learn faster when the world is volatile
 
@@ -32,8 +32,8 @@ Behrens et al. "Learning the value of information in an uncertain world." Nature
 
 **Why it matters here.**
 
-- **The Shock then switch scenario asks the reverse question.** Behrens says seeing change should make you quicker to update. A model that held through a shock may instead learn "dips recover" and get slower. See [scenarios](../design/scenarios.md#shapes-we-test).
-- **Repeated shocks, which we skip, is this study's design.** Whether models get calmer or jumpier is the habituation question in [shapes we skip](../design/scenarios.md#shapes-we-skip).
+- **The Shock then switch scenario asks the reverse question.** Behrens says seeing change should make you quicker to update. A model that held through a shock may instead learn "dips recover" and get slower. See [scenarios](../design/scenarios.md#scenarios-we-test).
+- **Repeated shocks, which we skip, is this study's design.** Whether models get calmer or jumpier is the habituation question in [scenarios we skip](../design/scenarios.md#scenarios-we-skip).
 
 ## Adams and MacKay 2007: Bayesian online change point detection
 
@@ -51,7 +51,7 @@ Ryan Prescott Adams and David J. C. MacKay. "Bayesian Online Changepoint Detecti
 **Why it matters here.** This would be the core of a Bayesian baseline, run on each channel's level. That baseline is [parked](../design/baselines.md#not-yet), and these are the catches it would have to handle in our [generator](../design/mechanics.md#generator):
 
 - **It doesn't know which way a change goes.** A rise counts as much as a fall. That suits a sleeper, which rises. But the hedge also rises in every shock, and the method would read that as a change too.
-- **It assumes fresh noise.** Our weather has memory, so three bad rounds in a row are ordinary. Run on raw levels, it would see a change in every bad stretch.
+- **It assumes fresh noise.** Our weather has persistence, so three bad rounds in a row are ordinary. Run on raw levels, it would see a change in every bad stretch.
 - **It assumes one channel at a time.** A shock moves every channel through the shared factor. Run per channel, it would call a change in all ten at once, unless it models the factor.
 - **It assumes jumps.** A switch ramps over 1 to 5 rounds and a drift over many more, so early on no single run length fits well. This mirrors Wilson's point below about Behrens, who assumed drift where the task jumped.
 - **It assumes changes arrive at random** at a constant rate. Our scenarios hold a set list of events. The method is exact under its own model, not under how we build the tapes.
@@ -72,7 +72,7 @@ Robert C. Wilson, Matthew R. Nassar and Joshua I. Gold. "Bayesian Online Learnin
 **Why it matters here.**
 
 - **It removes a dial.** The [parked baseline](../design/baselines.md#not-yet) is parked partly because its hazard prior is a dial we would have to fix in advance. Learning the hazard from the run is the alternative.
-- **It is how a shock could teach complacency the right way.** A learner that counts changes, and correctly counts a shock as no change, ends the shock with a lower hazard. So it is slower to call the later switch, for a good reason. A model that is slower for the wrong reason is what the [Shock then switch scenario](../design/scenarios.md#shapes-we-test) looks for.
+- **It is how a shock could teach complacency the right way.** A learner that counts changes, and correctly counts a shock as no change, ends the shock with a lower hazard. So it is slower to call the later switch, for a good reason. A model that is slower for the wrong reason is what the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) looks for.
 
 ## Mellor and Shapiro 2013: Thompson sampling with a change detector
 
@@ -108,7 +108,7 @@ Joseph Mellor and Jonathan Shapiro. "Thompson Sampling in Switching Environments
 - **Global and per arm is our shock and switch.** A shock moves every channel through the shared factor. A switch moves one. Each version here wins only in its own world, so a baseline for our suite has to hold both, as the [events](../design/mechanics.md#events) do.
 - **An arm left alone grows more uncertain, so it sometimes gets a look.** That is the property a [parked Bayesian baseline](../design/baselines.md#not-yet) would rely on. Don't copy the "2" trick: there an arm left alone stops growing uncertain, and a sleeper rises while unfunded, so it might never be looked at.
 - **Learning a rate per arm was costly.** One channel falling in a switch is the per arm case. That backs a hazard prior fixed in advance over one learnt per channel.
-- **It pulls one arm.** Our agent spreads bets, and a small bet gives a rough reading ([what the agent sees](../design/mechanics.md#what-the-agent-sees)). Nothing here tests turning a sample into bets.
+- **It pulls one arm.** Our agent splits its bets, and a small bet gives a rough reading ([what the agent sees](../design/mechanics.md#what-the-agent-sees)). Nothing here tests turning a sample into bets.
 
 ## Bleser et al. 2026: true and false beliefs about volatility
 
@@ -150,8 +150,8 @@ Cade Massey and George Wu. "Detecting Regime Shifts: The Causes of Under- and Ov
 
 **Why it matters here.**
 
-- **It is the clearest prediction of which way an agent errs.** The No change and One shock scenarios are stable systems with noisy signals, so system neglect predicts false alarms there. A switch at low noise is the other corner, where it predicts a late move. See [scenarios](../design/scenarios.md#shapes-we-test).
-- **Our noise dials move the game across their map.** The [pilot](../pilot/checks.md#noise) sets weather spread, memory and shared factor spread, so we can check whether the error flips with them.
+- **It is the clearest prediction of which way an agent errs.** The No change and One shock scenarios are stable systems with noisy signals, so system neglect predicts false alarms there. A switch at low noise is the other corner, where it predicts a late move. See [scenarios](../design/scenarios.md#scenarios-we-test).
+- **Our noise dials move the game across their map.** The [pilot](../pilot/checks.md#noise) sets own-weather scale, persistence and shared-factor scale, so we can check whether the error flips with them.
 
 ## Brown and Steyvers 2009: naming a change versus predicting through it
 
@@ -185,7 +185,7 @@ Gallistel et al. "The Rat Approximates an Ideal Detector of Changes in Rates of 
 
 **Why it matters here.**
 
-- **This is learned complacency in animals.** A long past with no change slowed detection. That is the habit the [Shock then switch scenario](../design/scenarios.md#shapes-we-test) sets up, and the reason the [pilot](../pilot/checks.md#game-length-and-switch-round) wants enough calm rounds before a change to set a habit.
+- **This is learned complacency in animals.** A long past with no change slowed detection. That is the habit the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) sets up, and the reason the [pilot](../pilot/checks.md#game-length-and-switch-round) wants enough calm rounds before a change to set a habit.
 - **The open question is whether the slowing is rational.** An ideal detector that learns the change rate would also slow down. Whether models slow down more than that is what we'd ask.
 
 ## Nassar et al. 2010: a learning rate that rises with surprise
@@ -216,7 +216,7 @@ Matthew R. Nassar, Robert C. Wilson, Benjamin Heasly and Joshua I. Gold. "An App
 - **Fig. 10 is our trade-off.** A high hazard wins in the One switch scenario and loses in the No change and One shock scenarios. The geometric mean [headline](../design/scoring.md#how-we-score) is built so that you can't buy one with the other.
 - **A cheap family of baselines with human meaning.** A high or low hazard gives a jumpy or a cautious player. Discounting surprise stands in for one that notices too little, and a belief in drift suits our ramps and [drift](../design/mechanics.md#events). It would sit beside the [parked Bayesian baseline](../design/baselines.md#not-yet).
 - **People expect too many changes**, which predicts false alarms in the No change and One shock scenarios, as [Massey and Wu](#massey-and-wu-2005-system-neglect) do.
-- **Two catches.** It tracks one number, so it would run once per channel and miss the shared factor. And the weather's memory has to sit in its noise, or every bad stretch reads as a change.
+- **Two catches.** It tracks one number, so it would run once per channel and miss the shared factor. And the weather's persistence has to sit in its noise, or every bad stretch reads as a change.
 
 ## Gallistel et al. 2014: step, hold and take it back
 

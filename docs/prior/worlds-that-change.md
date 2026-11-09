@@ -52,7 +52,7 @@ Rui Wang et al. "AdaExploreBench: Benchmarking LLM Agents for Proactive Explorat
 **Watch out for.** The abstract implies GPT-6-Sol (61.9) is the best model, but its own table puts Gemini-3.8-Flash higher. The prompt also warns that the rule may change, so the agent is told what to look for.
 
 **Why it matters here.**
-- **It is the closest benchmark in shape.** One silent change, and a score that runs from a floor to an oracle, like our score as a fraction of the [oracle](../design/baselines.md#fixed-baselines) with stale and uniform as floors.
+- **It is the closest benchmark in design.** One silent change, and a score that runs from a floor to an oracle, like our score as a fraction of the [oracle](../design/baselines.md#fixed-baselines) with stale and uniform as floors.
 - **Their oracle knows the true rule, as ours knows each round's levels.** Neither plays the part of a yardstick that sees only what the agent sees. For us that is the Bayesian baseline, parked under [not yet](../design/baselines.md#not-yet).
 - **Forced probing did nothing**, so a look has to be the agent's own idea. That is why our prompt never asks for one, and a look is just a small bet, see [interface](../design/interface.md#how-the-agent-plays).
 - **The kind of change matters.** Swaps were noticed far more than reversals. Our switch sometimes has a sleeper rising and sometimes not, drawn per seed, so no one kind is learnable, see [events](../design/mechanics.md#events).
@@ -85,9 +85,9 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 **Watch out for.** Calm-week overreactions "are excluded from every reported metric by construction", so the score never counts a false alarm.
 
 **Why it matters here.**
-- **It is the closest study in method.** Their event tape is our [tape](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill is the shape of our fraction of the oracle.
+- **It is the closest study in method.** Their event tape is our [tape](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill matches our fraction of the oracle.
 - **Their oracle is fair and ours is not.** Ours knows each round's levels, so even a perfect reader cannot score 1 in the One shock scenario, see [baselines](../design/baselines.md#fixed-baselines). A fair one would be the parked [Bayesian baseline](../design/baselines.md#not-yet).
-- **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with memory makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our No change and One shock scenarios put a price on overreacting.
+- **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with persistence makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our No change and One shock scenarios put a price on overreacting.
 - We don't measure their split between knowing and acting, because asking for a view on change tells the agent change is the question, see [rejected](../design/interface.md#rejected).
 
 ## KellyBench (Grady et al. 2026): a season of football bets
@@ -167,7 +167,7 @@ Shocked customers only, the last ten rounds against rounds 26 to 30.
 **Why it matters here.**
 - **The unshocked customers share a run with the shocked ones but get no score of their own**, so false alarms on them go uncounted. Our No change and One shock scenarios are scored on their own seeds.
 - **"Revision, not detection"** is the decoy risk in our switch. A model that notices the leader fall and moves everything to the runner-up misses a sleeper that rose, see [events](../design/mechanics.md#events).
-- **The fastest learners adapted worst.** That is what the [Shock then switch scenario](../design/scenarios.md#shapes-we-test) tests: a lesson learnt well becomes the wrong one.
+- **The fastest learners adapted worst.** That is what the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) tests: a lesson learnt well becomes the wrong one.
 - The lock-in ledger is one reason notes stay out of the headline, see [notepad and compute](../pilot/checks.md#notepad-and-compute).
 - Thompson sampling beating half the models on profit is why simple strategies run before any model, see [baseline order](../pilot/checks.md#baseline-order). A swap makes the old offer lose outright, unlike our leader.
 
@@ -244,7 +244,7 @@ Saiful Haq et al. "Is your LLM trapped in a Mental Set? Investigative study on h
 
 **In short.** After six problems that need a long arithmetic method, do Llama-3.1 and GPT-4o keep using it when a shortcut would do? Like Allen and McDonald, the old method still works after the switch.
 
-**Why it matters here.** That is the shape of our [switch](../design/mechanics.md#events), where the leader keeps paying, and of the stale baseline in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign the earlier problems carried over, since the extra steps came from chain of thought alone.
+**Why it matters here.** That is our [switch](../design/mechanics.md#events), where the leader keeps paying, and of the stale baseline in miniature. But the evidence is too thin to cite: 6 items per cell, no statistics, unreported run counts and settings, and no sign the earlier problems carried over, since the extra steps came from chain of thought alone.
 
 ## Goel et al. 2026: a teammate who switches tasks
 

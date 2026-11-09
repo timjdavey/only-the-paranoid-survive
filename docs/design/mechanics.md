@@ -5,7 +5,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 ## Payout
 
 - **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
-- **So the oracle goes all in** on the channel with the highest level. A spread only ever means doubt or a look. See [scoring](scoring.md).
+- **So the oracle goes all in** on the channel with the highest level. A split across channels only ever means doubt or a look. See [scoring](scoring.md).
 - **Output and levels are reported to one decimal place.**
 
 ## Generator
@@ -19,11 +19,11 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 | Part | What it is | Set by |
 |---|---|---|
 | Base level | The channel's mean when nothing is happening | The ladder below, drawn per seed |
-| Own weather | The channel's wobble. It has memory, so a bad stretch fades rather than stops | Spread and memory, per scenario |
-| Shared factor | One hidden series every channel loads on. Good and bad weeks for everyone | Spread per scenario, memory as own weather |
+| Own weather | The channel's wobble. It has persistence, so a bad stretch fades rather than stops | Scale and persistence, per scenario |
+| Shared factor | One hidden series every channel loads on. Good and bad weeks for everyone | Scale per scenario, persistence as own weather |
 | Loading | How much the channel moves with the shared factor. Uneven, drawn per seed from about 0.3 to 1. One channel draws a negative loading and is the **hedge** | Range per edition |
 
-- **Memory is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no memory, three poor rounds are strong evidence and the only hard part is the spread.
+- **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
 - **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
 - **Base levels sit mid-range**, so clipping at 0 or 100 is rare.
 
@@ -36,13 +36,13 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 
 ### Events
 
-A scenario is a list of events. Each event redraws its own numbers per seed.
+A scenario is a list of events. Each event has a shape, and redraws its own numbers per seed.
 
-| Event | What it edits | Who moves | Drawn per seed |
+| Shape | What it edits | Who moves | Drawn per seed |
 |---|---|---|---|
-| Shock | An impulse into the shared factor that decays | Every channel by its loading, so most fall and the hedge rises | Depth in sigmas, onset round, half-life, shape: sharp fall and slow climb, or slow slide and quick rebound |
+| Shock | An impulse into the shared factor that decays | Every channel by its loading, so most fall and the hedge rises | Depth in sigmas, onset round, half-life, profile: sharp fall and slow climb, or slow slide and quick rebound |
 | Switch | A base level | The leader falls. Sometimes a **sleeper** in the field also rises past the leader's old level, and its loading is redrawn so it stops moving with its old group | Size in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, whether a sleeper rises and which |
-| Drift | A base level, slowly | As a switch, over many more rounds | Slope in sigmas per round, length, shape: linear or logistic |
+| Drift | A base level, slowly | As a switch, over many more rounds | Slope in sigmas per round, length, profile: linear or logistic |
 
 - **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. A look at any unfunded channel tells them apart. A look at the hedge tells them apart fastest.
 - **Why a switch sometimes has a riser.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. Mixing the two per seed means a model cannot learn that a fall always comes with a riser, or never does.
@@ -52,13 +52,13 @@ A scenario is a list of events. Each event redraws its own numbers per seed.
 
 - **A minimum gap** between events, set per scenario. Events may still overlap, so a shock can land mid-drift.
 - **No two alike.** Each event redraws its numbers and lands on different weather, and a second switch hits a different channel. A tape is rejected if consecutive events of the same kind differ in fewer than two draws.
-- **The hard edition strings more.** More shocks before the switch, or a longer drift. Length and count come from the pilot, see [TODO](../../TODO.md#pilot).
+- **A hard variant strings more.** More shocks before the switch, or a longer drift. Length and count come from the pilot, see [TODO](../../TODO.md#pilot).
 
 ### Difficulty
 
-Three dials, all set per scenario: own-weather spread, memory and shared-factor spread. With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds. Raise a dial to keep the test from saturating.
+Three dials, all set per scenario: own-weather scale, persistence and shared-factor scale. With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds. Raise a dial to keep the test from saturating.
 
-### Hard-edition knobs
+### Hard-variant knobs
 
 Off by default. Each one closes a tell a model could learn.
 
@@ -83,9 +83,9 @@ Off by default. Each one closes a tell a model could learn.
 
 | Option | Why not |
 |---|---|
-| Concave payout | The oracle spreads too, so a spread stops reading as belief. The agent has to be told the curve and do the maths, and a model bad at the maths looks like a model full of doubt |
+| Concave payout | The oracle splits too, so a split stops reading as belief. The agent has to be told the curve and do the maths, and a model bad at the maths looks like a model full of doubt |
 | A sigma per channel | With a fixed budget that does not compound and a linear payout, sigma never changes which channel is best. It adds risk maths the score never rewards |
 | Every channel visible | A look is free, so a calm agent and a paranoid one only differ by jumpiness. A forecaster then wins by reading series, which is a different study |
 | A hand-written table of means plus independent noise | Streaks cannot happen by chance, so three bad rounds prove too much. Every repeat of a shock is identical. No market-wide weeks, so a look never says "everyone is down" |
-| Two or three factors, with events on loadings | Most realistic, but shapes become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. The hard edition once one factor saturates |
-| Shocks that hit one channel only | A look cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-edition knob |
+| Two or three factors, with events on loadings | Most realistic, but scenarios become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. A hard variant once one factor saturates |
+| Shocks that hit one channel only | A look cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |

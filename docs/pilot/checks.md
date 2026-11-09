@@ -22,11 +22,11 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 
 ## Noise
 
-Noise is the difficulty knob. It has three dials, own-weather spread, memory and shared-factor spread, see [difficulty](../design/mechanics.md#difficulty). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
+Noise is the difficulty knob. It has three dials, own-weather scale, persistence and shared-factor scale, see [difficulty](../design/mechanics.md#difficulty). With low noise one reading settles whether a dip is a shock or a switch. With high noise it takes many rounds.
 
 - **Question.** What settings of the three dials make shock and switch hard to tell apart for a while, but not forever.
 - **Run.** The fixed [baselines](../design/baselines.md) in the One shock and One switch scenarios, at a few settings of each dial.
-- **Measure.** How the baseline scores spread at each setting, and whether the [baseline order](#baseline-order) holds.
+- **Measure.** How far apart the baseline scores land at each setting, and whether the [baseline order](#baseline-order) holds.
 - **Decide.** The three dials per scenario. If the base score is flat across models, raise them. Raising them later is also how the study avoids saturating.
 
 ## Game length and switch round
