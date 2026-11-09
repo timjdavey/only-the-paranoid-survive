@@ -8,7 +8,7 @@
       scenario score = (model − Uniform) ÷ (Discerning − Uniform), each summed over seeds
 
 - **Zero is knowing nothing and one is knowing the regime.** The [Uniform baseline](baselines.md) bets evenly and learns nothing. The [Discerning baseline](baselines.md) knows every channel's base level, so it holds through a shock and moves the round a switch lands. The score is the share of the value of that knowledge the model captured.
-- **Pooled over seeds, not averaged.** Sum the model's gain over the Uniform baseline across seeds, sum the Discerning baseline's gain across seeds, and divide. A seed with a big switch counts for more, because more was on offer, and a seed with a tiny gap cannot blow the ratio up.
+- **Seeds are pooled, not scored one by one.** Add up the model's gain over every seed and divide by the total gap, so a seed with more on offer counts for more. See [pooling seeds](#pooling-seeds).
 - **The Complacent baseline is a mark on every bar, not the floor.** Where there is a switch it lands near 0.55, so a model below the mark is visibly complacent and a model above it has acted. Where there is no switch it sits at 1 with the Discerning baseline.
 - **The headline is the geometric mean across [scenarios](scenarios.md)**, each scenario score floored at 0. A model must do well in every scenario to score highly. One bad scenario drags the whole figure down.
 
@@ -55,9 +55,30 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 - **The headline plays the held-out seeds.** Public seeds are for checking our work, and the gap between the two is reported beside the headline. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the pool absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/checks.md#seeds).
 
+## Pooling seeds
+
+A scenario score adds up gains across seeds and then divides once. It is not the plain mean of the run scores.
+
+- **The gap** on a seed is how much more the Discerning baseline earns than the Uniform baseline. It is all there was to gain.
+- **The gain** is how much more the model earns than the Uniform baseline.
+- **The run score** is one seed's gain divided by its gap. It is the dot on the strip, see [spread](#spread).
+
+Two One switch seeds. Each seed draws its own switch size and timing, so one has more on offer:
+
+| Seed | Uniform | Discerning | Gap | Model | Gain | Run score |
+|---|---|---|---|---|---|---|
+| A, big early switch | 1,700 | 2,800 | 1,100 | 2,580 | 880 | 0.80 |
+| B, small late switch | 1,700 | 2,250 | 550 | 1,920 | 220 | 0.40 |
+| Both, pooled | | | 1,650 | | 1,100 | 0.67 |
+
+- **Pooled, the scenario score is 0.67.** (880 + 220) ÷ (1,100 + 550). The model missed 550 of the 1,650 on offer, a third.
+- **A plain mean of run scores would say 0.60.** (0.80 + 0.40) ÷ 2. That gives seed B as much say as seed A, though it had half as much to win.
+- **Pooling is a mean weighted by gap.** Seed A has twice the gap, so its run score counts twice as much. A point missed counts the same whichever seed it was missed on.
+- **A small gap gets a small say.** A run score can land well outside 0 to 1 on one seed, but its weight is its gap, so it can't swing the scenario score far.
+
 ## Why a pool within and a geometric mean across
 
-- **Seeds are one question asked many times**, so we want the expected gain. Pooling is that gain, weighted by what each world had on offer. A geometric mean over seeds would punish one unlucky world, which is noise, not a trait.
+- **Seeds are one question asked many times**, so we want the expected gain. [Pooling](#pooling-seeds) is that gain, weighted by what each world had on offer. A geometric mean over seeds would punish one unlucky world, which is noise, not a trait.
 - **Scenarios are different questions** and we want an AND. The geometric mean makes one bad trait pull the headline down, where a plain mean would let a strong trait hide it.
 
 ## Error bars
