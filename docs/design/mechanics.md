@@ -26,7 +26,7 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
 - **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
 - **Base levels sit mid-range**, so a level rarely goes below 0. Nothing breaks when it does: the score is a share of a gap and the headline a plain mean, so a negative round is just a bad round. Clipping was only there for the geometric mean, which is gone, see [scoring](scoring.md#why-a-pool-within-and-a-plain-mean-across).
-- **One seed, twin tapes.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and One switch tapes match until the event begins, see [seeds](scoring.md#seeds).
+- **One seed, twin tapes.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and Down switch tapes match until the event begins, see [seeds](scoring.md#seeds).
 
 ### The ladder
 

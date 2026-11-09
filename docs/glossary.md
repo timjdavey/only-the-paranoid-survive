@@ -59,7 +59,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Scenario | A list of events we put each model through. Its name always ends in "scenario", so it never reads as an event. See [scenarios](design/scenarios.md) |
 | No change scenario | No events. `no_change` in code |
 | One shock scenario | One shock. `one_shock` in code |
-| One switch scenario | One switch. `one_switch` in code |
+| Down switch scenario | Down switch. `down_switch` in code |
 | Shock then switch scenario | One shock, a gap, then one switch. `shock_then_switch` in code |
 | Slow drift scenario | One drift. `slow_drift` in code |
 | Hard variant | A harder version of a scenario: more shocks before the switch, or a longer drift |
@@ -86,7 +86,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Trait | What one scenario tests, named as the virtue a high score shows. See [traits](design/scoring.md#traits) |
 | Composure | The No change scenario's trait. Ignoring noise when nothing is happening |
 | Patience | The One shock scenario's trait. Holding through a dip that passes |
-| Doubt | The One switch scenario's trait. Questioning the plan when the change is real |
+| Doubt | The Down switch scenario's trait. Questioning the plan when the change is real |
 | Unlearning | The Shock then switch scenario's trait. Dropping "dips recover" once it stops being true |
 | Vigilance | The Slow drift scenario's trait. Noticing a decline that has no sudden move |
 | Trait profile | A model's scores across scenarios, one per trait. The signal the headline combines |

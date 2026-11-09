@@ -57,7 +57,7 @@ A deployed agent would have a scratchpad and a calculator at the very least, so 
 Each round is a fresh call with the record in the prompt, see [tools](../design/interface.md#tools). A deployed agent keeps its conversation, so this check prices the difference.
 
 - **Question.** How much does the fresh call change how a model plays.
-- **Run.** One model in the One shock and One switch scenarios, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted.
+- **Run.** One model in the One shock and Down switch scenarios, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted.
 - **Measure.** The score gap, paired by seed, and tokens per run.
 - **Decide.** Report the gap beside the headline. The headline stays on fresh calls, as the [interface](../design/interface.md#rejected) page says why. If the gap is large, say so where the score is read.
 
@@ -68,7 +68,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
 - **Question.** Are the gaps between models too small to read, even with the Complacent baseline sitting near 0.55.
-- **Measure.** The gaps between models in the One switch and Slow drift scenarios, from the main pilot runs.
+- **Measure.** The gaps between models in the Down switch and Slow drift scenarios, from the main pilot runs.
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 
 ## Cost per run

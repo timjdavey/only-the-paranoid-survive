@@ -23,7 +23,7 @@ Parsa Mazaheri and Kasra Mazaheri. "Prior Audit-Repair Context Shifts LLM Verifi
 **Watch out for.** Of five models screened, Gemma-4-31B went significantly the other way (+1.58 points), so the direction can flip between models.
 
 **Why it matters here.**
-- A model can catch more switches just by lowering its bar. The [No change and One shock scenarios](../design/scenarios.md#scenarios-we-test) price that, as they share the headline with the One switch and Slow drift scenarios.
+- A model can catch more switches just by lowering its bar. The [No change and One shock scenarios](../design/scenarios.md#scenarios-we-test) price that, as they share the headline with the Down switch and Slow drift scenarios.
 - Their filler control is a cheap arm for the warm-up cell: pad the empty record to the same length, so a pre-filled record isn't confused with a longer prompt.
 - Reasoning shrinking the effect is one reason the [reasoning setting](../harness/models.md#reasoning) is its own row.
 
@@ -43,7 +43,7 @@ Johannes A. Schubert et al. "In-context learning agents are asymmetric belief up
 - The human result behind this is Chambon et al. 2020 (Nature Human Behaviour 4:1067 to 1079, [doi:10.1038/s41562-020-0919-5](https://doi.org/10.1038/s41562-020-0919-5)): in people "the confirmation bias in learning rates was specific to free choices".
 
 **Why it matters here.**
-- Our record holds the agent's own bets, so this predicts it shrugs off bad rounds on the channel it backs. That is underreaction in the [One switch scenario](../design/scenarios.md#scenarios-we-test). It also predicts that bad news about channels it ignores counts for more, which keeps it away from the sleeper.
+- Our record holds the agent's own bets, so this predicts it shrugs off bad rounds on the channel it backs. That is underreaction in the [Down switch scenario](../design/scenarios.md#scenarios-we-test). It also predicts that bad news about channels it ignores counts for more, which keeps it away from the sleeper.
 - In the warm-up cell a baseline placed the early bets, though the record is still called the agent's own ([user message](../harness/prompts.md#user-message)). Schubert's "someone else" was a forced choice inside the run, so this is only a loose guide to whether that matters.
 
 ## IBIS 2026: inertia in search agents
@@ -76,7 +76,7 @@ Dharshan Kumaran et al. (Google DeepMind). "How Overconfidence in Initial Choice
 - Models "markedly overweight inconsistent compared to consistent advice".
 
 **Why it matters here.**
-- Seeing its own past bets should hold the agent harder, the same split Schubert draws for learning rates. That points to underreaction in the One switch scenario.
+- Seeing its own past bets should hold the agent harder, the same split Schubert draws for learning rates. That points to underreaction in the Down switch scenario.
 - Overweighting news that disagrees cuts the other way. It predicts overreaction in the One shock scenario, where a few bad rounds disagree with the plan.
 
 ## Ge, Zhang and Vorobeychik 2026: the description-history gap

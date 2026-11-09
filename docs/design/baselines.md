@@ -35,7 +35,7 @@ The policy that turns the forecast into bets is ours. One run per row. The bets 
 ## Checks
 
 - **Timestral** must pass a gap test and a rounding watch before we trust it, see [pilot](../pilot/provider-checks.md#timestral-checks).
-- **The baselines must land in the expected order** in the One switch and No change scenarios, see [pilot](../pilot/engine-checks.md#baseline-order).
+- **The baselines must land in the expected order** in the Down switch and No change scenarios, see [pilot](../pilot/engine-checks.md#baseline-order).
 
 ## Not yet
 

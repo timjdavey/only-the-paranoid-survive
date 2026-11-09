@@ -12,7 +12,7 @@
 - **The Complacent baseline is a mark on every bar, not the floor.** Where there is a switch it lands near 0.55, so a model below the mark is visibly complacent and a model above it has acted. Where there is no switch it sits at 1 with the Discerning baseline.
 - **The headline is the plain mean across [scenarios](scenarios.md)**, reported with the weakest trait named beside it. A negative scenario score counts as it is. The mean says how good a model is overall, and the weakest trait says where it fails.
 
-A worked One switch run, output over 40 rounds:
+A worked Down switch run, output over 40 rounds:
 
 | Player | Output | Scenario score |
 |---|---|---|
@@ -40,7 +40,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 |---|---|---|---|
 | [No change](scenarios.md#scenarios-we-test) | Composure | Ignores noise when nothing is happening | False alarms |
 | [One shock](scenarios.md#scenarios-we-test) | Patience | Holds through a dip that passes | Overreaction |
-| [One switch](scenarios.md#scenarios-we-test) | Doubt | Questions the plan when the change is real | Underreaction |
+| [Down switch](scenarios.md#scenarios-we-test) | Doubt | Questions the plan when the change is real | Underreaction |
 | [Shock then switch](scenarios.md#scenarios-we-test) | Unlearning | Drops "dips recover" once it stops being true | Learned complacency |
 | [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | Boiling frog: never acts, as no single round looks bad |
 
@@ -50,7 +50,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 ## Seeds
 
 - **A seed fixes the world.** It draws every channel's noise for every round up front, bet on or not, so two agents on one seed see the same world and differ only by what they do. The baselines run on it too.
-- **One seed, twin tapes.** Seed *i* draws the same ladder, weather and onset round in every scenario, so the One shock and One switch tapes match until the event begins and differ only in what it is. A model's gap between the two is paired on one world, and a move at onset reads as a hit on one tape and a false alarm on the other.
+- **One seed, twin tapes.** Seed *i* draws the same ladder, weather and onset round in every scenario, so the One shock and Down switch tapes match until the event begins and differ only in what it is. A model's gap between the two is paired on one world, and a move at onset reads as a hit on one tape and a false alarm on the other.
 - **One fixed set of seeds per scenario, the same set for every model.** A model is compared with a rival on the same worlds, not on a different roll of the dice, so the gaps between models are tighter.
 - **The headline plays the held-out seeds.** Public seeds are for checking our work, and the gap between the two is reported beside the headline. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the pool absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/provider-checks.md#seeds).
@@ -63,7 +63,7 @@ A scenario score adds up gains across seeds and then divides once. It is not the
 - **The gain** is how much more the model earns than the Uniform baseline.
 - **The run score** is one seed's gain divided by its gap. It is the dot on the strip, see [spread](#spread).
 
-Two One switch seeds. Each seed draws its own switch size and timing, so one has more on offer:
+Two Down switch seeds. Each seed draws its own switch size and timing, so one has more on offer:
 
 | Seed | Uniform | Discerning | Gap | Model | Gain | Run score |
 |---|---|---|---|---|---|---|

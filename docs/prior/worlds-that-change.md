@@ -27,7 +27,7 @@ Ziwei Ye. "Set-shifting Behavioral Test for Harnessed Agents." COLM 2026 Worksho
 **Watch out for.** A failed call is certain, so one failure gives the change away. A false alarm is almost impossible, which means the copies with no change test very little.
 
 **Why it matters here.**
-- **The copies with no change are the nearest thing to our No change scenario on the same world**, but they are reported beside the score, not in it. Our No change and One shock scenarios count in the same headline as the One switch and Slow drift scenarios, see [scoring](../design/scoring.md#how-we-score).
+- **The copies with no change are the nearest thing to our No change scenario on the same world**, but they are reported beside the score, not in it. Our No change and One shock scenarios count in the same headline as the Down switch and Slow drift scenarios, see [scoring](../design/scoring.md#how-we-score).
 - **Our leader keeps paying after a switch**, so one bad round proves nothing. That is the noisy version the authors list as future work.
 - **The adaptive prompt's large effect** is why nothing tells our agent the world might change, see [interface](../design/interface.md#how-the-agent-plays). gpt-5.5 calling old and new tools together is a [look](../glossary.md) without a switch, which our bets show directly.
 

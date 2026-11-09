@@ -25,7 +25,7 @@ These pages collect what others have found on that question, in LLMs, in people 
 
 If you know the field, our game may look like a drifting bandit: an agent picks between options whose payoffs wander, as in [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit). It looks like that, but no study below has all of these.
 
-- **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the One switch and Slow drift scenarios. The weakest trait is reported beside the headline, so a model can't hide false alarms behind quick switches ([scoring](../design/scoring.md#how-we-score)).
+- **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the Down switch and Slow drift scenarios. The weakest trait is reported beside the headline, so a model can't hide false alarms behind quick switches ([scoring](../design/scoring.md#how-we-score)).
 - **Bad luck comes in streaks, and the whole market has bad weeks.** Each channel's weather has persistence, so a bad stretch fades rather than stops. A shared factor moves every channel at once ([generator](../design/mechanics.md#each-round)).
 - **A look costs, and a look tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
 - **The old plan keeps paying.** After a switch the leader is still well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
@@ -39,7 +39,7 @@ Studies where nothing changes are on their own pages.
 | Study | Setting | Change | Old plan still pays? | Feedback | Told change may come? | Scored against | Does a false alarm cost? |
 |---|---|---|---|---|---|---|---|
 | [Wang, Ward and Zhang 2026](learning-from-results.md#wang-ward-and-zhang-2026-reversal-learning) | Two options that swap, LLMs | Many swaps | No, the old option wins 20% | Noisy | Yes | People | No, a switch after a loss counts as good |
-| [Gupta et al. 2025](learning-from-results.md#gupta-et-al-2025-coin-flips-and-bayes) | Coin flips, beliefs only | One switch, in one experiment | No, 75% heads becomes 25% | Noisy | No | Beta posterior | n/a |
+| [Gupta et al. 2025](learning-from-results.md#gupta-et-al-2025-coin-flips-and-bayes) | Coin flips, beliefs only | Down switch, in one experiment | No, 75% heads becomes 25% | Noisy | No | Beta posterior | n/a |
 | [Zhang et al. 2025](learning-from-results.md#zhang-et-al-2025-llms-in-a-drifting-bandit) | Four-armed bandit, LLMs and people | Every arm drifts all the time | Partly, a good arm fades rather than fails | Noisy | Not stated | People, and fitted exploration models | No |
 | [Zhang, Yang and Wang 2025](learning-from-results.md#zhang-yang-and-wang-2025-discounted-bayesian-filters) | Die rolls and samples, beliefs only | One change | No | Noisy | No | Discounted Bayesian filter | n/a |
 | [Set-shifting 2026](worlds-that-change.md#set-shifting-2026-tool-groups-that-stop-working) | Tool groups in an agent harness | Up to 3 silent shifts | No, old tools always fail | Exact | No, except one arm | Task success | Hardly, one failed call reveals the change |

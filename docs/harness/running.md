@@ -11,7 +11,7 @@
 
 | What | Command |
 |---|---|
-| One model, one scenario, a few seeds | `inspect eval paranoid -T scenario=one_switch -T seeds=0-4 --model anthropic/claude-haiku-5-5` |
+| One model, one scenario, a few seeds | `inspect eval paranoid -T scenario=down_switch -T seeds=0-4 --model anthropic/claude-haiku-5-5` |
 | A baseline | `inspect eval paranoid --model baseline/complacent` |
 | Smoke test with no model | `inspect eval paranoid --model mockllm/model --limit 2` |
 | The proof of concept list | `uv run paranoid poc`, which reads `configs/models/poc.toml` |

@@ -190,7 +190,7 @@ Haomiaomiao Wang, Tomás E. Ward and Lili Zhang. "Comparative reversal learning 
 **Why it matters here.**
 
 - Perseveration is close to how long our agent stays on the leader after a switch. Their prompt warned of change and models still stuck. Ours never warns ([how the agent plays](../design/interface.md#how-the-agent-plays)), so expect more stickiness, not less.
-- They count a high lose-shift rate as good. In our game shifting after a loss is right after a switch and wrong in a shock, which is why the One switch and One shock scenarios feed one headline ([scenarios](../design/scenarios.md#scenarios-we-test)). We score output between the Uniform and Discerning baselines and fit no learning rule, which sidesteps the problem they warn of.
+- They count a high lose-shift rate as good. In our game shifting after a loss is right after a switch and wrong in a shock, which is why the Down switch and One shock scenarios feed one headline ([scenarios](../design/scenarios.md#scenarios-we-test)). We score output between the Uniform and Discerning baselines and fit no learning rule, which sidesteps the problem they warn of.
 - Their many swaps are our repeated switches, a scenario we skip for now ([scenarios we skip](../design/scenarios.md#scenarios-we-skip)).
 
 ## Zhang et al. 2025: LLMs in a drifting bandit
@@ -277,4 +277,4 @@ Jensen Zhang, Jing Yang and Keze Wang (Sun Yat-sen University). "Large Language 
 **Why it matters here.**
 
 - Lean on Gupta for the numbers. The useful idea is the error split, which separates a model with bad starting beliefs from one that updates badly. The empty and pre-filled warm-up cells pull the same two apart ([TODO](../../TODO.md#pilot)).
-- A low γ means fast forgetting. That looks quick in the One switch scenario and jumpy in the One shock and No change scenarios. It would also make the calm rounds before a shock count for little, so the "dips recover" lesson that the Shock then switch scenario tests would never form ([scenarios](../design/scenarios.md#scenarios-we-test)).
+- A low γ means fast forgetting. That looks quick in the Down switch scenario and jumpy in the One shock and No change scenarios. It would also make the calm rounds before a shock count for little, so the "dips recover" lesson that the Shock then switch scenario tests would never form ([scenarios](../design/scenarios.md#scenarios-we-test)).
