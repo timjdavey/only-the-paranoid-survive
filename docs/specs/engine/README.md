@@ -45,12 +45,13 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
       __init__.py    the exports above, nothing else
       config.py      ScenarioConfig, the event specs, engine_hash
       scenarios.py   SCENARIOS
-      timeline.py        make_timeline, Timeline, Event
+      timeline.py    make_timeline, Timeline, Event
       game.py        Game, BetError, play
-      record.py      Record, Row
-      view.py        View, Start, Policy, split_budget
+      record.py      Record, Row, Bets
+      view.py        View, Start, Dials, Policy, split_budget
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.engine` only.
+- `Bets` lives in `record.py`, as `Row` holds it. So `view.py` never imports `game.py`, which imports it.
 - The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
 
 ## Conventions

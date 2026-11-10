@@ -51,6 +51,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |
 | Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |
+| Sigma | The weather's SD per round, `own_scale` in code. An event size given "in sigmas" is a multiple of it. See [difficulty](design/mechanics.md#difficulty) |
 | Persistence | How much of this round's weather carries into the next. At 0.8 a bad stretch is half gone after three rounds |
 | Dials | The release constants every policy is handed beside the ladder: the run length, the three weather dials, read noise and the ladder ranges. The same in every scenario, so they say nothing about events. `Dials` in code. See [view](specs/engine/view.md#view) |
 | Shared factor | One hidden series every channel loads on, so channels have good and bad weeks together |
@@ -73,7 +74,9 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Shape | The kind of move an event makes: a shock, a switch or a drift. "A shock" is short for an event whose shape is a shock |
 | Shock | A dip in every channel through the shared factor, which passes |
 | Impulse | The decaying dip a shock adds. Into the shared factor by default, so every channel feels it by its loading. Onto the leader's level alone with the one-channel shock knob, so its base level never moves |
+| Trough | The deepest point of a shock's impulse. The hedge sits highest there and most channels lowest |
 | Switch | A lasting change in base levels that changes which channel pays best. The leader falls, a sleeper rises past it, or both |
+| Ramp | The rounds a switch spreads its move over, in a straight line. 1 to 5, drawn per seed. `ramp` in code |
 | Drift | A switch stretched over many more rounds |
 | Short | A sleeper's rise that stops short: it ends above the runner-up but below the leader, so the right call is to stay. Drawn on some Up switch seeds. `short` in code |
 | Undo | A switch that puts an earlier sleeper back: its base level and loading return to what they were before it rose. `kind="undo"` in code |
@@ -114,6 +117,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Weakest trait | The lowest of a model's eight scenario scores, named. The AND the headline alone does not give |
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
+| Pinned | Event sizes held in level points, not sigmas, so the prize stays the same while the weather grows. Every noise grid setting is pinned. `pin_in_level_points` in code. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/engine-checks.md#noise-grid) |
 | Trait | One scenario's score, named for what a high score shows. A label on a number, not a disposition. The question each score answers is in [traits](design/scoring.md#traits) |
 | Composure | The No change scenario score. Ignoring noise when nothing is happening |
