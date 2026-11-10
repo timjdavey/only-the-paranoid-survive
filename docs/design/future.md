@@ -13,15 +13,15 @@
 ## What the agent knows before it starts
 
 - **A longer calm before the change.** A longer run of success should make anyone slower to doubt. The pilot sets one [game length and switch round](../pilot/engine-checks.md#game-length-and-switch-round). Stepping the calm stretch shows how each model's lateness grows with it.
-- **A record someone else played.** The record starts empty, see [tools](interface.md#tools), and the [warm-up cell](../../TODO.md#pilot) pre-fills it once. Varying its length, and how often it looks, shows whether a model copies the habits of a past it only read.
+- **A record someone else played.** The record starts empty, see [tools](interface.md#tools), and the [warm-up cell](../../TODO.md#pilot) pre-fills it once. Varying its length, and how often it explores, shows whether a model copies the habits of a past it only read.
 - **An inherited plan.** A written plan beside the record, in a voice from flat to "this split has served the client for four years". It shows what a confident author costs. See [ideas we parked](../prior/README.md#ideas-we-parked).
 - **Several short runs in a row.** Fresh seeds each time, with the world changing in only a few. It is Epoch's [EBR-bench](../prior/themes.md) set-up, with a lesson that can go stale between runs.
 
 ## How the agent can act
 
 - **Channels that pay later.** Every channel pays in the round it is bet on. A channel that builds a stock and pays out rounds later, like brand, asks whether an agent allows for lag before judging a dip.
-- **A price on switching.** A one-off fee, rejected for the headline as it leaks into every trait, see [interface](interface.md#rejected). A look stays cheap, so an agent should look as soon as it doubts. But the dearer the switch, the more evidence it should wait for. Does its switching follow the price while its looking doesn't? The headline's only lever here is the [inertia](scoring.md#extension-inertia) cap.
-- **A look that isn't a bet.** A `look(channel)` tool that reads one channel for a fee. Today a small bet is the look, so a split can mean doubt or a look and the log can't tell which. A tool would split them, at the risk of hinting a look is worth taking.
+- **A price on switching.** A one-off fee, rejected for the headline as it leaks into every trait, see [interface](interface.md#rejected). An explore bet stays cheap, so an agent should explore as soon as it doubts. But the dearer the switch, the more evidence it should wait for. Does its switching follow the price while its exploring doesn't? The headline's only lever here is the [inertia](scoring.md#extension-inertia) cap.
+- **Exploring without a bet.** An `explore(channel)` tool that reads one channel for a fee. Today the only way to explore is a small bet, so a split can mean doubt or an explore bet and the log can't tell which. A tool would split them, at the risk of hinting that exploring is worth it.
 - **A compounding budget.** Output feeds the next round's budget, so late mistakes cost more. Rejected for the headline, as it tests bet sizing and one ruined seed swamps the pool, see [interface](interface.md#rejected).
 - **Ask how sure it is.** Each round, before it bets, ask how likely its plan is out of date, and leave the answer out of later prompts. Rejected for the headline as it tells the agent what the question is. As a study, it shows whether an agent can suspect and still not act, the way Kodak built the first digital camera and sat on it.
 

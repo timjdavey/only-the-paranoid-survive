@@ -94,4 +94,4 @@ One file per skin, one table, no nesting.
 ## Not decided
 
 - **Whether a skin should carry what a round stands for** as its own field, so the pilot can swap "week" for "minute" on one engine, see [future](../../design/future.md). Decide when the pilot asks for a second unit.
-- **Whether to pilot the reading note.** `how_points_earn` ends with the line that a small spend gives a rough reading. A pilot cell that drops it to see whether the agent still looks needs a second TOML file with the line cut, not a field of its own.
+- **Whether to pilot the reading note.** `how_points_earn` ends with the line that a small spend gives a rough reading. A pilot cell that drops it to see whether the agent still explores needs a second TOML file with the line cut, not a field of its own.

@@ -23,8 +23,8 @@ The baselines layer holds every fixed [baseline](../../design/baselines.md) as a
 | `HedgeRule`, `ScoutRule` | Frozen dataclasses with parameters, for the pilot sweeps | [rules](rules.md) |
 | `hedge_rule`, `scout_rule` | `HedgeRule()` and `ScoutRule()` at the defaults | [rules](rules.md) |
 | `ForecastRule`, `QUANTILE_LEVELS`, `ODDS_DRAWS` | The protocol, the quantile grid and the draw count | [forecast](forecast.md) |
-| `TopPick`, `Odds`, `TopPickWithLooks` | The three forecast rules, as classes | [forecast](forecast.md) |
-| `top_pick`, `odds`, `look_1`, `look_2`, `look_5` | The five instances the Timestral ids name | [forecast](forecast.md) |
+| `TopPick`, `Odds`, `TopPickWithExploreBets` | The three forecast rules, as classes | [forecast](forecast.md) |
+| `top_pick`, `odds`, `explore_1`, `explore_2`, `explore_5` | The five instances the Timestral ids name | [forecast](forecast.md) |
 | `FORECAST_RULES` | Read only `Mapping[str, ForecastRule]`, Timestral rule ids to instances | [forecast](forecast.md) |
 
 ## Names from the engine

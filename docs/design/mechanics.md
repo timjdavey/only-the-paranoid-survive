@@ -5,7 +5,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 ## Payout
 
 - **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
-- **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or a look. See [scoring](scoring.md).
+- **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or an explore bet. See [scoring](scoring.md).
 - **Output and levels are reported to one decimal place.**
 
 ## Generator
@@ -45,8 +45,8 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 | Switch | A base level | The leader falls below the runner-up, a **sleeper** in the field rises past every other channel, or both. The sleeper's loading is redrawn so it stops moving with its old group. Where the scenario says so, a sleeper rises short of the leader instead, or an earlier switch is undone | How far below the runner-up the leader ends and how far above the rest the sleeper ends, both in sigmas, onset, ramp of 1 to 5 rounds, which channel falls, which sleeper rises, whether a rise stops short and where, and the direction where the scenario leaves it open |
 | Drift | A base level, slowly | As a switch, over many more rounds | How far below the runner-up the leader ends, in sigmas, length, profile: linear or logistic |
 
-- **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. A look at any unfunded channel tells them apart. A look at the hedge tells them apart fastest.
-- **Why a switch comes in three kinds.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When the leader falls and a sleeper rises, the runner-up is a decoy and the agent has to look to find the new best. Sizes are measured from the runner-up, so a fall always changes who pays best and a riser always ends on top, unless the scenario has it stop short. When only a sleeper rises, nothing in the agent's record moves and the test is whether it was looking at all. The [Down switch scenario](scenarios.md#scenarios-we-test) draws the first two per seed, so a model cannot learn that a fall always comes with a riser, or never does. The Up switch scenario pins the third.
+- **Why a shock and a switch look different.** A shock moves every channel at once, each by its loading, and lifts the hedge. A switch moves one channel and leaves the factor alone. An explore bet on any unfunded channel tells them apart. An explore bet on the hedge tells them apart fastest.
+- **Why a switch comes in three kinds.** When only the leader falls, the destination is the runner-up and the test is spotting the fall. When the leader falls and a sleeper rises, the runner-up is a decoy and the agent has to explore to find the new best. Sizes are measured from the runner-up, so a fall always changes who pays best and a riser always ends on top, unless the scenario has it stop short. When only a sleeper rises, nothing in the agent's record moves and the test is whether it was exploring at all. The [Down switch scenario](scenarios.md#scenarios-we-test) draws the first two per seed, so a model cannot learn that a fall always comes with a riser, or never does. The Up switch scenario pins the third.
 - **The old plan keeps paying.** A switch leaves the leader well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 
 ### Stringing events
@@ -69,19 +69,19 @@ Off by default. Each one closes a tell a model could learn.
 | Knob | What it does |
 |---|---|
 | Hedge may overtake | In a deep shock the hedge pays more than the leader for a few rounds, so holding costs real output |
-| One-channel shock | A shock that hits the leader only, as an impulse on its level that leaves its base level alone, so the climate does not move and a look at the field says nothing about scope |
+| One-channel shock | A shock that hits the leader only, as an impulse on its level that leaves its base level alone, so the climate does not move and an explore bet on the field says nothing about scope |
 
 ## What the agent sees
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
 - **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
 - **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
-- **Why.** A look costs something, so paranoia has a price. You know a market by being in it.
+- **Why.** An explore bet costs something, so paranoia has a price. You know a market by being in it.
 - **Output is paid at the true levels, on purpose**, while each reading carries read noise. A business knows its revenue to the penny but only roughly which channel drove it.
   - **It adds little beyond the readings.** Summing the readings the way output is summed already gives output to within an SD of k ÷ 10, whatever the split. So output is worth one clean reading of the agent's own mix, and nothing about any one channel.
-  - **It can't name the shape.** A dip in output says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes a look, see [events](#events).
-  - **It can't see a rise.** A sleeper rising on a channel with a bet of 0 changes nothing the agent sees. The Up switch scenario is invisible without a look.
-  - **It can't sharpen a small look.** With 99 on the leader and 1 on the hedge, output minus the leader's reading gives the hedge with an SD of about 10k, against k for the look itself.
+  - **It can't name the shape.** A dip in output says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes an explore bet, see [events](#events).
+  - **It can't see a rise.** A sleeper rising on a channel with a bet of 0 changes nothing the agent sees. The Up switch scenario is invisible without an explore bet.
+  - **It can't sharpen a small explore bet.** With 99 on the leader and 1 on the hedge, output minus the leader's reading gives the hedge with an SD of about 10k, against k for the explore bet itself.
   - **This is why the weather scale, not read noise, is the grid's dial.**
 
 ## Defaults
@@ -96,8 +96,8 @@ Off by default. Each one closes a tell a model could learn.
 |---|---|
 | Concave payout | The Perfect baseline splits too, so a split stops reading as belief. The agent has to be told the curve and do the maths, and a model bad at the maths looks like a model full of doubt |
 | A sigma per channel | With a fixed budget that does not compound and a linear payout, sigma never changes which channel is best. It adds risk maths the score never rewards |
-| Every channel visible | A look is free, so a calm agent and a paranoid one only differ by jumpiness. A forecaster then wins by reading series, which is a different study |
-| A hand-written table of means plus independent noise | Streaks cannot happen by chance, so three bad rounds prove too much. Every repeat of a shock is identical. No market-wide weeks, so a look never says "everyone is down" |
+| Every channel visible | An explore bet is free, so a calm agent and a paranoid one only differ by jumpiness. A forecaster then wins by reading series, which is a different study |
+| A hand-written table of means plus independent noise | Streaks cannot happen by chance, so three bad rounds prove too much. Every repeat of a shock is identical. No market-wide weeks, so an explore bet never says "everyone is down" |
 | Two or three factors, with events on loadings | Most realistic, but scenarios become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. A hard variant once one factor saturates |
-| Shocks that hit one channel only | A look cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |
+| Shocks that hit one channel only | An explore bet cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |
 | Output summed from the noisy readings | It only adds one noise term with an SD of k ÷ 10, which changes little, see [what the agent sees](#what-the-agent-sees). And it breaks the skin, since no business estimates its own revenue |

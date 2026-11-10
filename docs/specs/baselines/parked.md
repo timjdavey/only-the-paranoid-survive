@@ -9,7 +9,7 @@ The baselines named in [not yet](../../design/baselines.md#not-yet), with what i
 ### Bayesian
 
 - **Shape.** A `Policy` with `peeks` false that keeps a belief over each channel's level from its own readings, in the engine's family, turns the belief into quantiles on `QUANTILE_LEVELS`, and hands them to a `ForecastRule`. So `Bayesian(rule=odds)` and `Bayesian(rule=top_pick)` are the Timestral rows with a belief in place of a forecaster, see [forecast](forecast.md).
-- **Why a player, never the yardstick.** It bets on past readings only, so there is no loop, but what it could know depends on what it looked at, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
+- **Why a player, never the yardstick.** It bets on past readings only, so there is no loop, but what it could know depends on what it explored, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
 - **Waits for** Timestral having run, as the hazard prior is a dial we would have to pre-register, see [Timestral checks](../../pilot/provider-checks.md#timestral-checks).
 
 ### CUSUM
@@ -19,7 +19,7 @@ The baselines named in [not yet](../../design/baselines.md#not-yet), with what i
 
 ### Barbell
 
-- **Shape.** A `Policy` with `peeks` false: `budget` split between `start.leader` and `start.runner_up`, with a switch rule like the hedge rule's fall test on the leader. A cheap win when only the leader falls, a decoy when a sleeper rises, and blind in the Up switch scenario as it never looks past the runner-up.
+- **Shape.** A `Policy` with `peeks` false: `budget` split between `start.leader` and `start.runner_up`, with a switch rule like the hedge rule's fall test on the leader. A cheap win when only the leader falls, a decoy when a sleeper rises, and blind in the Up switch scenario as it never explores past the runner-up.
 - **Waits for** [Up and down](../../pilot/engine-checks.md#up-and-down) showing how often a sleeper rises.
 
 ## Not decided

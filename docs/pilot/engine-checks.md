@@ -73,26 +73,26 @@ Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#diffi
 
 ## Reading roughness
 
-A small bet gives a rough reading and a large bet a clean one, see [what the agent sees](../design/mechanics.md#what-the-agent-sees). That rewards a look, and is how it works in the real world.
+A small bet gives a rough reading and a large bet a clean one, see [what the agent sees](../design/mechanics.md#what-the-agent-sees). That rewards an explore bet, and is how it works in the real world.
 
 - **Question.** How fast the read noise shrinks as the bet grows.
 - **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge, and the Scout rule baseline with 1, 2 and 5 points on every other channel, at a few strengths of read noise.
-- **Measure.** Whether a bigger look buys a better read of the switch, and how much a look costs in output. The Scout rule shows the same for a rise, which is where a look's size bites hardest, see [Up and down](#up-and-down).
-- **Output is exact,** so the agent always knows its own mix's level. Read noise only prices looks at single channels, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
-- **Decide.** One strength, where a look is worth its cost but no look tells the whole story. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with looks.
+- **Measure.** Whether a bigger explore bet buys a better read of the switch, and how much an explore bet costs in output. The Scout rule shows the same for a rise, which is where an explore bet's size bites hardest, see [Up and down](#up-and-down).
+- **Output is exact,** so the agent always knows its own mix's level. Read noise only prices explore bets on single channels, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
+- **Decide.** One strength, where an explore bet is worth its cost but no explore bet tells the whole story. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with explore bets.
 
 ## Up and down
 
 A switch comes in three kinds, see [events](../design/mechanics.md#events): the leader falls, the leader falls and a sleeper rises, or only a sleeper rises. The first two are drawn per seed in the Down switch scenario, the third is the Up switch scenario.
 
-- **Question.** How a rise compares with a fall for the baselines, how often the Down switch scenario draws a sleeper, and whether a look can read a rise.
+- **Question.** How a rise compares with a fall for the baselines, how often the Down switch scenario draws a sleeper, and whether an explore bet can read a rise.
 - **Run.** A thousand Down switch and Up switch tapes, plus No change tapes, at the proof of concept setting, with the Discerning, Complacent, hedge rule and Scout rule baselines. The Scout rule plays at `s` of 1, 2 and 5.
 - **Measure.**
   - **Sleeper share.** How many Down switch tapes draw a sleeper.
   - **Prize on offer.** The Discerning baseline's output minus the Complacent baseline's, in level points, on fall-only, fall-with-riser and rise-only tapes.
   - **Reading a rise.** The Scout rule's scenario score on Up switch at each `s`, and the round it moves. Its false moves and its cost in output on No change.
   - **Short seeds.** The Scout rule's moves on the Up switch seeds where the sleeper stops short, which is the price of moving on a near tie.
-- **Decide.** The sleeper share and the rise size in level points, so the three kinds put a comparable prize on offer. And whether a one-point look reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited. And the short share of Up switch seeds, and the sleeper's end level on them, as a band between the runner-up and the leader, so that a looker sees a real move and the Scout rule does not move on a near tie.
+- **Decide.** The sleeper share and the rise size in level points, so the three kinds put a comparable prize on offer. And whether a one-point explore bet reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited. And the short share of Up switch seeds, and the sleeper's end level on them, as a band between the runner-up and the leader, so that a looker sees a real move and the Scout rule does not move on a near tie.
 
 ## Baseline order
 
@@ -100,7 +100,7 @@ A switch comes in three kinds, see [events](../design/mechanics.md#events): the 
 - **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in every scenario.
 - **Measure.** Their scores, against these orders:
   - **Down switch scenario:** Perfect > Discerning > hedge rule > Complacent > Uniform.
-  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The hedge rule has no reason to move here, so it sits with the Complacent baseline minus its look, less any false alarm on weather. On the seeds where the sleeper stops short, Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, and report how far the Scout rule falls below.
+  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The hedge rule has no reason to move here, so it sits with the Complacent baseline minus its explore bet, less any false alarm on weather. On the seeds where the sleeper stops short, Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, and report how far the Scout rule falls below.
   - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
   - **Switch then shock scenario:** as Down switch. The hedge rises in the shock, so the hedge rule holds the new best.
   - **Up switch then down switch scenario:** as Up switch. The Scout rule keeps scouting after a move, so it sees the sleeper fall and the leader hold.

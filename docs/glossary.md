@@ -21,10 +21,10 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Complacent baseline | The baseline that holds the Discerning baseline's round 1 bets to the end. A mark on every scenario's bar, near 0.55 where there is a switch. `baseline/complacent` in code |
 | Uniform baseline | The baseline that bets 10 on every channel, every round. The floor: a scenario score of 0. `baseline/uniform` in code |
 | Hedge rule baseline | A few points on the hedge, the rest on the leader. It switches when the leader falls and the hedge does not rise. The simplest player that reads the tell. `baseline/hedge_rule` in code |
-| Scout rule baseline | A few points on every channel but its pick, the rest on the pick. It moves when another channel's readings beat the pick's for a run of rounds and the hedge is not rising. The hedge rule that looks everywhere. `baseline/scout_rule` in code |
+| Scout rule baseline | A few points on every channel but its pick, the rest on the pick. It moves when another channel's readings beat the pick's for a run of rounds and the hedge is not rising. The hedge rule that explores everywhere. `baseline/scout_rule` in code |
 | Timestral top pick | The Timestral baseline that puts 100 on the channel it forecasts highest. `timestral/top-pick` in code |
 | Timestral odds | The Timestral baseline that splits its bets by each channel's chance of being the best. `timestral/odds` in code |
-| Timestral top pick with looks | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/look-1`, `look-2` and `look-5` in code |
+| Timestral top pick with explore bets | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/explore-1`, `explore-2` and `explore-5` in code |
 | Timestral odds, bet aware | Timestral odds, also told its past bets. `timestral/odds-bet-aware` in code |
 | Forecast rule | A rule that turns a forecast's quantiles into a split. Timestral's bets go through one, and a Bayesian baseline would too. `ForecastRule` in code. See [forecast](specs/baselines/forecast.md) |
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
@@ -84,8 +84,9 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Word | What it means |
 |---|---|
 | Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
-| Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or a look |
-| Look | A small bet on a channel the agent isn't backing, to read its level. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees) |
+| Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or an explore bet |
+| Exploit | Betting on the channel the agent believes is best. Payout is linear, so exploiting alone means all 100 points on one channel. The opposite of an explore bet |
+| Explore bet | A small bet on a channel the agent isn't backing, to read its level. To explore is to place one. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees). `explore` in code |
 | Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot cell, see [task spec](specs/harness/task.md#warm-up). `warm_up` in code |
 | Give up | What the solver does after ten failed tries in one round: the run ends there, with no error, and scores as the Uniform baseline on that seed. See [solver spec](specs/harness/solver.md#tries). `gave_up` in code |
 
@@ -104,7 +105,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Composure | The No change scenario score. Ignoring noise when nothing is happening. When nothing changes, how much does it keep betting on the best channel? |
 | Patience | The One shock scenario score. Holding through a dip that passes. When the best channel dips and recovers, how much does it keep on it through the dip? |
 | Doubt | The Down switch scenario score. Questioning the plan when the change is real. When the best channel falls for good in one round, how soon does it move to the new best channel? |
-| Curiosity | The Up switch scenario score. Looking when nothing is wrong, and moving only for a rise that beats the plan. When another channel rises past the best one, with nothing to see unless it looks, how soon does it find the riser and move, and what did the looking cost? |
+| Curiosity | The Up switch scenario score. Exploring when nothing is wrong, and moving only for a rise that beats the plan. When another channel rises past the best one, with nothing to see unless it explores, how soon does it find the riser and move, and what did the exploring cost? |
 | Unlearning | The Shock then switch scenario score. Dropping "dips recover" once it stops being true. When the best channel dips and recovers, then later falls for good, how soon does it move after the real fall? |
 | Vigilance | The Slow drift scenario score. Noticing a decline that has no sudden move. When the best channel slides over many rounds, so no single round looks bad, how soon does it move to the new best channel? |
 | Conviction | The Switch then shock scenario score. Holding a plan it just chose through a dip that passes. When it has just moved to a new best channel and that channel dips and recovers, how much does it keep on it through the dip? |

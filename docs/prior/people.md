@@ -106,7 +106,7 @@ Joseph Mellor and Jonathan Shapiro. "Thompson Sampling in Switching Environments
 **Why it matters here.**
 
 - **Global and per arm is our shock and switch.** A shock moves every channel through the shared factor. A switch moves one. Each version here wins only in its own world, so a baseline for our suite has to hold both, as the [events](../design/mechanics.md#events) do.
-- **An arm left alone grows more uncertain, so it sometimes gets a look.** That is the property a [parked Bayesian baseline](../design/baselines.md#not-yet) would rely on. Don't copy the "2" trick: there an arm left alone stops growing uncertain, and a sleeper rises while unfunded, so it might never be looked at.
+- **An arm left alone grows more uncertain, so it sometimes gets an explore bet.** That is the property a [parked Bayesian baseline](../design/baselines.md#not-yet) would rely on. Don't copy the "2" trick: there an arm left alone stops growing uncertain, and a sleeper rises while unfunded, so it might never be explored.
 - **Learning a rate per arm was costly.** One channel falling in a switch is the per arm case. That backs a hazard prior fixed in advance over one learnt per channel.
 - **It pulls one arm.** Our agent splits its bets, and a small bet gives a rough reading ([what the agent sees](../design/mechanics.md#what-the-agent-sees)). Nothing here tests turning a sample into bets.
 
@@ -246,7 +246,7 @@ C. R. Gallistel, Monika Krishan, Ye Liu, Reilly Miller and Peter E. Latham. "The
 
 **Why it matters here.**
 
-- **Graded bets may not give graded moves.** Our bets are meant to move smoothly with belief ([interface](../design/interface.md#how-the-agent-plays)). People with a free slider still stepped. So an agent may hold its bets for many rounds, then move them all at once. Read its first doubt from its looks, not from the size of a move.
+- **Graded bets may not give graded moves.** Our bets are meant to move smoothly with belief ([interface](../design/interface.md#how-the-agent-plays)). People with a free slider still stepped. So an agent may hold its bets for many rounds, then move them all at once. Read its first doubt from its explore bets, not from the size of a move.
 - **Taking it back means different things in different scenarios.** Moving back after a shock corrects a false alarm. Moving back after a switch gives up a true call. A per scenario score keeps them apart.
 - **"If it ain't broke, don't fix it"** with two thresholds is a third cautious or jumpy baseline, beside Nassar's dials, for the [not yet](../design/baselines.md#not-yet) list.
 

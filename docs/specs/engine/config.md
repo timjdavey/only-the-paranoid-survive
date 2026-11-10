@@ -147,7 +147,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `persistence` | 0.8 | A bad stretch half gone after three rounds, see [each round](../../design/mechanics.md#each-round) | [Streaks](../../pilot/engine-checks.md#streaks) |
 | `factor_scale` | 3 | Shared weeks visible but smaller than own weather | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `loading`, `hedge_loading` | 0.3 to 1, −0.6 to −0.3 | "About 0.3 to 1", one negative, see [each round](../../design/mechanics.md#each-round) | [The tell](../../pilot/engine-checks.md#the-tell) |
-| `read_noise_k` | 8 | A 1 point look has SD 8, a 16 point look SD 2, the full budget SD 0.8 | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
+| `read_noise_k` | 8 | A 1 point explore bet has SD 8, a 16 point explore bet SD 2, the full budget SD 0.8 | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
 | `onset` | 12 to 20 | Enough calm to set a habit, enough left to pull clear | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `hedge_margin_points` | 4 | One sigma at the default `own_scale`, in points so it survives pinning | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `ShockSpec.depth_sigmas` | 4 to 8 | Through a loading of 0.65 the leader dips 2.6 to 5.2 sigmas. The cap cuts the deepest draws on seeds with a high hedge and strong loadings, so the final depth is in `Event.numbers` | [The tell](../../pilot/engine-checks.md#the-tell) |

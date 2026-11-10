@@ -29,7 +29,7 @@ Ziwei Ye. "Set-shifting Behavioral Test for Harnessed Agents." COLM 2026 Worksho
 **Why it matters here.**
 - **The copies with no change are the nearest thing to our No change scenario on the same world**, but they are reported beside the score, not in it. Our No change and One shock scenarios count in the same headline as the Down switch and Slow drift scenarios, see [scoring](../design/scoring.md#how-we-score).
 - **Our leader keeps paying after a switch**, so one bad round proves nothing. That is the noisy version the authors list as future work.
-- **The adaptive prompt's large effect** is why nothing tells our agent the world might change, see [interface](../design/interface.md#how-the-agent-plays). gpt-5.5 calling old and new tools together is a [look](../glossary.md) without a switch, which our bets show directly.
+- **The adaptive prompt's large effect** is why nothing tells our agent the world might change, see [interface](../design/interface.md#how-the-agent-plays). gpt-5.5 calling old and new tools together is an [explore bet](../glossary.md) without a switch, which our bets show directly.
 
 ## AdaExploreBench 2026: hidden rules that drift
 
@@ -53,8 +53,8 @@ Rui Wang et al. "AdaExploreBench: Benchmarking LLM Agents for Proactive Explorat
 
 **Why it matters here.**
 - **It is the closest benchmark in design.** One silent change, and a score that runs from a floor to an oracle, like our score, which runs from the [Uniform baseline](../design/baselines.md#fixed-baselines) to the Discerning baseline.
-- **Their oracle knows the true rule, as our Discerning baseline knows the climate.** Neither sees only what the agent sees, and ours is meant not to: a yardstick that reads the agent's own record depends on what the agent chose to look at, see [scoring](../design/scoring.md#why-these-two-baselines).
-- **Forced probing did nothing**, so a look has to be the agent's own idea. That is why our prompt never asks for one, and a look is just a small bet, see [interface](../design/interface.md#how-the-agent-plays).
+- **Their oracle knows the true rule, as our Discerning baseline knows the climate.** Neither sees only what the agent sees, and ours is meant not to: a yardstick that reads the agent's own record depends on what the agent chose to explore, see [scoring](../design/scoring.md#why-these-two-baselines).
+- **Forced probing did nothing**, so an explore bet has to be the agent's own idea. That is why our prompt never asks for one, and an explore bet is just a small bet, see [interface](../design/interface.md#how-the-agent-plays).
 - **The kind of change matters.** Swaps were noticed far more than reversals. Our switch sometimes has a sleeper rising and sometimes not, drawn per seed, so no one kind is learnable, see [events](../design/mechanics.md#events).
 
 ## STOCKTAKE 2026: a fair oracle for supply chains
@@ -86,7 +86,7 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 
 **Why it matters here.**
 - **It is the closest study in method.** Their event tape is our [tape](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill, from a dumb policy to a yardstick, is the shape of our scenario score.
-- **Their oracle sees only what the agent saw. Ours does not, on purpose.** A yardstick built on the agent's own readings depends on what the agent chose to look at, so a lazy agent gets a lenient yardstick. Our [Discerning baseline](../design/baselines.md#fixed-baselines) reads the climate from the tape, so it is the same for every player and reachable in expectation.
+- **Their oracle sees only what the agent saw. Ours does not, on purpose.** A yardstick built on the agent's own readings depends on what the agent chose to explore, so a lazy agent gets a lenient yardstick. Our [Discerning baseline](../design/baselines.md#fixed-baselines) reads the climate from the tape, so it is the same for every player and reachable in expectation.
 - **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with persistence makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our No change and One shock scenarios put a price on overreacting.
 - We don't measure their split between knowing and acting, because asking for a view on change tells the agent change is the question, see [rejected](../design/interface.md#rejected).
 

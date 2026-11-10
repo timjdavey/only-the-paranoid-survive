@@ -40,7 +40,7 @@ Thomas Kwa, Ben West et al. (METR). "Measuring AI Ability to Complete Long Softw
 
 - **They name the gap we fill.** Their suite is static by design, and their "adapting to mistakes" means the agent's own errors. Noticing that the world moved under a plan is the part they leave out. Whether it explains a model's place on their trend is a [claim to test](themes.md).
 - **Correlated errors are why we pair by seed.** Every model plays the same seeds, and gaps between models are read seed by seed so the world's luck cancels ([error bars](../design/scoring.md#error-bars)).
-- **Agents rarely look until something fails.** In our game a look costs a little every round, so an agent that waits for proof of failure will be late on a switch.
+- **Agents rarely explore until something fails.** In our game an explore bet costs a little every round, so an agent that waits for proof of failure will be late on a switch.
 
 ## Schoen et al. 2025: suspecting a test changes behaviour
 
@@ -73,7 +73,7 @@ Bronson Schoen et al. (Apollo Research and OpenAI). "Stress Testing Deliberative
 
 **Why it matters here.**
 
-- **In our game suspicion would show as extra looks or an early move.** A model that thinks "this is a test about change" may poke at the field or jump at the first dip. The No change and One shock scenarios score that as lost output, so suspicion costs it in the [headline](../design/scoring.md#how-we-score).
+- **In our game suspicion would show as extra explore bets or an early move.** A model that thinks "this is a test about change" may poke at the field or jump at the first dip. The No change and One shock scenarios score that as lost output, so suspicion costs it in the [headline](../design/scoring.md#how-we-score).
 - **Skins make the world look real.** The prompt dresses the engine in a story and never mentions change ([skins](../harness/skins.md), [interface](../design/interface.md#how-the-agent-plays)). That lowers the cue, though it can't remove it.
 - **Newer models may suspect more.** Capability training alone raised awareness tenfold, so later models in a comparison may read our game as a test more often.
 

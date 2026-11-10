@@ -27,7 +27,7 @@ If you know the field, our game may look like a drifting bandit: an agent picks 
 
 - **Both mistakes cost.** The No change and One shock scenarios sit in the same headline as the Down switch and Slow drift scenarios. The weakest trait is reported beside the headline, so a model can't hide false alarms behind quick switches ([scoring](../design/scoring.md#how-we-score)).
 - **Bad luck comes in streaks, and the whole market has bad weeks.** Each channel's weather has persistence, so a bad stretch fades rather than stops. A shared factor moves every channel at once ([generator](../design/mechanics.md#each-round)).
-- **A look costs, and a look tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
+- **An explore bet costs, and an explore bet tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
 - **The old plan keeps paying.** After a switch the leader is still well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 - **Nothing tells the agent the world might change.** No prompt, story or tool mentions it ([interface](../design/interface.md#how-the-agent-plays)).
 - **A right lesson can go wrong.** In the Shock then switch scenario, an agent that rightly held through the shock has learnt "dips recover", and is primed to miss the real change ([scenarios](../design/scenarios.md#scenarios-we-test)).
@@ -62,7 +62,7 @@ Studies where nothing changes are on their own pages.
 
 ### The closest studies
 
-- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees, which makes it depend on what the agent chose to look at. Ours, the [Discerning baseline](../design/baselines.md#fixed-baselines), knows the climate but not the weather, so it is the same for every player and reachable in expectation.
+- **STOCKTAKE is closest in method.** Every player faces the same event tape, and it has a false alarm that looks real for a week, much like a shock. Its yardstick sees only what the agent sees, which makes it depend on what the agent chose to explore. Ours, the [Discerning baseline](../design/baselines.md#fixed-baselines), knows the climate but not the weather, so it is the same for every player and reachable in expectation.
 - **AdaExploreBench is closest in design.** One silent change, and a score that runs from a floor to a ceiling. Theirs is all-knowing. Ours, the Discerning baseline, knows the climate but not the weather.
 - **Set-shifting is the only one with a matched no-change copy** of every run. It reports that copy beside the score, not inside it. Our No change and One shock scenarios are inside the headline.
 
@@ -82,7 +82,7 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [Weather with persistence](../design/mechanics.md#each-round) | STOCKTAKE, Zhang 2025, Massey and Wu, Horowitz and Plonsky |
 | [Shock or switch, the shared factor and the hedge](../design/mechanics.md#events) | Mellor and Shapiro (all arms switch or one), Schmied (trying every arm once), Zhang 2025, AdaExploreBench |
 | [The old plan keeps paying](../design/mechanics.md#events) | Allen and McDonald, STOCKTAKE, Zhang 2025, Haq. The opposite: Wang, Set-shifting, Bazaar |
-| [A look costs](../design/mechanics.md#what-the-agent-sees) | BanditBench, Krishnamurthy, Zhang 2025, Horowitz and Plonsky |
+| [An explore bet costs](../design/mechanics.md#what-the-agent-sees) | BanditBench, Krishnamurthy, Zhang 2025, Horowitz and Plonsky |
 | [Linear payout](../design/mechanics.md#payout) and [no bankroll](../design/interface.md#rejected) | KellyBench, Haghani and Dewey |
 | [Bets are belief](../design/interface.md#how-the-agent-plays) | Gallistel 2014 (step and hold) |
 | [Nothing tells the agent](../design/interface.md#how-the-agent-plays) | Set-shifting, AdaExploreBench, Wang, Bleser, Nassar |
@@ -121,7 +121,7 @@ Some studies mattered most to ideas the design has since dropped or parked. They
 - **Claude system cards.** What happened when the Sonnet 4.5 card suppressed eval awareness (sections 7.6.4 and 7.6.5) is unread, and so are later cards.
 - **Reward hacking.** The [themes table](themes.md) links METR's, Anthropic's and Epoch's reports, but we haven't reviewed that literature.
 - **Noise with persistence.** Apart from STOCKTAKE's one week-long false alarm, every study here draws each result fresh. Whether models tell a bad stretch from a change, when the noise itself has stretches, looks open.
-- **A shared factor.** No LLM study we found has a market-wide bad week, where a look at other options tells you the dip is everyone's.
+- **A shared factor.** No LLM study we found has a market-wide bad week, where an explore bet on other options tells you the dip is everyone's.
 - **A record from someone else.** BanditBench's example runs are the only test we found of a past that shows how to play. Whether a model copies the habits of a record it reads is untested. The [warm-up cell](../../TODO.md#pilot) is a first look.
 - **Forecasters as agents.** We read nothing on time-series models like Timestral, or on Jev, making decisions. Their [providers](../design/interface.md#models-that-cannot-place-bets) rest on the design alone.
 - **Base rates.** No study here measures how often a dip turns out to be a switch in any real setting. Equal weights across scenarios are a prior, see [limits](../design/limits.md).
