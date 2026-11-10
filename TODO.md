@@ -10,7 +10,8 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 ## Code
 - Write the engine from its [spec](docs/specs/engine/README.md), tests first, then the baselines from [theirs](docs/specs/baselines/README.md).
 - Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
-- Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first, baselines second.
+- Add the console script, entry points, extras and package data to `pyproject.toml` with the harness, see [layout](docs/harness/layout.md#what-pyprojecttoml-holds). The scaffold holds only what the engine needs.
+- Decide whether CI runs the slow tests once the first one exists.
 - `configs/grid.toml`, the noise grid the `luck`, `timeline-sanity` and `noise-grid` cells read, see the [pilot spec](docs/specs/harness/pilot.md#engine-cells).
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before the proof of concept, as it plays held-out skins, see [contamination](docs/harness/contamination.md#who-can-see-them).

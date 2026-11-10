@@ -1,0 +1,56 @@
+[project]
+name = "paranoid"
+version = "0.1.0"
+description = "A benchmark for how well an agent tells a shock that passes from one that creates a new normal."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    # One minor version only: a timeline is bit-equal within one numpy version,
+    # see docs/specs/engine/config.md#engine-hash.
+    "numpy~=2.5.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2",
+    "hypothesis>=6.170",
+    "import-linter>=2.16",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/paranoid"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Slow tests are skipped by default. Run them with `uv run pytest -m slow`.
+addopts = "-m 'not slow' --strict-markers --import-mode=importlib"
+markers = [
+    "slow: runs a thousand seeds or more, see the tests page of each layer's spec",
+]
+
+# The layer rule, see docs/harness/layout.md#five-layers. CI runs `lint-imports`.
+[tool.importlinter]
+root_package = "paranoid"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "A layer imports only from the layers below it"
+type = "layers"
+layers = [
+    "paranoid.analysis",
+    "paranoid.harness",
+    "paranoid.skins",
+    "paranoid.baselines",
+    "paranoid.engine",
+]
+
+[[tool.importlinter.contracts]]
+name = "The engine's only third-party import is numpy"
+type = "forbidden"
+source_modules = ["paranoid.engine"]
+forbidden_modules = ["inspect_ai", "pandas", "matplotlib", "scipy", "torch", "hypothesis", "pytest"]

@@ -7,6 +7,8 @@
     uv sync --extra sandbox      # adds the Docker sandbox for the compute tool
     cp .env.example .env         # then fill in keys, see models.md
 
+- **Python 3.12 or later.** `uv` installs the version in `.python-version` for you.
+- **Check a change** with `uv run pytest` and `uv run lint-imports`, the two things CI runs. Slow tests are skipped unless you add `-m slow`, see the [engine tests](../specs/engine/tests.md).
 - **The headline needs Docker.** The `compute` tool runs in a sandbox, see [tools](../design/interface.md#tools), so the sandbox extra and a running Docker are needed for any run at the default `tools`. Pass `-T tools=none` to run without, as the smoke test does.
 
 ## Commands

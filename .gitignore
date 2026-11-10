@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 .venv/
 .cache/
+.pytest_cache/
+.hypothesis/
+.import_linter_cache/
+dist/
