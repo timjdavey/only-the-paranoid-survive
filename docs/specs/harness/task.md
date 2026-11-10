@@ -58,6 +58,13 @@ def scenario_config(name: str, *, rounds: int | None = None, inertia: int | None
                     own_scale: float | None = None) -> ScenarioConfig
 def load_seeds(seed_set: Literal["public", "held-out"]) -> list[int]
 def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
+
+@dataclass(frozen=True)
+class Grid:
+    release: str                      # the release these settings belong to, see Release below
+    own_scale: tuple[float, ...]      # the noise grid
+
+def load_grid() -> Grid               # configs/grid.toml
 ```
 
 ## Behaviour
@@ -70,7 +77,17 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
   - `inertia` replaces `inertia_cap`.
   - `own_scale` replaces `own_scale` and sets `pin_in_level_points` to true, so the prize holds while the noise moves, see [noise threshold](../../design/scoring.md#noise-threshold).
 - **The `engine_hash` in the log is of the replaced config**, so a run at `rounds=20` never shares a hash with the frozen study setting.
-- **The noise grid lives in `configs/grid.toml`** as `own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]`, **pilot to confirm** by the [noise grid](../../pilot/engine-checks.md#noise-grid) check. The task plays one setting per eval. `paranoid pilot noise-grid` plays the list, see [command](command.md#pilot-cells).
+- **The noise grid lives in `configs/grid.toml`** as `own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]`, **pilot to confirm** by the [noise grid](../../pilot/engine-checks.md#noise-grid) check. `load_grid()` reads it. The task plays one setting per eval. `paranoid run --own-scale grid` plays the list with a model and `paranoid pilot noise-grid` plays it with the baselines, see [command](command.md#run).
+- **Every grid setting must build.** `load_grid()` calls `scenario_config(name, own_scale=s)` for every scenario and setting and lets the engine's `ValueError` through, so a setting the ladder cannot hold fails when the file is read, not half way through a study.
+
+### Release
+
+A [release](../../glossary.md#seeds-and-secrecy) is one frozen set of generator defaults, noise grid and held-out seeds, see [generator](../../design/mechanics.md#generator).
+
+- **`configs/grid.toml` names it**, as `release = "dev"` beside the grid. It is `dev` until the first release is frozen, then a short name such as `r1`. The name matches `[a-z0-9-]+`, else `ValueError`.
+- **Every sample's metadata carries it**, see [dataset](#dataset). Held-out seeds are fresh each release and a log holds only a seed's position, so without the name two releases' held-out logs could not be told apart.
+- **The analysis never pools two releases.** `release` is a field of its `Setting`, see [runs](../analysis/runs.md#interface).
+- **The harness checks nothing else about a release.** What a release must freeze, and how two releases join, is [not decided](#not-decided).
 
 ### Seeds
 
@@ -94,6 +111,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 | `skin` | The skin name |
 | `engine_hash`, `generator_version`, `numpy_version` | From the engine, see [engine hash](../engine/config.md#engine-hash) |
 | `prompt_hash` | The skin's hash, from the skins layer, see [names from the skins layer](README.md#names-from-the-skins-layer) |
+| `release` | `load_grid().release`, see [release](#release) |
 | `harness_version` | The `paranoid` package version, with the short git SHA when run from a checkout, as `0.1.0+2f13c9a`. The two hashes do not cover the solver, so this is what says which round loop played |
 | `rounds`, `inertia`, `own_scale`, `tools`, `warm_up`, `rolling` | The knobs, as resolved. `rounds` is the config's final value |
 | `tool_choice` | `any` or `auto`. Written by the solver on round 1 into `state.metadata`, not by the dataset, so the analysis reads it without the store, see [each round](solver.md#each-round) |
@@ -119,7 +137,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 
 ### Warm up
 
-- **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name], timeline, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of the baselines layer's [`POLICIES`](../baselines/policies.md#policies), built at its defaults. `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
+- **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name](), timeline, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of the baselines layer's [`POLICIES`](../baselines/policies.md#policies). Every entry is a class, so it is called with no arguments to build the policy at its defaults. `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
 - **The agent then plays rounds `k + 1` to `rounds`.** Its round 1 user message shows `k` rows it did not place, see [user message](../../harness/prompts.md#user-message).
 - **Warm up rows score nothing** for the agent, and the baselines it is scored against are summed over the same rounds it played, see [scoring one run](scorer.md#scoring-one-run).
 - The warm up check is in [provider checks](../../pilot/provider-checks.md#warm-up).
@@ -135,6 +153,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 ## Not decided
 
 - Whether `seeds` should also take a held-out range, such as `held-out:0-4`, for a cheap check on the private set. Not needed for the pilot.
+- **What a release freezes beyond its name.** Whether the held-out seed file should name its release so a stale file fails to load, which models are the anchor models, and how the two-setting overlap between adjacent releases is checked, see [noise threshold](../../design/scoring.md#noise-threshold). Decide before the second release, as one release has nothing to join.
 
 ## Verify before code
 

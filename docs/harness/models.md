@@ -9,7 +9,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | Proof of concept | [`poc.toml`](../../configs/models/poc.toml) | Now. Cheap models, two held-out skins, enough to check the harness and the baseline order and to put a first number on [skin sensitivity](../design/scoring.md#spread) |
 | Full study | [`full.toml`](../../configs/models/full.toml) | When budget lands. The wider array for the headline |
 
-- **Only a row that reads the skin plays every skin.** LLM rows read the whole prompt and Jev reads the skin's question, so both play each skin. Timestral and the fixed baselines read numbers only, see [baselines](../design/baselines.md#timestral), so they play the first skin and no more, see the [command spec](../specs/harness/command.md#poc).
+- **Only a row that reads the skin plays every skin.** LLM rows read the whole prompt and Jev reads the skin's question, so both play each skin. Timestral and the fixed baselines read numbers only, see [baselines](../design/baselines.md#timestral), so they play the first skin and no more, see the [command spec](../specs/harness/command.md#run).
 
 ## Columns
 
@@ -32,10 +32,11 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 
 | Setting | Meaning |
 |---|---|
-| `off` | No thinking |
+| `off` | No thinking. The harness sends the provider's explicit off, never its default, see the [command spec](../specs/harness/command.md#reasoning) |
 | `low`, `medium`, `high`, `max` | Effort levels, mapped to the provider's own setting: `reasoning_effort` for OpenAI, `thinking_level` for Gemini, `effort` for Claude, `reasoning` for OpenRouter. Where a model only takes a token budget, the harness picks one per level |
 | `on` | Thinking the model won't let us change, such as DeepSeek R1 |
 
+- **A model that cannot turn thinking off does not list `off`.** Its row lists its lowest setting, or `on` when nothing can be set. Otherwise a model that thinks by default would play its `off` row with thinking on.
 - **`xhigh` is skipped** to keep the grid at five steps.
 - **Tool choice follows the reasoning setting on Anthropic.** With thinking on, Claude takes only `auto`, so the solver uses it there and `any` elsewhere, see [each round](../specs/harness/solver.md#each-round). The value is in every sample's metadata and in the result row's `Setting`, and the [tool choice](../pilot/provider-checks.md#tool-choice) check prices the difference.
 - **What a model keeps of its reasoning across turns is the provider's choice.** In the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) check every provider keeps the text and the tool calls, but whether the model reads its own earlier reasoning next turn varies by provider and model. So that check is read per model, and the row's `notes` says what its provider keeps.

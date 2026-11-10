@@ -19,8 +19,9 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HK9 | `warm_up="complacent:5"` played with `baseline/uniform`: the store has `warm_up_rounds == 5`, the first five rows equal `play(complacent, timeline, max_rounds=5)`, and the round 1 user message has six lines. `"complacent:0"`, `"complacent:40"` and `"nope:5"` raise `ValueError` | [task](task.md#warm-up) |
 | HK10 | Every sample's `prompt_hash` equals the skins layer's `prompt_hash(skin)`, and `harness_version` is a non-empty string | [task](task.md#dataset) |
 | HK11 | `RunStore` has no field whose type is an array or a `Timeline`, and no `seed` field, checked over `model_fields`. `store.timeline()` twice is the same object | [task](task.md#store) |
-| HK12 | `configs/grid.toml` loads to a list of positive floats that includes the default `own_scale` | [task](task.md#scenarios-and-config) |
+| HK12 | `load_grid()` on `configs/grid.toml` gives positive floats in `own_scale` that include the default, and `scenario_config(name, own_scale=s)` raises nothing for every scenario and every setting. A temp grid with a setting of 0 raises `ValueError` | [task](task.md#scenarios-and-config) |
 | HK13 | With `PARANOID_SKINS` pointing at a folder holding a clean four-name skin, `paranoid(skin=<its name>)` raises `ValueError` naming the skin and a scenario, before any sample is built | [task](task.md#task-settings) |
+| HK14 | Every sample's `release` equals `load_grid().release`, which is `dev` in this repo. A temp grid whose `release` is `R 1` raises `ValueError` | [task](task.md#release) |
 
 ## Solver
 
@@ -85,19 +86,21 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 |---|---|---|
 | HM1 | `load_models` on `configs/models/poc.toml` and `full.toml` raises nothing, and every row has a `kind`, a `reasoning_kind` and at least one `reasoning` value | [command](command.md#models-config) |
 | HM2 | Each validation clause raises `ValueError` naming the row: a bad `kind`, `baseline/x` with `kind = "llm"`, `reasoning = "xhigh"`, a provider row with `reasoning = "low"`, `reasoning_kind = "lots"`, a duplicate `id` and setting, `max_tokens = 0` | [command](command.md#models-config) |
-| HM3 | `generate_config` for `off`, `on` and `n/a` sets nothing. `high` sets `reasoning_effort="high"` for an `openai/` row and `reasoning_tokens=16384` for a row with `reasoning_kind = "budget"`. `max_tokens` from the row lands in the config. `temperature` and `cache_prompt` are never set | [command](command.md#reasoning) |
+| HM3 | `generate_config` for `on` and `n/a` sets nothing. `off` sets `reasoning_effort="none"` for an `openai/` row and `reasoning_tokens=0` for a row with `reasoning_kind = "budget"`, so on any `llm` row no two settings give equal configs. `high` sets `reasoning_effort="high"` for an `openai/` row and `reasoning_tokens=16384` for a row with `reasoning_kind = "budget"`. `max_tokens` from the row lands in the config. `temperature` and `cache_prompt` are never set | [command](command.md#reasoning) |
 | HM4 | `reasoning_kind` defaults to `effort` for `anthropic/x` and `budget` for `together/x`, and the file's column wins over the prefix | [command](command.md#models-config) |
-| HM5 | `main(["poc", "--dry-run"])` returns 0, prints one line per row and setting with provider rows first, and calls `eval` zero times | [command](command.md#poc) |
-| HM6 | `main(["poc", "--models", <a temp file with one baseline/uniform row>, "--limit", "2"])` runs one eval into a temp log dir whose log has two samples and the metadata keys | [command](command.md#poc) |
+| HM5 | `main(["run", "--dry-run"])` returns 0, prints one line per row and setting with provider rows first, and calls `eval` zero times | [command](command.md#run) |
+| HM6 | `main(["run", "--models", <a temp file with one baseline/uniform row>, "--limit", "2"])` runs one eval into a temp log dir whose log has two samples and the metadata keys | [command](command.md#run) |
 | HM7 | `main(["nope"])` returns 1 and prints the known subcommands. A fake entry point in `paranoid.commands` is listed and called | [command](command.md#subcommands) |
 | HM8 | `main(["pilot", "baseline-order", "--out", tmp])` with the seed count cut to 20 by a test hook writes a CSV with the columns in the table and one row per scenario and baseline | [command](command.md#pilot-cells) |
 | HM9 | Every engine-only pilot cell runs with the network blocked by a socket monkeypatch | [command](command.md#invariants) |
-| HM10 | `main(["poc", "--only", "baseline/uniform", "--dry-run"])` on a two-row file prints that row's line only | [command](command.md#poc) |
-| HM11 | Without the timestral extra, a models file with a `timestral/top-pick` row then a `baseline/uniform` row: `poc` prints one line saying the Timestral row is skipped, runs the baseline eval, and returns 0 | [command](command.md#poc) |
-| HM12 | A models file with an `llm` row whose `id` names a provider inspect cannot resolve, then a `baseline/uniform` row: `poc` runs the baseline eval anyway and returns 1 | [command](command.md#poc) |
-| HM13 | The log HM6 writes has `eval.metadata["reasoning"] == "n/a"` and `eval.metadata["kind"] == "baseline"` | [command](command.md#poc) |
-| HM14 | With `PARANOID_SKINS` at a temp folder holding `example.toml` copied to `a.toml` and `b.toml`, and a models file with a `baseline/uniform` row then an `llm` row: `main(["poc", "--skins", "a,b", "--dry-run"])` prints the baseline row once, on `a`, then the LLM row on `a` and on `b` in that order. Without `--dry-run` and with the baseline row alone, the one log's samples have `skin == "a"` | [command](command.md#poc) |
-| HM15 | `main(["poc", "--skins", "nope"])` and `main(["poc", "--skins", "example,example"])` each return 1, print the loaded names and `PARANOID_SKINS`, and call `eval` zero times | [command](command.md#poc) |
+| HM10 | `main(["run", "--only", "baseline/uniform", "--dry-run"])` on a two-row file prints that row's line only | [command](command.md#run) |
+| HM11 | Without the timestral extra, a models file with a `timestral/top-pick` row then a `baseline/uniform` row: `run` prints one line saying the Timestral row is skipped, runs the baseline eval, and returns 0 | [command](command.md#run) |
+| HM12 | A models file with an `llm` row whose `id` names a provider inspect cannot resolve, then a `baseline/uniform` row: `run` runs the baseline eval anyway and returns 1 | [command](command.md#run) |
+| HM13 | The log HM6 writes has `eval.metadata["reasoning"] == "n/a"` and `eval.metadata["kind"] == "baseline"` | [command](command.md#run) |
+| HM14 | With `PARANOID_SKINS` at a temp folder holding `example.toml` copied to `a.toml` and `b.toml`, and a models file with a `baseline/uniform` row then an `llm` row: `main(["run", "--skins", "a,b", "--dry-run"])` prints the baseline row once, on `a`, then the LLM row on `a` and on `b` in that order. Without `--dry-run` and with the baseline row alone, the one log's samples have `skin == "a"` | [command](command.md#run) |
+| HM15 | `main(["run", "--skins", "nope"])` and `main(["run", "--skins", "example,example"])` each return 1, print the loaded names and `PARANOID_SKINS`, and call `eval` zero times | [command](command.md#run) |
+| HM16 | With a temp grid of two settings, `main(["run", "--own-scale", "grid", "--dry-run"])` on a one-row file prints two eval calls, one per setting in file order, each with that `own_scale` in its task args. `--own-scale 6` prints one. `--own-scale 0` and `--own-scale lots` each return 1 and call `eval` zero times | [command](command.md#run) |
+| HM17 | The `up-against-down` cell, run on `mockllm/model` scripted to put 2 points on every channel but one, writes `up-against-down-bets.csv` with one row per run and exactly the columns in the table. `explore_points` is 18 on every row, `sleeper_round` equals `onset` wherever the run has a sleeper, and no column holds a list | [command](command.md#bets-csv) |
 
 ## Property tests
 

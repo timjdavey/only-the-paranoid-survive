@@ -13,8 +13,8 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Scaffold `src/paranoid/` as in [layout](docs/harness/layout.md), engine first, baselines second.
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before the proof of concept, as it plays held-out skins, see [contamination](docs/harness/contamination.md#who-can-see-them).
-- Pass the same two held-out skins to `paranoid poc --skins` on every proof of concept run, see [running](docs/harness/running.md#commands).
-- Before the proof of concept, run `paranoid poc --limit 2` on both skins and read `paranoid analyse cost`, so the budget rests on measured tokens and a cached share, see [cost per run](docs/pilot/provider-checks.md#cost-per-run).
+- Pass the same two held-out skins to `paranoid run --skins` on every proof of concept run, see [running](docs/harness/running.md#commands).
+- Before the proof of concept, run `paranoid run --limit 2` on both skins and read `paranoid analyse cost`, so the budget rests on measured tokens and a cached share, see [cost per run](docs/pilot/provider-checks.md#cost-per-run).
 - If Claude runs through a subscription, check its data terms, rate limit and cache reads first, see [keys](docs/harness/models.md#keys).
 - Run the three checks on cutting the record into content blocks before the pilot, as the prompt structure freezes after it, see the [solver spec](docs/specs/harness/solver.md#verify-before-code).
 - Put the canary GUID in `paranoid.skins.canary`, see [contamination](docs/harness/contamination.md#canary).

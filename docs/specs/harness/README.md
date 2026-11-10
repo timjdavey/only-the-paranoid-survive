@@ -6,11 +6,11 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 
 | Page | What it specifies |
 |---|---|
-| [task](task.md) | The `paranoid` task and its args, seeds and seed files, the dataset, sample metadata, `RunStore`, warm up, the noise grid |
+| [task](task.md) | The `paranoid` task and its args, seeds and seed files, the dataset, sample metadata, `RunStore`, warm up, the noise grid and the release name |
 | [solver](solver.md) | `round_loop`, the `submit` tool, the retry rule and giving up, tool choice, the `notes` and `compute` tools, the pilot's rolling conversation |
 | [providers](providers.md) | `StoreAPI` and the three providers, `baseline/`, `jev/` and `timestral/` |
 | [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share, tool use share |
-| [command](command.md) | `paranoid poc` and `paranoid pilot`, the models config, reasoning settings |
+| [command](command.md) | `paranoid run` and `paranoid pilot`, the models config, reasoning settings |
 | [tests](tests.md) | Every test the harness suite runs, with the page it checks |
 
 ## Exports
@@ -22,6 +22,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `paranoid` | The inspect `@task` | [task](task.md) |
 | `RunStore`, `StoredRow` | The `StoreModel` on every sample, and its row type | [task](task.md) |
 | `load_seeds`, `parse_seeds`, `scenario_config` | Seed files, the `seeds` arg, the config a sample plays | [task](task.md) |
+| `load_grid`, `Grid` | The noise grid and the release it belongs to, from `configs/grid.toml` | [task](task.md) |
 | `round_loop`, `tool_choice_for`, `record_blocks` | The round loop solver, the `any` or `auto` rule, and the cut of the record into content blocks for the prompt cache | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
@@ -39,7 +40,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
     src/paranoid/harness/
       __init__.py      the exports above, nothing else
       task.py          paranoid, scenario_config, the dataset
-      seeds.py         load_seeds, parse_seeds
+      seeds.py         load_seeds, parse_seeds, load_grid, Grid
       store.py         RunStore, StoredRow
       solver.py        round_loop, tool_choice_for, record_blocks
       tools.py         submit, notes, compute
@@ -52,7 +53,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
         jev.py         JevAPI, JevClient
         timestral.py   TimestralAPI, Forecaster, TIMESTRAL_POLICIES, over the baselines layer's FORECAST_RULES
       models.py        load_models, ModelRow, generate_config
-      cli.py           main, poc, pilot
+      cli.py           main, run, pilot
       pilot/           one module per pilot page, one function per cell
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.harness` only.
@@ -104,7 +105,7 @@ The analysis is the layer above. What it takes from the harness is listed on its
 | analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `scenario_config` and `load_seeds` for the one timeline it rebuilds |
 
 - **The analysis reads a log's scores and metadata, never its messages or store**, see [runs](../analysis/runs.md#privacy). So every number it reports is in `Score.value` or `Sample.metadata`, which is why the [scorer](scorer.md#scoring-one-run) puts the baselines' outputs there and the [task](task.md#dataset) puts every identifier in the metadata.
-- **`poc` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [poc](command.md#poc).
+- **`run` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [run](command.md#run).
 
 ## Conventions
 

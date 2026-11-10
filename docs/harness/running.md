@@ -16,7 +16,9 @@
 | One model, one scenario, a few seeds | `inspect eval paranoid -T scenario=down_switch -T seeds=0-4 --model anthropic/claude-haiku-5-5` |
 | A baseline | `inspect eval paranoid --model baseline/complacent` |
 | Smoke test with no model or Docker | `inspect eval paranoid --model mockllm/model -T tools=none --limit 2` |
-| The proof of concept list | `uv run paranoid poc --skins <a>,<b>`, which reads `configs/models/poc.toml` and plays the two held-out skins named, so it needs `PARANOID_SKINS`. Without `--skins` it plays the example skin |
+| The proof of concept list | `uv run paranoid run --skins <a>,<b>`, which reads `configs/models/poc.toml` and plays the two held-out skins named, so it needs `PARANOID_SKINS`. Without `--skins` it plays the example skin |
+| The full study | `uv run paranoid run --models configs/models/full.toml --skins <a>,<b> --seeds held-out --own-scale grid`, which plays every setting of the [noise grid](../pilot/engine-checks.md#noise-grid) in `configs/grid.toml`, see the [command spec](../specs/harness/command.md#run) |
+| One noise setting | Add `--own-scale 6` to `paranoid run`, or `-T own_scale=6` to `inspect eval paranoid` |
 | A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) |
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/`, see the [analysis command](../specs/analysis/command.md) |
@@ -26,7 +28,7 @@
 
 - **Task args:** `scenario`, `seeds`, `skin`, `rounds`, `tools` (`notes,compute` by default, or `none`, `notes`, `compute`), `tool_choice`, `inertia`, `warm_up`, `own_scale` and `rolling`, see the [task spec](../specs/harness/task.md). Defaults are the frozen study settings. `scenario` defaults to all eight, so one log holds a headline, see [inspect](inspect.md#metrics). `tool_choice` is picked from the model unless passed, see the [solver spec](../specs/harness/solver.md#each-round).
 - **`seeds`** takes `public`, `held-out`, or a range of positions in the public list such as `0-4`. `held-out` needs `PARANOID_SEEDS` set, see [contamination](contamination.md#two-seed-sets).
-- **Every log records** the engine hash, the prompt hash, the harness version, the skin name and the seed set in metadata. A held-out seed is recorded by position, never by value.
+- **Every log records** the engine hash, the prompt hash, the harness version, the [release](../glossary.md#seeds-and-secrecy), the skin name and the seed set in metadata. A held-out seed is recorded by position, never by value.
 
 ## Logs
 

@@ -85,7 +85,7 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 ## Invariants
 
 - `generate` on any provider returns exactly one tool call to `tools[0].name` and no text.
-- `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name], timeline)` on the same timeline and warm up.
+- `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name](), timeline)` on the same timeline and warm up.
 - A provider never writes to the store. Only the solver and the tools do.
 - A fake `JevClient` or `Forecaster` is enough to run a whole eval with no network.
 

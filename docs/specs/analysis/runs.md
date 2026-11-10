@@ -56,7 +56,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 | Usage | `input_tokens`, `cache_read_tokens`, `cache_write_tokens`, `output_tokens`, `reasoning_tokens`, `total_tokens`, summed over the sample's model calls | `sample.model_usage` |
 | State | `errored` | whether the sample has a score |
 
-- **`kind`** is `log.eval.metadata["kind"]`, which [`poc`](../harness/command.md#poc) writes. Without it, `baseline`, `jev` or `timestral` when the model string starts with that prefix and a slash, else `llm`.
+- **`kind`** is `log.eval.metadata["kind"]`, which [`run`](../harness/command.md#run) writes. Without it, `baseline`, `jev` or `timestral` when the model string starts with that prefix and a slash, else `llm`.
 - **`scenario`, `seed_index`, `seed`, `engine_hash`, `numpy_version`** come from `sample.metadata`. `seed` is the metadata's `seed` key for a public sample and NA for a held-out one, see [privacy](#privacy).
 - **`engine_hash` is per row, not per key.** It hashes the scenario's config, events included, so one result row has one hash per scenario, see [engine hash](../engine/config.md#engine-hash). `generator_version` is what the key carries, as it is the part of the hash every scenario shares.
 - **Cached tokens are counted apart.** `cache_read_tokens` and `cache_write_tokens` are inspect's `input_tokens_cache_read` and `input_tokens_cache_write`, 0 when a provider reports none. inspect leaves both out of `input_tokens`, so the three add up to what the model read, and a cost from `input_tokens` alone is too low, see [cost](tables.md#cost).
@@ -84,7 +84,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 
 `reasoning` is the [reasoning setting](../../harness/models.md#reasoning) the log played.
 
-- **From the log's metadata** when `log.eval.metadata` has `reasoning`, which [`poc`](../harness/command.md#poc) writes for every eval it runs.
+- **From the log's metadata** when `log.eval.metadata` has `reasoning`, which [`run`](../harness/command.md#run) writes for every eval it runs.
 - **Else read back from the generate config.** `reasoning_effort` set gives its name, with `xhigh` read as `max`. `reasoning_tokens` set gives the key of the [budget table](../harness/command.md#reasoning) whose value it equals, or `unknown` if none does. Nothing set gives `unknown`, as `off` and `on` look alike in a config.
 - **A provider row** is `n/a`, whatever the config says.
 - **`unknown` is a value**, not an error. It appears in the table as it is, so a log run by hand with `inspect eval` still loads.
