@@ -94,6 +94,19 @@ A switch comes in three kinds, see [events](../design/mechanics.md#events): the 
   - **Short seeds.** The Scout rule's moves on the Up switch seeds where the sleeper stops short, which is the price of moving on a near tie.
 - **Decide.** The sleeper share and the rise size in level points, so the three kinds put a comparable prize on offer. And whether a one-point explore bet reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited. And the short share of Up switch seeds, and the sleeper's end level on them, as a band between the runner-up and the leader, so that a looker sees a real move and the Scout rule does not move on a near tie.
 
+## Bayesian frontier
+
+Picks the Bayesian baseline's prior and rule, and says how much of the gap to the Discerning baseline no reader can close. The design is in [the Bayesian frontier](../design/baselines.md#the-bayesian-frontier) and the player in the [bayesian spec](../specs/baselines/bayesian.md).
+
+- **Question.** Which hazard and forecast rule make the best reader of the engine's family, and how far below the Discerning baseline the best one sits.
+- **Run.** Every `Bayesian(hazard, rule)` with `hazard` in `HAZARDS` and `rule` in `BAYESIAN_RULES`, 30 players, on 1000 public seeds of every scenario at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines on the same seeds.
+- **Measure.**
+  - Pooled scenario score per player and scenario, and each player's headline.
+  - The two planes: No change against Down switch, and No change against Up switch, one point per player, the hedge rule, Scout rule and Complacent baselines drawn in them, and the upper envelope.
+  - The best headline on seeds 0 to 499, and that player's headline and scenario scores on seeds 500 to 999, so the pick carries no lucky-draw bonus.
+  - Irreducible lag: one minus that player's Down switch score on seeds 500 to 999.
+- **Decide.** The `hazard` and `rule` of the best player become the Bayesian baseline's defaults. The irreducible lag is reported beside every Down switch bar. Whether the Bayesian baseline joins the scorer's marks is decided here too, see the [scorer](../specs/harness/scorer.md#not-decided). If no player beats the hedge rule on Down switch, the family is too narrow and `HAZARDS` or the rules widen, which is a spec change, not a knob.
+
 ## Baseline order
 
 - **Question.** Do the fixed baselines land in the order we expect.
@@ -104,4 +117,5 @@ A switch comes in three kinds, see [events](../design/mechanics.md#events): the 
   - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
   - **Switch then shock scenario:** as Down switch. The hedge rises in the shock, so the hedge rule holds the new best.
   - **Up switch then down switch scenario:** as Up switch. The Scout rule keeps scouting after a move, so it sees the sleeper fall and the leader hold.
+  - **The Bayesian baseline at its defaults:** report where it lands in every order above. On Down switch it should sit between the Discerning baseline and the hedge rule, as it reads the same evidence with a calibrated prior, and on No change at or near the Complacent baseline.
 - **Decide.** If the order breaks, the [noise](#noise-grid) is likely too high or a baseline is wrong. Fix it before any model runs. Where Timestral lands is a [provider check](provider-checks.md#timestral-checks).

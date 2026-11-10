@@ -34,6 +34,10 @@ _Not run yet._
 
 _Not run yet._
 
+## Bayesian frontier
+
+_Not run yet._
+
 ## Baseline order
 
 _Not run yet._

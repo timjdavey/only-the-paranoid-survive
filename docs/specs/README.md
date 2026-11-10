@@ -43,7 +43,7 @@ Every page has the same sections, in this order. A section with nothing to say i
 | Layer | Prefix | Pages |
 |---|---|---|
 | engine | `E` | `EC` config, `ET` timeline, `EG` game, `EV` view, `EH` property |
-| baselines | `B` | `BP` policies, `BR` rules, `BF` forecast, `BH` property |
+| baselines | `B` | `BP` policies, `BR` rules, `BF` forecast, `BB` bayesian, `BH` property |
 | skins | `K` | `KS` skin, `KR` render, `KL` lint, `KH` property |
 | harness | `H` | `HK` task, `HS` solver, `HR` providers, `HO` scorer, `HM` command, `HY` property |
 | analysis | `A` | `AR` runs, `AS` scores, `AT` tables, `AP` plots, `AI` pilot, `AM` command, `AY` property |

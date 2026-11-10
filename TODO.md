@@ -5,6 +5,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Run length, how many events a run holds, and the minimum gap between them.
 - Persistence, own-weather scale and shared-factor scale, per release.
 - The loading range and the base ladder ranges.
+- The Bayesian baseline's `hazard` and `rule`, from the [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
 
 ## Code
 - Write the engine from its [spec](docs/specs/engine/README.md), tests first, then the baselines from [theirs](docs/specs/baselines/README.md).

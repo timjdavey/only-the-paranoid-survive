@@ -94,6 +94,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `game-length` | No | The baselines at `rounds` of 30, 40 and 60 and `onset` ranges around the default, One shock, Down switch and the two-event scenarios | A CSV: scenario, rounds, onset, baseline, seed, output |
 | `reading-roughness` | No | `HedgeRule(explore=1,2,5)` and `ScoutRule(s=1,2,5)` over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |
 | `up-and-down` | No | Discerning, Complacent, hedge rule and Scout rule at `s` 1, 2, 5 on 1000 Down switch, Up switch and No change seeds | A CSV: scenario, kind of switch, baseline, seed, output, move round |
+| `bayesian-frontier` | No | Every `Bayesian(hazard, rule)` over `HAZARDS` × `BAYESIAN_RULES`, with `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule`, on 1000 seeds of every scenario | A CSV: scenario, baseline, hazard, rule, seed, output. Hazard and rule are blank on the five fixed baselines |
 | `baseline-order` | No | Every fixed baseline on every scenario, 1000 seeds | A CSV: scenario, baseline, pooled output, and a line per order that breaks |
 | `seeds` | Yes | One LLM row on One shock, twenty public seeds | An eval log |
 | `repeats` | Yes | Five of those seeds at `--epochs 4` | An eval log |

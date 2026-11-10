@@ -9,7 +9,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tim
 | [config](config.md) | `ScenarioConfig`, the event specs, the eight scenarios, proposed defaults, `engine_hash` |
 | [timeline](timeline.md) | `make_timeline`: seed streams, the ladder, weather, the shared factor, events, pinning, `Timeline` |
 | [game](game.md) | `Game`, `Record`, `Row`, `play`, bet validation |
-| [view](view.md) | `View`, `Start`, `Policy`, what a policy may see, and `split_budget` |
+| [view](view.md) | `View`, `Start`, `Dials`, `Policy`, what a policy may see and is handed, and `split_budget` |
 | [tests](tests.md) | Every test the engine suite runs, with the page it checks |
 
 ## Exports
@@ -26,7 +26,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tim
 | `Record`, `Row` | The agent's play so far | [game](game.md) |
 | `Bets` | `tuple[int, ...]`, one whole number per channel summing to the budget | [game](game.md) |
 | `play` | `(Policy, Timeline, ...) -> Record`, a whole run with no model | [game](game.md) |
-| `View`, `Policy`, `Start`, `split_budget` | What a policy sees and what it is, and the largest-remainder split | [view](view.md) |
+| `View`, `Policy`, `Start`, `Dials`, `split_budget` | What a policy sees, what it is handed, what it is, and the largest-remainder split | [view](view.md) |
 
 ## What the layers above read
 
@@ -34,7 +34,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 
 | Layer | Its list |
 |---|---|
-| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Policy`, `Bets`, `Timeline`, `Record` and `split_budget`, and `play`, `make_timeline` and `SCENARIOS` in its tests |
+| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Dials`, `Policy`, `Bets`, `Timeline`, `Record` and `split_budget`, and `play`, `make_timeline` and `SCENARIOS` in its tests |
 | skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_timeline` and `SCENARIOS` in its tests |
 | harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the timeline, the game, `Bets`, `play`, `Policy` and `split_budget` |
 | analysis | [Names from the engine](../analysis/README.md#names-from-the-engine): `make_timeline`, `Timeline` and `Event` for the switch kind a seed drew, `SwitchSpec` for the signal on the noise axis, and `SCENARIOS` to check the names a log claims |

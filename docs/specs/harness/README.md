@@ -78,8 +78,9 @@ The harness imports these from `paranoid.baselines`. Their behaviour is in the [
 
 | Name | What the harness uses it for |
 |---|---|
-| `POLICIES` | The six `baseline/<name>` names, for the baseline provider and warm up, see [baseline](providers.md#baseline) and [warm up](task.md#warm-up) |
+| `POLICIES` | The seven `baseline/<name>` names, for the baseline provider and warm up, see [baseline](providers.md#baseline) and [warm up](task.md#warm-up) |
 | `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule`, `HedgeRule`, `ScoutRule` | Every baseline's output in the score, and the pilot cells' sweeps, see [scoring one run](scorer.md#scoring-one-run) and [pilot cells](command.md#pilot-cells) |
+| `Bayesian`, `HAZARDS`, `BAYESIAN_RULES` | The Bayesian frontier cell, see [pilot cells](command.md#pilot-cells) |
 | `FORECAST_RULES`, `ForecastRule`, `QUANTILE_LEVELS` | Timestral's quantiles into bets, and the grid its forecast must be on, see [Timestral](providers.md#timestral) |
 
 ## Names from the skins layer

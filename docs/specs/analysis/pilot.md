@@ -30,6 +30,7 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 | Game length and switch round | `game-length` CSV | `discerning − complacent` in level points per `rounds` and `onset` | Gap against rounds after onset | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | Reading roughness | `reading-roughness` CSV | Pooled output per `read_noise_k` and explore bet size | Output against `k` per explore bet size | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
 | Up and down | `up-and-down` CSV | Pooled score and prize in level points per kind | Prize per kind | [Up and down](../../pilot/engine-checks.md#up-and-down) |
+| Bayesian frontier | `bayesian-frontier` CSV | Pooled scenario score and headline per player, the best headline on seeds 0 to 499 and that player's scores on 500 to 999, irreducible lag | The two planes with the envelope and the fixed baselines marked | [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier) |
 | Baseline order | `baseline-order` CSV | Pooled output per baseline, each order line with holds or breaks, a break in bold | None | [Baseline order](../../pilot/engine-checks.md#baseline-order) |
 | Jev checks | `jev` log | Shares over rounds | None | [Jev checks](../../pilot/provider-checks.md#jev-checks) |
 | Timestral checks | `timestral` CSV and logs | Each policy's pooled place against the hedge rule and Complacent marks | Spread against gap length | [Timestral checks](../../pilot/provider-checks.md#timestral-checks) |

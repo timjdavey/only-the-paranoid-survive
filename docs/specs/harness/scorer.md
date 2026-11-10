@@ -109,4 +109,5 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 
 ## Not decided
 
+- Whether `bayesian` joins the marks in `Score.value`, beside `hedge_rule` and `scout_rule`, once the [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier) has set its defaults. Until then the six baselines above are the marks, and the frontier's own CSV holds the Bayesian baseline's outputs.
 - `BOOTSTRAP_DRAWS` at 1000 is a convention, not a pilot knob. Raise it if the bars wobble between runs of the analysis at the seed counts the pilot picks. Decide once the pilot has set its seed count.

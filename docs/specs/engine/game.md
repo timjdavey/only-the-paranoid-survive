@@ -87,7 +87,7 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 ### `view`
 
-- **`game.view(peeks)`** builds the `View` for the round about to be played: `round`, `channels`, `budget`, `start` from the timeline's ladder, the game's record, and `timeline` when `peeks` is true, else `None`. See [view](view.md#view).
+- **`game.view(peeks)`** builds the `View` for the round about to be played: `round`, `channels`, `budget`, `start` from the timeline's ladder, `dials` from the nine fields of `timeline.config`, the game's record, and `timeline` when `peeks` is true, else `None`. See [view](view.md#view).
 - The baseline provider in the harness plays a [baselines layer](../baselines/README.md) policy round by round through the solver, so it calls `view` and `play` itself, see [baseline](../harness/providers.md#baseline). `play` below is the same loop with no solver.
 
 ### `play`

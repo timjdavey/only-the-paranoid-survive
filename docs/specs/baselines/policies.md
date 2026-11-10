@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The four fixed baselines with no parameters, and `POLICIES`, the mapping from the six `baseline/<name>` names in [fixed baselines](../../design/baselines.md#fixed-baselines) to the policy each plays. The harness wraps each in a provider so `--model baseline/complacent` plays like a model, see [baseline](../harness/providers.md#baseline), and the engine checks run them on thousands of timelines with no model, see [engine checks](../../pilot/engine-checks.md). The two baselines with parameters are on [rules](rules.md).
+The four fixed baselines with no parameters, and `POLICIES`, the mapping from the seven `baseline/<name>` names in [fixed baselines](../../design/baselines.md#fixed-baselines) to the policy each plays. The harness wraps each in a provider so `--model baseline/complacent` plays like a model, see [baseline](../harness/providers.md#baseline), and the engine checks run them on thousands of timelines with no model, see [engine checks](../../pilot/engine-checks.md). The baselines with parameters are on [rules](rules.md) and [bayesian](bayesian.md).
 
 ## Interface
 
@@ -19,11 +19,11 @@ class Perfect: ...                          # peeks: ClassVar[bool] = True
 uniform, discerning, complacent, perfect: Policy   # one instance of each
 
 POLICIES: Mapping[str, Callable[..., Policy]]
-# the six baseline/<name> names to the six classes, so POLICIES[name](**args) builds any baseline
+# the seven baseline/<name> names to the seven classes, so POLICIES[name](**args) builds any baseline
 ```
 
 - The four classes have no fields, so one instance of each is exported by name and the classes are not exported. `POLICIES` carries them, see [conventions](README.md#conventions).
-- `POLICIES` has exactly six keys, the names in the [glossary](../../glossary.md#the-study) after `baseline/`. Assigning to it raises `TypeError`.
+- `POLICIES` has exactly seven keys, the names in the [glossary](../../glossary.md#the-study) after `baseline/`. Assigning to it raises `TypeError`.
 
 ## Behaviour
 
@@ -42,8 +42,8 @@ POLICIES: Mapping[str, Callable[..., Policy]]
 
 ### `POLICIES`
 
-- **Every entry is a class.** `Uniform`, `Discerning`, `Complacent`, `Perfect`, `HedgeRule` and `ScoutRule`, under the glossary names. So the harness builds any baseline the same way, `POLICIES[name](**args)`, and never asks which kind of entry it holds.
-- **Built with no arguments, every entry equals its exported instance.** `POLICIES["hedge_rule"]() == hedge_rule` and `POLICIES["uniform"]() == uniform`.
+- **Every entry is a class.** `Uniform`, `Discerning`, `Complacent`, `Perfect`, `HedgeRule`, `ScoutRule` and `Bayesian`, under the glossary names. So the harness builds any baseline the same way, `POLICIES[name](**args)`, and never asks which kind of entry it holds.
+- **Built with no arguments, every entry equals its exported instance.** `POLICIES["hedge_rule"]() == hedge_rule`, `POLICIES["bayesian"]() == bayesian` and `POLICIES["uniform"]() == uniform`.
 - **Parameters come as strings.** inspect passes `-M explore=1` as `{"explore": "1"}`. The harness casts each value to the dataclass field's type and calls the class, see [baseline](../harness/providers.md#baseline). A field the class does not have raises `TypeError` from the dataclass, which is how a class with no fields rejects any argument at all. What the harness tells the user is its rule, not this layer's.
 - **Every entry is a `Policy`** once built, with `peeks` and `__call__`, see [conventions](README.md#conventions).
 

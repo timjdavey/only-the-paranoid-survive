@@ -14,6 +14,8 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Game length and switch round](engine-checks.md#game-length-and-switch-round) | | | |
 | [Reading roughness](engine-checks.md#reading-roughness) | | | |
 | [Baseline order](engine-checks.md#baseline-order) | | | |
+| [Bayesian frontier](engine-checks.md#bayesian-frontier), `hazard` and `rule` | | | |
+| [Bayesian frontier](engine-checks.md#bayesian-frontier), irreducible lag, and whether the Bayesian baseline joins the marks | | | |
 | Events per run and minimum gap | | | |
 | Switch size in level points on the noise grid | | | |
 | [Up and down](engine-checks.md#up-and-down), sleeper share, rise size in level points and the Scout rule's `n` | | | |

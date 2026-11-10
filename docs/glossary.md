@@ -22,6 +22,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Uniform baseline | The baseline that bets 10 on every channel, every round. The floor: a scenario score of 0. `baseline/uniform` in code |
 | Hedge rule baseline | A few points on the hedge, the rest on the leader. It switches when the leader falls and the hedge does not rise. The simplest player that reads the tell. `baseline/hedge_rule` in code |
 | Scout rule baseline | A few points on every channel but its pick, the rest on the pick. It moves when another channel's readings beat the pick's for a run of rounds and the hedge is not rising. The hedge rule that explores everywhere. `baseline/scout_rule` in code |
+| Bayesian baseline | A belief in the engine's family over each channel's base level, from its own readings only, through a forecast rule. The best a reader who knows how the world works could do, at one prior on how often it changes. A mark, never the yardstick. `baseline/bayesian` in code. See [bayesian](specs/baselines/bayesian.md) |
 | Timestral top pick | The Timestral baseline that puts 100 on the channel it forecasts highest. `timestral/top-pick` in code |
 | Timestral odds | The Timestral baseline that splits its bets by each channel's chance of being the best. `timestral/odds` in code |
 | Timestral top pick with explore bets | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/explore-1`, `explore-2` and `explore-5` in code |
@@ -44,6 +45,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Weather | The round-to-round wobble round a base level |
 | Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |
 | Persistence | How much of this round's weather carries into the next. At 0.8 a bad stretch is half gone after three rounds |
+| Dials | The release constants every policy is handed beside the ladder: the run length, the three weather dials, read noise and the ladder ranges. The same in every scenario, so they say nothing about events. `Dials` in code. See [view](specs/engine/view.md#view) |
 | Shared factor | One hidden series every channel loads on, so channels have good and bad weeks together |
 | Loading | How much a channel moves with the shared factor. Uneven across channels |
 | Hedge | The one channel with a negative loading. It rises when everything else falls |
@@ -118,6 +120,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | World spread | The part of spread from the seed |
 | Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Not measured until more than one skin runs |
 | Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
+| Bayesian frontier | The scenario scores of every Bayesian baseline in a pre-registered family of hazards and forecast rules, drawn as the No change score against the Down switch and Up switch scores. Its upper envelope is the best any reader of the engine's family did, and the Bayesian baseline's defaults are the point on it with the best headline. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
 | Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
 | Best-elicited row | A model's scores in the one pilot setting that moved them by more than the error bar: a scratchpad, a calculator or a kept conversation. Reported beside the bare headline, never in it. See [elicitation](pilot/provider-checks.md#elicitation) |
 

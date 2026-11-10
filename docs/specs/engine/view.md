@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The contract a policy is written to: `View`, what a policy may see this round, `Policy`, what a policy is, and `split_budget`, the one way weights become a valid split. The engine builds the view and plays whatever a policy returns. The strategies themselves live in the [baselines spec](../baselines/README.md), so a new baseline never touches the engine.
+The contract a policy is written to: `View`, what a policy may see this round, `Start` and `Dials`, what it is handed, `Policy`, what a policy is, and `split_budget`, the one way weights become a valid split. The engine builds the view and plays whatever a policy returns. The strategies themselves live in the [baselines spec](../baselines/README.md), so a new baseline never touches the engine.
 
 ## Interface
 
@@ -15,11 +15,24 @@ class Start:                                # the ladder on round 1. Handed to t
     field: tuple[int, ...]
 
 @dataclass(frozen=True)
+class Dials:                                # the release constants, copied from the config. Handed to the baselines, never to a model
+    rounds: int
+    own_scale: float
+    persistence: float
+    factor_scale: float
+    read_noise_k: float
+    leader_base: Range
+    runner_up_gap_points: Range
+    field_base: Range
+    hedge_base: Range                       # Range as on config.md
+
+@dataclass(frozen=True)
 class View:
     round: int                              # the round about to be played, from 1
     channels: int
     budget: int
     start: Start
+    dials: Dials
     record: Record                          # every round before this one
     timeline: Timeline | None               # the timeline for peeking policies, else None
 
@@ -39,7 +52,8 @@ def split_budget(weights: Sequence[float], budget: int) -> Bets
 ### View
 
 - **`start` is the ladder at round 1**: `timeline.leader`, `timeline.runner_up`, `timeline.hedge`, `timeline.field`. Every policy gets it, as the Complacent baseline is defined by the round 1 split and the hedge rule and Scout rule are reference players that read the tell, not learners. Handing them round 1 is the same gift the Complacent baseline gets, see [fixed baselines](../../design/baselines.md#fixed-baselines).
-- **No model gets `start`.** A model finds the leader in its first rounds and never learns which channel is the hedge. So the hedge rule and Scout rule curves are an upper bound on what a player that reads the tell could earn, and [baselines](../../design/baselines.md#fixed-baselines) says so.
+- **`dials` are the release constants**, the nine fields of the same names on `ScenarioConfig`, see [config](config.md#fields). They are the same in every scenario and none is an event spec, so handing them says how the world works and nothing about what will happen in it. The Bayesian baseline reads them for its weather and its priors, see [bayesian](../baselines/bayesian.md). Every policy gets them, as every policy gets `start`.
+- **No model gets `start` or `dials`.** A model finds the leader in its first rounds and never learns which channel is the hedge. So the hedge rule and Scout rule curves are an upper bound on what a player that reads the tell could earn, and [baselines](../../design/baselines.md#fixed-baselines) says so.
 - **`record`** is the agent's own play, so a policy that reads only the record sees only what it bet on, at the roughness its bets bought. Policies read it through `readings_of`, see [record](game.md#record).
 - **`timeline`** is set only when `peeks` is true. A policy with `peeks` false must work with `timeline = None` and must never read it. Players may read their own record, only the yardstick reads the timeline, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
 
@@ -50,6 +64,6 @@ Turns weights into a valid split by largest remainder. Shares are `weight / sum 
 ## Invariants
 
 - `game.view(peeks).timeline is game.timeline` when `peeks` is true, else `None`.
-- A view's `start` equals the timeline's ladder on every round.
+- A view's `start` equals the timeline's ladder on every round, and its `dials` equal the config's nine fields of the same names.
 - The timeline a view carries is read only. A policy that writes to it gets `ValueError`, see [timeline](timeline.md#interface).
 - `split_budget` returns `len(weights)` non-negative ints summing to `budget`, for any weights with a positive sum.

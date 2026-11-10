@@ -47,9 +47,9 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 
 | Id | Test | Page |
 |---|---|---|
-| HR1 | `get_model("baseline/<name>")` resolves for all six names. `baseline/nope` raises `ValueError` naming the six | [providers](providers.md#registration) |
+| HR1 | `get_model("baseline/<name>")` resolves for all seven names. `baseline/nope` raises `ValueError` naming the seven | [providers](providers.md#registration) |
 | HR2 | Every provider's `generate` returns one tool call to `tools[0].name` with a `bets` list and `content == ""`, its `id` is `<model name>-<round>`, and its usage is zero tokens. With `tools == []` it raises `RuntimeError` | [providers](providers.md#shared-behaviour) |
-| HR3 | A full eval of `baseline/<name>` on 5 seeds of Down switch, for each of the six, has rows equal to `play(policy, timeline)` | [providers](providers.md#baseline) |
+| HR3 | A full eval of `baseline/<name>` on 5 seeds of Down switch, for each of the seven, has rows equal to `play(policy, timeline)` | [providers](providers.md#baseline) |
 | HR4 | `baseline/hedge_rule` with `model_args={"explore": "1", "window": "4"}` builds `HedgeRule(explore=1, window=4)`, the strings cast. `{"nope": "1"}` and `baseline/uniform` with `{"explore": "1"}` raise `ValueError` | [providers](providers.md#baseline) |
 | HR5 | A fake async `JevClient` recording its calls: the state equals the system text, two newlines, the user text. The question and options are the skin's. Probabilities `[0.5, 0.5, 0, …]` give bets `[50, 50, 0, …]`, and `[0.004, 0.996, 0, …]` give `[0, 100, 0, …]`. Nine probabilities raise `ValueError` | [providers](providers.md#jev) |
 | HR6 | The Jev message's `metadata` holds `probabilities`, `confidence` and `raw` | [providers](providers.md#jev) |

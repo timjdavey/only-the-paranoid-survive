@@ -16,7 +16,7 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BP8 | Uniform output, **slow**: over 1000 No change seeds, pooled, equals the mean level over all channels and rounds within 0.1% | [policies](policies.md#the-four-fixed-baselines) |
 | BP9 | Every exported policy has a `peeks` bool that is not in `dataclasses.fields`, and is callable | [README](README.md#conventions) |
 | BP10 | `discerning` never moves on 50 short Up switch seeds. On 50 Up switch then down switch seeds it moves to the sleeper once and back to `start.leader` once, and ends on `start.leader` | [policies](policies.md#the-four-fixed-baselines) |
-| BP11 | `POLICIES` has exactly the six glossary keys, assigning to it raises `TypeError`, `POLICIES[name]()` equals the exported instance of the same name for all six, and `POLICIES["hedge_rule"](nope=1)` and `POLICIES["uniform"](explore=1)` raise `TypeError` | [policies](policies.md#policies) |
+| BP11 | `POLICIES` has exactly the seven glossary keys, assigning to it raises `TypeError`, `POLICIES[name]()` equals the exported instance of the same name for all seven, and `POLICIES["hedge_rule"](nope=1)` and `POLICIES["uniform"](explore=1)` raise `TypeError` | [policies](policies.md#policies) |
 | BP12 | In a subprocess that imports `paranoid.baselines` and nothing else, `sys.modules` holds no top-level package outside `paranoid`, numpy and the standard library | [README](README.md#modules) |
 
 ## Rules
@@ -42,6 +42,20 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BF3 | `odds` twice on one array gives equal splits, and the array is unchanged after | [forecast](forecast.md#invariants) |
 | BF4 | An all-`NaN` array, a one-dimensional array, an array with 20 columns, a row with one `NaN` among finite values and a finite row in descending order each raise `ValueError` from every rule. `TopPickWithExploreBets(12)` raises `ValueError` on ten channels | [forecast](forecast.md#the-rules) |
 
+## Bayesian
+
+| Id | Test | Page |
+|---|---|---|
+| BB1 | On a hand-built record of 20 rounds with `budget` on channel 0 and readings within 1 of 60: `belief(view).mean[0]` is within 1 of 60, and `changed[0]` is below the prior `1 − (1 − hazard)^19`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
+| BB2 | The same record with the readings 20 lower from round 15 on: `changed[0]` is above 0.9 on the view for round 18, and `mean[0]` is within 3 of 40 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
+| BB3 | A channel with no reading on any round of a 30 round record has `changed` equal to `1 − (1 − hazard)^29` within `1e-9`, and `mean` equal to its role's prior mean within `1e-6` | [bayesian](bayesian.md#the-belief) |
+| BB4 | `bayesian` called twice on one view gives equal splits and equal quantiles, every quantile row is finite and ascending, and the view's record is unchanged | [bayesian](bayesian.md#invariants) |
+| BB5 | `Bayesian(hazard=1e-9, rule="top-pick")` through `play` on 50 No change seeds gives a record equal to `play(complacent, timeline)` on every seed | [bayesian](bayesian.md#invariants) |
+| BB6 | `Bayesian(hazard=0.0)`, `Bayesian(hazard=1.0)`, `Bayesian(rule="nope")`, `Bayesian(draws=0)` and `Bayesian(lookahead_draws=0)` each raise `ValueError` on construction. `Bayesian(rule="explore-5")` with `budget` 40 and ten channels raises `ValueError` on its first view after round 1 | [bayesian](bayesian.md#rules) |
+| BB7 | `Bayesian(rule="lookahead")` on a hand-built record returns a split equal to one of the five forecast rules' splits on `belief(view).quantiles`, and on a view with `round == dials.rounds` returns the `top-pick` split | [bayesian](bayesian.md#rules) |
+| BB8 | `bayesian` through `play` on 50 Down switch seeds has output at least the Complacent baseline's on at least 40, and on 50 One shock seeds ends on `start.leader` on at least 35 | [bayesian](bayesian.md#the-family) |
+| BB9 | `HAZARDS` has five ascending values in `(0, 1)`, `BAYESIAN_RULES` is the five `FORECAST_RULES` ids then `"lookahead"`, and every `Bayesian(hazard, rule)` over both returns valid splits on every round of 5 seeds of every scenario, with `play` | [bayesian](bayesian.md#interface) |
+
 ## Property tests
 
 With `hypothesis`, kept fast with a small example count.
@@ -50,6 +64,7 @@ With `hypothesis`, kept fast with a small example count.
 |---|---|
 | BH1 | For any public seed and scenario, every entry in `POLICIES` at its defaults returns valid splits on every round through `play` |
 | BH2 | For any `(channels, 21)` array of ascending rows with at least one finite row, every rule in `FORECAST_RULES` returns a valid split |
+| BH3 | For any public seed, scenario and record of valid rows on its timeline, `bayesian.belief(view).quantiles` has shape `(channels, 21)`, is finite and ascending along the last axis, and `changed` lies in `[0, 1]` |
 
 ## Pilot decides
 
@@ -57,4 +72,4 @@ With `hypothesis`, kept fast with a small example count.
 
 ## Not decided
 
-- The tolerances in BR2, BR6 and BR8 are first guesses. Tighten them once the suite runs.
+- The tolerances in BR2, BR6, BR8 and BB8 are first guesses. Tighten them once the suite runs.

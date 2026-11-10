@@ -87,6 +87,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 |---|---|---|
 | EV1 | `split_budget`: `[1] × 10` gives ten 10s. `[1, 1, 1]` with 100 gives `(34, 33, 33)`. All zeros and a negative raise `ValueError` | [view](view.md#split_budget) |
 | EV2 | A policy that tries to write to `view.timeline.levels` raises `ValueError` | [view](view.md#invariants) |
+| EV3 | On every round of 20 seeds of every scenario, `view.dials` equals the nine fields of the same names on the timeline's config, and `Dials` has no other field | [view](view.md#view) |
 
 - EP1 to EP18 moved to the baselines suite with the policies, see [baselines tests](../baselines/tests.md). The letter stays retired so no reference goes stale.
 
