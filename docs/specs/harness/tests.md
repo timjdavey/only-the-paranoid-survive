@@ -2,7 +2,7 @@
 
 Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the harness, then the page's letter, see [test ids](../README.md#rules). They need no key and no network: LLM calls go through `mockllm/model` with scripted outputs, baselines through the baseline provider, and Jev and Timestral through fakes. The forecast rules themselves are tested in the [baselines suite](../baselines/tests.md#forecast). Tests marked **sandbox** need Docker and tests marked **timestral** need the extra. Both are skipped by default, run with `-m sandbox` or `-m timestral`. The skins layer's `example` skin is the skin throughout, bar HM14, which copies it under two more names. Every `mockllm` test passes `tools="none"` unless marked **sandbox**, so the suite needs no Docker.
 
-- **One test-only switch.** `PARANOID_PILOT_SEEDS` caps the seed count a pilot cell runs, for HM8. It is the only test hook in the harness. Keep it that way.
+- **One test-only switch.** `PARANOID_PILOT_SEEDS` caps the seed count a pilot cell runs, for the pilot tests below. It is the only test hook in the harness. Keep it that way.
 
 ## Task
 
@@ -11,7 +11,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HK1 | `paranoid()` at the defaults has `8 × len(public seeds)` samples, ids `<scenario>/<position>` in `SCENARIOS` order then file order, and every metadata key in the dataset table | [task](task.md#dataset) |
 | HK2 | `scenario="one_shock,down_switch"` gives two scenarios' samples. `scenario="nope"` raises `ValueError` naming it | [task](task.md#scenarios-and-config) |
 | HK3 | `scenario_config("one_shock", rounds=20)` has `rounds == 20` and a different hash from `SCENARIOS["one_shock"]`. `own_scale=2.0` sets `pin_in_level_points` and `inertia=10` sets `inertia_cap`. Each sample's `engine_hash` equals the hash of its resolved config | [task](task.md#scenarios-and-config) |
-| HK4 | `parse_seeds("0-4")` returns positions 0 to 4 with the file's seeds. `"3"` returns one. `"4-2"`, a position past the end, and `"held-out"` with `PARANOID_SEEDS` unset raise `ValueError`, the last naming the variable | [task](task.md#seeds) |
+| HK4 | `parse_seeds("0-4")` returns positions 0 to 4 with the file's seeds. `"3"` returns one. `"0-1,4"` returns three in position order. `"4-2"`, `"1,1"`, a position past the end, and `"held-out"` with `PARANOID_SEEDS` unset raise `ValueError`, the last naming the variable | [task](task.md#seeds) |
 | HK5 | A seed file with a comment, a blank line and a repeated seed: the first two are skipped, the third raises `ValueError` | [task](task.md#seeds) |
 | HK6 | `PARANOID_SEEDS` pointing at a temp folder with a `held-out.txt`: `seeds="held-out"` reads it, metadata has `seed_set == "held-out"` and the right `seed_index` and no `seed` key, and the seed value appears nowhere in the log. Every scenario's sample at position `i` plays the same seed | [task](task.md#seeds) |
 | HK7 | `skin="nope"` raises `ValueError` listing `example`. `tools="laser"` and `tool_choice="laser"` each raise `ValueError`. `scenario="../x"` raises before any path is built | [task](task.md#task-settings) |
@@ -69,7 +69,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 |---|---|---|
 | HO1 | `baseline/uniform` on 5 seeds of every scenario scores `gain == 0`, and `baseline/discerning` scores `gain == gap`, exactly | [scorer](scorer.md#invariants) |
 | HO2 | A run with `warm_up="complacent:5"`: `output` sums rows 6 on, `rounds == 35`, and every baseline value equals `play(policy, timeline, record=warm_up)` summed over the same rows | [scorer](scorer.md#scoring-one-run) |
-| HO3 | `Score.value` has every key in the table, `retries == sum(tries) − len(tries)`, `gave_up == 0` and `run_score == gain / gap` | [scorer](scorer.md#scoring-one-run) |
+| HO3 | `Score.value` has every key in the table, `retries == sum(tries) − len(tries)`, `gave_up == 0` and `run_score == gain / gap`. On a `baseline/uniform` run of Down switch `explore_points == 90`, `sleeper_round` is the switch's onset on a seed whose `kind` is `fall_and_rise` and empty on a `fall` seed, and `notes_rounds == compute_rounds == 0` | [scorer](scorer.md#scoring-one-run) |
 | HO4 | `pooled_score([880, 220], [1100, 550])` is `0.6666…` and not `0.6`. Empty input and a zero gap sum raise `ValueError` | [scorer](scorer.md#pooling) |
 | HO5 | `bootstrap` with one seed returns `(score, score)`. Twice with the default rng gives equal bars. With 100 seeds of gains drawn around 0.7 the bar contains 0.7 | [scorer](scorer.md#pooling) |
 | HO6 | `scenario_score` on hand-built `SampleScore`s for two scenarios returns the pooled score, `lo ≤ score ≤ hi`, `n` and `failed == 0` for each | [scorer](scorer.md#scenario-score) |
@@ -92,8 +92,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HM5 | `main(["run", "--dry-run"])` returns 0, prints one line per row and setting with provider rows first, and calls `eval` zero times | [command](command.md#run) |
 | HM6 | `main(["run", "--models", <a temp file with one baseline/uniform row>, "--limit", "2"])` runs one eval into a temp log dir whose log has two samples and the metadata keys | [command](command.md#run) |
 | HM7 | `main(["nope"])` returns 1 and prints the known subcommands. A fake entry point in `paranoid.commands` is listed and called | [command](command.md#subcommands) |
-| HM8 | `main(["pilot", "baseline-order", "--out", tmp])` with the seed count cut to 20 by a test hook writes a CSV with the columns in the table and one row per scenario and baseline | [command](command.md#pilot-cells) |
-| HM9 | Every engine-only pilot cell runs with the network blocked by a socket monkeypatch | [command](command.md#invariants) |
+| HM8 | `main(["pilot", "baseline-order", "--out", tmp, "--seeds", "5"])` calls `run_cell` with a `CellArgs` holding those values and returns 0. `main(["pilot", "nope"])` returns 1 and prints the twenty names | [command](command.md#pilot) |
 | HM10 | `main(["run", "--only", "baseline/uniform", "--dry-run"])` on a two-row file prints that row's line only | [command](command.md#run) |
 | HM11 | Without the timestral extra, a models file with a `timestral/top-pick` row then a `baseline/uniform` row: `run` prints one line saying the Timestral row is skipped, runs the baseline eval, and returns 0 | [command](command.md#run) |
 | HM12 | A models file with an `llm` row whose `id` names a provider inspect cannot resolve, then a `baseline/uniform` row: `run` runs the baseline eval anyway and returns 1 | [command](command.md#run) |
@@ -101,7 +100,22 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HM14 | With `PARANOID_SKINS` at a temp folder holding `example.toml` copied to `a.toml` and `b.toml`, and a models file with a `baseline/uniform` row then an `llm` row: `main(["run", "--skins", "a,b", "--dry-run"])` prints the baseline row once, on `a`, then the LLM row on `a` and on `b` in that order. Without `--dry-run` and with the baseline row alone, the one log's samples have `skin == "a"` | [command](command.md#run) |
 | HM15 | `main(["run", "--skins", "nope"])` and `main(["run", "--skins", "example,example"])` each return 1, print the loaded names and `PARANOID_SKINS`, and call `eval` zero times | [command](command.md#run) |
 | HM16 | With a temp grid of two settings, `main(["run", "--own-scale", "grid", "--dry-run"])` on a one-row file prints two eval calls, one per setting in file order, each with that `own_scale` in its task args. `--own-scale 6` prints one. `--own-scale 0` and `--own-scale lots` each return 1 and call `eval` zero times | [command](command.md#run) |
-| HM17 | The `up-against-down` cell, run on `mockllm/model` scripted to put 2 points on every channel but one, writes `up-against-down-bets.csv` with one row per run and exactly the columns in the table. `explore_points` is 18 on every row, `sleeper_round` equals `onset` wherever the run has a sleeper, and no column holds a list | [command](command.md#bets-csv) |
+
+## Pilot
+
+Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture seeds are positions 0 to 4.
+
+| Id | Test | Page |
+|---|---|---|
+| HP1 | Each engine cell writes its CSV with exactly the columns in its Writes line, in order, and one row per seed per setting per scenario per baseline as its Runs line says. `timeline-sanity` also writes the sparklines file with one row per scenario and round. The network is blocked by a socket monkeypatch throughout | [pilot](pilot.md#engine-cells) |
+| HP2 | `CELLS` has the twenty names in page order. `run_cell("nope", args)` raises `ValueError` listing them | [pilot](pilot.md#invariants) |
+| HP3 | `seeds=20` against a public seed file of ten raises `ValueError` naming `PARANOID_PILOT_SEEDS` | [pilot](pilot.md#shared-rules) |
+| HP4 | In `baseline-order.csv`, `kind` on every Down switch row equals the word `make_timeline` gives by hand, `discerning`'s `move_round` equals the switch's onset on every Down switch seed and is `0` on every No change seed, and `complacent`'s `move_round` is `0` everywhere | [pilot](pilot.md#words-the-columns-use) |
+| HP5 | `seeds` with a models file whose one `llm` row is `mockllm/model` writes one log under `out/seeds/` with twenty `one_shock` and twenty `up_switch` samples and `reasoning` and `kind` in the eval metadata. `repeats` then writes a log under `out/repeats/` with ten sample ids of one scenario at four epochs each and prints the row, the scenario and the ten positions. `repeats` with no `seeds` log raises `ValueError` naming `seeds` | [pilot](pilot.md#provider-cells) |
+| HP6 | `recognition` with `mockllm/model` scripted to three replies, one holding a banned word and one the GUID, writes a CSV with the six columns and three rows per model and skin, `lint_hits` of 1 on the first, `canary_finished` of 1 on the canary row only, and the GUID appears in no message the fake received | [pilot](pilot.md#recognition) |
+| HP7 | `jev` with a fake client that answers `[0.004, 0.996, 0, …]` on round 3 writes a log and a `jev.csv` whose round 3 rows have `rounded_out` 1 and every other row 0 | [pilot](pilot.md#jev) |
+| HP8 | `timestral` with a fake forecaster writes `timestral.csv` with thirty `gap` rows per channel, `spread` non-decreasing in `gap` when the fake widens with the gap, and one `determinism` row with `equal` 1 | [pilot](pilot.md#timestral) |
+| HP9 | `dry_run=True` on every cell writes nothing under `out` and prints one line per eval call or CSV | [pilot](pilot.md#shared-rules) |
 
 ## Property tests
 

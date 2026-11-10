@@ -52,11 +52,14 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 | `gave_up` | 1 when the run gave up, else 0 |
 | `bad_calls`, `no_calls`, `cut_offs`, `notes_rounds`, `compute_rounds` | From the store |
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
+| `explore_points` | The mean of `budget − max(bets)` over the agent's rounds before the first event's `onset`, or over every agent round when the config has no events. Empty when the agent played no such round. Exploring when nothing is wrong, see [up against down](../../pilot/provider-checks.md#up-against-down) |
+| `sleeper_round` | The first agent round at or after the onset of the event that made `timeline.sleeper` with at least 1 point on it. `0` when it never happens, empty when `timeline.sleeper` is `None` |
 
 - **The baselines replay the agent's warm up.** `play(policy, timeline, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
-- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](command.md#pilot-cells). The score needs them whatever the agent's config, so `gain` plays them against a timeline made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_timeline` never reads the cap, see [config](../engine/config.md#fields).
+- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](pilot.md#shared-rules). The score needs them whatever the agent's config, so `gain` plays them against a timeline made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_timeline` never reads the cap, see [config](../engine/config.md#fields).
 - **Every number comes from the record's rounded outputs**, never from the ground truth, see [readings](../engine/game.md#readings). The agent and the scorer agree on every number.
 - **The baselines are deterministic**, so across epochs they are constant and the mean reducer leaves them alone.
+- **The pilot's two keys cost nothing new.** `explore_points` and `sleeper_round` read the timeline the scorer already holds for the baselines. They are in `Score.value` because the analysis reads scores and never the store or a message, see [privacy](../analysis/runs.md#privacy).
 - **The scorer never reads the messages.** The store is the run.
 
 ### Pooling

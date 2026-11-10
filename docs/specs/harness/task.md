@@ -10,7 +10,7 @@
 @task
 def paranoid(
     scenario: str = "all",            # a code name, a comma list of them, or "all"
-    seeds: str = "public",            # "public", "held-out", or a range of positions such as "0-4"
+    seeds: str = "public",            # "public", "held-out", or positions such as "0-4" or "0-4,7,9"
     skin: str = "example",
     rounds: int | None = None,        # overrides ScenarioConfig.rounds
     tools: str = "notes,compute",     # the headline setting, or "none", "notes", "compute"
@@ -77,7 +77,7 @@ def load_grid() -> Grid               # configs/grid.toml
   - `inertia` replaces `inertia_cap`.
   - `own_scale` replaces `own_scale` and sets `pin_in_level_points` to true, so the prize holds while the noise moves, see [noise threshold](../../design/scoring.md#noise-threshold).
 - **The `engine_hash` in the log is of the replaced config**, so a run at `rounds=20` never shares a hash with the frozen study setting.
-- **The noise grid lives in `configs/grid.toml`** as `own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]`, **pilot to confirm** by the [noise grid](../../pilot/engine-checks.md#noise-grid) check. `load_grid()` reads it. The task plays one setting per eval. `paranoid run --own-scale grid` plays the list with a model and `paranoid pilot noise-grid` plays it with the baselines, see [command](command.md#run).
+- **The noise grid lives in `configs/grid.toml`** as `own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]`, **pilot to confirm** by the [noise grid](../../pilot/engine-checks.md#noise-grid) check. `load_grid()` reads it. The task plays one setting per eval. `paranoid run --own-scale grid` plays the list with a model, see [command](command.md#run), and `paranoid pilot noise-grid` plays it with the baselines, see [pilot](pilot.md#noise-grid).
 - **Every grid setting must build.** `load_grid()` calls `scenario_config(name, own_scale=s)` for every scenario and setting and lets the engine's `ValueError` through, so a setting the ladder cannot hold fails when the file is read, not half way through a study.
 
 ### Release
@@ -94,7 +94,7 @@ A [release](../../glossary.md#seeds-and-secrecy) is one frozen set of generator 
 - **One list, every scenario.** There are two seed files, and every scenario plays the same one. Seed *i* is position *i* in all eight scenarios, so twin timelines line up in one log by construction, see [seeds](../../design/scoring.md#seeds). A scenario never has a list of its own.
 - **Seed files** hold one seed per line, as a whole number. Blank lines and lines starting with `#` are skipped. A repeated seed raises `ValueError`.
 - **Public seeds** are read from `configs/seeds/public.txt`. **Held-out seeds** from `$PARANOID_SEEDS/held-out.txt`. `held-out` with `PARANOID_SEEDS` unset raises `ValueError` that names the variable, see [two seed sets](../../harness/contamination.md#two-seed-sets).
-- **`parse_seeds`** returns `(position, seed)` pairs in file order. `"public"` and `"held-out"` give the whole list. A range `"a-b"` gives positions `a` to `b` inclusive of the public list, and `"a"` is `"a-a"`. A position past the end of the list, or `b < a`, raises `ValueError`.
+- **`parse_seeds`** returns `(position, seed)` pairs in file order. `"public"` and `"held-out"` give the whole list. A range `"a-b"` gives positions `a` to `b` inclusive of the public list, and `"a"` is `"a-a"`. A comma list such as `"0-4,7,9"` is the union of its parts, in position order. A position past the end of the list, `b < a`, or a position named twice raises `ValueError`. The pilot's `repeats` cell is why a list is allowed, see [pilot](pilot.md#repeats).
 - **A position is not a seed value.** Public seeds are 0 up and usually equal their position, but the harness never assumes it. The analysis reports held-out seeds by position, see [layout](../../harness/layout.md#what-each-layer-does).
 
 ### Dataset

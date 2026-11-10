@@ -2,14 +2,14 @@
 
 ## Purpose
 
-`paranoid` is the console script. `paranoid run` plays every row of a models config through the task, at one noise setting or over the noise grid. The proof of concept and the full study are both this command, with a different models file. `paranoid pilot <check>` runs one pilot cell, with no model where the check needs none. The models config and the reasoning mapping live here, as the command is what reads them. `paranoid analyse` belongs to the analysis layer and plugs in, see [subcommands](#subcommands) and the [analysis command](../analysis/command.md). The design is in [running](../../harness/running.md#commands) and [models](../../harness/models.md).
+`paranoid` is the console script. `paranoid run` plays every row of a models config through the task, at one noise setting or over the noise grid. The proof of concept and the full study are both this command, with a different models file. `paranoid pilot <check>` runs one pilot cell, with no model where the check needs none, see [pilot](pilot.md). The models config and the reasoning mapping live here, as the command is what reads them. `paranoid analyse` belongs to the analysis layer and plugs in, see [subcommands](#subcommands) and the [analysis command](../analysis/command.md). The design is in [running](../../harness/running.md#commands) and [models](../../harness/models.md).
 
 ## Interface
 
 ```
 paranoid run   [--models configs/models/poc.toml] [--skins example] [--seeds public]
                [--own-scale <value>|grid] [--limit N] [--log-dir logs/] [--only <id>] [--dry-run]
-paranoid pilot <check> [--out logs/pilot/] [--models configs/models/poc.toml] [--dry-run]
+paranoid pilot <check> [--out logs/pilot/] [--models configs/models/poc.toml] [--only <id>] [--seeds N] [--dry-run]
 paranoid analyse ...    registered by the analysis layer, see the analysis command page
 ```
 
@@ -88,72 +88,20 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 - **Logs** go to `--log-dir`, named by inspect, one per eval and so one per skin. Each holds the metadata in [dataset](task.md#dataset), so the analysis layer can tell them apart without the config. A log from a held-out skin never leaves the machine, see [contamination](../../harness/contamination.md#public-and-held-out).
 - **The log carries its setting.** `metadata` on the eval puts `reasoning` and `kind` in `EvalLog.eval.metadata`, as neither is in a sample's metadata, and `on` sets nothing a generate config would show. The analysis reads them first and falls back to the config, see [reasoning](../analysis/runs.md#reasoning).
 
-### Pilot cells
+### `pilot`
 
-`paranoid pilot <check>` runs one cell. Each is a function in the `pilot/` package, one module per pilot page, named below. Measures and decisions are on the pilot pages, the function writes the data they need.
-
-| Check | Needs a model | What it runs | Writes |
-|---|---|---|---|
-| `streaks` | No | Timelines over a grid of `persistence`, 1000 seeds each, the No change and Down switch scenarios | A CSV: setting, seed, longest run of rounds the leader reads below the runner-up by chance, and the round the Scout rule moves |
-| `tell` | No | Timelines over a grid of `factor_scale`, One shock, Down switch and No change, 1000 seeds, with `hedge_rule`. Then at the default scale, `HedgeRule` over a small grid of `window`, `fall_points` and `tell_points` | A CSV: setting, baseline parameters, seed, hedge move at the trough, and the hedge rule's hold or move |
-| `luck` | No | `perfect` minus `discerning` on every scenario at every grid setting | A CSV: scenario, setting, seed, gap |
-| `timeline-sanity` | No | [BP14](../baselines/tests.md#policies) and [BP7](../baselines/tests.md#policies) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
-| `noise-grid` | No | Every fixed baseline on One shock, Down switch and Up switch at every setting in `configs/grid.toml`, 1000 seeds | A CSV: scenario, setting, baseline, seed, output |
-| `game-length` | No | The baselines at `rounds` of 30, 40 and 60 and `onset` ranges around the default, One shock, Down switch, Slow drift and the two-event scenarios | A CSV: scenario, rounds, onset, baseline, seed, output, move round, and the round the last event ends, see [rounds to spare](../../pilot/engine-checks.md#game-length-and-switch-round) |
-| `reading-roughness` | No | `HedgeRule(explore=1,2,5)` at `scout_rounds` of 1, 2 and 3, and `ScoutRule(s=1,2,5)`, over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |
-| `up-and-down` | No | Discerning, Complacent, hedge rule and Scout rule at `s` 1, 2, 5 on 1000 Down switch, Up switch and No change seeds | A CSV: scenario, kind of switch, baseline, seed, output, move round |
-| `bayesian-frontier` | No | Every `Bayesian(hazard, rule)` over `HAZARDS` × `BAYESIAN_RULES`, with `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule`, on 1000 seeds of every scenario | A CSV: scenario, baseline, hazard, rule, seed, output. Hazard and rule are blank on the five fixed baselines |
-| `baseline-order` | No | Every fixed baseline on every scenario, 1000 seeds | A CSV: scenario, baseline, pooled output, and a line per order that breaks |
-| `seeds` | Yes | Every LLM row on One shock and Up switch, twenty public seeds | An eval log per row |
-| `repeats` | Yes | The row and scenario with the widest SD of `run_score` in the `seeds` logs, ten of its seeds picked across the range of its run scores, at `--epochs 4` | An eval log |
-| `recognition` | Yes | A fresh call per model and skin with the round 1 and round 20 prompts, then the cut canary, see [recognition](../../pilot/provider-checks.md#recognition) | A CSV: model, skin, reply, lint hits, canary finished |
-| `up-against-down` | Yes | One LLM row on Down switch, Up switch, Up switch then down switch and Switch then shock, the `seeds` seeds | An eval log, and a [bets CSV](#bets-csv) |
-| `jev` | Yes | `jev/jev-latest` on No change and Down switch | An eval log, and a [bets CSV](#bets-csv) |
-| `timestral` | Yes | The gap test on a hand-built record, determinism twice on one input, then every `timestral/` row at every grid setting | A CSV for the gap test and determinism, eval logs, and a [bets CSV](#bets-csv) |
-| `bare` | Yes | Every LLM row with `tools` at `notes,compute`, `notes`, `compute` and `none` on One shock and Down switch, the `seeds` seeds | Four eval logs per row |
-| `tool-choice` | Yes | Every LLM row whose `tool_choice_for` is `any`, at `tool_choice` `any` and `auto`, on One shock and Down switch, the `seeds` seeds | Two eval logs per row |
-| `rolling` | Yes | Every LLM row on No change, One shock and Down switch, with `rolling` off and on | Two eval logs per row |
-| `warm-up` | Yes | Every LLM row on No change and Down switch, with `warm_up` unset and at `complacent:5` | Two eval logs per row |
-
-- **Every CSV has one row per seed, never a timeline.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
-- **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one. The `seeds`, `bare`, `tool-choice`, `rolling` and `warm-up` cells take every `llm` row, as their checks ask, and `--only` narrows them. The `repeats` cell reads the `seeds` logs in `--out` to pick its row, and fails with one line naming the `seeds` cell when there are none.
-- **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
-- **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.
-- **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`.
-
-### Bets CSV
-
-Three checks measure how a model placed its bets, which a score cannot say and the analysis may not read from a message, see the analysis layer's [invariants](../analysis/README.md#invariants). So the cell that ran the eval writes the counts itself.
-
-- **`<cell>-bets.csv`**, beside the cell's logs, one row per run. The cell reads each sample's `RunStore` from the log its own eval returned, rebuilds the timeline for the event rounds, and counts.
-- **Columns.** `model`, `reasoning`, `skin`, `scenario`, `seed_index`, then:
-
-| Column | What it counts |
-|---|---|
-| `onset` | The first event's onset round, blank in No change |
-| `sleeper_round` | The first round at or after onset with a bet above 0 on the sleeper, blank when there is no sleeper or no such round |
-| `explore_points_before` | Mean points per round off the channel with the largest bet, over the rounds before onset, or over every round in No change |
-| `explore_points` | The same over every round the agent played |
-| `zero_rounds` | Channel rounds where a bet of 0 followed a bet above 0 on the same channel, so a channel fell out of view |
-| `rounds` | The rounds the agent played, so each count can be turned into a share |
-
-- **One row per run, never a round.** The file holds counts and one onset round, no bet, no reading and no level, so it is as publishable as the cell's other CSVs. The pilot runs on public seeds.
-- **Only these three cells write one.** The headline logs and the score value do not change for the pilot's sake, see [scoring one run](scorer.md#scoring-one-run).
+- **`paranoid pilot <check>`** builds a `CellArgs` from the options, with `seeds` capped by `PARANOID_PILOT_SEEDS` when set, and calls `run_cell(check, args)`, see [pilot](pilot.md#interface). It prints each path the cell wrote.
+- **An unknown check** raises `ValueError` listing the names in `CELLS`, so `main` prints them and returns 1.
+- **What each cell runs and writes** is on the [pilot](pilot.md) page, one section per cell. Nothing about a cell lives here.
 
 ## Invariants
 
 - `load_models` on both files in `configs/models/` raises nothing.
 - `generate_config` never sets `temperature` or `cache_prompt`.
 - `generate_config` sets something for every setting but `on` and `n/a`, so no two settings of one row send the same config.
-- `paranoid run --dry-run` runs no eval and touches no key.
-- A bets CSV has one row per run and no column that holds a bet, a reading or a level.
+- `paranoid run --dry-run` runs no eval and touches no key. The pilot's invariants are on the [pilot](pilot.md#invariants) page.
 - `run` runs no eval before every name in `--skins` is known to be loaded.
 - A row whose `kind` is not in `SKIN_READERS` is played on one skin, however many are named.
-- Every engine-only cell runs with no key and no network.
-
-## Pilot decides
-
-- **The pilot cells' exact grids** are first guesses. The pilot pages say what each measures, the function may widen a grid without a spec change, as long as the CSV columns hold.
 
 ## Verify before code
 

@@ -11,6 +11,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | [providers](providers.md) | `StoreAPI` and the three providers, `baseline/`, `jev/` and `timestral/` |
 | [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share, tool use share |
 | [command](command.md) | `paranoid run` and `paranoid pilot`, the models config, reasoning settings |
+| [pilot](pilot.md) | The twenty pilot cells: what each runs and writes, and the paths the analysis reads |
 | [tests](tests.md) | Every test the harness suite runs, with the page it checks |
 
 ## Exports
@@ -34,6 +35,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `load_models`, `ModelRow`, `generate_config` | The models config and the reasoning mapping | [command](command.md) |
 | `REASONING`, `EFFORT_PREFIXES` | The reasoning grid, and the providers that take an effort rather than a budget | [command](command.md) |
 | `main` | The `paranoid` console script | [command](command.md) |
+| `CellArgs`, `CELLS`, `run_cell`, `RECOGNITION_QUESTION` | The pilot cells and how the command runs one | [pilot](pilot.md) |
 
 ## Modules
 
@@ -54,7 +56,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
         timestral.py   TimestralAPI, Forecaster, TIMESTRAL_POLICIES, over the baselines layer's FORECAST_RULES
       models.py        load_models, ModelRow, generate_config
       cli.py           main, run, pilot
-      pilot/           one module per pilot page, one function per cell
+      pilot.py         CellArgs, CELLS, run_cell, one function per cell
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.harness` only.
 - Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py` and torch and Timestral inside `timestral.py`, imported lazily so the default install runs without them. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#five-layers).
@@ -67,7 +69,7 @@ The harness imports these from `paranoid.engine`. Their behaviour is in the [eng
 | Name | What the harness uses it for |
 |---|---|
 | `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION` | The config a sample plays, and the hash and version in its metadata, see [scenarios and config](task.md#scenarios-and-config) |
-| `make_timeline`, `Timeline` | The timeline the store rebuilds from config and seed, see [store](task.md#store) |
+| `make_timeline`, `Timeline`, `Event` | The timeline the store rebuilds from config and seed, see [store](task.md#store), and the events the scorer and the pilot cells read for an onset, a sleeper and a draw, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#words-the-columns-use) |
 | `Game`, `Record`, `Row`, `Bets`, `BetError` | The round the `submit` tool plays, the rows the store keeps and the split a provider returns, see [submit](solver.md#submit) |
 | `play` | Warm up rows, and every baseline's output in the score, see [warm up](task.md#warm-up) and [scoring one run](scorer.md#scoring-one-run) |
 | `Policy` | The type the baseline provider holds, see [baseline](providers.md#baseline) |
@@ -80,8 +82,8 @@ The harness imports these from `paranoid.baselines`. Their behaviour is in the [
 | Name | What the harness uses it for |
 |---|---|
 | `POLICIES` | The seven `baseline/<name>` names, for the baseline provider and warm up, see [baseline](providers.md#baseline) and [warm up](task.md#warm-up) |
-| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule`, `HedgeRule`, `ScoutRule` | Every baseline's output in the score, and the pilot cells' sweeps, see [scoring one run](scorer.md#scoring-one-run) and [pilot cells](command.md#pilot-cells) |
-| `Bayesian`, `HAZARDS`, `BAYESIAN_RULES` | The Bayesian frontier cell, see [pilot cells](command.md#pilot-cells) |
+| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule`, `HedgeRule`, `ScoutRule` | Every baseline's output in the score, and the pilot cells' sweeps, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#engine-cells) |
+| `Bayesian`, `HAZARDS`, `BAYESIAN_RULES` | The Bayesian frontier cell, see [pilot](pilot.md#bayesian-frontier) |
 | `FORECAST_RULES`, `ForecastRule`, `QUANTILE_LEVELS` | Timestral's quantiles into bets, and the grid its forecast must be on, see [Timestral](providers.md#timestral) |
 
 ## Names from the skins layer
@@ -94,7 +96,7 @@ The harness imports these from `paranoid.skins`. Their signatures and behaviour 
 | `load_skins` | Every skin by name, the example skin always, see [task settings](task.md#task-settings) |
 | `render_system_prompt`, `render_record` | The system prompt and the record, the one way the harness renders either, see [each round](solver.md#each-round) |
 | `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_name` and `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
-| `lint_text` | The banned word check on messages and replies, see [tests](tests.md) and [command](command.md) |
+| `lint_text`, `CANARY` | The banned word check on messages and replies, see [tests](tests.md), and the GUID the `recognition` cell checks a reply for and never sends, see [pilot](pilot.md#recognition) |
 
 ## What the analysis layer reads
 

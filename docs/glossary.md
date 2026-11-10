@@ -31,6 +31,13 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 | Spec | The contract a layer of the code is written to and tested against. One folder per layer in [specs](specs/README.md). Design pages say why, specs say what |
+| Proof of concept | The first small run: cheap models, two held-out skins, public seeds, enough to check the harness and the baseline order. `poc` in its file names, played by `paranoid run`, see [models](harness/models.md) |
+| Pilot | The short run before the full study that settles the knobs. Engine checks first, then provider checks, see [engine checks](pilot/engine-checks.md) and [provider checks](pilot/provider-checks.md) |
+| Knob | A number the specs propose and the pilot settles, marked "pilot to confirm" until it is. A field on the config or a parameter on a rule |
+| Check | One question the pilot answers, with a run, a measure and a decision. A section on a pilot page |
+| Cell | The code that runs one check's data: timelines and baselines with no model, or a model through the task. `paranoid pilot <check>` runs one, see the [harness pilot spec](specs/harness/pilot.md) |
+| Measure | The number a check reads off a cell's output, as a table in pilot results. The analysis layer's, see the [analysis pilot spec](specs/analysis/pilot.md) |
+| Decision | A knob's settled value, a number or a yes or no, written once in [decisions](pilot/decisions.md) and then frozen |
 | Setting | What was played, apart from who played it: the skin, seed set, noise setting, knobs and versions. Rows that differ in any of them never share a table. `Setting` in code, see the [analysis spec](specs/analysis/runs.md) |
 | Result row | One model at one reasoning setting on one setting. One row of a results table, and the unit the analysis compares. `ResultKey` in code, see the [analysis spec](specs/analysis/runs.md) |
 

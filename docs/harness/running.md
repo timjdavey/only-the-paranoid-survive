@@ -19,7 +19,7 @@
 | The proof of concept list | `uv run paranoid run --skins <a>,<b>`, which reads `configs/models/poc.toml` and plays the two held-out skins named, so it needs `PARANOID_SKINS`. Without `--skins` it plays the example skin |
 | The full study | `uv run paranoid run --models configs/models/full.toml --skins <a>,<b> --seeds held-out --own-scale grid`, which plays every setting of the [noise grid](../pilot/engine-checks.md#noise-grid) in `configs/grid.toml`, see the [command spec](../specs/harness/command.md#run) |
 | One noise setting | Add `--own-scale 6` to `paranoid run`, or `-T own_scale=6` to `inspect eval paranoid` |
-| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) |
+| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md). What each writes is in the [pilot spec](../specs/harness/pilot.md) |
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/`, see the [analysis command](../specs/analysis/command.md) |
 | Rebuild the pilot results | `uv run paranoid analyse pilot` |
