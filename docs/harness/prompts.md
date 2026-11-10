@@ -50,7 +50,7 @@ The lint fails a skin whose rendered prompt leaves any of these out, see [lint](
 
 ## User message
 
-The record as CSV. Round 1 sends the header only, or a record pre-filled by a baseline in the [warm up pilot cell](../../TODO.md#pilot).
+The record as CSV. Round 1 sends the header only, or a record pre-filled by a baseline in the [warm up check](../pilot/provider-checks.md#warm-up).
 
     round,<ten bet columns>,<ten level columns>,output
     1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,61.2

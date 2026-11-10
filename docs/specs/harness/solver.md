@@ -81,8 +81,9 @@ Pilot only. Needs `uv sync --extra sandbox` and Docker.
 
 Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-conversation).
 
-- **With `rolling` on** step 2 runs on round 1 only. Later rounds append a user message of the new record row, the header line and the last line of `render_record`, and keep every earlier message. Nothing is compacted. `rolling` is a task arg, so the cell runs from the command line, see [task](task.md#interface).
+- **With `rolling` on** step 2 runs on round 1 only. Later rounds append a user message of `render_record(skin, store.record())`, the same user message a fresh call would send, and keep every earlier message. Nothing is compacted. The record the model reads is the same in both modes, so the one thing rolling changes is that the earlier replies, tool messages and retry messages stay. `rolling` is a task arg, so the cell runs from the command line, see [task](task.md#interface).
 - **Everything else is the same**, so the only difference in the log is the message list.
+- **What carries over is the provider's.** Every provider keeps the text and the tool calls. Whether the model reads its own earlier reasoning on the next turn depends on the provider and the model, so the rolling gap is read per model, see [rolling conversation](../../pilot/provider-checks.md#rolling-conversation).
 
 ## Invariants
 
@@ -91,6 +92,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - `len(store.tries) == len(store.rows) − store.warm_up_rounds`, plus one when the run gave up.
 - Replaying `store.rows` as bets on `store.timeline()` with `Game` gives the same readings and outputs, so the log is enough to check a run.
 - With `rolling` off, every round starts with exactly two messages, or two messages with two content blocks on the second when notes are on.
+- With `rolling` on, round `n` starts with the two messages a fresh call would send, then every reply, tool message and retry message of rounds 1 to `n − 1` in order, then the user message a fresh call would send for round `n`. So the last user message is the same with `rolling` on or off.
 - `store.awaiting_submit` is false whenever the solver is between rounds, and after a give up.
 - The solver raises nothing of its own. An exception in a run comes from inspect, a provider or the network.
 
@@ -100,9 +102,10 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 
 ## Not decided
 
-- Whether `rolling` runs need their own `max_tokens`, as the conversation grows with the square of the game length, see [rejected](../../design/interface.md#rejected). Decide when the rolling cell runs.
+- Whether `rolling` runs need their own `max_tokens`, as the conversation grows with the square of the game length, see [rejected](../../design/interface.md#rejected). inspect records usage per call, so input tokens per round are read from the log, and the rolling check reports them. Decide when the rolling cell runs.
 - Whether a run needs a try budget on top of the ten a round. A model that needs five tries every round spends two hundred calls a run with no give up. The retry share marks it, and the [cost check](../../pilot/provider-checks.md#cost-per-run) prices it. Decide when the cost check has run.
 
 ## Verify before code
 
 - **Which providers refuse a forced tool with thinking on.** Anthropic does, and `tool_choice_for` knows it. Check the other providers in `configs/models/` before the first run and add each that does. `tool_choice_for` waits on it.
+- **Which providers let a model read its own earlier reasoning on a later turn**, and which return it summarised or empty. The per-model reading of the rolling cell waits on it, see [rolling](#rolling).

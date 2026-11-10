@@ -1,6 +1,6 @@
 # A past in the prompt
 
-Each round our agent gets a fresh call with its own record of play as a CSV in the prompt. It keeps no notes and has no rolling conversation, see [tools](../design/interface.md#tools). These studies show what a past in the prompt does to a model, and they back those choices, the [notepad pilot check](../pilot/provider-checks.md#notepad-and-compute) and the [warm-up cell](../../TODO.md#pilot).
+Each round our agent gets a fresh call with its own record of play as a CSV in the prompt. It keeps no notes and has no rolling conversation, see [tools](../design/interface.md#tools). These studies show what a past in the prompt does to a model, and they back those choices, the [notepad pilot check](../pilot/provider-checks.md#notepad-and-compute) and the [warm-up check](../pilot/provider-checks.md#warm-up).
 
 - **Whose choice it was changes how hard a model holds on.** The same past pulls harder when the model thinks it made the choices. Our record is framed as the agent's own.
 - **Notes a model writes itself can make things worse.** They lose detail when rewritten and can lock in a wrong lesson. That is why notes are not in the headline.
@@ -230,7 +230,7 @@ Kuan-Yen Chen, Fang-Yi Su, Shih-Yen Lin, Bao Li and Jung-Hsien Chiang. "The Self
 
 **Why it matters here.**
 - This is why there is no rolling conversation ([interface](../design/interface.md#rejected)). The agent's own reasoning would pile up in the one role it won't question.
-- The record goes in as the user message ([placement](../harness/prompts.md#placement)). In the [notepad check](../pilot/provider-checks.md#notepad-and-compute) notes come back as a tool message, never as the agent's own words.
+- The record goes in as the user message ([placement](../harness/prompts.md#placement)). In the [notepad check](../pilot/provider-checks.md#notepad-and-compute) notes come back below the record in the user message, never as the agent's own words.
 - One sentence vouching for a claim switched checking off. Skin text should never vouch for the leader.
 
 ## ACE 2025: notes that collapse when rewritten

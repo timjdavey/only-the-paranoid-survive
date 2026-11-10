@@ -68,14 +68,24 @@ Checks before we trust the [Timestral baselines](../design/baselines.md#timestra
 - **On the grid.** Timestral top pick and Timestral odds at every setting on the [noise grid](engine-checks.md#noise-grid). Each should land between the hedge rule baseline and the Complacent baseline, as in the [baseline order](engine-checks.md#baseline-order).
 - **Explore bets.** Timestral top pick with explore bets at 1, 2 and 5 points, at the read noise [reading roughness](engine-checks.md#reading-roughness) chose. This confirms an explore bet is still worth its cost for a forecaster, not just for the hedge rule baseline.
 
+## Elicitation
+
+The headline harness is bare: a fresh call each round, no tools, an empty record. A deployed agent has more, so the notepad and rolling checks each add one thing back, and a reader can tell a model that cannot read a CSV from one that cannot read a change. The rule for what they decide is fixed here, before either runs.
+
+- **The headline stays bare.** Its knobs are set from baselines, never from a model's score, see [interface](../design/interface.md#tools), and neither check can move it.
+- **Each check runs every LLM row in the [proof of concept list](../harness/models.md#two-lists)**, at the reasoning setting the proof of concept plays. Under-elicitation is a claim about one model, so one model cannot clear the rest.
+- **A setting enters a model's best-elicited row when it moves that model's score by more than its error bar.** The test is the [paired gap](../specs/analysis/scores.md#paired-gap) against the bare run, pooled over the scenarios the check plays: the setting is in when the gap's bar clears zero. When more than one setting is in, the row takes the one with the largest gap.
+- **The best-elicited row is reported beside the bare headline, never in it**, see [tables](../specs/analysis/tables.md#the-results-page). It is one more full run per model that has one, so a gap that is merely above zero is not enough.
+- **A model no setting moves has no best-elicited row**, and the page says so. That is the result that clears the bare harness for that model.
+
 ## Notepad and compute
 
 A deployed agent would have a scratchpad and a calculator at the very least, so a bare harness may not be a fair test. The headline plays without them, see [interface](../design/interface.md#tools).
 
 - **Question.** Does a scratchpad or a calculator change how a model plays.
-- **Run.** The same models and seeds with and without each tool.
-- **Measure.** The score gap, and how often each tool is used.
-- **Decide.** Whether the headline needs either tool.
+- **Run.** Every LLM row in the proof of concept list, in the One shock and Down switch scenarios, the seeds from [Seeds](#seeds), with `tools` at `none`, `notes` and `compute`.
+- **Measure.** The score gap against `none`, paired by seed, and how often each tool is used.
+- **Decide.** Which tool, if any, enters each model's best-elicited row, by the [elicitation rule](#elicitation). The headline stays bare.
 
 | Tool | What it does |
 |---|---|
@@ -93,9 +103,21 @@ A deployed agent would have a scratchpad and a calculator at the very least, so 
 Each round is a fresh call with the record in the prompt, see [tools](../design/interface.md#tools). A deployed agent keeps its conversation, so this check prices the difference.
 
 - **Question.** How much does the fresh call change how a model plays.
-- **Run.** One model in the One shock and Down switch scenarios, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted.
-- **Measure.** The score gap, paired by seed, and tokens per run.
-- **Decide.** Report the gap beside the headline. The headline stays on fresh calls, as the [interface](../design/interface.md#rejected) page says why. If the gap is large, say so where the score is read.
+- **Run.** Every LLM row in the proof of concept list, in the No change, One shock and Down switch scenarios, the seeds from [Seeds](#seeds), twice: once as fresh calls, once with the conversation kept from round 1 to the end and never compacted, see the [solver spec](../specs/harness/solver.md#rolling). No change is in because the [Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role) says a kept conversation costs most where the model's own early guesses were wrong, and a guess of change in a world with none is the one it will not take back.
+- **Measure.**
+  - The score gap, paired by seed.
+  - Tokens per run, and input tokens per round against the round number, which prices the growth.
+- **Decide.** Whether the kept conversation enters each model's best-elicited row, by the [elicitation rule](#elicitation). The headline stays on fresh calls, as the [interface](../design/interface.md#rejected) page says why.
+- **Read per model, never pooled across providers.** Every provider keeps the text and the tool calls. Whether a model reads its own earlier reasoning on the next turn is the provider's choice, see [reasoning](../harness/models.md#reasoning), so a gap on one provider says nothing about another.
+
+## Warm up
+
+The record starts empty, so the agent finds the leader itself in the first rounds. This check starts it with rounds a baseline played instead, see the [task spec](../specs/harness/task.md#warm-up), and asks whether a model copies the habits of a past it only read.
+
+- **Question.** Does a record someone else played change how a model plays, and which way.
+- **Run.** Every LLM row in the proof of concept list, in the No change and Down switch scenarios, the seeds from [Seeds](#seeds), twice: with `warm_up` unset and at `complacent:5`.
+- **Measure.** The score gap, paired by seed, and how often the agent's first round keeps the warm up's bets.
+- **Decide.** Report the gap beside the headline. The headline starts empty. A pre-filled record changes the task and not the harness, so it is not in the [elicitation rule](#elicitation).
 
 ## Inertia
 

@@ -61,4 +61,4 @@ Four parts, in this order, each one skin field, see [system prompt](../../harnes
 
 ## Not decided
 
-- **Whether a second skin field should go in the user message.** Today the user message is the CSV and nothing else. The notepad pilot cell appends a tool message, not skin text, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute). If a cell ever needs skin words there, this page gets a `render_user_message` and the hash covers it.
+- **Whether a second skin field should go in the user message.** Today the user message is the CSV and nothing else. The notepad pilot cell appends a second content block to the user message, not skin text, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute). If a cell ever needs skin words there, this page gets a `render_user_message` and the hash covers it.

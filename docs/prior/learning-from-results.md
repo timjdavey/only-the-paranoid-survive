@@ -33,7 +33,7 @@ Win rates in %. Finetuned Flash reached 65.6 and beat Pro. Gemma never settled o
 
 - Models fall well short of a simple algorithm in a world that stands still. So the [fixed baselines](../design/baselines.md#fixed-baselines) must land in the [expected order](../pilot/engine-checks.md#baseline-order) before any model runs, or a model's score has nothing firm to sit against.
 - A summary beat the raw log. Our agent gets its record as raw rows and no summary ([tools](../design/interface.md#tools)). The `compute` tool in the [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check is the nearest test of whether working out averages helps.
-- Example runs helped Flash and hurt Pro. The warm-up cell, where the record starts pre-filled by a baseline, pulls the same lever ([TODO](../../TODO.md#pilot)).
+- Example runs helped Flash and hurt Pro. The warm-up cell, where the record starts pre-filled by a baseline, pulls the same lever ([warm up](../pilot/provider-checks.md#warm-up)).
 
 ## Krishnamurthy et al. 2024: a summarised history and exploration
 
@@ -81,7 +81,7 @@ Julian Coda-Forno et al. "Meta-in-context learning in large language models." Ne
 
 **Why it matters here.**
 
-- A past in the prompt moves a model's expectations towards the truth. Our round 1 starts with an empty record, so the agent finds the leader itself in the first rounds ([tools](../design/interface.md#tools)). The pre-filled warm-up cell asks whether a baseline's record does that job for it ([TODO](../../TODO.md#pilot)).
+- A past in the prompt moves a model's expectations towards the truth. Our round 1 starts with an empty record, so the agent finds the leader itself in the first rounds ([tools](../design/interface.md#tools)). The pre-filled warm-up cell asks whether a baseline's record does that job for it ([warm up](../pilot/provider-checks.md#warm-up)).
 - It got greedier as it learnt. In the Shock then switch scenario the agent learns from the first dip that dips recover, then that lesson goes wrong ([scenarios](../design/scenarios.md#scenarios-we-test)). This is the same carry over, in a world that punishes it.
 
 ## Schmied et al. 2025: greedy agents and the knowing-doing gap
@@ -119,7 +119,7 @@ Percent of all actions.
 **Why it matters here.**
 
 - The model wrote the right rule and then didn't follow it 64% of the time. We read belief from bets, not words ([how the agent plays](../design/interface.md#how-the-agent-plays)), and we don't ask for a stated chance of change ([rejected](../design/interface.md#rejected)). So a gap like this shows up as lost output, not as a number of its own.
-- Frequency bias says a record full of the same bets pulls a model to repeat them. The record is the agent's own play, so a model that held through calm rounds may keep holding for that reason alone. A record pre-filled by a baseline makes the pull stronger ([TODO](../../TODO.md#pilot)).
+- Frequency bias says a record full of the same bets pulls a model to repeat them. The record is the agent's own play, so a model that held through calm rounds may keep holding for that reason alone. A record pre-filled by a baseline makes the pull stronger ([warm up](../pilot/provider-checks.md#warm-up)).
 - Trying every arm once closed most of the gap. In our game an explore bet on the field tells a shock from a switch ([events](../design/mechanics.md#events)), so a few cheap explore bets should be worth a lot.
 
 ## Horowitz and Plonsky 2025: a pull towards the latest result
@@ -276,5 +276,5 @@ Jensen Zhang, Jing Yang and Keze Wang (Sun Yat-sen University). "Large Language 
 
 **Why it matters here.**
 
-- Lean on Gupta for the numbers. The useful idea is the error split, which separates a model with bad starting beliefs from one that updates badly. The empty and pre-filled warm-up cells pull the same two apart ([TODO](../../TODO.md#pilot)).
+- Lean on Gupta for the numbers. The useful idea is the error split, which separates a model with bad starting beliefs from one that updates badly. The empty and pre-filled warm-up cells pull the same two apart ([warm up](../pilot/provider-checks.md#warm-up)).
 - A low γ means fast forgetting. That looks quick in the Down switch scenario and jumpy in the One shock and No change scenarios. It would also make the calm rounds before a shock count for little, so the "dips recover" lesson that the Shock then switch scenario tests would never form ([scenarios](../design/scenarios.md#scenarios-we-test)).

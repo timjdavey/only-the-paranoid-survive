@@ -81,7 +81,7 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 ### Starting part way
 
-- **`Game(timeline, record)`** copies the record and starts at round `len(record) + 1`. The caller's record is never changed, so one warm-up record can seed many games. This is how the warm-up cell starts with a record a baseline played, see [TODO](../../../TODO.md#pilot).
+- **`Game(timeline, record)`** copies the record and starts at round `len(record) + 1`. The caller's record is never changed, so one warm-up record can seed many games. This is how the warm-up cell starts with a record a baseline played, see [warm up](../../pilot/provider-checks.md#warm-up).
 - **`Game(timeline)`** also checks that every array on the timeline has the shape `timeline.config` says, and raises `ValueError` if not, so a hand-built timeline fails at once and not mid-game.
 - **The record's bets need not come from this timeline.** The engine does not check that the readings match the timeline. The harness is responsible for pairing a warm-up record with its timeline.
 

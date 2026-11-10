@@ -88,7 +88,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or an explore bet |
 | Exploit | Betting on the channel the agent believes is best. Payout is linear, so exploiting alone means all 100 points on one channel. The opposite of an explore bet |
 | Explore bet | A small bet on a channel the agent isn't backing, to read its level. To explore is to place one. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees). `explore` in code |
-| Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot cell, see [task spec](specs/harness/task.md#warm-up). `warm_up` in code |
+| Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot check, see [warm up](pilot/provider-checks.md#warm-up) and the [task spec](specs/harness/task.md#warm-up). `warm_up` in code |
 | Give up | What the solver does after ten failed tries in one round: the run ends there, with no error, and scores as the Uniform baseline on that seed. See [solver spec](specs/harness/solver.md#tries). `gave_up` in code |
 
 ## Scoring
@@ -119,6 +119,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Not measured until more than one skin runs |
 | Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
 | Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
+| Best-elicited row | A model's scores in the one pilot setting that moved them by more than the error bar: a scratchpad, a calculator or a kept conversation. Reported beside the bare headline, never in it. See [elicitation](pilot/provider-checks.md#elicitation) |
 
 ## Seeds and secrecy
 

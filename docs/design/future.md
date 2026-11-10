@@ -13,7 +13,7 @@
 ## What the agent knows before it starts
 
 - **A longer calm before the change.** A longer run of success should make anyone slower to doubt. The pilot sets one [game length and switch round](../pilot/engine-checks.md#game-length-and-switch-round). Stepping the calm stretch shows how each model's lateness grows with it.
-- **A record someone else played.** The record starts empty, see [tools](interface.md#tools), and the [warm-up cell](../../TODO.md#pilot) pre-fills it once. Varying its length, and how often it explores, shows whether a model copies the habits of a past it only read.
+- **A record someone else played.** The record starts empty, see [tools](interface.md#tools), and the [warm-up check](../pilot/provider-checks.md#warm-up) pre-fills it once. Varying its length, and how often it explores, shows whether a model copies the habits of a past it only read.
 - **An inherited plan.** A written plan beside the record, in a voice from flat to "this split has served the client for four years". It shows what a confident author costs. See [ideas we parked](../prior/README.md#ideas-we-parked).
 - **Several short runs in a row.** Fresh seeds each time, with the world changing in only a few. It is Epoch's [EBR-bench](../prior/themes.md) set-up, with a lesson that can go stale between runs.
 

@@ -28,7 +28,7 @@ Each round the solver:
 2. Calls `generate` with the `submit` tool. Forced where the provider allows it. Claude takes a forced tool with thinking off and rejects one with thinking on, so there the choice is `auto` and the prompt says to call `submit`. The solver decides from the model it is given, so nothing on the command line can get it wrong. See [reasoning](models.md#reasoning).
 3. Reads the tool call. Bets the engine rejects return a `ToolError` with the skin's `bad_call`, and the model tries again. A reply with no tool call gets a reminder and tries again too. The store counts each retry. After ten tries the solver gives up and the run scores as the Uniform baseline. See the [retry rule](prompts.md#retry-rule).
 4. Plays the bets through the engine and appends the readings and output to the record.
-5. Repeats until the timeline ends. Nothing from this round's messages survives into the next. The one exception is the pilot's notes file, which comes back next round in the user message below the record, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute).
+5. Repeats until the timeline ends. Nothing from this round's messages survives into the next. The exceptions are the pilot's: the notes file, which comes back next round in the user message below the record, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute), and the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) cell, which keeps every message.
 
 ## Providers
 

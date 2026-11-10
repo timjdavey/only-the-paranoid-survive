@@ -5,7 +5,6 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Run length, how many events a run holds, and the minimum gap between them.
 - Persistence, own-weather scale and shared-factor scale, per release.
 - The loading range and the base ladder ranges.
-- Warm up: one cell starts round 1 with an empty record, one with a record pre-filled by a baseline.
 
 ## Code
 - Write the engine from its [spec](docs/specs/engine/README.md), tests first, then the baselines from [theirs](docs/specs/baselines/README.md).

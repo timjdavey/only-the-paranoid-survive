@@ -44,6 +44,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AT5 | `pooled_score` over the CSV's `gain` and `gap` per scenario equals the page's score to two decimals | [tables](tables.md#invariants) |
 | AT6 | `write_cost` on the `mockllm` log has the columns in the table, zero usage on a baseline row, `projected` set when `models` and `seeds` are given, and `cost` set only with a `prices` file | [tables](tables.md#cost) |
 | AT7 | Two logs of one model that differ only in `tools` give two tables, each heading naming the setting that is off its default. A `name` of `../x` raises `ValueError` and writes nothing | [tables](tables.md#the-results-page) |
+| AT8 | Two logs of one model on the same seeds, the second at `tools="notes"`: the page has a best-elicited table with one row naming `tools notes`, that row's headline, and a gap equal to `paired_gap`'s `headline` row. With the bare log alone there is no such table | [tables](tables.md#the-results-page) |
 
 ## Plots
 

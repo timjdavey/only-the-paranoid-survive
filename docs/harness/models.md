@@ -35,6 +35,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | `on` | Thinking the model won't let us change, such as DeepSeek R1 |
 
 - **`xhigh` is skipped** to keep the grid at five steps.
+- **What a model keeps of its reasoning across turns is the provider's choice.** In the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) check every provider keeps the text and the tool calls, but whether the model reads its own earlier reasoning next turn varies by provider and model. So that check is read per model, and the row's `notes` says what its provider keeps.
 
 ## Sampling
 

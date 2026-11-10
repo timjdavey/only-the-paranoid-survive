@@ -98,7 +98,7 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [Fixed baselines](../design/baselines.md#fixed-baselines) | BanditBench, Bazaar (Thompson sampling) |
 | [Bayesian baseline, parked](../design/baselines.md#not-yet) | Adams and MacKay, Wilson, Mellor and Shapiro, Nassar, Gallistel 2014 |
 | [Notepad and compute](../pilot/provider-checks.md#notepad-and-compute) | Liu, ACE, Fork-and-Flush, Bazaar, Krishnamurthy |
-| [Warm-up record](../../TODO.md#pilot) | BanditBench (example runs), Coda-Forno, Schmied (frequency bias), Fork-and-Flush |
+| [Warm-up record](../pilot/provider-checks.md#warm-up) | BanditBench (example runs), Coda-Forno, Schmied (frequency bias), Fork-and-Flush |
 | [Reasoning setting](../harness/models.md#reasoning) | Mazaheri, Ge, Schmied, Zhang 2025 |
 | [Skins and contamination](../harness/contamination.md) | Allen and McDonald (masking), Needham, Schoen, Heidari |
 
@@ -122,7 +122,7 @@ Some studies mattered most to ideas the design has since dropped or parked. They
 - **Reward hacking.** The [themes table](themes.md) links METR's, Anthropic's and Epoch's reports, but we haven't reviewed that literature.
 - **Noise with persistence.** Apart from STOCKTAKE's one week-long false alarm, every study here draws each result fresh. Whether models tell a bad stretch from a change, when the noise itself has stretches, looks open.
 - **A shared factor.** No LLM study we found has a market-wide bad week, where an explore bet on other options tells you the dip is everyone's.
-- **A record from someone else.** BanditBench's example runs are the only test we found of a past that shows how to play. Whether a model copies the habits of a record it reads is untested. The [warm-up cell](../../TODO.md#pilot) is a first look.
+- **A record from someone else.** BanditBench's example runs are the only test we found of a past that shows how to play. Whether a model copies the habits of a record it reads is untested. The [warm-up check](../pilot/provider-checks.md#warm-up) is a first look.
 - **Forecasters as agents.** We read nothing on time-series models like Timestral, or on Jev, making decisions. Their [providers](../design/interface.md#models-that-cannot-place-bets) rest on the design alone.
 - **Base rates.** No study here measures how often a dip turns out to be a switch in any real setting. Equal weights across scenarios are a prior, see [limits](../design/limits.md).
 - **Business strategy.** The motivation leans on Grove and on famous company stories. Apart from Allen and McDonald, we haven't reviewed the strategy research behind it.
