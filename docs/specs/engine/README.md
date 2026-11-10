@@ -49,6 +49,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
       draws.py       the seed streams and the four draws
       ladder.py      the order, the ladder and the loadings
       weather.py     own weather, the shared factor, read noise
+      world.py       the arrays events edit, on the longer horizon
       events.py      Event, each shape's draws, onsets, no two alike
       shock.py       a shock's impulse and its cap
       switch.py      a fall, a rise and an undo
