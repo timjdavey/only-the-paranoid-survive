@@ -12,7 +12,7 @@ class Setting:                        # what was played, apart from who played i
     skin: str
     seed_set: Literal["public", "held-out"]
     own_scale: float | None           # None means the frozen default
-    rounds: int
+    game_rounds: int                  # the metadata's `rounds`, the game length. Renamed, see below
     tools: str
     warm_up: str | None
     rolling: bool
@@ -21,6 +21,7 @@ class Setting:                        # what was played, apart from who played i
     prompt_hash: str
     generator_version: int
     harness_version: str
+    release: str                      # the release the log played, see the task spec
 
 @dataclass(frozen=True)
 class ResultKey:
@@ -66,6 +67,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 ### Result key
 
 - **`model` is `log.eval.model`** and `reasoning` is below. Both are per log.
+- **`game_rounds` is the metadata's `rounds`**, the length of the game. The score has a `rounds` of its own, the rounds the agent played, and one table cannot hold two columns of one name, so the setting's is renamed on the way in. In the run table `rounds` always means rounds played.
 - **Every field of `Setting` comes from sample metadata**, read from every sample. A log whose samples disagree on a field raises `ValueError` naming the log and the field, so a key is always one setting.
 - **`result_key` reads nothing but `log.eval` and `sample.metadata`.**
 
@@ -85,7 +87,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 `reasoning` is the [reasoning setting](../../harness/models.md#reasoning) the log played.
 
 - **From the log's metadata** when `log.eval.metadata` has `reasoning`, which [`run`](../harness/command.md#run) writes for every eval it runs.
-- **Else read back from the generate config.** `reasoning_effort` set gives its name, with `xhigh` read as `max`. `reasoning_tokens` set gives the key of the [budget table](../harness/command.md#reasoning) whose value it equals, or `unknown` if none does. Nothing set gives `unknown`, as `off` and `on` look alike in a config.
+- **Else read back from the generate config.** `reasoning_effort` set gives its name, with `xhigh` read as `max` and `none` as `off`. `reasoning_tokens` set gives `off` for 0, else the key of the [budget table](../harness/command.md#reasoning) whose value it equals, or `unknown` if none does. Nothing set gives `unknown`, as `on` and a hand run that set nothing look alike in a config.
 - **A provider row** is `n/a`, whatever the config says.
 - **`unknown` is a value**, not an error. It appears in the table as it is, so a log run by hand with `inspect eval` still loads.
 

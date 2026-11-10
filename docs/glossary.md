@@ -27,7 +27,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Timestral odds | The Timestral baseline that splits its bets by each channel's chance of being the best. `timestral/odds` in code |
 | Timestral top pick with explore bets | Timestral top pick plus 1, 2 or 5 points on every other channel. `timestral/explore-1`, `explore-2` and `explore-5` in code |
 | Timestral odds, bet aware | Timestral odds, also told its past bets. `timestral/odds-bet-aware` in code |
-| Forecast rule | A rule that turns a forecast's quantiles into a split. Timestral's bets go through one, and a Bayesian baseline would too. `ForecastRule` in code. See [forecast](specs/baselines/forecast.md) |
+| Forecast rule | A rule that turns a forecast's quantiles into a split. Timestral's bets go through one, and the Bayesian baseline's do too. `ForecastRule` in code. See [forecast](specs/baselines/forecast.md) |
 | Reasoning setting | How hard a model is allowed to think, from one shared grid: `off`, `low`, `medium`, `high`, `max`, or `on` when it can't be changed. Each setting is its own row. See [models](harness/models.md#reasoning) |
 | ECI | Epoch AI's [Capabilities Index](https://epoch.ai/benchmarks/eci), one general capability score per model. The x axis of a [trend plot](harness/models.md#trend-plots) |
 | Spec | The contract a layer of the code is written to and tested against. One folder per layer in [specs](specs/README.md). Design pages say why, specs say what |
@@ -118,7 +118,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Conviction | The Switch then shock scenario score. Holding a plan it just chose through a dip that passes. When it has just moved to a new best channel and that channel dips and recovers, how much does it keep on it through the dip? |
 | Recall | The Up switch then down switch scenario score. Going back to a plan it has seen pay when the change undoes itself. When the channel it moved to falls back, so the old one is best again, how soon does it move back? |
 | Trait profile | A model's scores across scenarios, one per trait. The signal the headline combines |
-| Error bar | How sure we are of a score. Spread over √seeds, so it shrinks with more seeds (epistemic uncertainty). See [scoring](design/scoring.md#error-bars) |
+| Error bar | How sure we are of a score. The 2.5th to 97.5th percentiles of the score over resamples of the seeds, a percentile bootstrap, so it shrinks with more seeds (epistemic uncertainty). Never SD over √seeds, as a pooled ratio is not a mean. See [scoring](design/scoring.md#error-bars) |
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
 | Sampling spread | The part of spread from the model's own draws. Same seed, run again |
 | World spread | The part of spread from the seed |
@@ -136,9 +136,9 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Seed | The number that fixes a run's world: every channel's noise for every round, drawn up front |
 | Twin timelines | The timelines one seed makes across scenarios. They share the ladder, the weather and the onset round, so they match until the events differ. See [seeds](design/scoring.md#seeds) |
 | Seed set | The fixed list of seeds every scenario plays, so seed *i* is the same world across scenarios. There are two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
-| Public seeds | Seeds published in this repo with their timelines. For the pilot, the example logs and anyone checking our work |
+| Public seeds | Seeds published in this repo. Anyone can rebuild their timelines from the seed and the engine, and no timeline is ever stored. For the pilot, the example logs and anyone checking our work |
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
-| Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. See [contamination](harness/contamination.md) |
+| Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. Every log names its release, `release` in code, and it is `dev` until the first is frozen. See [contamination](harness/contamination.md) and the [task spec](specs/harness/task.md#release) |
 | Contamination | A model having seen the benchmark in training |
 | Learning the game | A model trained on timelines from the public engine. Its score still says how well it reads the game, not whether the trait carries. No secret stops it, see [contamination](harness/contamination.md#what-it-does-not-stop) |
 | Canary | A fixed line in every published file that holds prompt text. A model that can repeat it has seen our data. See [contamination](harness/contamination.md#canary) |

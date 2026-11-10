@@ -9,13 +9,14 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AR1 | `load_runs` on the fixture folder has `columns == RUN_COLUMNS`, one row per sample epoch, `epoch == 1` throughout, and `run_score == gain / gap` on every row. `mean_over_epochs` on it changes no value and drops `epoch` | [runs](runs.md#one-row-per-run) |
 | AR2 | A log on the held-out fixture: `seed` is NA on every row and the three seed values appear nowhere in the table's string form. The same log with a `seed` key planted in one sample's metadata raises `ValueError` naming the log and the sample | [runs](runs.md#privacy) |
 | AR3 | Two logs with one `ResultKey`, the later holding every id of the earlier and one more: the later wins, the earlier is in `attrs["report"]` as dropped, and none of its rows load. The later holding two of the earlier's five ids: `ValueError` naming both logs. Two with disjoint ids both load | [runs](runs.md#duplicates) |
-| AR4 | `reasoning` is `"low"` from `eval.metadata`, `"high"` from a config with `reasoning_effort="high"` and no metadata, `"medium"` from `reasoning_tokens=4096`, `"unknown"` from an empty config, and `"n/a"` for `baseline/uniform` | [runs](runs.md#reasoning) |
+| AR4 | `reasoning` is `"low"` from `eval.metadata`, `"high"` from a config with `reasoning_effort="high"` and no metadata, `"medium"` from `reasoning_tokens=4096`, `"off"` from `reasoning_effort="none"` and from `reasoning_tokens=0`, `"unknown"` from an empty config, and `"n/a"` for `baseline/uniform` | [runs](runs.md#reasoning) |
 | AR5 | A hand-built log with one errored sample: the row has `errored` true and NA scores, the report counts it, and `scenario_scores` ignores it | [runs](runs.md#errored-samples) |
 | AR6 | A log at `--epochs 2`: `load_runs` gives two rows per id with `epoch` 1 and 2. `mean_over_epochs` gives one row per id with `epochs == 2`, the mean of the two `run_score`s, the sum of the two `rounds`, and `gave_up` true when either epoch gave up | [runs](runs.md#mean-over-epochs) |
 | AR7 | A folder holding a non-`paranoid` log and a file that is not a log: the first is skipped and listed, the second raises `ValueError` naming it | [runs](runs.md#discovering-logs) |
 | AR8 | Hand-built logs with a `scenario` not in `SCENARIOS`, a `skin` of `Rome`, and a `model` holding `..` each raise `ValueError` naming the log. A log whose samples disagree on `tools` raises naming the field, and one whose `tool_choice` is `maybe` raises naming it | [runs](runs.md#guards) |
 | AR9 | Two logs of one key whose samples carry different `numpy_version`s load, and the report names the key and both versions | [runs](runs.md#the-report) |
 | AR10 | A hand-built log whose `model_usage` has `input_tokens_cache_read` of 300 and `input_tokens_cache_write` of 50 gives `cache_read_tokens == 300` and `cache_write_tokens == 50` on its row, and a log with neither field gives 0 for both | [runs](runs.md#one-row-per-run) |
+| AR11 | A log played at `rounds=20` on which the agent gave up in round 3 has `game_rounds == 20` and `rounds == 3` on that row, `RUN_COLUMNS` has no name twice, and a log with `release` `r1` gives a `ResultKey` unequal to the same log at `dev` | [runs](runs.md#result-key) |
 
 ## Scores
 
@@ -48,6 +49,9 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AT7 | Two logs of one model that differ only in `tools` give two tables, each heading naming the setting that is off its default. A `name` of `../x` raises `ValueError` and writes nothing | [tables](tables.md#the-results-page) |
 | AT8 | Two logs of one model on the same seeds, the second at `tools="none"`: the page has a sensitivity table with one row naming `tools none`, that row's headline, and a gap equal to `paired_gap`'s `headline` row, headline minus bare. With the headline log alone there is no such table | [tables](tables.md#the-results-page) |
 | AT9 | Two logs of `baseline/complacent` on the same seeds, one on `example` and one on a copy of it under the stem `b`, with `PARANOID_SKINS` at the temp folder that holds the copy: the page has two score tables and a skin sensitivity table with one row, `Skins` reading `b − example` and every `diff` 0. On two hand-built logs whose run scores differ, each cell equals `paired_gap`'s row for that scenario and for `headline`. With one log alone there is no such table | [tables](tables.md#the-results-page) |
+| AT10 | Four hand-built logs of one model that differ only in `own_scale`, with headlines that straddle the half way mark: the page has one noise threshold table with one row, whose `Threshold` cell equals `noise_threshold`'s `snr`, `lo` and `hi` to one decimal, and with `plots` on a `<skin>-<seed_set>-noise.svg`. With two of the four logs there is no row and the line under the table names the model and `2` | [tables](tables.md#the-results-page) |
+| AT11 | Two logs of one model that differ only in `tools`: grouping the CSV by `model`, `reasoning` and every `Setting` column gives two groups, each with the rows of one table on the page. Two logs that differ only in `release` give two tables | [tables](tables.md#the-run-csv) |
+| AT12 | The `Weakest trait` cell of every row equals the trait of its lowest scenario, then that scenario's score and bar as they stand in its own column | [tables](tables.md#the-results-page) |
 
 ## Plots
 
@@ -65,6 +69,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AI2 | With a hand-built `baseline-order.csv`, the Baseline order section has one row per scenario and baseline, an order line that holds, and a `**bold**` line for a planted break. The other sections still read `_Not run yet._` | [pilot](pilot.md#sections) |
 | AI3 | With a hand-built `recognition.csv` holding a reply column, the section's table has counts and shares and the reply text appears nowhere in the page or its CSV | [pilot](pilot.md#sections) |
 | AI4 | An existing `results.md` with one heading renamed raises `ValueError` naming it, and the file is unchanged | [pilot](pilot.md#writing-the-page) |
+| AI5 | With a hand-built `up-against-down-bets.csv` of four runs, two with a `sleeper_round`, the Up against down section reports a share of 0.5 and their median, and a file with a column this page does not name raises `ValueError` naming it | [pilot](pilot.md#sections) |
 
 ## Command
 

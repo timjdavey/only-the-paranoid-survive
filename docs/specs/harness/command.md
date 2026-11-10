@@ -117,9 +117,13 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 - **Every CSV has one row per seed, never a timeline.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one. The `seeds`, `bare`, `tool-choice`, `rolling` and `warm-up` cells take every `llm` row, as their checks ask, and `--only` narrows them. The `repeats` cell reads the `seeds` logs in `--out` to pick its row, and fails with one line naming the `seeds` cell when there are none.
-#### Bets CSV
+- **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
+- **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.
+- **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`.
 
-Three checks measure how a model placed its bets, which a score cannot say and the analysis may not read from a message, see [what the analysis reads](../analysis/README.md#conventions). So the cell that ran the eval writes the counts itself.
+### Bets CSV
+
+Three checks measure how a model placed its bets, which a score cannot say and the analysis may not read from a message, see the analysis layer's [invariants](../analysis/README.md#invariants). So the cell that ran the eval writes the counts itself.
 
 - **`<cell>-bets.csv`**, beside the cell's logs, one row per run. The cell reads each sample's `RunStore` from the log its own eval returned, rebuilds the timeline for the event rounds, and counts.
 - **Columns.** `model`, `reasoning`, `skin`, `scenario`, `seed_index`, then:
@@ -135,10 +139,6 @@ Three checks measure how a model placed its bets, which a score cannot say and t
 
 - **One row per run, never a round.** The file holds counts and one onset round, no bet, no reading and no level, so it is as publishable as the cell's other CSVs. The pilot runs on public seeds.
 - **Only these three cells write one.** The headline logs and the score value do not change for the pilot's sake, see [scoring one run](scorer.md#scoring-one-run).
-
-- **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
-- **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.
-- **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`.
 
 ## Invariants
 

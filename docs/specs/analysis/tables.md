@@ -33,7 +33,7 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 - **The scores table** has one row per result row and the twelve columns on the proof of concept page: `Model`, the eight scenarios in `SCENARIOS` order under their design names, `Headline`, `Weakest trait`, `Tools`.
   - `Model` is the model string, then the reasoning setting in parentheses when it is not `n/a`, such as `anthropic/claude-haiku-5-5 (low)`.
   - A scenario cell is the score to two decimals, the bar in brackets, then the flags: `0.76 [0.71, 0.80] †`.
-  - `Headline` is the same shape. `Weakest trait` is the trait's name and its score: `Patience 0.41`.
+  - `Headline` is the same shape. `Weakest trait` is the trait's name, then its scenario's score and bar: `Patience 0.41 [0.35, 0.47]`. The bar is the scenario's own, copied, so the cell never disagrees with the column it came from. When two scenarios tie to two decimals the first in `SCENARIOS` order is named.
   - `Tools` is the two tool use shares over the row's runs, `notes 0.40, compute 0.95`, so the page shows whether a model used what it was given. Empty on a provider row and on a row at `tools none`.
   - A result row that did not play a scenario has an empty cell, and its headline says how many scenarios it averages: `0.70 [0.66, 0.74] of 3`.
 - **Row order** follows the models file when `models` is given: provider rows first, then LLM rows in file order, each setting in the row's `reasoning` order, as [`run`](../harness/command.md#run) runs them. A result row not in the file goes at the end, by headline. Without a file, headline descending.
@@ -43,7 +43,19 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 - **The public gap table** follows when a model has both seed sets: public minus held-out per scenario and headline, with its interval, see [public gap](scores.md#public-gap).
 - **The skin sensitivity table** follows when a model has two result rows whose `Setting` differs in `skin` and in nothing else but `prompt_hash`: `Model`, `Skins` as `<a> − <b>`, then the eight scenarios and `Headline`, each cell the `diff` of the [paired gap](scores.md#paired-gap) with its interval, `a`'s row minus `b`'s. One row per model and pair of skins, pairs in name order, so two skins give one row and three give three. Skins are names only, and the table says which story swayed a model, never why, see [spread](../../design/scoring.md#spread).
 - **The spread table** follows: `sd` and `p10` per result row and scenario, and the sampling share when the logs have epochs, see [spread and sampling share](scores.md#spread-and-sampling-share).
-- **Plots**, when asked for, go under `out/<name>/` and the page links each under its table, see [plots](plots.md). A file is `<skin>-<seed_set>[-own<own_scale>]-<plot>[-<model>].svg`, the model string with `/` and `:` as `-`. Every part is a guarded string, see [guards](runs.md#guards), so no name holds a path step.
+- **The noise threshold table** follows the last of those, once per skin and seed set, when any model has three or more result rows that differ only in `own_scale`, see [noise threshold](scores.md#noise-threshold). It is the full study's headline, and [`run --own-scale grid`](../harness/command.md#run) writes the logs it needs. One row per model and reasoning setting, in the scores table's order:
+
+| Column | What it shows |
+|---|---|
+| `Model` | As in the scores table |
+| `Threshold` | `snr` with its bar, `2.1 [1.7, 2.6]`, or the `status` when the model is off the grid. With `uncrossed_draws` above 0 the cell ends `, <n> of 1000 draws off the grid` |
+| `At 80%` | `snr_80` |
+| `Own-weather scale` | `own_scale` at the threshold, to read against the grid |
+| `Floor` | `floor`, then `floor_drift` in brackets as `±` |
+| `Settings` | How many grid settings the row was fitted on |
+
+  A model with fewer than three settings has no row, and a line under the table names it and how many it has. The table's heading names the skin and seed set, as every other does.
+- **Plots**, when asked for, go under `out/<name>/` and the page links each under its table, see [plots](plots.md). The noise plot is drawn once per noise threshold table, from the same `Threshold`s, as `<skin>-<seed_set>-noise.svg`. A file is `<skin>-<seed_set>[-own<own_scale>]-<plot>[-<model>].svg`, the model string with `/` and `:` as `-`. Every part is a guarded string, see [guards](runs.md#guards), so no name holds a path step.
 
 ### The run CSV
 
@@ -56,9 +68,11 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 | `run_score`, `gain`, `gap` | The score and the two numbers that pool it, averaged over epochs |
 | `epochs` | How many epochs the row averages |
 | `gave_up`, `retry_rounds`, `rounds`, `cut_offs` | The counts behind the flags |
-| `own_scale`, `engine_hash`, `prompt_hash`, `harness_version` | What the run played |
+| `own_scale`, `game_rounds`, `tools`, `warm_up`, `rolling`, `tool_choice`, `inertia` | The noise setting and the knobs. `game_rounds` is the game length, where `rounds` above is how many the agent played, see [result key](runs.md#result-key) |
+| `engine_hash`, `prompt_hash`, `generator_version`, `harness_version`, `release` | The versions |
 | `log` | The log's path, as the run table has it |
 
+- **Every field of `Setting` is a column**, so the rows of one table on the page are the CSV rows that share those columns, and a reader can rebuild any table from the file alone. Two settings that differ only in a knob never collapse into one.
 - **One score per run, and the two numbers that pool it.** `gain` and `gap` are what `pooled_score` needs to rebuild every score on the page, and together they say nothing about any round. The run's `output` and the baselines' outputs stay out, so the CSV holds no total that could place a timeline, see [who can see them](../../harness/contamination.md#who-can-see-them).
 - **Errored rows are left out.** The page's header counts them.
 - **Written with `lineterminator="\n"`, no index, floats as `repr`**, so the same table gives the same bytes on every machine.
@@ -86,7 +100,7 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 - Every scenario score on the page equals `pooled_score` over the CSV's `gain` and `gap` for that model, setting and scenario, to the two decimals shown.
 - No written file holds a held-out seed's value, an output, a reading, a message, a recognition reply or any skin text. `seed` is blank on every held-out row.
 - Every path `write_results` writes is under `out`.
-- `CSV_COLUMNS` is a subset of `RUN_COLUMNS` plus nothing.
+- `CSV_COLUMNS` is a subset of `RUN_COLUMNS` plus nothing. It holds `model`, `reasoning` and every field of `Setting`, so grouping the CSV by them gives the page's result rows.
 
 ## Not decided
 

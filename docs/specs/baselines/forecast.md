@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A [forecast rule](../../glossary.md#the-study) turns a forecast of next round's levels, as quantiles per channel, into a split. Timestral's provider calls one each round, see [Timestral](../harness/providers.md#timestral), and a Bayesian baseline would too, see [parked](parked.md#bayesian). The rules have no model in them, so they are tested on hand-written quantiles. Why each is in the study is in [Timestral](../../design/baselines.md#timestral).
+A [forecast rule](../../glossary.md#the-study) turns a forecast of next round's levels, as quantiles per channel, into a split. Timestral's provider calls one each round, see [Timestral](../harness/providers.md#timestral), and the Bayesian baseline does too, see [bayesian](bayesian.md). The rules have no model in them, so they are tested on hand-written quantiles. Why each is in the study is in [Timestral](../../design/baselines.md#timestral).
 
 ## Interface
 

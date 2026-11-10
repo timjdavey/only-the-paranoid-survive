@@ -30,7 +30,7 @@ def public_gap(runs, model: str, reasoning: str, skin: str) -> pd.DataFrame # on
 def spread(runs) -> pd.DataFrame                 # per ResultKey and scenario: sd, p10, n
 def sampling_share(runs) -> pd.DataFrame         # per ResultKey and scenario: within_sd, total_sd, share, seeds, epochs
 
-def switch_kinds(runs) -> pd.DataFrame           # per scenario, seed_set, seed_index, engine_hash, rounds, inertia, own_scale: kind
+def switch_kinds(runs) -> pd.DataFrame           # per scenario, seed_set, seed_index, engine_hash, game_rounds, inertia, own_scale: kind
 
 def signal_points(config: ScenarioConfig) -> float
 
@@ -124,7 +124,7 @@ The same pairing across two scenarios of one result row, for the twin timelines 
 
 Which kind of switch each seed drew, so run scores can be split by it, see [up and down](../../pilot/engine-checks.md#up-and-down).
 
-- **One timeline per distinct `(scenario, seed_set, seed_index, engine_hash, rounds, inertia, own_scale)`** in the table. The seed is `load_seeds(seed_set)[seed_index]`, so a held-out seed is read from the private seed file on the maintainer's machine and never from the table. The config is `scenario_config(scenario, rounds=..., inertia=..., own_scale=...)` with the row's knobs, and `engine_hash` of it must equal the row's, else `ValueError`.
+- **One timeline per distinct `(scenario, seed_set, seed_index, engine_hash, game_rounds, inertia, own_scale)`** in the table. The seed is `load_seeds(seed_set)[seed_index]`, so a held-out seed is read from the private seed file on the maintainer's machine and never from the table. The config is `scenario_config(scenario, rounds=game_rounds, inertia=..., own_scale=...)` with the row's knobs, and `engine_hash` of it must equal the row's, else `ValueError`.
 - **`kind`** reads the first `Event` with `shape == "switch"`: `numbers["kind"]`, and `short` when `numbers["short"] == 1`. `none` when the scenario has no switch. The timeline is dropped as soon as the word is read, and nothing else from it reaches any table.
 - **A kind per held-out seed is published** in the pilot's tables. It is one word per world and the engine is public, so it was weighed: it narrows a 64-bit seed by at most two bits and places nothing.
 - **Nothing is cached to disk.** Timelines are rebuilt every call, as a cache would be a timeline on disk, see [timeline](../engine/timeline.md#interface).

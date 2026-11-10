@@ -34,7 +34,8 @@ How the code is arranged. The [design](../design/) pages say why the game is the
     configs/
       models/      poc.toml and full.toml. See models.md
       seeds/       public.txt, the one list every scenario plays, once the engine exists. Held-out seeds are private, see contamination.md
-      grid.toml    the noise grid, see docs/specs/harness/task.md
+      grid.toml    the noise grid and the release name, see docs/specs/harness/task.md
+      prices.toml  token prices for the cost table, see docs/specs/analysis/tables.md
     docs/
       design/      why. The decisions
       harness/     how. This folder
@@ -48,6 +49,20 @@ How the code is arranged. The [design](../design/) pages say why the game is the
       engine/  baselines/  skins/  harness/  analysis/
     tests/         one folder per layer
     logs/          inspect logs, gitignored
+
+## What `pyproject.toml` holds
+
+One file carries a duty for every layer. Each row links to the spec that owns the rule, so this table is the checklist and never the rule.
+
+| Part | What it holds | Owner |
+|---|---|---|
+| Layer contract | An `import-linter` layered contract over the five packages, run in CI | [Five layers](#five-layers) |
+| Console script | `paranoid`, pointing at the harness's `main` | [command spec](../specs/harness/command.md#subcommands) |
+| `inspect_ai` entry point | The module that registers the `baseline`, `jev` and `timestral` providers | [providers spec](../specs/harness/providers.md) |
+| `paranoid.commands` entry point | `analyse`, which the harness finds without importing the analysis layer | [analysis command](../specs/analysis/command.md#dispatch) |
+| Extras | `timestral` for torch and Timestral, `sandbox` for the Docker sandbox | [running](running.md#setup) |
+| Package data | `skins/example.toml` and the harness's `compose.yaml` | [skin spec](../specs/skins/skin.md#the-example-skin), [solver spec](../specs/harness/solver.md#compute) |
+| Pins | numpy to one minor version, and the Timestral package to one git commit | [engine hash](../specs/engine/config.md#engine-hash), [providers spec](../specs/harness/providers.md#timestral) |
 
 ## Naming
 

@@ -46,7 +46,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 - **The maintainers only.** No lab sees held-out seeds, timelines or logs, funders included.
 - **Results publish one score per run.** Never a held-out seed, a timeline, or a round-by-round log.
 - **Providers see what they serve.** A run through an API shows the provider that run's readings. So we use zero data retention where a provider offers it.
-- **Fresh held-out seeds each release.** Readings a provider kept from one release are no use on the next. Old models are rerun on the new set, not carried over.
+- **Fresh held-out seeds each release.** Readings a provider kept from one release are no use on the next. Old models are rerun on the new set, not carried over. Every log names its release, so two releases' runs are never pooled, see the [task spec](../specs/harness/task.md#release).
 
 ## The public gap
 

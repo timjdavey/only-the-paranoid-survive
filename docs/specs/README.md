@@ -59,7 +59,8 @@ Every identifier that says what a run played, in one place. Each is owned by one
 | `numpy_version` | [harness](harness/task.md#dataset) logs it | Bit equality of timelines, which the hash does not promise across numpy versions | A numpy upgrade | `HK1` |
 | `prompt_hash` | [skins](skins/render.md#prompt-hash) | Every word the model reads from a skin, and the layout it reads them in | Any covered field, or a `RENDER_VERSION` bump | `KS2`, `KR7`, `HK10` |
 | `RENDER_VERSION` | [skins](skins/render.md#prompt-hash) | The joins of the system prompt and the shape of the record | A layout change with no skin word moved | `KR7` |
-| `harness_version` | [harness](harness/task.md#dataset) | The round loop, which neither hash covers | A release, or a commit when run from a checkout | `HK10` |
+| `harness_version` | [harness](harness/task.md#dataset) | The round loop, which neither hash covers | A new package version, or a commit when run from a checkout | `HK10` |
+| `release` | [harness](harness/task.md#release) | Which frozen set of defaults, noise grid and held-out seeds the run belongs to. A held-out seed is logged by position, so nothing else says which list it came from | A new release, named in `configs/grid.toml` | `HK14`, `AR11` |
 
 ## What never reaches a log or a prompt
 
