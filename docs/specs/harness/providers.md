@@ -57,8 +57,8 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 
 - **The name after the slash is a key of [`POLICIES`](../baselines/policies.md#policies)**, from the baselines layer, and the policy is `POLICIES[name](**args)` with the model args cast.
 - **Model args are policy parameters.** `--model baseline/hedge_rule -M explore=1 -M window=4` builds `HedgeRule(explore=1, window=4)`. inspect passes `-M` values as strings, so each is cast to the dataclass field's type, read from `dataclasses.fields`. A model arg that is not a field of the class, which for the four fixed baselines is any model arg at all, raises `ValueError` on construction naming the known fields. With no model args every entry is built at its defaults, so it equals the layer's instance of the same name.
-- **`bets`** is `policy(store.game().view(policy.peeks))`, see [view](../engine/game.md#view). The peeking baselines get the tape, the rest get `None`.
-- **The same rounds as a model.** A baseline run through the provider has the same `rows` as `play(policy, tape)`, warm up included, so the scorer's own baseline sums agree with the provider's run to the last decimal, see [scorer invariants](scorer.md#invariants).
+- **`bets`** is `policy(store.game().view(policy.peeks))`, see [view](../engine/game.md#view). The peeking baselines get the timeline, the rest get `None`.
+- **The same rounds as a model.** A baseline run through the provider has the same `rows` as `play(policy, timeline)`, warm up included, so the scorer's own baseline sums agree with the provider's run to the last decimal, see [scorer invariants](scorer.md#invariants).
 - **`max_connections`** is 32. A baseline does no I/O, so the cap only bounds concurrency.
 
 ### Jev
@@ -85,7 +85,7 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 ## Invariants
 
 - `generate` on any provider returns exactly one tool call to `tools[0].name` and no text.
-- `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name], tape)` on the same tape and warm up.
+- `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name], timeline)` on the same timeline and warm up.
 - A provider never writes to the store. Only the solver and the tools do.
 - A fake `JevClient` or `Forecaster` is enough to run a whole eval with no network.
 

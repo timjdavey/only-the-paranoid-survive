@@ -22,7 +22,7 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 
 | Section | Input | From scores | Plot | Check |
 |---|---|---|---|---|
-| Weather | `streaks`, `tell`, `luck`, `tape-sanity` CSVs | Pooled outputs per setting, `(perfect − discerning) / (discerning − uniform)` | Streak histograms, the tell rates against scale | [Streaks](../../pilot/engine-checks.md#streaks), [The tell](../../pilot/engine-checks.md#the-tell), [Luck on offer](../../pilot/engine-checks.md#luck-on-offer), [Tape sanity](../../pilot/engine-checks.md#tape-sanity) |
+| Weather | `streaks`, `tell`, `luck`, `timeline-sanity` CSVs | Pooled outputs per setting, `(perfect − discerning) / (discerning − uniform)` | Streak histograms, the tell rates against scale | [Streaks](../../pilot/engine-checks.md#streaks), [The tell](../../pilot/engine-checks.md#the-tell), [Luck on offer](../../pilot/engine-checks.md#luck-on-offer), [Timeline sanity](../../pilot/engine-checks.md#timeline-sanity) |
 | Seeds and repeats | `seeds` and `repeats` logs | `spread`, the seeds needed `ceil((sd / target)²)` at targets 0.02, 0.05 and 0.1, `sampling_share` | The strip plot of the seeds log | [Seeds](../../pilot/provider-checks.md#seeds), [Repeats](../../pilot/provider-checks.md#repeats) |
 | Recognition | `recognition` CSV through `load_recognition` | Hits per model and skin as counts and shares, canary finishes as a count | None | [Recognition](../../pilot/provider-checks.md#recognition) |
 | Up against down | `up-against-down` log | Run score by `switch_kinds` kind paired by seed, the two `scenario_gap`s, the inertia gaps as `paired_gap` | Run score by kind | [Up against down](../../pilot/provider-checks.md#up-against-down), [Inertia](../../pilot/provider-checks.md#inertia) |
@@ -46,8 +46,8 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 - **A section whose input is missing** writes `_Not run yet._` under its heading, as the page has now, and the page stays valid.
 - **Each table also goes to `out/results/<section>.csv`**, one file per section, and each plot to `out/results/<section>.svg`, so the page can link them and a reader can check.
 - **Headings are `SECTIONS`.** `write_pilot` writes every heading in order and replaces the body under each. When `out/results.md` exists, its headings must equal `SECTIONS`, else `ValueError` naming the odd one, so a new section is a change to the page, this table and `SECTIONS` together.
-- **Every rule on [tables](tables.md) holds here**: deterministic bytes, held-out seeds by position, no tape, no message, no skin text.
-- **Pilot CSVs hold one row per seed, never a tape**, see [pilot cells](../harness/command.md#pilot-cells), so reading them adds nothing a log does not already give away.
+- **Every rule on [tables](tables.md) holds here**: deterministic bytes, held-out seeds by position, no timeline, no message, no skin text.
+- **Pilot CSVs hold one row per seed, never a timeline**, see [pilot cells](../harness/command.md#pilot-cells), so reading them adds nothing a log does not already give away.
 
 ## Invariants
 

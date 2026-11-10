@@ -17,7 +17,7 @@ These are calculated scores based on fixed strategies.
 
 - **The hedge rule and the Scout rule differ only in when they explore.** The hedge rule explores one channel and acts on a fall. The Scout rule explores every channel every round, which costs `9s` points in the No change scenario and finds the sleeper in the Up switch scenario. Between them they bracket a model's choice: how much to explore when nothing is wrong. In noisy worlds the Scout rule can whipsaw, which shows on the noise grid as its curve falling below the Complacent baseline at the noisy end. That is the price of constant exploring, and worth seeing.
 - **The baselines are handed round 1.** The hedge rule and Scout rule start on the leader and know which channel is the hedge, the same gift the Complacent baseline gets. No model gets either: it finds the leader in its first rounds and never learns which channel is the hedge. So their curves are an upper bound on what a player that reads the tell could earn, not a floor a model should clear.
-- **Players may read their own record. The yardstick may not.** The Discerning baseline reads the tape, so the score is the same whatever the agent chose to explore. A Bayesian or CUSUM player that reads its own record is a fine mark, see [not yet](#not-yet), but never a denominator, as a lazy agent would get a lenient yardstick.
+- **Players may read their own record. The yardstick may not.** The Discerning baseline reads the timeline, so the score is the same whatever the agent chose to explore. A Bayesian or CUSUM player that reads its own record is a fine mark, see [not yet](#not-yet), but never a denominator, as a lazy agent would get a lenient yardstick.
 
 ## Timestral
 

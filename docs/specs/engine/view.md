@@ -21,10 +21,10 @@ class View:
     budget: int
     start: Start
     record: Record                          # every round before this one
-    tape: Tape | None                       # the tape for peeking policies, else None
+    timeline: Timeline | None               # the timeline for peeking policies, else None
 
 class Policy(Protocol):
-    peeks: bool                             # True if it may read the tape
+    peeks: bool                             # True if it may read the timeline
     def __call__(self, view: View) -> Bets: ...
 
 def split_budget(weights: Sequence[float], budget: int) -> Bets
@@ -32,16 +32,16 @@ def split_budget(weights: Sequence[float], budget: int) -> Bets
 
 - **`Policy` is a `Protocol`.** Anything with a `peeks` bool and a `__call__` from a view to bets satisfies it. The baselines layer makes each one a frozen dataclass instance, see [conventions](../baselines/README.md#conventions). A plain function with an attribute bolted on does not satisfy it for a type checker.
 - **A `View` is built by `Game.view(peeks)`**, see [game](game.md#view). Nothing else builds one.
-- **A `View` is never serialised**, for the same reason as a tape, see [tape](tape.md#interface).
+- **A `View` is never serialised**, for the same reason as a timeline, see [timeline](timeline.md#interface).
 
 ## Behaviour
 
 ### View
 
-- **`start` is the ladder at round 1**: `tape.leader`, `tape.runner_up`, `tape.hedge`, `tape.field`. Every policy gets it, as the Complacent baseline is defined by the round 1 split and the hedge rule and Scout rule are reference players that read the tell, not learners. Handing them round 1 is the same gift the Complacent baseline gets, see [fixed baselines](../../design/baselines.md#fixed-baselines).
+- **`start` is the ladder at round 1**: `timeline.leader`, `timeline.runner_up`, `timeline.hedge`, `timeline.field`. Every policy gets it, as the Complacent baseline is defined by the round 1 split and the hedge rule and Scout rule are reference players that read the tell, not learners. Handing them round 1 is the same gift the Complacent baseline gets, see [fixed baselines](../../design/baselines.md#fixed-baselines).
 - **No model gets `start`.** A model finds the leader in its first rounds and never learns which channel is the hedge. So the hedge rule and Scout rule curves are an upper bound on what a player that reads the tell could earn, and [baselines](../../design/baselines.md#fixed-baselines) says so.
 - **`record`** is the agent's own play, so a policy that reads only the record sees only what it bet on, at the roughness its bets bought. Policies read it through `readings_of`, see [record](game.md#record).
-- **`tape`** is set only when `peeks` is true. A policy with `peeks` false must work with `tape = None` and must never read it. Players may read their own record, only the yardstick reads the tape, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
+- **`timeline`** is set only when `peeks` is true. A policy with `peeks` false must work with `timeline = None` and must never read it. Players may read their own record, only the yardstick reads the timeline, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
 
 ### `split_budget`
 
@@ -49,7 +49,7 @@ Turns weights into a valid split by largest remainder. Shares are `weight / sum 
 
 ## Invariants
 
-- `game.view(peeks).tape is game.tape` when `peeks` is true, else `None`.
-- A view's `start` equals the tape's ladder on every round.
-- The tape a view carries is read only. A policy that writes to it gets `ValueError`, see [tape](tape.md#interface).
+- `game.view(peeks).timeline is game.timeline` when `peeks` is true, else `None`.
+- A view's `start` equals the timeline's ladder on every round.
+- The timeline a view carries is read only. A policy that writes to it gets `ValueError`, see [timeline](timeline.md#interface).
 - `split_budget` returns `len(weights)` non-negative ints summing to `budget`, for any weights with a positive sum.

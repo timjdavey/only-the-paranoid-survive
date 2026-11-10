@@ -54,7 +54,7 @@ Ryan Prescott Adams and David J. C. MacKay. "Bayesian Online Changepoint Detecti
 - **It assumes fresh noise.** Our weather has persistence, so three bad rounds in a row are ordinary. Run on raw levels, it would see a change in every bad stretch.
 - **It assumes one channel at a time.** A shock moves every channel through the shared factor. Run per channel, it would call a change in all ten at once, unless it models the factor.
 - **It assumes jumps.** A switch ramps over 1 to 5 rounds and a drift over many more, so early on no single run length fits well. This mirrors Wilson's point below about Behrens, who assumed drift where the task jumped.
-- **It assumes changes arrive at random** at a constant rate. Our scenarios hold a set list of events. The method is exact under its own model, not under how we build the tapes.
+- **It assumes changes arrive at random** at a constant rate. Our scenarios hold a set list of events. The method is exact under its own model, not under how we build the timelines.
 
 ## Wilson, Nassar and Gold 2010: learning the hazard rate
 

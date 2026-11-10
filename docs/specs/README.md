@@ -38,11 +38,11 @@ Every page has the same sections, in this order. A section with nothing to say i
 - Names in a spec are the names in the code. A rename is a spec change.
 - **One home per rule.** A rule two layers care about lives in one section. Every other mention links to it and adds nothing, so there is one place to change.
 - **Boundaries are two-sided.** Each layer's README lists the names it takes from the layer below and the names the layer above reads from it. A duty one layer hands another is written on both sides, and tested on the side that does it.
-- **Test ids are unique across the repo.** The first letter is the layer, the second the page, so any page can name any test: `ET3` is engine tape test 3.
+- **Test ids are unique across the repo.** The first letter is the layer, the second the page, so any page can name any test: `ET3` is engine timeline test 3.
 
 | Layer | Prefix | Pages |
 |---|---|---|
-| engine | `E` | `EC` config, `ET` tape, `EG` game, `EV` view, `EH` property |
+| engine | `E` | `EC` config, `ET` timeline, `EG` game, `EV` view, `EH` property |
 | baselines | `B` | `BP` policies, `BR` rules, `BF` forecast, `BH` property |
 | skins | `K` | `KS` skin, `KR` render, `KL` lint, `KH` property |
 | harness | `H` | `HK` task, `HS` solver, `HR` providers, `HO` scorer, `HM` command, `HY` property |
@@ -54,9 +54,9 @@ Every identifier that says what a run played, in one place. Each is owned by one
 
 | Identifier | Owner | What it covers | What changes it | Pinned by |
 |---|---|---|---|---|
-| `engine_hash` | [engine](engine/config.md#engine-hash) | The config that made the tape, `GENERATOR_VERSION` included | Any config field, or a `GENERATOR_VERSION` bump | `EC3`, `EC4` |
-| `GENERATOR_VERSION` | [engine](engine/config.md#engine-hash) | What `make_tape` produces for a config it already accepted | A change to the draws or their order | `EC3`, through the hash |
-| `numpy_version` | [harness](harness/task.md#dataset) logs it | Bit equality of tapes, which the hash does not promise across numpy versions | A numpy upgrade | `HK1` |
+| `engine_hash` | [engine](engine/config.md#engine-hash) | The config that made the timeline, `GENERATOR_VERSION` included | Any config field, or a `GENERATOR_VERSION` bump | `EC3`, `EC4` |
+| `GENERATOR_VERSION` | [engine](engine/config.md#engine-hash) | What `make_timeline` produces for a config it already accepted | A change to the draws or their order | `EC3`, through the hash |
+| `numpy_version` | [harness](harness/task.md#dataset) logs it | Bit equality of timelines, which the hash does not promise across numpy versions | A numpy upgrade | `HK1` |
 | `prompt_hash` | [skins](skins/render.md#prompt-hash) | Every word the model reads from a skin, and the layout it reads them in | Any covered field, or a `RENDER_VERSION` bump | `KS2`, `KR7`, `HK10` |
 | `RENDER_VERSION` | [skins](skins/render.md#prompt-hash) | The joins of the system prompt and the shape of the record | A layout change with no skin word moved | `KR7` |
 | `harness_version` | [harness](harness/task.md#dataset) | The round loop, which neither hash covers | A release, or a commit when run from a checkout | `HK10` |
@@ -67,7 +67,7 @@ The secrecy rules, each with the one section that owns it and the tests that pro
 
 | Never | Rule | Owner | Tests |
 |---|---|---|---|
-| A tape or a view | Regenerated from config and seed, never serialised | [engine](engine/tape.md#interface) | `ET28`, `HK11` |
+| A timeline or a view | Regenerated from config and seed, never serialised | [engine](engine/timeline.md#interface) | `ET28`, `HK11` |
 | A level the agent did not bet on | The record holds only what the agent saw | [engine](engine/game.md#record) | `EG5` |
 | A held-out seed's value | Position in the list only, the value read from the seed file at run time | [harness](harness/task.md#dataset) | `HK6`, `HO11` |
 | A held-out skin's text | A failing test names the skin, never its words. A log is as private as its skin | [skins](skins/tests.md) | `KL12` |

@@ -85,4 +85,4 @@ Every number is **pilot to confirm**.
 
 ## Not decided
 
-- The thresholds are in level points so they survive [pinning](../engine/tape.md#pinning). Whether they should scale with read noise instead. Decide when [reading roughness](../../pilot/engine-checks.md#reading-roughness) has run.
+- The thresholds are in level points so they survive [pinning](../engine/timeline.md#pinning). Whether they should scale with read noise instead. Decide when [reading roughness](../../pilot/engine-checks.md#reading-roughness) has run.

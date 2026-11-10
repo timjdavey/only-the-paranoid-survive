@@ -9,7 +9,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Streaks](engine-checks.md#streaks), persistence | | | |
 | [The tell](engine-checks.md#the-tell), shared-factor scale | | | |
 | [Luck on offer](engine-checks.md#luck-on-offer) | | | |
-| [Tape sanity](engine-checks.md#tape-sanity) | | | |
+| [Timeline sanity](engine-checks.md#timeline-sanity) | | | |
 | [Noise grid](engine-checks.md#noise-grid), own-weather scale | | | |
 | [Game length and switch round](engine-checks.md#game-length-and-switch-round) | | | |
 | [Reading roughness](engine-checks.md#reading-roughness) | | | |

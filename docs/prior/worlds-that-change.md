@@ -85,8 +85,8 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 **Watch out for.** Calm-week overreactions "are excluded from every reported metric by construction", so the score never counts a false alarm.
 
 **Why it matters here.**
-- **It is the closest study in method.** Their event tape is our [tape](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill, from a dumb policy to a yardstick, is the shape of our scenario score.
-- **Their oracle sees only what the agent saw. Ours does not, on purpose.** A yardstick built on the agent's own readings depends on what the agent chose to explore, so a lazy agent gets a lenient yardstick. Our [Discerning baseline](../design/baselines.md#fixed-baselines) reads the climate from the tape, so it is the same for every player and reachable in expectation.
+- **It is the closest study in method.** Their event tape is our [timeline](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill, from a dumb policy to a yardstick, is the shape of our scenario score.
+- **Their oracle sees only what the agent saw. Ours does not, on purpose.** A yardstick built on the agent's own readings depends on what the agent chose to explore, so a lazy agent gets a lenient yardstick. Our [Discerning baseline](../design/baselines.md#fixed-baselines) reads the climate from the timeline, so it is the same for every player and reachable in expectation.
 - **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with persistence makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our No change and One shock scenarios put a price on overreacting.
 - We don't measure their split between knowing and acting, because asking for a view on change tells the agent change is the question, see [rejected](../design/interface.md#rejected).
 
@@ -124,7 +124,7 @@ Thomas Grady, Kip Parker, Iliyan Zarov, Henry Course, Chengxi Taylor and Ross Ta
 
 **Why it matters here.**
 - **A bankroll that compounds adds sizing and ruin**, which the authors say made losses worse. That is why our budget is the same every round and the payout is linear, see [payout](../design/mechanics.md#payout) and the compounding bankroll row in [rejected](../design/interface.md#rejected).
-- **The change is the real season**, so nobody can say when it began or what a good agent should have done. Our tape fixes both, and the Discerning baseline sets the ceiling.
+- **The change is the real season**, so nobody can say when it began or what a good agent should have done. Our timeline fixes both, and the Discerning baseline sets the ceiling.
 - **There is no copy where nothing changes**, so a model that bets less after losses can't be told from one that noticed something. Our One shock scenario is that copy.
 - Writing Kelly code and never using it says a tool on hand is not a tool used. The [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check measures how often each tool is used.
 

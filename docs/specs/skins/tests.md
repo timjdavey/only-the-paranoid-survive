@@ -1,6 +1,6 @@
 # Tests
 
-Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Records come from `paranoid.engine`, with `uniform` from `paranoid.baselines`, so a test may call `play(uniform, make_tape(...))` on public seeds. Where a test needs a skin that fails, it builds a `Skin` by hand or writes a TOML file to `tmp_path`, so no bad skin is checked in.
+Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Records come from `paranoid.engine`, with `uniform` from `paranoid.baselines`, so a test may call `play(uniform, make_timeline(...))` on public seeds. Where a test needs a skin that fails, it builds a `Skin` by hand or writes a TOML file to `tmp_path`, so no bad skin is checked in.
 
 - **A test over held-out skins never prints their text.** With `PARANOID_SKINS` set, pytest would show both sides of a failed assertion in a CI log. Those tests fail with `pytest.fail` and the skin's name only, see [who can see them](../../harness/contamination.md#who-can-see-them).
 
@@ -30,8 +30,8 @@ Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, the
 | KR2 | `render_system_prompt(example)` equals a pinned string. The example skin's wording never changes once played | [render](render.md#system-prompt) |
 | KR3 | `render_system_prompt` called twice gives equal strings, and a subprocess gives the same | [render](render.md#system-prompt) |
 | KR4 | `render_record(skin, Record())` is one line holding each channel name as `<name>_<bet_word>` and `<name>_<level_word>`, in index order, between `round_word` and `output_word`, and ends with `\n` | [render](render.md#record) |
-| KR5 | `render_record` on `play(uniform, make_tape(SCENARIOS["no_change"], 0), max_rounds=3)` has four lines. Each row's bets are ints, its readings have exactly one decimal, and its output equals the row's `output` to one decimal | [render](render.md#record) |
-| KR6 | `render_record` with the example skin on a record from a hand-built four-channel tape raises `ValueError` from the skins layer | [render](render.md#record) |
+| KR5 | `render_record` on `play(uniform, make_timeline(SCENARIOS["no_change"], 0), max_rounds=3)` has four lines. Each row's bets are ints, its readings have exactly one decimal, and its output equals the row's `output` to one decimal | [render](render.md#record) |
+| KR6 | `render_record` with the example skin on a record from a hand-built four-channel timeline raises `ValueError` from the skins layer | [render](render.md#record) |
 | KR7 | `prompt_hash` is 12 lowercase hex characters. Replacing each covered field with a different value changes it, the four column words included, replacing `name` does not, and patching `RENDER_VERSION` to 2 changes it | [render](render.md#prompt-hash) |
 | KR8 | `prompt_hash` of a skin with a non-ASCII channel name equals a pinned string, so the JSON canonical form is fixed | [render](render.md#prompt-hash) |
 | KR9 | `render_record` on a fixed two-round record with a hand-built four-channel skin equals a pinned string, byte for byte, with one trailing newline per row and the header | [render](render.md#record) |
@@ -63,7 +63,7 @@ With `hypothesis`, kept fast with a small example count.
 |---|---|
 | KH1 | For any text of letters, spaces and punctuation, every entry `lint_text` returns is in `BANNED_WORDS`, and some word in the lowercased text starts with it, as is or after one prefix is removed |
 | KH2 | For any text with no banned entry at the start of any word, as is or after one prefix is removed, `lint_text` returns `()` |
-| KH3 | For any valid record from `play(uniform, tape)` on a public seed, `render_record(example, record).count("\n") == len(record) + 1` |
+| KH3 | For any valid record from `play(uniform, timeline)` on a public seed, `render_record(example, record).count("\n") == len(record) + 1` |
 
 ## Not decided
 

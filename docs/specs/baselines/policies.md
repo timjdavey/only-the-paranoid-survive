@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The four fixed baselines with no parameters, and `POLICIES`, the mapping from the six `baseline/<name>` names in [fixed baselines](../../design/baselines.md#fixed-baselines) to the policy each plays. The harness wraps each in a provider so `--model baseline/complacent` plays like a model, see [baseline](../harness/providers.md#baseline), and the engine checks run them on thousands of tapes with no model, see [engine checks](../../pilot/engine-checks.md). The two baselines with parameters are on [rules](rules.md).
+The four fixed baselines with no parameters, and `POLICIES`, the mapping from the six `baseline/<name>` names in [fixed baselines](../../design/baselines.md#fixed-baselines) to the policy each plays. The harness wraps each in a provider so `--model baseline/complacent` plays like a model, see [baseline](../harness/providers.md#baseline), and the engine checks run them on thousands of timelines with no model, see [engine checks](../../pilot/engine-checks.md). The two baselines with parameters are on [rules](rules.md).
 
 ## Interface
 
@@ -32,12 +32,12 @@ POLICIES: Mapping[str, Callable[..., Policy]]
 | Policy | Peeks | Split each round |
 |---|---|---|
 | `uniform` | No | `split_budget([1] × channels, budget)`. 10 each at the defaults |
-| `discerning` | Yes | `budget` on `tape.climate_leader(round)`, the highest base level this round. Ties go to the lowest index. So it holds on a short Up switch seed, and in the Up switch then down switch scenario it moves to the sleeper and back |
+| `discerning` | Yes | `budget` on `timeline.climate_leader(round)`, the highest base level this round. Ties go to the lowest index. So it holds on a short Up switch seed, and in the Up switch then down switch scenario it moves to the sleeper and back |
 | `complacent` | No | `budget` on `start.leader`, every round. Equals the Discerning baseline's round 1 split |
-| `perfect` | Yes | `budget` on the channel with the highest `tape.levels[round−1]`. Ties go to the lowest index |
+| `perfect` | Yes | `budget` on the channel with the highest `timeline.levels[round−1]`. Ties go to the lowest index |
 
 - **`uniform` ignores the view entirely.** It is the floor, see [scoring](../../design/scoring.md#why-these-two-baselines).
-- **`discerning` is the yardstick.** It reads the tape so the score is the same whatever the agent chose to explore. Nothing else on this page or [rules](rules.md) may be the denominator, see [players may read their own record](../../design/baselines.md#fixed-baselines).
+- **`discerning` is the yardstick.** It reads the timeline so the score is the same whatever the agent chose to explore. Nothing else on this page or [rules](rules.md) may be the denominator, see [players may read their own record](../../design/baselines.md#fixed-baselines).
 - **`complacent` needs `start`**, the ladder at round 1, which the view carries for every policy, see [view](../engine/view.md#view).
 
 ### `POLICIES`
@@ -50,8 +50,8 @@ POLICIES: Mapping[str, Callable[..., Policy]]
 ## Invariants
 
 - Every entry in `POLICIES`, built at its defaults, returns a valid split for every view: `channels` ints, none negative, summing to `budget`.
-- `complacent` on round 1 equals `discerning` on round 1, on every tape.
-- `discerning` and `complacent` are equal on every round of a No change tape.
+- `complacent` on round 1 equals `discerning` on round 1, on every timeline.
+- `discerning` and `complacent` are equal on every round of a No change timeline.
 - `perfect`'s output is at least `discerning`'s on every seed of every scenario.
 - `uniform` returns the same split for any view.
 - Every key in `POLICIES` is a glossary name and every glossary `baseline/<name>` is a key.

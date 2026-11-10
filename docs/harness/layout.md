@@ -13,7 +13,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 
 | Layer | Package | Depends on | What it exports |
 |---|---|---|---|
-| engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_tape`, `Tape`, `Game`, `Record`, `play`, `View`, `Policy`, `split_budget`, see the [engine spec](../specs/engine/README.md#exports) |
+| engine | `paranoid.engine` | numpy | `ScenarioConfig`, `SCENARIOS`, `engine_hash`, `make_timeline`, `Timeline`, `Game`, `Record`, `play`, `View`, `Policy`, `split_budget`, see the [engine spec](../specs/engine/README.md#exports) |
 | baselines | `paranoid.baselines` | engine | the fixed policies, `HedgeRule`, `ScoutRule`, `POLICIES`, the forecast rules and `FORECAST_RULES`, see the [baselines spec](../specs/baselines/README.md#exports) |
 | skins | `paranoid.skins` | engine | `Skin`, `SkinError`, `load_skin`, `load_skins`, `render_system_prompt`, `render_record`, `prompt_hash`, `lint`, `lint_text`, `LintError`, `CANARY` and the lint's word lists, see the [skins spec](../specs/skins/README.md#exports) |
 | harness | `paranoid.harness` | skins, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
@@ -21,7 +21,7 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 
 ## What each layer does
 
-- **Engine** turns a scenario and a seed into a [tape](../design/mechanics.md#generator), takes bets and returns readings and output, keeps the [record](../design/interface.md#tools), and says what a policy may see. Deterministic. Every number in [mechanics](../design/mechanics.md) is a field on `ScenarioConfig`, and a hash of the config goes into every log.
+- **Engine** turns a scenario and a seed into a [timeline](../design/mechanics.md#generator), takes bets and returns readings and output, keeps the [record](../design/interface.md#tools), and says what a policy may see. Deterministic. Every number in [mechanics](../design/mechanics.md) is a field on `ScenarioConfig`, and a hash of the config goes into every log.
 - **Baselines** hold every [baseline](../design/baselines.md) as a pure function from what it may see to bets, plus the rules that turn a forecast into bets. A new baseline is a file here and a key in `POLICIES`, and the harness plays it as `baseline/<name>` with no change of its own.
 - **Skins** dress the engine in a story. A skin is text plus the names of the ten channels. The layer renders the system prompt and the record in the skin's words, and lints both for banned words. Private skins load from a path, see [skins](skins.md).
 - **Harness** is the inspect_ai layer. One task, one solver, one tool, a provider for every model that cannot place bets, a scorer and metrics. See [inspect](inspect.md).
@@ -53,4 +53,4 @@ How the code is arranged. The [design](../design/) pages say why the game is the
 
 - **Package** `paranoid`. The repo name stays as it is.
 - **Providers** are `baseline/<name>`, `jev/<model>` and `timestral/<policy>`, so `--model baseline/complacent` works like `--model anthropic/<model>`.
-- **Glossary words in code too**, see [glossary](../glossary.md). A tape is a tape, not a world or a trajectory.
+- **Glossary words in code too**, see [glossary](../glossary.md). A timeline is a timeline, not a tape, a world or a trajectory.

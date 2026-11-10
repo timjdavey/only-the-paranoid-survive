@@ -1,6 +1,6 @@
 # Tests
 
-Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for baselines, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Tapes and whole runs come from `paranoid.engine`, with `play` and `make_tape` on public seeds. Tests marked **slow** run a thousand seeds and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
+Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for baselines, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Timelines and whole runs come from `paranoid.engine`, with `play` and `make_timeline` on public seeds. Tests marked **slow** run a thousand seeds and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
 
 ## Policies
 
@@ -8,10 +8,10 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 |---|---|---|
 | BP1 | Every entry in `POLICIES`, built at its defaults, returns a valid split on every round of 50 seeds of every scenario, with `play` | [policies](policies.md#invariants) |
 | BP2 | `uniform` returns the same split for any view | [policies](policies.md#the-four-fixed-baselines) |
-| BP3 | `complacent` round 1 equals `discerning` round 1 on 50 seeds, and the two are equal on every round of a No change tape | [policies](policies.md#invariants) |
-| BP4 | `discerning` moves on every Down switch tape of 50 seeds, in the first round the sleeper's or runner-up's base passes the leader's, and never before onset | [policies](policies.md#the-four-fixed-baselines) |
+| BP3 | `complacent` round 1 equals `discerning` round 1 on 50 seeds, and the two are equal on every round of a No change timeline | [policies](policies.md#invariants) |
+| BP4 | `discerning` moves on every Down switch timeline of 50 seeds, in the first round the sleeper's or runner-up's base passes the leader's, and never before onset | [policies](policies.md#the-four-fixed-baselines) |
 | BP5 | `perfect` output is at least `discerning` output on every seed of every scenario | [policies](policies.md#the-four-fixed-baselines) |
-| BP6 | Non-peeking policies give the same splits with `view.tape` as the tape and as `None` | [README](README.md#invariants) |
+| BP6 | Non-peeking policies give the same splits with `view.timeline` as the timeline and as `None` | [README](README.md#invariants) |
 | BP7 | Baseline order, **slow**: over 1000 seeds of every scenario, pooled output has `perfect ≥ discerning ≥ complacent`, with `discerning` above `complacent` on Down switch, and `uniform` below every other entry in `POLICIES`. That much holds whatever the knobs. Where the hedge rule and Scout rule land depends on the knobs, so it is the pilot's [baseline order](../../pilot/engine-checks.md#baseline-order) check and not a test | [policies](policies.md#the-four-fixed-baselines) |
 | BP8 | Uniform output, **slow**: over 1000 No change seeds, pooled, equals the mean level over all channels and rounds within 0.1% | [policies](policies.md#the-four-fixed-baselines) |
 | BP9 | Every exported policy has a `peeks` bool that is not in `dataclasses.fields`, and is callable | [README](README.md#conventions) |
@@ -30,7 +30,7 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BR5 | `HedgeRule(explore=0)`, `HedgeRule(window=0)`, `HedgeRule(scout_rounds=0)`, `HedgeRule(fall_points=0.0)`, `ScoutRule(s=0)`, `ScoutRule(n=0)` and `ScoutRule(tell_points=float("nan"))` each raise `ValueError` on construction. `HedgeRule(explore=100)` and `HedgeRule(explore=95)` raise `ValueError` on the first view at the defaults, as `100 − 95 < 9` | [rules](rules.md#hedge-rule) |
 | BR6 | Scout rule on 50 Up switch then down switch seeds: on at least 40 it ends on `start.leader` having moved at least twice, to the sleeper after the rise and back after the undo | [rules](rules.md#scout-rule) |
 | BR7 | Hedge rule and Scout rule played with `play` from a five round `complacent` warm up record on 20 Down switch seeds: every split is valid, the hedge rule does not scout before round `6 + 2 × window` and the Scout rule does not move before round `6 + n`, as the hedge has no reading until round 6 | [rules](rules.md#behaviour) |
-| BR8 | Hedge rule on 50 One shock seeds: it never scouts on at least 40 and ends on `start.leader` on at least 45, the tape version of BR1 | [rules](rules.md#hedge-rule) |
+| BR8 | Hedge rule on 50 One shock seeds: it never scouts on at least 40 and ends on `start.leader` on at least 45, the timeline version of BR1 | [rules](rules.md#hedge-rule) |
 | BR9 | Hedge rule and Scout rule called twice on one view give equal splits, and the split for a record's first `k` rows is the same whether or not a longer record was played through the rule first | [README](README.md#conventions) |
 
 ## Forecast

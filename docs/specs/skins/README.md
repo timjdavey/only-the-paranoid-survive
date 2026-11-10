@@ -32,7 +32,7 @@ The skins layer imports these from `paranoid.engine`. Their behaviour is in the 
 | Name | What the skins layer uses it for |
 |---|---|
 | `Record`, `Row` | The rows `render_record` writes, see [record](render.md#record) |
-| `play`, `make_tape`, `SCENARIOS` | Records for the test suite only, see [tests](tests.md) |
+| `play`, `make_timeline`, `SCENARIOS` | Records for the test suite only, see [tests](tests.md) |
 
 ## Names from the baselines layer
 
@@ -73,7 +73,7 @@ The harness takes a `Skin` from `load_skins` and uses it in five places, see [in
 
 ## Conventions
 
-- **Channel names are in channel index order.** Channel `c` is `skin.channels[c]` in every prompt, header and tool call. Which index leads is drawn per seed by the [ladder](../engine/tape.md#the-ladder), so a skin never knows its leader.
+- **Channel names are in channel index order.** Channel `c` is `skin.channels[c]` in every prompt, header and tool call. Which index leads is drawn per seed by the [ladder](../engine/timeline.md#the-ladder), so a skin never knows its leader.
 - **A skin holds words, never numbers from the engine.** No level, trend, onset or history. The number 100 and the count of ten are the frame's, see [skins](../../harness/skins.md#what-a-skin-file-holds).
 - **Text is stored stripped, in NFC, with `\n` newlines.** Rendering adds only the joins on the [render](render.md) page, so the same file hashes the same on every machine.
 - **Everything the model reads passes through `lint`.** A skin that fails to lint does not load, and there is no override, see [lint](lint.md).

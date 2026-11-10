@@ -59,7 +59,7 @@ Each scenario tests one trait, named as the virtue a high score shows. A low sco
 ## Seeds
 
 - **A seed fixes the world.** It draws every channel's noise for every round up front, bet on or not, so two agents on one seed see the same world and differ only by what they do. The baselines run on it too.
-- **One seed, twin tapes.** Seed *i* draws the same ladder, weather and onset round in every scenario, so the One shock and Down switch tapes match until the event begins and differ only in what it is. A model's gap between the two is paired on one world, and a move at onset reads as a hit on one tape and a false alarm on the other.
+- **One seed, twin timelines.** Seed *i* draws the same ladder, weather and onset round in every scenario, so the One shock and Down switch timelines match until the event begins and differ only in what it is. A model's gap between the two is paired on one world, and a move at onset reads as a hit on one timeline and a false alarm on the other.
 - **One fixed set of seeds per scenario, the same set for every model.** A model is compared with a rival on the same worlds, not on a different roll of the dice, so the gaps between models are tighter.
 - **The headline plays the held-out seeds.** Public seeds are for checking our work, and the gap between the two is reported beside the headline. See [contamination](../harness/contamination.md#two-seed-sets).
 - **Each seed is played once.** A seed whose noise looks like a switch for a few rounds is one world among many, and the pool absorbs it. How many seeds, and whether a model's own sampling needs repeats on top, is for the [pilot](../pilot/provider-checks.md#seeds).

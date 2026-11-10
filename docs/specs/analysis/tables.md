@@ -56,7 +56,7 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 | `own_scale`, `engine_hash`, `prompt_hash`, `harness_version` | What the run played |
 | `log` | The log's path, as the run table has it |
 
-- **One score per run, and the two numbers that pool it.** `gain` and `gap` are what `pooled_score` needs to rebuild every score on the page, and together they say nothing about any round. The run's `output` and the baselines' outputs stay out, so the CSV holds no total that could place a tape, see [who can see them](../../harness/contamination.md#who-can-see-them).
+- **One score per run, and the two numbers that pool it.** `gain` and `gap` are what `pooled_score` needs to rebuild every score on the page, and together they say nothing about any round. The run's `output` and the baselines' outputs stay out, so the CSV holds no total that could place a timeline, see [who can see them](../../harness/contamination.md#who-can-see-them).
 - **Errored rows are left out.** The page's header counts them.
 - **Written with `lineterminator="\n"`, no index, floats as `repr`**, so the same table gives the same bytes on every machine.
 

@@ -116,11 +116,11 @@ The rules that make the run table publishable. They are invariants, not options,
 - **`seed` is NA for a held-out sample.** A held-out sample whose metadata has a `seed` key raises `ValueError` naming the log and the sample id.
 - **The loader reads `sample.scores`, `sample.metadata`, `sample.model_usage`, `sample.epoch`, `log.eval` and `log.results`** and nothing else. It never reads `sample.messages`, `sample.store`, `sample.input` or `Score.answer`, so no reading, bet or skin word enters the table.
 - **A skin is its name.** The table holds `skin` as the metadata's name and `prompt_hash`, nothing more.
-- **The tape is never rebuilt here.** `switch_kinds` does that, on its own terms, see [switch kinds](scores.md#switch-kinds).
+- **The timeline is never rebuilt here.** `switch_kinds` does that, on its own terms, see [switch kinds](scores.md#switch-kinds).
 
 ### The report
 
-`load_runs` attaches a report to the table's `attrs["report"]`: the logs read with their sample counts, the logs skipped as not `paranoid`, the logs dropped as duplicates with the log that won, the errored samples per log, and any result row whose rows hold more than one `numpy_version`, as tapes are bit equal within one environment only, see [what a log carries](../README.md#what-a-log-carries). The [command](command.md#behaviour) prints it.
+`load_runs` attaches a report to the table's `attrs["report"]`: the logs read with their sample counts, the logs skipped as not `paranoid`, the logs dropped as duplicates with the log that won, the errored samples per log, and any result row whose rows hold more than one `numpy_version`, as timelines are bit equal within one environment only, see [what a log carries](../README.md#what-a-log-carries). The [command](command.md#behaviour) prints it.
 
 ## Invariants
 

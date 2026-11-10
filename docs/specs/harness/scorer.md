@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`gain` scores one run: its output, and the output of every fixed baseline on the same tape over the same rounds. The metrics pool those per scenario into the scenario score, bootstrap its error bar, and build the headline, the weakest trait and the retry share. The design is in [scoring](../../design/scoring.md) and [metrics](../../harness/inspect.md#metrics).
+`gain` scores one run: its output, and the output of every fixed baseline on the same timeline over the same rounds. The metrics pool those per scenario into the scenario score, bootstrap its error bar, and build the headline, the weakest trait and the retry share. The design is in [scoring](../../design/scoring.md) and [metrics](../../harness/inspect.md#metrics).
 
 ## Interface
 
@@ -40,7 +40,7 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | Key | Value |
 |---|---|
 | `output` | The sum of `row.output` over the rounds the agent played, `rows[warm_up_rounds:]` |
-| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, tape)` with the run's warm up record as its start, each policy at its defaults from the [baselines layer](../baselines/README.md#exports), see [play](../engine/game.md#play) |
+| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, timeline)` with the run's warm up record as its start, each policy at its defaults from the [baselines layer](../baselines/README.md#exports), see [play](../engine/game.md#play) |
 | `gain` | `output − uniform`, or 0 when the run gave up, see [giving up](#giving-up) |
 | `gap` | `discerning − uniform` |
 | `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread) |
@@ -51,9 +51,9 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | `bad_calls`, `no_calls`, `cut_offs` | From the store |
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
 
-- **The baselines replay the agent's warm up.** `play(policy, tape, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
-- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](command.md#pilot-cells). The score needs them whatever the agent's config, so `gain` plays them against a tape made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_tape` never reads the cap, see [config](../engine/config.md#fields).
-- **Every number comes from the record's rounded outputs**, never from the tape's levels, see [readings](../engine/game.md#readings). The agent and the scorer agree on every number.
+- **The baselines replay the agent's warm up.** `play(policy, timeline, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
+- **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](command.md#pilot-cells). The score needs them whatever the agent's config, so `gain` plays them against a timeline made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_timeline` never reads the cap, see [config](../engine/config.md#fields).
+- **Every number comes from the record's rounded outputs**, never from the ground truth, see [readings](../engine/game.md#readings). The agent and the scorer agree on every number.
 - **The baselines are deterministic**, so across epochs they are constant and the mean reducer leaves them alone.
 - **The scorer never reads the messages.** The store is the run.
 
@@ -104,7 +104,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 - A run of `baseline/uniform` has `gain == 0` and a run of `baseline/discerning` has `gain == gap`, exactly, on every seed and warm up. So their scenario scores are 0 and 1.
 - `pooled_score` equals the gap-weighted mean of the run scores.
 - The same log gives the same metrics on every machine, with no seed file and no engine.
-- No metric reads a tape. The scorer is the only reader, and only through the store.
+- No metric reads a timeline. The scorer is the only reader, and only through the store.
 - `perfect ≥ discerning` on every seed, see [BP5](../baselines/tests.md#policies).
 
 ## Not decided

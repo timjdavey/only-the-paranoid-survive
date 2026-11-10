@@ -16,9 +16,9 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HK6 | `PARANOID_SEEDS` pointing at a temp folder with a `held-out.txt`: `seeds="held-out"` reads it, metadata has `seed_set == "held-out"` and the right `seed_index` and no `seed` key, and the seed value appears nowhere in the log. Every scenario's sample at position `i` plays the same seed | [task](task.md#seeds) |
 | HK7 | `skin="nope"` raises `ValueError` listing `example`. `tools="laser"` raises `ValueError`. `scenario="../x"` raises before any path is built | [task](task.md#task-settings) |
 | HK8 | The task has `retry_on_error == 1` and `fail_on_error == 0.1`. `sandbox` is set only when `tools` includes `compute`, and its path exists | [task](task.md#task-settings) |
-| HK9 | `warm_up="complacent:5"` played with `baseline/uniform`: the store has `warm_up_rounds == 5`, the first five rows equal `play(complacent, tape, max_rounds=5)`, and the round 1 user message has six lines. `"complacent:0"`, `"complacent:40"` and `"nope:5"` raise `ValueError` | [task](task.md#warm-up) |
+| HK9 | `warm_up="complacent:5"` played with `baseline/uniform`: the store has `warm_up_rounds == 5`, the first five rows equal `play(complacent, timeline, max_rounds=5)`, and the round 1 user message has six lines. `"complacent:0"`, `"complacent:40"` and `"nope:5"` raise `ValueError` | [task](task.md#warm-up) |
 | HK10 | Every sample's `prompt_hash` equals the skins layer's `prompt_hash(skin)`, and `harness_version` is a non-empty string | [task](task.md#dataset) |
-| HK11 | `RunStore` has no field whose type is an array or a `Tape`, and no `seed` field, checked over `model_fields`. `store.tape()` twice is the same object | [task](task.md#store) |
+| HK11 | `RunStore` has no field whose type is an array or a `Timeline`, and no `seed` field, checked over `model_fields`. `store.timeline()` twice is the same object | [task](task.md#store) |
 | HK12 | `configs/grid.toml` loads to a list of positive floats that includes the default `own_scale` | [task](task.md#scenarios-and-config) |
 | HK13 | With `PARANOID_SKINS` pointing at a folder holding a clean four-name skin, `paranoid(skin=<its name>)` raises `ValueError` naming the skin and a scenario, before any sample is built | [task](task.md#task-settings) |
 
@@ -26,7 +26,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 
 | Id | Test | Page |
 |---|---|---|
-| HS1 | A full run with `baseline/uniform` on one seed: `len(rows) == rounds`, every `tries` entry is 1, and the rows equal `play(uniform, tape)` | [solver](solver.md#each-round) |
+| HS1 | A full run with `baseline/uniform` on one seed: `len(rows) == rounds`, every `tries` entry is 1, and the rows equal `play(uniform, timeline)` | [solver](solver.md#each-round) |
 | HS2 | `mockllm` scripted to a valid call every round: the messages at the start of round 2 are exactly a system and a user message, and the user message is `render_record` of a one-row record | [solver](solver.md#each-round) |
 | HS3 | `mockllm` scripted to a bad call then a valid one: `bad_calls == 1`, `tries == [2, 1, …]`, the round 1 messages before the valid call hold a tool message with `skin.bad_call`, and the round still played once | [solver](solver.md#tries) |
 | HS4 | `mockllm` scripted to text with no call then a valid one: `no_calls == 1` and a user message of `skin.no_call` was appended | [solver](solver.md#tries) |
@@ -39,7 +39,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS11 | `tools="notes"`: a `notes("abc")` call then a valid submit. Round 2's user message has two content blocks, the second `"abc"`. A 3000 character note is stored as 2000. A round that called only `notes` counts a no call | [solver](solver.md#notes) |
 | HS12 | **sandbox** `tools="compute"`: `compute("print(open('record.csv').read())")` returns the record CSV. `compute("import socket; socket.create_connection(('1.1.1.1', 80))")` returns an error, not a connection. A sleep of 60 seconds returns `timeout`. A loop that appends to a list forever ends with an error inside the timeout, and `os.environ` holds no key | [solver](solver.md#compute) |
 | HS13 | `rolling=True`: at round 3 the messages hold every earlier assistant and tool message, and the last user message is the header and one row | [solver](solver.md#rolling) |
-| HS14 | Replaying `store.rows` as bets with `Game` on `store.tape()` gives equal readings and outputs | [solver](solver.md#invariants) |
+| HS14 | Replaying `store.rows` as bets with `Game` on `store.timeline()` gives equal readings and outputs | [solver](solver.md#invariants) |
 | HS15 | A lint over every message a `mockllm` run produced finds no banned word, with the example skin | [prompts](../../harness/prompts.md#banned-words) |
 | HS16 | `tool_choice_for("anthropic", GenerateConfig(reasoning_effort="low"))` is `"auto"`. `("anthropic", GenerateConfig())` and `("openai", GenerateConfig(reasoning_effort="high"))` are `"forced"` | [solver](solver.md#each-round) |
 
@@ -49,7 +49,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 |---|---|---|
 | HR1 | `get_model("baseline/<name>")` resolves for all six names. `baseline/nope` raises `ValueError` naming the six | [providers](providers.md#registration) |
 | HR2 | Every provider's `generate` returns one tool call to `tools[0].name` with a `bets` list and `content == ""`, its `id` is `<model name>-<round>`, and its usage is zero tokens. With `tools == []` it raises `RuntimeError` | [providers](providers.md#shared-behaviour) |
-| HR3 | A full eval of `baseline/<name>` on 5 seeds of Down switch, for each of the six, has rows equal to `play(policy, tape)` | [providers](providers.md#baseline) |
+| HR3 | A full eval of `baseline/<name>` on 5 seeds of Down switch, for each of the six, has rows equal to `play(policy, timeline)` | [providers](providers.md#baseline) |
 | HR4 | `baseline/hedge_rule` with `model_args={"explore": "1", "window": "4"}` builds `HedgeRule(explore=1, window=4)`, the strings cast. `{"nope": "1"}` and `baseline/uniform` with `{"explore": "1"}` raise `ValueError` | [providers](providers.md#baseline) |
 | HR5 | A fake async `JevClient` recording its calls: the state equals the system text, two newlines, the user text. The question and options are the skin's. Probabilities `[0.5, 0.5, 0, …]` give bets `[50, 50, 0, …]`, and `[0.004, 0.996, 0, …]` give `[0, 100, 0, …]`. Nine probabilities raise `ValueError` | [providers](providers.md#jev) |
 | HR6 | The Jev message's `metadata` holds `probabilities`, `confidence` and `raw` | [providers](providers.md#jev) |
@@ -65,7 +65,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | Id | Test | Page |
 |---|---|---|
 | HO1 | `baseline/uniform` on 5 seeds of every scenario scores `gain == 0`, and `baseline/discerning` scores `gain == gap`, exactly | [scorer](scorer.md#invariants) |
-| HO2 | A run with `warm_up="complacent:5"`: `output` sums rows 6 on, `rounds == 35`, and every baseline value equals `play(policy, tape, record=warm_up)` summed over the same rows | [scorer](scorer.md#scoring-one-run) |
+| HO2 | A run with `warm_up="complacent:5"`: `output` sums rows 6 on, `rounds == 35`, and every baseline value equals `play(policy, timeline, record=warm_up)` summed over the same rows | [scorer](scorer.md#scoring-one-run) |
 | HO3 | `Score.value` has every key in the table, `retries == sum(tries) − len(tries)`, `gave_up == 0` and `run_score == gain / gap` | [scorer](scorer.md#scoring-one-run) |
 | HO4 | `pooled_score([880, 220], [1100, 550])` is `0.6666…` and not `0.6`. Empty input and a zero gap sum raise `ValueError` | [scorer](scorer.md#pooling) |
 | HO5 | `bootstrap` with one seed returns `(score, score)`. Twice with the default rng gives equal bars. With 100 seeds of gains drawn around 0.7 the bar contains 0.7 | [scorer](scorer.md#pooling) |

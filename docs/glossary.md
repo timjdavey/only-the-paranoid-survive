@@ -52,7 +52,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Runner-up | The second best channel at the start. The obvious fallback |
 | Field | The other channels, including the hedge |
 | Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
-| Tape | The true level of every channel in every round, as one seed produces it. Saved and replayed |
+| Timeline | One scenario played out on one seed: the ground truth, drawn before play starts. Every run on that seed replays it. Rebuilt from the seed, never saved. See [generator](design/mechanics.md#generator) |
+| Ground truth | Every channel's level in every round, as a timeline holds it. The agent sees readings, never the ground truth |
 | Column words | The four words a skin gives the record's header: the round column, the bet suffix, the level suffix and the output column. `round_word`, `bet_word`, `level_word`, `output_word` in code. See [render](specs/skins/render.md#record) |
 
 ## How the world changes
@@ -124,9 +125,9 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Word | What it means |
 |---|---|
 | Seed | The number that fixes a run's world: every channel's noise for every round, drawn up front |
-| Twin tapes | The tapes one seed makes across scenarios. They share the ladder, the weather and the onset round, so they match until the events differ. See [seeds](design/scoring.md#seeds) |
+| Twin timelines | The timelines one seed makes across scenarios. They share the ladder, the weather and the onset round, so they match until the events differ. See [seeds](design/scoring.md#seeds) |
 | Seed set | The fixed list of seeds every scenario plays, so seed *i* is the same world across scenarios. There are two, public seeds and held-out seeds. See [contamination](harness/contamination.md#two-seed-sets) |
-| Public seeds | Seeds published in this repo with their tapes. For the pilot, the example logs and anyone checking our work |
+| Public seeds | Seeds published in this repo with their timelines. For the pilot, the example logs and anyone checking our work |
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
 | Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. See [contamination](harness/contamination.md) |
 | Contamination | A model having seen the benchmark in training |

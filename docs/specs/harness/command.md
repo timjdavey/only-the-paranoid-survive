@@ -74,7 +74,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 - **For every row and every `reasoning` value** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
 - **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens.
-- **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own tape, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
+- **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own timeline, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
 - **`--only <id>`** runs one row. **`--limit`** caps samples per eval, as inspect does. **`--dry-run`** prints each eval call and runs nothing.
 - **A Timestral row with the extra missing** is skipped with one line saying so, and `poc` carries on. A missing key for an LLM row is left to inspect, which fails that eval, and `poc` carries on to the next row and returns 1 at the end.
 - **Logs** go to `--log-dir`, named by inspect. Each holds the metadata in [dataset](task.md#dataset), so the analysis layer can tell them apart without the config.
@@ -86,10 +86,10 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 | Check | Needs a model | What it runs | Writes |
 |---|---|---|---|
-| `streaks` | No | Tapes over a grid of `persistence`, 1000 seeds each, the No change and Down switch scenarios | A CSV: setting, seed, longest run of rounds the leader reads below the runner-up by chance, and the round the Scout rule moves |
-| `tell` | No | Tapes over a grid of `factor_scale`, One shock and Down switch, 1000 seeds | A CSV: setting, seed, hedge move at the trough, and the hedge rule's hold or move |
+| `streaks` | No | Timelines over a grid of `persistence`, 1000 seeds each, the No change and Down switch scenarios | A CSV: setting, seed, longest run of rounds the leader reads below the runner-up by chance, and the round the Scout rule moves |
+| `tell` | No | Timelines over a grid of `factor_scale`, One shock and Down switch, 1000 seeds | A CSV: setting, seed, hedge move at the trough, and the hedge rule's hold or move |
 | `luck` | No | `perfect` minus `discerning` on every scenario at every grid setting | A CSV: scenario, setting, seed, gap |
-| `tape-sanity` | No | [ET22](../engine/tests.md#tape) and [BP7](../baselines/tests.md#policies) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
+| `timeline-sanity` | No | [ET22](../engine/tests.md#timeline) and [BP7](../baselines/tests.md#policies) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
 | `noise-grid` | No | Every fixed baseline on One shock, Down switch and Up switch at every setting in `configs/grid.toml`, 1000 seeds | A CSV: scenario, setting, baseline, seed, output |
 | `game-length` | No | The baselines at `rounds` of 30, 40 and 60 and `onset` ranges around the default, One shock, Down switch and the two-event scenarios | A CSV: scenario, rounds, onset, baseline, seed, output |
 | `reading-roughness` | No | `HedgeRule(explore=1,2,5)` and `ScoutRule(s=1,2,5)` over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |
@@ -105,7 +105,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `rolling` | Yes | One LLM row on One shock and Down switch, with `rolling` off and on | Two eval logs |
 | `warm-up` | Yes | One LLM row with `warm_up` unset and at `complacent:5` | Two eval logs |
 
-- **Every CSV has one row per seed, never a tape.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
+- **Every CSV has one row per seed, never a timeline.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one.
 - **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
 - **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.

@@ -89,7 +89,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - A round ends only on a valid call to the skin's tool. The harness never places bets for the agent.
 - `sum(store.tries) == ` the number of generate calls in the run, whether or not it gave up.
 - `len(store.tries) == len(store.rows) − store.warm_up_rounds`, plus one when the run gave up.
-- Replaying `store.rows` as bets on `store.tape()` with `Game` gives the same readings and outputs, so the log is enough to check a run.
+- Replaying `store.rows` as bets on `store.timeline()` with `Game` gives the same readings and outputs, so the log is enough to check a run.
 - With `rolling` off, every round starts with exactly two messages, or two messages with two content blocks on the second when notes are on.
 - `store.awaiting_submit` is false whenever the solver is between rounds, and after a give up.
 - The solver raises nothing of its own. An exception in a run comes from inspect, a provider or the network.

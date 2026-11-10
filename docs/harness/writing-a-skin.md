@@ -98,7 +98,7 @@ By reading:
 
 ## After it is written
 
-- **Commit on a branch in the private repo, never anywhere public.** No skin, tape, or log that played one leaves the machines that run it, see [who can see them](contamination.md#who-can-see-them).
+- **Commit on a branch in the private repo, never anywhere public.** No skin, timeline, or log that played one leaves the machines that run it, see [who can see them](contamination.md#who-can-see-them).
 - **Fix it before the first headline run.** A skin's text never changes once a headline run has played it, see [what never changes](../../CONTRIBUTING.md#what-never-changes-without-a-new-pilot). After that a fix is a new skin.
 - **The recognition check is the real test.** It asks each model where the prompt comes from. A skin that gets more hits than the others is the one to rewrite.
 

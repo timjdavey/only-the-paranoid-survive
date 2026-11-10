@@ -46,9 +46,9 @@ class RunStore(StoreModel):
     notes: str = ""
     def seed(self) -> int             # load_seeds(self.seed_set)[self.seed_index]
     def config(self) -> ScenarioConfig
-    def tape(self) -> Tape            # make_tape(self.config(), self.seed()), cached by (engine_hash, seed)
+    def timeline(self) -> Timeline    # make_timeline(self.config(), self.seed()), cached by (engine_hash, seed)
     def record(self) -> Record
-    def game(self) -> Game            # Game(self.tape(), self.record())
+    def game(self) -> Game            # Game(self.timeline(), self.record())
     def round(self) -> int            # len(rows) + 1
 
 def scenario_config(name: str, *, rounds: int | None = None, inertia: int | None = None,
@@ -71,7 +71,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 
 ### Seeds
 
-- **One list, every scenario.** There are two seed files, and every scenario plays the same one. Seed *i* is position *i* in all eight scenarios, so twin tapes line up in one log by construction, see [seeds](../../design/scoring.md#seeds). A scenario never has a list of its own.
+- **One list, every scenario.** There are two seed files, and every scenario plays the same one. Seed *i* is position *i* in all eight scenarios, so twin timelines line up in one log by construction, see [seeds](../../design/scoring.md#seeds). A scenario never has a list of its own.
 - **Seed files** hold one seed per line, as a whole number. Blank lines and lines starting with `#` are skipped. A repeated seed raises `ValueError`.
 - **Public seeds** are read from `configs/seeds/public.txt`. **Held-out seeds** from `$PARANOID_SEEDS/held-out.txt`. `held-out` with `PARANOID_SEEDS` unset raises `ValueError` that names the variable, see [two seed sets](../../harness/contamination.md#two-seed-sets).
 - **`parse_seeds`** returns `(position, seed)` pairs in file order. `"public"` and `"held-out"` give the whole list. A range `"a-b"` gives positions `a` to `b` inclusive of the public list, and `"a"` is `"a-a"`. A position past the end of the list, or `b < a`, raises `ValueError`.
@@ -81,7 +81,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 
 - **A `MemoryDataset`** with one `Sample` per scenario per seed, scenarios in `SCENARIOS` order, seeds in file order.
 - **`Sample.id`** is `f"{scenario}/{position}"`. `Sample.input` is the same string. The solver replaces the messages on every round, so the input is never shown to a model.
-- **`Sample.metadata`** holds everything a reader of the log needs and nothing that gives away the tape:
+- **`Sample.metadata`** holds everything a reader of the log needs and nothing that gives away the timeline:
 
 | Key | Value |
 |---|---|
@@ -94,7 +94,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 | `harness_version` | The `paranoid` package version, with the short git SHA when run from a checkout, as `0.1.0+2f13c9a`. The two hashes do not cover the solver, so this is what says which round loop played |
 | `rounds`, `inertia`, `own_scale`, `tools`, `warm_up`, `rolling` | The knobs, as resolved. `rounds` is the config's final value |
 
-- **A held-out seed's value is never in the log.** Not in the metadata, not in the store, not in the score. The store holds `seed_set` and `seed_index`, and `seed()` reads the value from the seed file at run time. The engine is public, so one leaked seed is eight leaked worlds, where a leaked record is one run. A held-out log is still as private as its skin, see [contamination](../../harness/contamination.md#public-and-held-out), and the engine spec says the same, see [tape](../engine/tape.md#interface).
+- **A held-out seed's value is never in the log.** Not in the metadata, not in the store, not in the score. The store holds `seed_set` and `seed_index`, and `seed()` reads the value from the seed file at run time. The engine is public, so one leaked seed is eight leaked worlds, where a leaked record is one run. A held-out log is still as private as its skin, see [contamination](../../harness/contamination.md#public-and-held-out), and the engine spec says the same, see [timeline](../engine/timeline.md#interface).
 
 ### Task settings
 
@@ -109,13 +109,13 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 ### Store
 
 - **The solver fills the store on round 1** from the sample's metadata: `scenario`, `seed_set`, `seed_index`, `skin` and the knobs. Everything else starts empty. The store repeats the metadata because the tools and the providers see the store and not the sample.
-- **`seed()`, `config()`, `tape()`, `record()` and `game()` are derived**, never stored. `tape()` caches per `(engine_hash, seed)` in a module-level LRU of 1024 tapes, so forty rounds and the scorer build one tape and a long eval does not grow without bound. The cache holds tapes, not arrays in the store, so nothing on the tape reaches the log.
-- **`rows` is the record.** `record()` builds a `Record` from them in order. `Game(tape, record)` validates them, see [starting part way](../engine/game.md#starting-part-way).
-- **The store is written to the log by inspect**, so a run can be rebuilt from any round by replaying `rows[:r]` against the tape.
+- **`seed()`, `config()`, `timeline()`, `record()` and `game()` are derived**, never stored. `timeline()` caches per `(engine_hash, seed)` in a module-level LRU of 1024 timelines, so forty rounds and the scorer build one timeline and a long eval does not grow without bound. The cache holds timelines, not arrays in the store, so nothing on the timeline reaches the log.
+- **`rows` is the record.** `record()` builds a `Record` from them in order. `Game(timeline, record)` validates them, see [starting part way](../engine/game.md#starting-part-way).
+- **The store is written to the log by inspect**, so a run can be rebuilt from any round by replaying `rows[:r]` against the timeline.
 
 ### Warm up
 
-- **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name], tape, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of the baselines layer's [`POLICIES`](../baselines/policies.md#policies), built at its defaults. `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
+- **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name], timeline, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of the baselines layer's [`POLICIES`](../baselines/policies.md#policies), built at its defaults. `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
 - **The agent then plays rounds `k + 1` to `rounds`.** Its round 1 user message shows `k` rows it did not place, see [user message](../../harness/prompts.md#user-message).
 - **Warm up rows score nothing** for the agent, and the baselines it is scored against are summed over the same rounds it played, see [scoring one run](scorer.md#scoring-one-run).
 - The warm up cell is in [decisions](../../pilot/decisions.md#provider-checks) as "Warm up: empty record or pre-filled".
@@ -124,7 +124,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 
 - The same task args give the same dataset, with the same ids in the same order.
 - Every sample's `engine_hash` equals `engine_hash(store.config())` once the store is filled.
-- `RunStore` has no field that holds an array, a tape, a level the agent did not see, or a held-out seed's value.
+- `RunStore` has no field that holds an array, a timeline, a level the agent did not see, or a held-out seed's value.
 - `len(store.rows) ≤ store.config().rounds` at all times, and equals it unless the run gave up.
 - `store.round() == len(store.rows) + 1`.
 

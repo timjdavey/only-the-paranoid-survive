@@ -10,7 +10,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 ## Generator
 
-The generator turns a scenario and a seed into a **tape**: the true level of every channel in every round. Levels are not clipped, so one can go below 0 in a deep shock. Every run on a seed replays the same tape, and anyone can regenerate a public seed's tape from the engine. A tape is never written down: a held-out seed's tape is as secret as the seed, see [contamination](../harness/contamination.md#two-seed-sets).
+The generator turns a scenario and a seed into a **timeline**: the ground truth of the run, every channel's level in every round. Levels are not clipped, so one can go below 0 in a deep shock. Every run on a seed replays the same timeline, and anyone can regenerate a public seed's timeline from the engine. A timeline is never written down: a held-out seed's timeline is as secret as the seed, see [contamination](../harness/contamination.md#two-seed-sets).
 
 ### Each round
 
@@ -26,7 +26,7 @@ The generator turns a scenario and a seed into a **tape**: the true level of eve
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
 - **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
 - **Base levels sit mid-range**, so a level rarely goes below 0. Nothing breaks when it does: the score is a share of a gap and the headline a plain mean, so a negative round is just a bad round. Clipping was only there for the geometric mean, which is gone, see [scoring](scoring.md#why-a-pool-within-and-a-plain-mean-across).
-- **One seed, twin tapes.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and Down switch tapes match until the event begins, see [seeds](scoring.md#seeds).
+- **One seed, twin timelines.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and Down switch timelines match until the event begins, see [seeds](scoring.md#seeds).
 
 ### The ladder
 
@@ -52,13 +52,13 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 ### Stringing events
 
 - **A minimum gap** between events, set per scenario. Events may still overlap, so a shock can land mid-drift.
-- **No two alike.** Each event redraws its numbers and lands on different weather, and a second switch hits a different channel unless the scenario says it undoes the first, as in the Up switch then down switch scenario. A tape is rejected if consecutive events of the same kind differ in fewer than two draws.
+- **No two alike.** Each event redraws its numbers and lands on different weather, and a second switch hits a different channel unless the scenario says it undoes the first, as in the Up switch then down switch scenario. A timeline is rejected if consecutive events of the same kind differ in fewer than two draws.
 - **A hard variant strings more, or stretches.** More shocks before the switch, a longer drift, or a sleeper's rise spread over many rounds, which is the Up drift we [skip](scenarios.md#scenarios-we-skip). Length and count come from the pilot, see [TODO](../../TODO.md#pilot).
 
 ### Difficulty
 
 - **Signal to noise is the axis.** The size of a switch in level points over the weather's SD per round. With a high ratio one reading settles whether a dip is a shock or a switch. With a low one it takes many rounds.
-- **Three dials move it**, all set per release and picked in the [engine checks](../pilot/engine-checks.md#weather): own-weather scale, persistence and shared-factor scale. Every scenario shares them, so twin tapes keep the same weather. The own-weather scale is the axis the [noise grid](../pilot/engine-checks.md#noise-grid) turns. Persistence never moves within a release, as it changes what a bad stretch means.
+- **Three dials move it**, all set per release and picked in the [engine checks](../pilot/engine-checks.md#weather): own-weather scale, persistence and shared-factor scale. Every scenario shares them, so twin timelines keep the same weather. The own-weather scale is the axis the [noise grid](../pilot/engine-checks.md#noise-grid) turns. Persistence never moves within a release, as it changes what a bad stretch means.
 - **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the prize would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. A rise is pinned the same way, as the sleeper's end level above the leader's.
 - **A harder release extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
 
