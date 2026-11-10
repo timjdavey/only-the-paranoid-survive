@@ -93,7 +93,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot check, see [warm up](pilot/provider-checks.md#warm-up) and the [task spec](specs/harness/task.md#warm-up). `warm_up` in code |
 | Give up | What the solver does after ten failed tries in one round: the run ends there, with no error, and scores as the Uniform baseline on that seed. See [solver spec](specs/harness/solver.md#tries). `gave_up` in code |
 | Tool choice | Whether a reply must call a tool: `any` where the provider allows it, `auto` where it does not, as on Claude with thinking on. The solver picks it from the model and logs it. See [solver spec](specs/harness/solver.md#each-round). `tool_choice` in code |
-| Tool use share | The share of a run's rounds in which the agent called the notes tool, and the share in which it called the compute tool. Reported beside every score. `notes_rounds` and `compute_rounds` in code, see [scorer spec](specs/harness/scorer.md#scoring-one-run) |
+| Tool use share | The share of a run's rounds in which the agent called the notes tool, and the share in which it called the compute tool. Reported beside every score. `notes_rounds` and `compute_rounds` in code, see [scorer spec](specs/harness/scorer.md#tool-use-share) |
 | Prompt caching | A provider billing the start of a prompt at a lower rate when it matches a prompt it was sent moments before. It changes what a run costs, never what the model reads. See [models](harness/models.md#prompt-caching) |
 | Cached share | The part of a model's input tokens its provider read from the prompt cache. Near zero on a provider that caches means the cache is missing. See [cost](specs/analysis/tables.md#cost) |
 
@@ -108,15 +108,15 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/engine-checks.md#noise-grid) |
-| Trait | One scenario's score, named for what a high score shows. A label on a number, not a disposition. See [traits](design/scoring.md#traits) |
-| Composure | The No change scenario score. Ignoring noise when nothing is happening. When nothing changes, how much does it keep betting on the best channel? |
-| Patience | The One shock scenario score. Holding through a dip that passes. When the best channel dips and recovers, how much does it keep on it through the dip? |
-| Doubt | The Down switch scenario score. Questioning the plan when the change is real. When the best channel falls for good in one round, how soon does it move to the new best channel? |
-| Curiosity | The Up switch scenario score. Exploring when nothing is wrong, and moving only for a rise that beats the plan. When another channel rises past the best one, with nothing to see unless it explores, how soon does it find the riser and move, and what did the exploring cost? |
-| Unlearning | The Shock then switch scenario score. Dropping "dips recover" once it stops being true. When the best channel dips and recovers, then later falls for good, how soon does it move after the real fall? |
-| Vigilance | The Slow drift scenario score. Noticing a decline that has no sudden move. When the best channel slides over many rounds, so no single round looks bad, how soon does it move to the new best channel? |
-| Conviction | The Switch then shock scenario score. Holding a plan it just chose through a dip that passes. When it has just moved to a new best channel and that channel dips and recovers, how much does it keep on it through the dip? |
-| Recall | The Up switch then down switch scenario score. Going back to a plan it has seen pay when the change undoes itself. When the channel it moved to falls back, so the old one is best again, how soon does it move back? |
+| Trait | One scenario's score, named for what a high score shows. A label on a number, not a disposition. The question each score answers is in [traits](design/scoring.md#traits) |
+| Composure | The No change scenario score. Ignoring noise when nothing is happening |
+| Patience | The One shock scenario score. Holding through a dip that passes |
+| Doubt | The Down switch scenario score. Questioning the plan when the change is real |
+| Curiosity | The Up switch scenario score. Exploring when nothing is wrong, and moving only for a rise that beats the plan |
+| Unlearning | The Shock then switch scenario score. Dropping "dips recover" once it stops being true |
+| Vigilance | The Slow drift scenario score. Noticing a decline that has no sudden move |
+| Conviction | The Switch then shock scenario score. Holding a plan it just chose through a dip that passes |
+| Recall | The Up switch then down switch scenario score. Going back to a plan it has seen pay when the change undoes itself |
 | Trait profile | A model's scores across scenarios, one per trait. The signal the headline combines |
 | Error bar | How sure we are of a score. The 2.5th to 97.5th percentiles of the score over resamples of the seeds, a percentile bootstrap, so it shrinks with more seeds (epistemic uncertainty). Never SD over √seeds, as a pooled ratio is not a mean. See [scoring](design/scoring.md#error-bars) |
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |

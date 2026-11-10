@@ -113,7 +113,7 @@ Each round is a fresh call with the record in the prompt, see [tools](../design/
   - The score gap, paired by seed.
   - Tokens per run, and input tokens per round against the round number, which prices the growth.
 - **Decide.** Report the gap per model beside the headline, as the bare gap is. The headline stays on fresh calls, as the [interface](../design/interface.md#rejected) page says why.
-- **Read per model, never pooled across providers.** Every provider keeps the text and the tool calls. Whether a model reads its own earlier reasoning on the next turn is the provider's choice, see [reasoning](../harness/models.md#reasoning), so a gap on one provider says nothing about another.
+- **Read per model, never pooled across providers.** What a model keeps of its reasoning across turns is the provider's choice, see [reasoning](../harness/models.md#reasoning), so a gap on one provider says nothing about another.
 
 ## Warm up
 

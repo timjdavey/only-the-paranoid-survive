@@ -47,7 +47,7 @@ How the record is cut into content blocks, and nothing else. The text is the sam
 
 - **`record_blocks(text)`** cuts the record after every line end and returns the pieces in order: the header line, then one piece per row. Nothing is added, dropped or stripped.
 - **Used when `get_model().api` is in `BLOCK_CACHE_APIS`.** Each piece is one text block of the user message. Any other api gets the record as one block.
-- **Why.** Anthropic's cache matches a prompt up to the end of a content block. Round `n` sends the blocks of round `n − 1` and one more, so what the provider cached at the end of the last prompt is read whole. As one block the record differs every round and never matches.
+- **Why.** Anthropic's cache matches by content block, and a record sent as one growing block never matches, see [prompt caching](../../harness/models.md#prompt-caching).
 - **The notes block stays last**, after every record block, so a changed note leaves the rows above it cached.
 - **inspect places the cache marks.** The solver sets none, and `cache_prompt` stays at inspect's default, see [reasoning](command.md#reasoning).
 - **With `rolling` on** every user message that holds the record is cut the same way.
@@ -100,7 +100,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 
 - **With `rolling` on** step 2 runs on round 1 only. Later rounds append a user message of `render_record(skin, store.record())`, the same user message a fresh call would send, and keep every earlier message. Nothing is compacted. The record the model reads is the same in both modes, so the one thing rolling changes is that the earlier replies, tool messages and retry messages stay. `rolling` is a task arg, so the cell runs from the command line, see [task](task.md#interface).
 - **Everything else is the same**, so the only difference in the log is the message list.
-- **What carries over is the provider's.** Every provider keeps the text and the tool calls. Whether the model reads its own earlier reasoning on the next turn depends on the provider and the model, so the rolling gap is read per model, see [rolling conversation](../../pilot/provider-checks.md#rolling-conversation).
+- **What carries over is the provider's**, see [reasoning](../../harness/models.md#reasoning), so the rolling gap is read per model, see [rolling conversation](../../pilot/provider-checks.md#rolling-conversation).
 
 ## Invariants
 
