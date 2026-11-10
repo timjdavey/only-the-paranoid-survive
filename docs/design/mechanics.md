@@ -88,6 +88,7 @@ Off by default. Each one closes a tell a model could learn.
 
 - **Every number on this page is a field on `ScenarioConfig`** in the engine, with a default, so the engine is built from this page alone. A hash of the config goes in every log, see [layout](../harness/layout.md).
 - **A run is 40 rounds by default.** The pilot moves this and the other defaults, see [decisions](../pilot/decisions.md).
+- **A run is as short as it can be without ending before the hedge rule and the Scout rule have moved.** The [game length](../pilot/engine-checks.md#game-length-and-switch-round) check finds that length. Tighter error bars come from seeds, never from rounds, see [rejected](#rejected).
 - **A release freezes them.** The defaults, the noise grid and the held-out seeds together are one release, see [contamination](../harness/contamination.md#who-can-see-them). Releases share the signal to noise axis, so scores from different releases sit on one chart.
 
 ## Rejected
@@ -100,5 +101,6 @@ Off by default. Each one closes a tell a model could learn.
 | A hand-written table of means plus independent noise | Streaks cannot happen by chance, so three bad rounds prove too much. Every repeat of a shock is identical. No market-wide weeks, so an explore bet never says "everyone is down" |
 | Two or three factors, with events on loadings | Most realistic, but scenarios become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. A hard variant once one factor saturates |
 | Shocks that hit one channel only | An explore bet cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |
+| A longer run to tighten the error bars | Once a model has moved, each extra round pays it and the Discerning baseline the same. So the gap between a model that moved in 3 rounds and one that took 8 shrinks as the run grows, and the error bar shrinks with it, and the two are no easier to tell apart. Only a model that never moves falls further behind. Cost grows at least as fast as the run, and input tokens with the square of its length, as every round resends the record. Doubling the seeds narrows every bar for twice the cost, see [spread](scoring.md#spread) |
 | Output summed from the noisy readings | It only adds one noise term with an SD of k ÷ 10, which changes little, see [what the agent sees](#what-the-agent-sees). And it breaks the skin, since no business estimates its own revenue |
 | A noise setting drawn per seed | It hides one number from a model that can already train across the whole public grid, so it stops nothing, see [learning the game](../harness/contamination.md#what-it-does-not-stop). And it breaks the axis: the [noise threshold](scoring.md#noise-threshold) is read off fixed settings, releases join by sharing two of them, and [luck on offer](../pilot/engine-checks.md#luck-on-offer) is checked per setting |

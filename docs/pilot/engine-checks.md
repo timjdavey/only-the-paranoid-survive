@@ -67,9 +67,18 @@ Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#diffi
 ## Game length and switch round
 
 - **Question.** How many rounds a run lasts, and in which round the shock or switch hits.
-- **Run.** The fixed baselines in the One shock and Down switch scenarios, at a few game lengths and switch rounds. Then the two-event scenarios, Shock then switch, Switch then shock and Up switch then down switch, which need room for both events.
-- **Measure.** How far the Discerning baseline pulls ahead of the Complacent baseline after the switch, and how many rounds that takes. In the two-event scenarios, the same for each event's window.
-- **Decide.** Enough calm rounds before the change to set a habit, and enough rounds after it for the Discerning baseline to pull clear of the Complacent baseline. In the two-event scenarios, enough rounds between the events and after the second for both to show. Longer runs cost more, see [cost per run](provider-checks.md#cost-per-run).
+- **Run.** The fixed baselines in the One shock and Down switch scenarios, at a few game lengths and switch rounds. Then the Slow drift scenario, whose fall can outlast the run, and the two-event scenarios, Shock then switch, Switch then shock and Up switch then down switch, which need room for both events.
+- **Measure.**
+  - How far the Discerning baseline pulls ahead of the Complacent baseline after the switch, and how many rounds that takes. In the two-event scenarios, the same for each event's window.
+  - **Unmoved at the end.** The round the hedge rule and the Scout rule first move, and the share of seeds where each never does. The hedge rule is counted where the leader falls, the Scout rule wherever the Discerning baseline moves. A share that does not fall as the run grows means the rule is missing the change, and length is not the cause.
+  - **Rounds to spare.** The rounds left after the last event ends: a drift at its end level, a switch's ramp done, and a shock with an eighth of its depth left.
+  - **The squeeze.** The hedge rule's scenario score at each length. It climbs towards 1 as the run grows, though the rule plays no better, which is how much a longer run hides the rounds a player was late.
+- **Decide.** The shortest run that passes all three:
+  - Enough calm rounds before the change to set a habit.
+  - Enough rounds after it for the Discerning baseline to pull clear of the Complacent baseline. In the two-event scenarios, enough rounds between the events and after the second for both to show.
+  - The hedge rule and the Scout rule are each unmoved at the end on fewer than one seed in twenty, or on no fewer in a longer run, and every event ends with rounds to spare.
+- **One length for every scenario, if one passes.** If only the Slow drift and two-event scenarios need more, they get their own `rounds`, and the engine spec gains a rule that a longer timeline on a seed starts with the shorter one, so twin timelines still match.
+- **Never longer than that.** A longer run does not tighten an error bar, see [rejected](../design/mechanics.md#rejected), and it costs more, see [cost per run](provider-checks.md#cost-per-run).
 
 ## Reading roughness
 
