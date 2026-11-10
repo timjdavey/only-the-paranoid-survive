@@ -40,6 +40,7 @@ def make_timeline(config: ScenarioConfig, seed: int) -> Timeline
 ```
 
 - **Every array is read only.** `make_timeline` calls `setflags(write=False)` on each, so a peeking policy or a test cannot edit the ground truth by accident.
+- **Compare a timeline field by field.** `Timeline` is declared with `eq=False`, as `==` on a dataclass of numpy arrays raises. So `==` says only whether two timelines are the same object, and tests compare the arrays with `np.array_equal`, as [ET1](tests.md#timeline) does.
 - **A timeline is never written to disk or into a log.** It is regenerated from `config` and `seed`, and `engine_hash` says which engine made it. A held-out seed's timeline is as secret as the seed, see [contamination](../../harness/contamination.md#public-and-held-out). The harness logs the hash and, for a held-out seed, its position in the list, never `seed` or any array.
 
 ## Behaviour
