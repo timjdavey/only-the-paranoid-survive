@@ -50,7 +50,11 @@ _Not run yet._
 
 _Not run yet._
 
-## Notepad and compute
+## Bare harness
+
+_Not run yet._
+
+## Tool choice
 
 _Not run yet._
 

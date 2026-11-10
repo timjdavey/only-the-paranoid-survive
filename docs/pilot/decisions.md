@@ -32,9 +32,9 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Up against down](provider-checks.md#up-against-down) | | | |
 | [Jev checks](provider-checks.md#jev-checks) | | | |
 | [Timestral checks](provider-checks.md#timestral-checks) | | | |
-| [Notepad and compute](provider-checks.md#notepad-and-compute), gap per tool and model | | | |
+| [Bare harness](provider-checks.md#bare-harness), bare gap per model | | | |
+| [Tool choice](provider-checks.md#tool-choice), gap per model | | | |
 | [Rolling conversation](provider-checks.md#rolling-conversation), gap per model | | | |
-| [Elicitation](provider-checks.md#elicitation), best-elicited setting per model, or none | | | |
 | [Inertia](provider-checks.md#inertia) | | | |
 | [Cost per run](provider-checks.md#cost-per-run) | | | |
 | [Warm up](provider-checks.md#warm-up) | | | |

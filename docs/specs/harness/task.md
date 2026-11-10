@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`paranoid` is the one inspect task. It turns the task args into a dataset of samples, one per scenario per seed, each carrying the scenario, the seed and the knobs in its metadata. `RunStore` is the per-sample state the solver, the tools, the providers and the scorer share. The design is in [inspect](../../harness/inspect.md#the-mapping) and [running](../../harness/running.md#commands). `tool_choice` is not a task arg: the solver decides it from the model, see [each round](solver.md#each-round).
+`paranoid` is the one inspect task. It turns the task args into a dataset of samples, one per scenario per seed, each carrying the scenario, the seed and the knobs in its metadata. `RunStore` is the per-sample state the solver, the tools, the providers and the scorer share. The design is in [inspect](../../harness/inspect.md#the-mapping) and [running](../../harness/running.md#commands). `tool_choice` is decided from the model unless passed, see [each round](solver.md#each-round).
 
 ## Interface
 
@@ -13,7 +13,8 @@ def paranoid(
     seeds: str = "public",            # "public", "held-out", or a range of positions such as "0-4"
     skin: str = "example",
     rounds: int | None = None,        # overrides ScenarioConfig.rounds
-    tools: str = "none",              # "none", "notes", "compute" or "notes,compute"
+    tools: str = "notes,compute",     # the headline setting, or "none", "notes", "compute"
+    tool_choice: str | None = None,   # "any", "auto", or None to decide from the model, see solver.md
     inertia: int | None = None,       # sets ScenarioConfig.inertia_cap
     warm_up: str | None = None,       # "<baseline>:<rounds>", such as "complacent:5"
     own_scale: float | None = None,   # one noise grid setting. Pins events in level points
@@ -34,7 +35,7 @@ class RunStore(StoreModel):
     rounds: int | None = None
     inertia: int | None = None
     own_scale: float | None = None
-    tool_choice: str = ""             # "forced" or "auto", as the solver resolved it
+    tool_choice: str = ""             # "any" or "auto", as the solver resolved it
     rows: list[StoredRow] = []        # the record so far, warm up rows first
     warm_up_rounds: int = 0
     awaiting_submit: bool = False     # True while a round is waiting for a valid submit
@@ -43,6 +44,8 @@ class RunStore(StoreModel):
     bad_calls: int = 0
     no_calls: int = 0
     cut_offs: int = 0
+    notes_rounds: int = 0             # rounds with at least one notes call
+    compute_rounds: int = 0           # rounds with at least one compute call
     notes: str = ""
     def seed(self) -> int             # load_seeds(self.seed_set)[self.seed_index]
     def config(self) -> ScenarioConfig
@@ -93,18 +96,19 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 | `prompt_hash` | The skin's hash, from the skins layer, see [names from the skins layer](README.md#names-from-the-skins-layer) |
 | `harness_version` | The `paranoid` package version, with the short git SHA when run from a checkout, as `0.1.0+2f13c9a`. The two hashes do not cover the solver, so this is what says which round loop played |
 | `rounds`, `inertia`, `own_scale`, `tools`, `warm_up`, `rolling` | The knobs, as resolved. `rounds` is the config's final value |
+| `tool_choice` | `any` or `auto`. Written by the solver on round 1 into `state.metadata`, not by the dataset, so the analysis reads it without the store, see [each round](solver.md#each-round) |
 
 - **A held-out seed's value is never in the log.** Not in the metadata, not in the store, not in the score. The store holds `seed_set` and `seed_index`, and `seed()` reads the value from the seed file at run time. The engine is public, so one leaked seed is eight leaked worlds, where a leaked record is one run. A held-out log is still as private as its skin, see [contamination](../../harness/contamination.md#public-and-held-out), and the engine spec says the same, see [timeline](../engine/timeline.md#interface).
 
 ### Task settings
 
-- **`solver`** is `round_loop(skin, tools, rolling=rolling)`. **`scorer`** is `gain()`. The solver picks the tool choice from the model, see [each round](solver.md#each-round).
+- **`solver`** is `round_loop(skin, tools, tool_choice=tool_choice, rolling=rolling)`. **`scorer`** is `gain()`. With `tool_choice` unset the solver picks it from the model, see [each round](solver.md#each-round).
 - **`retry_on_error=1`** and **`fail_on_error=0.1`**, set here and never on the command line. A model that cannot call the tool never raises, it gives up and is scored, see [giving up](scorer.md#giving-up). So an error is infrastructure: a timeout, a rate limit, a provider down. inspect plays the sample again once, and if more than a tenth of samples still error the eval fails, so a half-empty log cannot pass as a result.
 - **Epochs** reduce by `"mean"`. Repeats of a seed are averaged before any metric sees them, see [error bars](../../design/scoring.md#error-bars).
-- **`sandbox`** is `("docker", <path>)` only when `tools` includes `compute`, else none. The path is the module's own `compose.yaml`, see [compute](solver.md#compute).
+- **`sandbox`** is `("docker", <path>)` whenever `tools` includes `compute`, so at the default, else none. The path is the module's own `compose.yaml`, see [compute](solver.md#compute). A headline run therefore needs Docker, see [running](../../harness/running.md#setup).
 - **Skins** load with `load_skins()`, which reads `PARANOID_SKINS` when set. A `skin` that is not loaded raises `ValueError` listing the loaded names.
 - **The skin must fit the config.** `paranoid()` raises `ValueError` naming the skin and the scenario when `len(skin.channels) != config.channels` for any scenario it will play. An empty record cannot tell them apart, so this is the one place a mismatch can fail before round 2. The skins side of this duty is [what the harness reads](../skins/README.md#what-the-harness-reads).
-- **`tools`** is a comma list drawn from `notes` and `compute`, or `none`. Anything else raises `ValueError`.
+- **`tools`** is a comma list drawn from `notes` and `compute`, or `none`. **`tool_choice`** is `any`, `auto` or unset. Anything else raises `ValueError`.
 
 ### Store
 
@@ -131,3 +135,7 @@ def parse_seeds(arg: str) -> list[tuple[int, int]]   # (position, seed) pairs
 ## Not decided
 
 - Whether `seeds` should also take a held-out range, such as `held-out:0-4`, for a cheap check on the private set. Not needed for the pilot.
+
+## Verify before code
+
+- **That a write to `state.metadata` in the solver lands in the log's `sample.metadata`.** The analysis reads `tool_choice` from there, see [result key](../analysis/runs.md#result-key), and never from the store. If inspect copies the metadata before the solver runs, the task resolves `tool_choice` itself from `get_model()` when it builds the dataset. `round_loop` waits on it.

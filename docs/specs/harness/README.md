@@ -7,9 +7,9 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | Page | What it specifies |
 |---|---|
 | [task](task.md) | The `paranoid` task and its args, seeds and seed files, the dataset, sample metadata, `RunStore`, warm up, the noise grid |
-| [solver](solver.md) | `round_loop`, the `submit` tool, the retry rule and giving up, tool choice, the pilot's `notes` and `compute` tools |
+| [solver](solver.md) | `round_loop`, the `submit` tool, the retry rule and giving up, tool choice, the `notes` and `compute` tools, the pilot's rolling conversation |
 | [providers](providers.md) | `StoreAPI` and the three providers, `baseline/`, `jev/` and `timestral/` |
-| [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share |
+| [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share, tool use share |
 | [command](command.md) | `paranoid poc` and `paranoid pilot`, the models config, reasoning settings |
 | [tests](tests.md) | Every test the harness suite runs, with the page it checks |
 
@@ -22,7 +22,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `paranoid` | The inspect `@task` | [task](task.md) |
 | `RunStore`, `StoredRow` | The `StoreModel` on every sample, and its row type | [task](task.md) |
 | `load_seeds`, `parse_seeds`, `scenario_config` | Seed files, the `seeds` arg, the config a sample plays | [task](task.md) |
-| `round_loop`, `tool_choice_for` | The round loop solver and the forced or auto rule | [solver](solver.md) |
+| `round_loop`, `tool_choice_for` | The round loop solver and the `any` or `auto` rule | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
 | `JevAnswer`, `JevClient`, `Forecaster` | Jev's reply, and the two seams a test fakes | [providers](providers.md) |

@@ -97,7 +97,7 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [Pairing models by seed](../design/scoring.md#error-bars) | METR (correlated errors), STOCKTAKE (event tape) |
 | [Fixed baselines](../design/baselines.md#fixed-baselines) | BanditBench, Bazaar (Thompson sampling) |
 | [Bayesian baseline, parked](../design/baselines.md#not-yet) | Adams and MacKay, Wilson, Mellor and Shapiro, Nassar, Gallistel 2014 |
-| [Notepad and compute](../pilot/provider-checks.md#notepad-and-compute) | Liu, ACE, Fork-and-Flush, Bazaar, Krishnamurthy |
+| [Bare harness](../pilot/provider-checks.md#bare-harness) | Liu, ACE, Fork-and-Flush, Bazaar, Krishnamurthy |
 | [Warm-up record](../pilot/provider-checks.md#warm-up) | BanditBench (example runs), Coda-Forno, Schmied (frequency bias), Fork-and-Flush |
 | [Reasoning setting](../harness/models.md#reasoning) | Mazaheri, Ge, Schmied, Zhang 2025 |
 | [Skins and contamination](../harness/contamination.md) | Allen and McDonald (masking), Needham, Schoen, Heidari |
@@ -110,7 +110,7 @@ Some studies mattered most to ideas the design has since dropped or parked. They
 |---|---|---|
 | Ask the agent how likely a change is | Rejected, as it tells the agent change is the question ([interface](../design/interface.md#rejected)) | STALE, Goel, STOCKTAKE, Schmied, KellyBench, Bleser, Brown and Steyvers |
 | Hand the agent a plan written by someone else | Not in the design. The record is the agent's own play | Kumaran, Barkett, Fresh Memory Stale Plans, STALE, Self-Correction Illusion, Ge, ACE |
-| Let the agent keep notes | Out of the headline, tried in the [pilot](../pilot/provider-checks.md#notepad-and-compute) | Liu, ACE, Fork-and-Flush, Bazaar |
+| Let the agent keep notes | In the headline, as user content below the record, with the [bare harness](../pilot/provider-checks.md#bare-harness) check pricing what it does | Liu, ACE, Fork-and-Flush, Bazaar |
 | A cost to switch | A conversion fee is rejected ([interface](../design/interface.md#rejected)). A cap on moves is the [inertia](../pilot/provider-checks.md#inertia) extension | Barkett, KellyBench |
 | A second game | A controller with feedback is kept as a second game ([interface](../design/interface.md#rejected)) | STOCKTAKE, Bazaar, CoffeeBench, Allen and McDonald |
 | A human baseline | Not in the design | Behrens, Bleser, Wang, Haghani and Dewey, Zhang 2025, Allen and McDonald |

@@ -26,15 +26,17 @@ Every skin has these tells and no wording removes them. They are the [frame](../
 | A linear payout with no saturation | The engine pays points times level |
 | A reading only where points were placed, and a rough one from few points | What the agent sees is the engine's rule, see [mechanics](../design/mechanics.md#what-the-agent-sees) |
 | An empty record on round 1 | Round 1 sends the CSV header alone |
-| One forced tool that takes ten numbers and returns a CSV | The harness's one interface |
+| A tool that takes ten numbers and returns a CSV, beside a notes tool and a compute tool | The harness's interface, see [tools](../design/interface.md#tools) |
 
 Where the story's real version would saturate, the skin still cannot say so. It can only avoid drawing attention to it.
+
+The notes and compute tools are worded by the skin too. Say what each does and no more: a note comes back next round, the code sees the record as a file. Neither should suggest what to write down or what to work out.
 
 ## What the lint checks, and what only a reader can
 
 The lint is a floor, not a proof. The rules are in the [lint spec](../specs/skins/lint.md) and the shape checks in [skin validation](../specs/skins/skin.md#validation-on-construction). In short:
 
-- **Shape.** Every field a non-empty string, `channels` an array of ten, the stem and `tool_name` matching their patterns.
+- **Shape.** Every field a non-empty string, `channels` an array of ten, the stem and the three tool names matching their patterns, no two tool names equal.
 - **Channels.** Ten names, no two equal ignoring case, none holding `,`, `"` or a newline. They become CSV column headers.
 - **Frame facts**, on the whole rendered prompt. It must hold `100`, every channel name as spelt, `whole number` or `integer`, and the tool name. Where each sits is up to you.
 - **Banned word starts**, on every field the model reads and every channel name, see [words](../specs/skins/lint.md#words).

@@ -32,7 +32,7 @@ Win rates in %. Finetuned Flash reached 65.6 and beat Pro. Gemma never settled o
 **Why it matters here.**
 
 - Models fall well short of a simple algorithm in a world that stands still. So the [fixed baselines](../design/baselines.md#fixed-baselines) must land in the [expected order](../pilot/engine-checks.md#baseline-order) before any model runs, or a model's score has nothing firm to sit against.
-- A summary beat the raw log. Our agent gets its record as raw rows and no summary ([tools](../design/interface.md#tools)). The `compute` tool in the [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check is the nearest test of whether working out averages helps.
+- A summary beat the raw log. Our agent gets its record as raw rows and no summary ([tools](../design/interface.md#tools)). The `compute` tool in the headline, and the [bare harness](../pilot/provider-checks.md#bare-harness) check that takes it away, is the nearest test of whether working out averages helps.
 - Example runs helped Flash and hurt Pro. The warm-up cell, where the record starts pre-filled by a baseline, pulls the same lever ([warm up](../pilot/provider-checks.md#warm-up)).
 
 ## Krishnamurthy et al. 2024: a summarised history and exploration
@@ -58,7 +58,7 @@ Akshay Krishnamurthy, Keegan Harris, Dylan J. Foster, Cyril Zhang and Aleksandrs
 **Why it matters here.**
 
 - What worked was exact counts and averages computed for the model, plus a hint to explore. Our agent gets neither. The record is raw rows and the prompt never mentions exploring or change ([how the agent plays](../design/interface.md#how-the-agent-plays)). So expect few explore bets from a bare model.
-- The `compute` tool in the [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check lets the agent work the averages out itself. That tests whether the missing summary is what holds it back.
+- The `compute` tool ([tools](../design/interface.md#tools)) lets the agent work the averages out itself, and the [bare harness](../pilot/provider-checks.md#bare-harness) check takes it away. That tests whether the missing summary is what holds it back.
 - A suffix failure is close to never finding a sleeper after a switch ([events](../design/mechanics.md#events)). The agent keeps earning, just less than it could.
 
 ## Coda-Forno et al. 2023: meta in-context learning

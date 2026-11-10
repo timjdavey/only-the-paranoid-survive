@@ -14,6 +14,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before a held-out run.
 - Put the canary GUID in `paranoid.skins.canary`, see [contamination](docs/harness/contamination.md#canary).
+- Ship `compose.yaml` and the sandbox extra before the first headline run, as the headline needs Docker, see [running](docs/harness/running.md#setup).
 - Decide the two skins spec Open items that were due before the first held-out skin, as held-out skins now exist: the [record column words](docs/specs/skins/render.md#open) and [banning numbers](docs/specs/skins/lint.md#open).
 - Verify the model ids in `configs/models/poc.toml` before the first run.
 - Verify every id and every setting marked "to verify" in `configs/models/full.toml` before the first run.

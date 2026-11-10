@@ -7,7 +7,7 @@
 ## Interface
 
 ```python
-@scorer(metrics=[scenario_score(), headline(), weakest_trait(), retry_share()])
+@scorer(metrics=[scenario_score(), headline(), weakest_trait(), retry_share(), tool_use_share()])
 def gain() -> Scorer
 # Score.value: dict with the keys in the table below
 # Score.answer: render_record(skin, store.record()), the record as the agent last saw it
@@ -29,6 +29,8 @@ def headline() -> Metric            # {"headline": h, "lo": lo, "hi": hi, "scena
 def weakest_trait() -> Metric       # {"scenario": name, "trait": TRAITS[name], "score": s}
 @metric
 def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_off_share": share}
+@metric
+def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 ```
 
 ## Behaviour
@@ -48,7 +50,7 @@ def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_o
 | `retries` | `sum(tries) − len(tries)`, the generate calls beyond the first per round |
 | `retry_rounds` | Rounds with `tries > 1` |
 | `gave_up` | 1 when the run gave up, else 0 |
-| `bad_calls`, `no_calls`, `cut_offs` | From the store |
+| `bad_calls`, `no_calls`, `cut_offs`, `notes_rounds`, `compute_rounds` | From the store |
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
 
 - **The baselines replay the agent's warm up.** `play(policy, timeline, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
@@ -93,6 +95,11 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 - **Per scenario and overall**, `sum(retry_rounds) / sum(rounds)` over the scored samples. A run that gave up counts its last round as retried, as its ten tries say.
 - **`cut_off_share`** is `sum(cut_offs) / sum(rounds)` overall, kept apart so a cap problem cannot pass as a model problem, see [sampling](../../harness/models.md#sampling).
 - The share that marks a bar is a pilot decision, see [decisions](../../pilot/decisions.md#provider-checks).
+
+### Tool use share
+
+- **`notes`** is `sum(notes_rounds) / sum(rounds)` and **`compute`** is `sum(compute_rounds) / sum(rounds)` over the scored samples, overall. A run that gave up counts the rounds it played.
+- **Reported beside every score**, see [tables](../analysis/tables.md#the-results-page), so a model that never touched a tool is visible. The [bare harness](../../pilot/provider-checks.md#bare-harness) check reads them per model.
 
 ### Not here
 

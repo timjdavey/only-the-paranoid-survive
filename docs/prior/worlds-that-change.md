@@ -126,7 +126,7 @@ Thomas Grady, Kip Parker, Iliyan Zarov, Henry Course, Chengxi Taylor and Ross Ta
 - **A bankroll that compounds adds sizing and ruin**, which the authors say made losses worse. That is why our budget is the same every round and the payout is linear, see [payout](../design/mechanics.md#payout) and the compounding bankroll row in [rejected](../design/interface.md#rejected).
 - **The change is the real season**, so nobody can say when it began or what a good agent should have done. Our timeline fixes both, and the Discerning baseline sets the ceiling.
 - **There is no copy where nothing changes**, so a model that bets less after losses can't be told from one that noticed something. Our One shock scenario is that copy.
-- Writing Kelly code and never using it says a tool on hand is not a tool used. The [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check measures how often each tool is used.
+- Writing Kelly code and never using it says a tool on hand is not a tool used. The [tool use share](../glossary.md) beside every score measures how often each tool is used.
 
 ## Bazaar (Ahmed et al. 2026): pricing when customers' tastes swap
 
@@ -168,7 +168,7 @@ Shocked customers only, the last ten rounds against rounds 26 to 30.
 - **The unshocked customers share a run with the shocked ones but get no score of their own**, so false alarms on them go uncounted. Our No change and One shock scenarios are scored on their own seeds.
 - **"Revision, not detection"** is the decoy risk in our switch. A model that notices the leader fall and moves everything to the runner-up misses a sleeper that rose, see [events](../design/mechanics.md#events).
 - **The fastest learners adapted worst.** That is what the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) tests: a lesson learnt well becomes the wrong one.
-- The lock-in ledger is one reason notes stay out of the headline, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute).
+- The lock-in ledger is one reason the [bare harness](../pilot/provider-checks.md#bare-harness) check plays every model without its note, so a note that locks a plan in shows as a gap.
 - Thompson sampling beating half the models on profit is why simple strategies run before any model, see [baseline order](../pilot/engine-checks.md#baseline-order). A swap makes the old offer lose outright, unlike our leader.
 
 ## CoffeeBench (Sugiura et al. 2026): a coffee supply chain with a demand surge

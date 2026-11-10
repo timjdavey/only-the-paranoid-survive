@@ -13,7 +13,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AR5 | A hand-built log with one errored sample: the row has `errored` true and NA scores, the report counts it, and `scenario_scores` ignores it | [runs](runs.md#errored-samples) |
 | AR6 | A log at `--epochs 2`: `load_runs` gives two rows per id with `epoch` 1 and 2. `mean_over_epochs` gives one row per id with `epochs == 2`, the mean of the two `run_score`s, the sum of the two `rounds`, and `gave_up` true when either epoch gave up | [runs](runs.md#mean-over-epochs) |
 | AR7 | A folder holding a non-`paranoid` log and a file that is not a log: the first is skipped and listed, the second raises `ValueError` naming it | [runs](runs.md#discovering-logs) |
-| AR8 | Hand-built logs with a `scenario` not in `SCENARIOS`, a `skin` of `Rome`, and a `model` holding `..` each raise `ValueError` naming the log. A log whose samples disagree on `tools` raises naming the field | [runs](runs.md#guards) |
+| AR8 | Hand-built logs with a `scenario` not in `SCENARIOS`, a `skin` of `Rome`, and a `model` holding `..` each raise `ValueError` naming the log. A log whose samples disagree on `tools` raises naming the field, and one whose `tool_choice` is `maybe` raises naming it | [runs](runs.md#guards) |
 | AR9 | Two logs of one key whose samples carry different `numpy_version`s load, and the report names the key and both versions | [runs](runs.md#the-report) |
 
 ## Scores
@@ -32,6 +32,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AS10 | A hand-built log with one gave up run has `†` in that scenario's `flags` and in the headline's. A `retry_share` of 0.2 gives `‡`. A `recognition` table with half the model's rows at `lint_hits > 0` gives `§` on every row, and one with `canary_finished` true gives `¶` on every row | [scores](scores.md#flags) |
 | AS11 | `public_gap` on two result rows that differ only in `seed_set` returns a row per scenario plus `headline`, and raises `ValueError` naming `skin` when the skins differ | [scores](scores.md#public-gap) |
 | AS12 | `load_recognition` on a CSV with a `reply` column returns `model`, `skin`, `lint_hits` and `canary_finished` only, and the reply text is in no cell. Every gap function returns `GAP_COLUMNS` | [scores](scores.md#flags) |
+| AS13 | `notes_share` on a hand-built table with `notes_rounds` 4 and 0 over `rounds` 40 and 40 is 0.05, and `compute_share` with `compute_rounds` 0 and 0 is 0 | [scores](scores.md#scenario-scores) |
 
 ## Tables
 
@@ -44,7 +45,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AT5 | `pooled_score` over the CSV's `gain` and `gap` per scenario equals the page's score to two decimals | [tables](tables.md#invariants) |
 | AT6 | `write_cost` on the `mockllm` log has the columns in the table, zero usage on a baseline row, `projected` set when `models` and `seeds` are given, and `cost` set only with a `prices` file | [tables](tables.md#cost) |
 | AT7 | Two logs of one model that differ only in `tools` give two tables, each heading naming the setting that is off its default. A `name` of `../x` raises `ValueError` and writes nothing | [tables](tables.md#the-results-page) |
-| AT8 | Two logs of one model on the same seeds, the second at `tools="notes"`: the page has a best-elicited table with one row naming `tools notes`, that row's headline, and a gap equal to `paired_gap`'s `headline` row. With the bare log alone there is no such table | [tables](tables.md#the-results-page) |
+| AT8 | Two logs of one model on the same seeds, the second at `tools="none"`: the page has a sensitivity table with one row naming `tools none`, that row's headline, and a gap equal to `paired_gap`'s `headline` row, headline minus bare. With the headline log alone there is no such table | [tables](tables.md#the-results-page) |
 
 ## Plots
 

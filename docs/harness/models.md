@@ -35,6 +35,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | `on` | Thinking the model won't let us change, such as DeepSeek R1 |
 
 - **`xhigh` is skipped** to keep the grid at five steps.
+- **Tool choice follows the reasoning setting on Anthropic.** With thinking on, Claude takes only `auto`, so the solver uses it there and `any` elsewhere, see [each round](../specs/harness/solver.md#each-round). The value is in every sample's metadata and in the result row's `Setting`, and the [tool choice](../pilot/provider-checks.md#tool-choice) check prices the difference.
 - **What a model keeps of its reasoning across turns is the provider's choice.** In the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) check every provider keeps the text and the tool calls, but whether the model reads its own earlier reasoning next turn varies by provider and model. So that check is read per model, and the row's `notes` says what its provider keeps.
 
 ## Sampling

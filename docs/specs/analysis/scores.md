@@ -15,7 +15,7 @@ def load_recognition(path: Path) -> pd.DataFrame
 
 def scenario_scores(runs: pd.DataFrame, *, recognition: pd.DataFrame | None = None) -> pd.DataFrame
 # one row per ResultKey and scenario: the key's columns, scenario, trait, score, lo, hi, n, failed,
-# retry_share, cut_off_share, complacent, hedge_rule, scout_rule, perfect, flags
+# retry_share, cut_off_share, notes_share, compute_share, complacent, hedge_rule, scout_rule, perfect, flags
 
 def headlines(runs: pd.DataFrame, *, recognition: pd.DataFrame | None = None) -> pd.DataFrame
 # one row per ResultKey: the key's columns, headline, lo, hi, scenarios, weakest_scenario, weakest_trait,
@@ -64,6 +64,7 @@ Every function here takes the run table after [`mean_over_epochs`](runs.md#mean-
 - **Group by `ResultKey` and `scenario`.** `score`, `lo`, `hi` as above. `n` is the rows scored, `failed` the rows with `gave_up`, as in the [scenario score metric](../harness/scorer.md#scenario-score).
 - **`trait`** is `TRAITS[scenario]`.
 - **`retry_share`** is `sum(retry_rounds) / sum(rounds)` and **`cut_off_share`** is `sum(cut_offs) / sum(rounds)`, as the [retry share metric](../harness/scorer.md#retry-share).
+- **`notes_share`** is `sum(notes_rounds) / sum(rounds)` and **`compute_share`** is `sum(compute_rounds) / sum(rounds)`, as the [tool use share metric](../harness/scorer.md#tool-use-share).
 - **The marks** are the fixed baselines' pooled scores on the same seeds: `complacent` is `pooled_score(complacent − uniform, gap)`, and the same for `hedge_rule`, `scout_rule` and `perfect`, each read from `Score.value`. The Perfect baseline is a mark and divides nothing, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
 - **A check, not a source.** When `log.results` holds the `scenario_score` metric and the log has one epoch, `score`, `lo` and `hi` must equal it to `1e-9`, else `scenario_scores` raises `ValueError` naming the log. This is how the layer knows it read the right numbers. At more than one epoch the check is skipped, see [verify before code](runs.md#verify-before-code).
 

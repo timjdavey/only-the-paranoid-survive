@@ -34,14 +34,14 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 | Baseline order | `baseline-order` CSV | Pooled output per baseline, each order line with holds or breaks, a break in bold | None | [Baseline order](../../pilot/engine-checks.md#baseline-order) |
 | Jev checks | `jev` log | Shares over rounds | None | [Jev checks](../../pilot/provider-checks.md#jev-checks) |
 | Timestral checks | `timestral` CSV and logs | Each policy's pooled place against the hedge rule and Complacent marks | Spread against gap length | [Timestral checks](../../pilot/provider-checks.md#timestral-checks) |
-| Notepad and compute | `notepad` logs | Scenario scores per model and `tools`, `paired_gap` against `none` per model, and whether its `headline` bar clears zero | None | [Notepad and compute](../../pilot/provider-checks.md#notepad-and-compute) |
+| Bare harness | `bare` logs | Scenario scores per model and `tools`, `paired_gap` of each other setting against `notes,compute` per model with its bar, `notes_share` and `compute_share` | None | [Bare harness](../../pilot/provider-checks.md#bare-harness) |
+| Tool choice | `tool-choice` logs | Scenario scores per model and `tool_choice`, `paired_gap` of `auto` against `any` per model with its bar, the no call share in each | None | [Tool choice](../../pilot/provider-checks.md#tool-choice) |
 | Rolling conversation | `rolling` logs | Scenario scores fresh and rolling per model, `paired_gap` per model and whether its `headline` bar clears zero, tokens per run and input tokens per round | None | [Rolling conversation](../../pilot/provider-checks.md#rolling-conversation) |
 | Warm up | `warm-up` logs | Scenario scores with an empty record and pre-filled per model, `paired_gap` | None | [Warm up](../../pilot/provider-checks.md#warm-up) |
 | Cost per run | `seeds` and `repeats` logs | `write_cost` | None | [Cost per run](../../pilot/provider-checks.md#cost-per-run) |
 
 - **Recognition shows numbers and skin names only.** The CSV holds replies about held-out prompts and is private whenever a held-out skin ran, see [recognition](../../pilot/provider-checks.md#recognition). `load_recognition` drops the reply on read, see [flags](scores.md#flags), so the section cannot hold one.
 - **The inertia check reads the main logs**, so it appears as paired gaps in the Up against down section, see [inertia](../../pilot/provider-checks.md#inertia). The warm up check has its own cell and section.
-- **The Notepad and Rolling sections end with one line per model** naming the setting whose gap bar clears zero, or `none`, so the [elicitation rule](../../pilot/provider-checks.md#elicitation) can be typed into decisions from the page.
 
 ### Writing the page
 

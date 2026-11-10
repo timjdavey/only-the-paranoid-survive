@@ -10,7 +10,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Game engine | The simple cybernetics game at the core of the study: the rules and numbers, with no story |
 | Narrative skin | A story dressed over the game engine, so the model treats it as a real situation. It also lets us publish the engine while hiding which skin it wears |
-| Frame | The facts every prompt states whatever the skin: a budget of 100 points, ten channels, whole numbers, the record below and one tool to place points. Each skin words the frame itself. See [prompts](harness/prompts.md) |
+| Frame | The facts every prompt states whatever the skin: a budget of 100 points, ten channels, whole numbers, the record below, a tool to place points, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
@@ -92,6 +92,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Explore bet | A small bet on a channel the agent isn't backing, to read its level. To explore is to place one. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees). `explore` in code |
 | Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot check, see [warm up](pilot/provider-checks.md#warm-up) and the [task spec](specs/harness/task.md#warm-up). `warm_up` in code |
 | Give up | What the solver does after ten failed tries in one round: the run ends there, with no error, and scores as the Uniform baseline on that seed. See [solver spec](specs/harness/solver.md#tries). `gave_up` in code |
+| Tool choice | Whether a reply must call a tool: `any` where the provider allows it, `auto` where it does not, as on Claude with thinking on. The solver picks it from the model and logs it. See [solver spec](specs/harness/solver.md#each-round). `tool_choice` in code |
+| Tool use share | The share of a run's rounds in which the agent called the notes tool, and the share in which it called the compute tool. Reported beside every score. `notes_rounds` and `compute_rounds` in code, see [scorer spec](specs/harness/scorer.md#scoring-one-run) |
 
 ## Scoring
 
@@ -122,7 +124,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
 | Bayesian frontier | The scenario scores of every Bayesian baseline in a pre-registered family of hazards and forecast rules, drawn as the No change score against the Down switch and Up switch scores. Its upper envelope is the best any reader of the engine's family did, and the Bayesian baseline's defaults are the point on it with the best headline. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
 | Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
-| Best-elicited row | A model's scores in the one pilot setting that moved them by more than the error bar: a scratchpad, a calculator or a kept conversation. Reported beside the bare headline, never in it. See [elicitation](pilot/provider-checks.md#elicitation) |
+| Bare harness | The headline harness with its notes file and compute tool taken away, `tools=none`. A sensitivity every LLM row plays once, never the headline. See [bare harness](pilot/provider-checks.md#bare-harness) |
+| Bare gap | A model's paired gap between its headline setting and the bare harness. How much of its score the tools did. Reported per model beside the headline, see [tables](specs/analysis/tables.md#the-results-page) |
 
 ## Seeds and secrecy
 

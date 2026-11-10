@@ -20,6 +20,10 @@ class Skin:
     bets_text: str                          # the description of the tool's one parameter, one bet per channel
     bad_call: str                           # the retry message for bets the engine rejects. One message, no slots
     no_call: str                            # the retry message for a reply with no tool call
+    notes_name: str                         # the notes tool's name as the model sees it
+    notes_text: str                         # the notes tool's description
+    compute_name: str                       # the compute tool's name as the model sees it
+    compute_text: str                       # the compute tool's description
     question: str                           # Jev's choice question, see providers
     round_word: str                         # the record's first column header. "round" in the example skin
     bet_word: str                           # the suffix of each bet column. "bet" in the example skin
@@ -33,7 +37,7 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 ```
 
 - **Every field is a `str`** except `channels`, which is a tuple of names. There are no numbers on a skin, see [conventions](README.md#conventions).
-- **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them, then the tool text, then the four column words of the [record](render.md#record). Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
+- **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them, then the text of the three tools, then the four column words of the [record](render.md#record). Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
 
 ## Behaviour
 
@@ -47,7 +51,7 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 - `channels` has fewer than four entries, the engine's floor, see [config](../engine/config.md#fields). The example skin has ten, as the frozen study config does. Whether a skin's count matches its config is checked when the task is built, see [task settings](../harness/task.md#task-settings).
 - Any channel name or column word is empty, or contains `,`, `"` or `\n`. Each is a word in the record's header, and any of those characters would add a column or a row to the CSV the agent reads, see [record](render.md#record). So a bad word fails here and never mid-run.
 - Two channel names are equal ignoring case.
-- `tool_name` does not match `^[a-z][a-z0-9_]{0,63}$`. Every provider accepts a name of that shape.
+- `tool_name`, `notes_name` or `compute_name` does not match `^[a-z][a-z0-9_]{0,63}$`, or two of the three are equal. Every provider accepts a name of that shape, and needs the three to differ.
 
 ### The TOML file
 
@@ -57,7 +61,7 @@ One file per skin, one table, no nesting.
 - **Every key is required.** A missing key, an unknown key, or a value of the wrong type raises `SkinError` naming the key. So a typo in a key name fails on load rather than silently dropping a part of the prompt.
 - **`name` is the file stem.** `example.toml` is the skin `example`. There is no `name` key, so a file cannot disagree with its own name. A stem that fails the `name` pattern, such as `Rome.toml`, raises `SkinError`.
 - **Comments are free.** The example skin's first line is a comment holding the [canary](lint.md#canary). Held-out skins carry it too, so a file that ever leaks is filtered, see [writing a skin](../../harness/writing-a-skin.md#before-you-start).
-- **No templating.** A skin writes the channel names, the number 100 and its tool name into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
+- **No templating.** A skin writes the channel names, the number 100 and its tool names into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
 
 ### `load_skin`
 

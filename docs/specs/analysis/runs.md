@@ -16,6 +16,7 @@ class Setting:                        # what was played, apart from who played i
     tools: str
     warm_up: str | None
     rolling: bool
+    tool_choice: Literal["any", "auto"]
     inertia: int | None
     prompt_hash: str
     generator_version: int
@@ -51,7 +52,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 | Log | `log` (the path relative to the folder it was found under, or the file name when given as a file), `started` (the eval's start time) | `log.eval` |
 | Key | `model`, `reasoning`, then every field of `Setting` in its order | `result_key(log)` |
 | Run | `kind`, `scenario`, `seed_index`, `seed`, `engine_hash`, `numpy_version`, `epoch`, `epochs` | `metadata`, see below |
-| Score | every key of `Score.value` in the [scorer's table](../harness/scorer.md#scoring-one-run): `output`, the six baselines, `gain`, `gap`, `run_score`, `rounds`, `warm_up_rounds`, `retries`, `retry_rounds`, `gave_up`, `bad_calls`, `no_calls`, `cut_offs`, `unchanged_rounds` | `sample.scores["gain"].value` |
+| Score | every key of `Score.value` in the [scorer's table](../harness/scorer.md#scoring-one-run): `output`, the six baselines, `gain`, `gap`, `run_score`, `rounds`, `warm_up_rounds`, `retries`, `retry_rounds`, `gave_up`, `bad_calls`, `no_calls`, `cut_offs`, `notes_rounds`, `compute_rounds`, `unchanged_rounds` | `sample.scores["gain"].value` |
 | Usage | `input_tokens`, `output_tokens`, `reasoning_tokens`, `total_tokens`, summed over the sample's model calls | `sample.model_usage` |
 | State | `errored` | whether the sample has a score |
 
@@ -72,7 +73,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 `mean_over_epochs` gives one row per sample id. It is what every page but [sampling share](scores.md#spread-and-sampling-share) reads.
 
 - **Averaged**: `output`, the six baselines, `gain`, `gap`, `run_score`. Means over the epochs that scored, in `epoch` order.
-- **Summed**: `rounds`, `warm_up_rounds`, `retries`, `retry_rounds`, `bad_calls`, `no_calls`, `cut_offs`, `unchanged_rounds` and the usage columns, so `sum(retry_rounds) / sum(rounds)` still reads as a share.
+- **Summed**: `rounds`, `warm_up_rounds`, `retries`, `retry_rounds`, `bad_calls`, `no_calls`, `cut_offs`, `notes_rounds`, `compute_rounds`, `unchanged_rounds` and the usage columns, so `sum(retry_rounds) / sum(rounds)` still reads as a share.
 - **Any**: `gave_up`. A seed that gave up in any epoch counts as failed, see [flags](scores.md#flags).
 - **`errored`** is true when no epoch scored. An epoch with no score is left out of the means and counted in the report.
 - **`epoch` is dropped.** `epochs` stays. The columns are `RUN_COLUMNS` without `epoch`.
@@ -108,6 +109,7 @@ Checks on what a log says about itself. The harness writes none of these wrong, 
 - **`skin`** matches the skins layer's name pattern, `^[a-z][a-z0-9_]*$`, see [validation](../skins/skin.md#validation-on-construction).
 - **`model`** matches `^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$` and holds no `..`. The three strings go into table cells, plot titles and file names, see [tables](tables.md), so none may hold a `|`, a space or a path step.
 - **`seed_set`** is `public` or `held-out`, and `seed_index` is a whole number from 0.
+- **`tool_choice`** is `any` or `auto`, see [each round](../harness/solver.md#each-round).
 
 ### Privacy
 

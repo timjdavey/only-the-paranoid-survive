@@ -59,13 +59,14 @@ The skins code imports nothing from `paranoid.baselines`. Its tests import one n
 
 ## What the harness reads
 
-The harness takes a `Skin` from `load_skins` and uses it in five places, see [inspect](../../harness/inspect.md#the-round-loop).
+The harness takes a `Skin` from `load_skins` and uses it in six places, see [inspect](../../harness/inspect.md#the-round-loop).
 
 | Harness part | Reads |
 |---|---|
 | System prompt | `render_system_prompt(skin)` |
 | User message | `render_record(skin, record)`, which uses `skin.channels` and the four column words |
 | The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bets_text`, `skin.bad_call`, `skin.no_call` |
+| The `notes` and `compute` tools | `skin.notes_name`, `skin.notes_text`, `skin.compute_name`, `skin.compute_text`, see [tool text](../../harness/prompts.md#tool-text) |
 | The Jev provider | `skin.question`, with `skin.channels` as the options, see [providers](../../harness/providers.md#jev) |
 | Log metadata | `skin.name`, `prompt_hash(skin)` |
 

@@ -16,7 +16,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | A run that gives up, see the [retry rule](prompts.md#retry-rule) | The solver returns with `gave_up` in the store and the scorer gives a gain of 0 | Never an error, so an error in a log is infrastructure. `retry_on_error=1` and `fail_on_error=0.1` on the `@task` handle those, set in the task so nobody can forget them |
 | Scenario score, error bars, headline, weakest trait | Custom `@metric`s grouped by the `scenario` field, see [metrics](#metrics) | Bootstrap seeds within a scenario, never across |
 | Baselines, Jev, Timestral | Custom `ModelAPI` providers | Same solver, same seeds, same logs as an LLM |
-| `notes` and `compute`, pilot only | `StoreModel` for notes, an inspect sandbox for compute | The sandbox is an optional extra |
+| `notes` and `compute`, see [tools](../design/interface.md#tools) | `StoreModel` for notes, an inspect sandbox for compute | The sandbox needs Docker, see [running](running.md#setup) |
 | The prompt lint | A pytest over the rendered prompt and tool text | |
 | Logs | `.eval` files in `logs/`, browsed with `inspect view` | They hold the full prompt, see [contamination](contamination.md) |
 
@@ -25,10 +25,10 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 Each round the solver:
 
 1. Renders the system prompt from the skin and the record from the store, see [prompts](prompts.md).
-2. Calls `generate` with the `submit` tool. Forced where the provider allows it. Claude takes a forced tool with thinking off and rejects one with thinking on, so there the choice is `auto` and the prompt says to call `submit`. The solver decides from the model it is given, so nothing on the command line can get it wrong. See [reasoning](models.md#reasoning).
+2. Calls `generate` with the `submit`, `notes` and `compute` tools, and a tool choice of `any` where the provider allows it, so the reply must call a tool. Claude takes `any` with thinking off and rejects it with thinking on, so there the choice is `auto` and the prompt says to call `submit`. The solver decides from the model it is given, so nothing on the command line can get it wrong. See [reasoning](models.md#reasoning).
 3. Reads the tool call. Bets the engine rejects return a `ToolError` with the skin's `bad_call`, and the model tries again. A reply with no tool call gets a reminder and tries again too. The store counts each retry. After ten tries the solver gives up and the run scores as the Uniform baseline. See the [retry rule](prompts.md#retry-rule).
 4. Plays the bets through the engine and appends the readings and output to the record.
-5. Repeats until the timeline ends. Nothing from this round's messages survives into the next. The exceptions are the pilot's: the notes file, which comes back next round in the user message below the record, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute), and the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) cell, which keeps every message.
+5. Repeats until the timeline ends. Nothing from this round's messages survives into the next. The exceptions are the notes file, which comes back next round in the user message below the record, see [tools](../design/interface.md#tools), and the pilot's [rolling conversation](../pilot/provider-checks.md#rolling-conversation) cell, which keeps every message.
 
 ## Providers
 

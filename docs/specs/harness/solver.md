@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`round_loop` plays one run: each round it renders a fresh system prompt and record, asks the model for one call to the skin's tool, plays the bets through the engine and appends the row. `submit` is that tool. The retry rule, giving up and the two pilot tools live here too. The design is in [the round loop](../../harness/inspect.md#the-round-loop), [prompts](../../harness/prompts.md) and [tools](../../design/interface.md#tools).
+`round_loop` plays one run: each round it renders a fresh system prompt and record, asks the model for one call to the skin's tool, plays the bets through the engine and appends the row. `submit` is that tool. The retry rule, giving up, the notes and compute tools and the pilot's rolling conversation live here too. The design is in [the round loop](../../harness/inspect.md#the-round-loop), [prompts](../../harness/prompts.md) and [tools](../../design/interface.md#tools).
 
 ## Interface
 
@@ -10,14 +10,14 @@
 @solver
 def round_loop(
     skin: Skin,
-    tools: str = "none",             # as the task arg
-    tool_choice: str | None = None,  # "forced", "auto", or None to decide from the model, see below
+    tools: str = "notes,compute",    # as the task arg
+    tool_choice: str | None = None,  # "any", "auto", or None to decide from the model, see below
     max_tries: int = 10,
     notes_cap: int = 2000,           # characters, pilot to confirm
     rolling: bool = False,           # keep the conversation across rounds, pilot only
 ) -> Solver
 
-def tool_choice_for(api: str, config: GenerateConfig) -> Literal["forced", "auto"]
+def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]
 
 @tool
 def submit(skin: Skin) -> Tool       # execute(bets: list[int]) -> str
@@ -33,8 +33,8 @@ def compute() -> Tool                # execute(code: str) -> str
 
 1. **Fill the store** if `store.scenario == ""`: copy the metadata in and play the warm up, see [store](task.md#store).
 2. **Reset the messages.** `state.messages` becomes exactly: a system message of `render_system_prompt(skin)`, then a user message of `render_record(skin, store.record())`. With `notes` on and `store.notes` non-empty, the user message has a second content block holding the notes, see [notes](#notes). With `rolling` on the messages are not reset, see [rolling](#rolling).
-3. **Set the tools.** `state.tools` is `[tool_with(submit(skin), name=skin.tool_name, description=skin.tool_text, parameters={"bets": skin.bets_text})]`, then `notes()` and `compute()` when asked for. Every word on the tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
-4. **Set the tool choice.** `ToolFunction(name=skin.tool_name)` for `"forced"`, `"auto"` otherwise. With `tool_choice=None` the solver calls `tool_choice_for(get_model().api, get_model().config)` on round 1 and stores the answer in `store.tool_choice`, so the log says which it was. The rule: `"auto"` when the api is `"anthropic"` and the config sets `reasoning_effort` or `reasoning_tokens`, else `"forced"`. Claude rejects a forced tool with thinking on, see [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid --model anthropic/<model>` works as typed.
+3. **Set the tools.** `state.tools` is `[tool_with(submit(skin), name=skin.tool_name, description=skin.tool_text, parameters={"bets": skin.bets_text})]`, then `notes()` as `skin.notes_name` with `skin.notes_text` and `compute()` as `skin.compute_name` with `skin.compute_text`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
+4. **Set the tool choice.** `"any"` for `"any"`, so the reply must call some tool, and `"auto"` otherwise. A `ToolFunction` naming the skin's tool is never used: it would stop the model calling notes or compute first. With `tool_choice=None` the solver calls `tool_choice_for(get_model().api, get_model().config)` on round 1 and writes the answer to `store.tool_choice` and to `state.metadata["tool_choice"]`, so the log says which it was and the analysis reads it without the store, see [result key](../analysis/runs.md#result-key). The rule: `"auto"` when the api is `"anthropic"` and the config sets `reasoning_effort` or `reasoning_tokens`, else `"any"`. Claude rejects `any` with thinking on, see [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid --model anthropic/<model>` works as typed.
 5. **Try until the round is played**, see [tries](#tries).
 6. **Repeat** until `store.round() > store.config().rounds`, or the run gave up. Then return the state.
 
@@ -61,20 +61,22 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 
 ### Notes
 
-Pilot only, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute).
+In the headline, see [tools](../../design/interface.md#tools). What it costs or adds is the [bare harness](../../pilot/provider-checks.md#bare-harness) check's to measure.
 
 - **`notes(text)`** replaces `store.notes` with the first `notes_cap` characters of `text` and returns the text as stored. Nothing is appended, nothing is kept from an earlier call.
 - **Next round** the stored text comes back as a second content block on the user message, after the record, never as an assistant message. A tool message with no tool call before it is rejected by the Anthropic API, and an assistant message would read as the agent's own words.
 - **Length is logged** by the store itself, as `len(store.notes)`.
+- **The first `notes` call in a round adds one to `store.notes_rounds`.** Later calls in the same round add nothing, so the count is rounds, not calls.
 - **A reply that calls `notes` and not the skin's tool is a no call**, see [tries](#tries).
 
 ### Compute
 
-Pilot only. Needs `uv sync --extra sandbox` and Docker.
+In the headline, so a default run needs `uv sync --extra sandbox` and Docker, see [running](../../harness/running.md#setup).
 
 - **Before each round** the solver writes `render_record(skin, store.record())` to `record.csv` in the sandbox's working directory, so the code sees the record and nothing else.
 - **`compute(code)`** runs `python3 -I -c <code>` in the sandbox with a 30 second timeout, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`.
 - **The sandbox is locked down.** The code is the model's and is untrusted. `compose.yaml` sets `network_mode: none`, mounts nothing from the host, passes no environment, runs the root filesystem read only with a small writable working directory, and caps memory, processes and CPU with `mem_limit`, `pids_limit`, `cpus` and `no-new-privileges`. So the code can reach neither the engine nor a seed, and a memory or fork bomb ends inside the container, not on the machine.
+- **The first `compute` call in a round adds one to `store.compute_rounds`**, as for notes.
 - **The compose file is found from the module**, `Path(__file__).parent / "compose.yaml"`, never from the working directory, and `pyproject.toml` ships it as package data.
 
 ### Rolling
@@ -91,14 +93,16 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - `sum(store.tries) == ` the number of generate calls in the run, whether or not it gave up.
 - `len(store.tries) == len(store.rows) − store.warm_up_rounds`, plus one when the run gave up.
 - Replaying `store.rows` as bets on `store.timeline()` with `Game` gives the same readings and outputs, so the log is enough to check a run.
-- With `rolling` off, every round starts with exactly two messages, or two messages with two content blocks on the second when notes are on.
+- With `rolling` off, every round starts with exactly two messages, or two messages with two content blocks on the second when a note is saved.
+- `state.tool_choice` is `"any"` or `"auto"`, never a `ToolFunction`.
+- `store.notes_rounds ≤ len(store.tries)` and `store.compute_rounds ≤ len(store.tries)`.
 - With `rolling` on, round `n` starts with the two messages a fresh call would send, then every reply, tool message and retry message of rounds 1 to `n − 1` in order, then the user message a fresh call would send for round `n`. So the last user message is the same with `rolling` on or off.
 - `store.awaiting_submit` is false whenever the solver is between rounds, and after a give up.
 - The solver raises nothing of its own. An exception in a run comes from inspect, a provider or the network.
 
 ## Pilot decides
 
-- `notes_cap`, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute).
+- `notes_cap`, see [bare harness](../../pilot/provider-checks.md#bare-harness).
 
 ## Not decided
 
@@ -107,5 +111,5 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 
 ## Verify before code
 
-- **Which providers refuse a forced tool with thinking on.** Anthropic does, and `tool_choice_for` knows it. Check the other providers in `configs/models/` before the first run and add each that does. `tool_choice_for` waits on it.
+- **Which providers refuse `any` with thinking on.** Anthropic does, and `tool_choice_for` knows it. Check the other providers in `configs/models/` before the first run and add each that does. `tool_choice_for` waits on it.
 - **Which providers let a model read its own earlier reasoning on a later turn**, and which return it summarised or empty. The per-model reading of the rolling cell waits on it, see [rolling](#rolling).

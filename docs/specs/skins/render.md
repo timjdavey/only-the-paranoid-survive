@@ -44,7 +44,7 @@ Four parts, in this order, each one skin field, see [system prompt](../../harnes
 
 ### Prompt hash
 
-- **`prompt_hash(skin)`** is the first 12 hex characters of the SHA-256 of a canonical JSON string: an object with the keys `render_version`, `system`, `channels`, `tool_name`, `tool_text`, `bets_text`, `bad_call`, `no_call`, `question`, `round_word`, `bet_word`, `level_word` and `output_word`, sorted keys, no whitespace, `ensure_ascii` off, UTF-8. `render_version` is `RENDER_VERSION`, `system` is `render_system_prompt(skin)`, `channels` is the list of names, the rest are the fields of the same name.
+- **`prompt_hash(skin)`** is the first 12 hex characters of the SHA-256 of a canonical JSON string: an object with the keys `render_version`, `system`, `channels`, `tool_name`, `tool_text`, `bets_text`, `bad_call`, `no_call`, `notes_name`, `notes_text`, `compute_name`, `compute_text`, `question`, `round_word`, `bet_word`, `level_word` and `output_word`, sorted keys, no whitespace, `ensure_ascii` off, UTF-8. `render_version` is `RENDER_VERSION`, `system` is `render_system_prompt(skin)`, `channels` is the list of names, the rest are the fields of the same name.
 - **It covers every word the model can read from a skin** and nothing else. `name` is not in it, so renaming a file does not change the hash, and the record is not in it, as the record changes every round and the log holds it anyway.
 - **`RENDER_VERSION` covers the layout.** It goes up by one whenever the joins on this page, the columns or decimals of the record, or the shape of either text change. So a hash change always means the model read something different, even when no skin word moved, and `engine_hash` stays about the world.
 - **Same skin, same hash**, across Python versions and machines. Two skins that differ in any covered field differ in hash.
@@ -61,4 +61,4 @@ Four parts, in this order, each one skin field, see [system prompt](../../harnes
 
 ## Not decided
 
-- **Whether a second skin field should go in the user message.** Today the user message is the CSV and nothing else. The notepad pilot cell appends a second content block to the user message, not skin text, see [notepad and compute](../../pilot/provider-checks.md#notepad-and-compute). If a cell ever needs skin words there, this page gets a `render_user_message` and the hash covers it.
+- **Whether a second skin field should go in the user message.** Today the user message is the CSV and nothing else. A saved note is appended as a second content block of the user message, the agent's own text and not the skin's, see [notes](../harness/solver.md#notes). If a cell ever needs skin words there, this page gets a `render_user_message` and the hash covers it.

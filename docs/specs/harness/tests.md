@@ -1,6 +1,6 @@
 # Tests
 
-Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the harness, then the page's letter, see [test ids](../README.md#rules). They need no key and no network: LLM calls go through `mockllm/model` with scripted outputs, baselines through the baseline provider, and Jev and Timestral through fakes. The forecast rules themselves are tested in the [baselines suite](../baselines/tests.md#forecast). Tests marked **sandbox** need Docker and tests marked **timestral** need the extra. Both are skipped by default, run with `-m sandbox` or `-m timestral`. The skins layer's `example` skin is the skin throughout.
+Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the harness, then the page's letter, see [test ids](../README.md#rules). They need no key and no network: LLM calls go through `mockllm/model` with scripted outputs, baselines through the baseline provider, and Jev and Timestral through fakes. The forecast rules themselves are tested in the [baselines suite](../baselines/tests.md#forecast). Tests marked **sandbox** need Docker and tests marked **timestral** need the extra. Both are skipped by default, run with `-m sandbox` or `-m timestral`. The skins layer's `example` skin is the skin throughout. Every `mockllm` test passes `tools="none"` unless marked **sandbox**, so the suite needs no Docker.
 
 - **One test-only switch.** `PARANOID_PILOT_SEEDS` caps the seed count a pilot cell runs, for HM8. It is the only test hook in the harness. Keep it that way.
 
@@ -14,8 +14,8 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HK4 | `parse_seeds("0-4")` returns positions 0 to 4 with the file's seeds. `"3"` returns one. `"4-2"`, a position past the end, and `"held-out"` with `PARANOID_SEEDS` unset raise `ValueError`, the last naming the variable | [task](task.md#seeds) |
 | HK5 | A seed file with a comment, a blank line and a repeated seed: the first two are skipped, the third raises `ValueError` | [task](task.md#seeds) |
 | HK6 | `PARANOID_SEEDS` pointing at a temp folder with a `held-out.txt`: `seeds="held-out"` reads it, metadata has `seed_set == "held-out"` and the right `seed_index` and no `seed` key, and the seed value appears nowhere in the log. Every scenario's sample at position `i` plays the same seed | [task](task.md#seeds) |
-| HK7 | `skin="nope"` raises `ValueError` listing `example`. `tools="laser"` raises `ValueError`. `scenario="../x"` raises before any path is built | [task](task.md#task-settings) |
-| HK8 | The task has `retry_on_error == 1` and `fail_on_error == 0.1`. `sandbox` is set only when `tools` includes `compute`, and its path exists | [task](task.md#task-settings) |
+| HK7 | `skin="nope"` raises `ValueError` listing `example`. `tools="laser"` and `tool_choice="laser"` each raise `ValueError`. `scenario="../x"` raises before any path is built | [task](task.md#task-settings) |
+| HK8 | The task has `retry_on_error == 1` and `fail_on_error == 0.1`. The default `tools` is `notes,compute`. `sandbox` is set at the default and whenever `tools` includes `compute`, not at `tools="none"`, and its path exists | [task](task.md#task-settings) |
 | HK9 | `warm_up="complacent:5"` played with `baseline/uniform`: the store has `warm_up_rounds == 5`, the first five rows equal `play(complacent, timeline, max_rounds=5)`, and the round 1 user message has six lines. `"complacent:0"`, `"complacent:40"` and `"nope:5"` raise `ValueError` | [task](task.md#warm-up) |
 | HK10 | Every sample's `prompt_hash` equals the skins layer's `prompt_hash(skin)`, and `harness_version` is a non-empty string | [task](task.md#dataset) |
 | HK11 | `RunStore` has no field whose type is an array or a `Timeline`, and no `seed` field, checked over `model_fields`. `store.timeline()` twice is the same object | [task](task.md#store) |
@@ -35,13 +35,13 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS7 | Bets of `[10.0] × 10` and `["10"] × 10` get `bad_call`. `[10] × 10` plays. The engine's own message appears nowhere in the messages | [solver](solver.md#submit) |
 | HS8 | Two submit calls in one reply: the first plays, the second gets `bad_call`, `len(rows) == 1` and `bad_calls == 1` | [solver](solver.md#submit) |
 | HS9 | The tool result on a valid call equals the header and last line of `render_record(skin, record)` | [solver](solver.md#submit) |
-| HS10 | `tool_choice="forced"` sets `state.tool_choice` to `ToolFunction(skin.tool_name)`. `"auto"` sets `"auto"`. With `None`, `store.tool_choice` holds the resolved value. The submit tool is `state.tools[0]` and carries the skin's name, text and parameter text | [solver](solver.md#each-round) |
-| HS11 | `tools="notes"`: a `notes("abc")` call then a valid submit. Round 2's user message has two content blocks, the second `"abc"`. A 3000 character note is stored as 2000. A round that called only `notes` counts a no call | [solver](solver.md#notes) |
-| HS12 | **sandbox** `tools="compute"`: `compute("print(open('record.csv').read())")` returns the record CSV. `compute("import socket; socket.create_connection(('1.1.1.1', 80))")` returns an error, not a connection. A sleep of 60 seconds returns `timeout`. A loop that appends to a list forever ends with an error inside the timeout, and `os.environ` holds no key | [solver](solver.md#compute) |
+| HS10 | `tool_choice="any"` sets `state.tool_choice` to `"any"`, never a `ToolFunction`. `"auto"` sets `"auto"`. With `None`, `store.tool_choice` and `state.metadata["tool_choice"]` hold the resolved value, and it is in the log's sample metadata. The submit tool is `state.tools[0]` and carries the skin's name, text and parameter text | [solver](solver.md#each-round) |
+| HS11 | `tools="notes"`: a `notes("abc")` call then a valid submit. Round 2's user message has two content blocks, the second `"abc"`. A 3000 character note is stored as 2000. A round that called only `notes` counts a no call. Two `notes` calls in round 1 and one in round 2 give `notes_rounds == 2` | [solver](solver.md#notes) |
+| HS12 | **sandbox** `tools="compute"`: `compute("print(open('record.csv').read())")` returns the record CSV. `compute("import socket; socket.create_connection(('1.1.1.1', 80))")` returns an error, not a connection. A sleep of 60 seconds returns `timeout`. A loop that appends to a list forever ends with an error inside the timeout, and `os.environ` holds no key. Two `compute` calls in one round give `compute_rounds == 1` | [solver](solver.md#compute) |
 | HS13 | `rolling=True`: at round 3 the messages hold every earlier assistant and tool message in order, the first two messages equal a fresh call's, and the last user message equals `render_record` of the two-row record, as HS2's would | [solver](solver.md#rolling) |
 | HS14 | Replaying `store.rows` as bets with `Game` on `store.timeline()` gives equal readings and outputs | [solver](solver.md#invariants) |
 | HS15 | A lint over every message a `mockllm` run produced finds no banned word, with the example skin | [prompts](../../harness/prompts.md#banned-words) |
-| HS16 | `tool_choice_for("anthropic", GenerateConfig(reasoning_effort="low"))` is `"auto"`. `("anthropic", GenerateConfig())` and `("openai", GenerateConfig(reasoning_effort="high"))` are `"forced"` | [solver](solver.md#each-round) |
+| HS16 | `tool_choice_for("anthropic", GenerateConfig(reasoning_effort="low"))` is `"auto"`. `("anthropic", GenerateConfig())` and `("openai", GenerateConfig(reasoning_effort="high"))` are `"any"` | [solver](solver.md#each-round) |
 
 ## Providers
 
@@ -76,6 +76,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HO10 | `retry_share` on a run with `tries == [1, 2, 1, 3]` and 4 rounds is `0.5`, a run that gave up with `tries == [1, 1, 10]` is `1/3`, and `cut_off_share` counts `cut_offs` only | [scorer](scorer.md#retry-share) |
 | HO11 | `Score.answer` equals `render_record(skin, store.record())` and `Score.metadata` has `scenario`, `seed_set`, `seed_index` and `engine_hash`, with `seed` on a public sample only | [scorer](scorer.md#interface) |
 | HO12 | The metrics on a log give the same numbers with `PARANOID_SEEDS` unset and the public seed file moved away | [scorer](scorer.md#giving-up) |
+| HO13 | `tool_use_share` on hand-built scores with `notes_rounds` 4 and 0 and `compute_rounds` 0 and 0 over `rounds` 40 and 40 is `{"notes": 0.05, "compute": 0}` | [scorer](scorer.md#tool-use-share) |
 
 ## Command
 

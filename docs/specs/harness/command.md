@@ -102,12 +102,13 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `up-against-down` | Yes | One LLM row on Down switch, Up switch, Up switch then down switch and Switch then shock, the `seeds` seeds | An eval log |
 | `jev` | Yes | `jev/jev-latest` on No change and Down switch | An eval log |
 | `timestral` | Yes | The gap test on a hand-built record, determinism twice on one input, then every `timestral/` row at every grid setting | A CSV for the gap test and determinism, and eval logs |
-| `notepad` | Yes | Every LLM row with `tools` at `none`, `notes`, `compute` on One shock and Down switch, the `seeds` seeds | Three eval logs per row |
+| `bare` | Yes | Every LLM row with `tools` at `notes,compute`, `notes`, `compute` and `none` on One shock and Down switch, the `seeds` seeds | Four eval logs per row |
+| `tool-choice` | Yes | Every LLM row whose `tool_choice_for` is `any`, at `tool_choice` `any` and `auto`, on One shock and Down switch, the `seeds` seeds | Two eval logs per row |
 | `rolling` | Yes | Every LLM row on No change, One shock and Down switch, with `rolling` off and on | Two eval logs per row |
 | `warm-up` | Yes | Every LLM row on No change and Down switch, with `warm_up` unset and at `complacent:5` | Two eval logs per row |
 
 - **Every CSV has one row per seed, never a timeline.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
-- **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one. The `notepad`, `rolling` and `warm-up` cells take every `llm` row, as the [elicitation rule](../../pilot/provider-checks.md#elicitation) asks, and `--only` narrows them.
+- **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one. The `bare`, `tool-choice`, `rolling` and `warm-up` cells take every `llm` row, as their checks ask, and `--only` narrows them.
 - **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
 - **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.
 - **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`.
