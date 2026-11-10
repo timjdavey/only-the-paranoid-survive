@@ -23,7 +23,7 @@ BLOCK_CACHE_APIS = ("anthropic",)    # apis whose prompt cache matches by conten
 def record_blocks(text: str) -> list[str]   # the record cut after every line end
 
 @tool
-def submit(skin: Skin) -> Tool       # execute(bets: list[int]) -> str
+def submit(skin: Skin) -> Tool       # one parameter, named skin.bets_name, a list of ints. Returns str
 @tool
 def notes() -> Tool                  # execute(text: str) -> str
 @tool
@@ -36,7 +36,7 @@ def compute() -> Tool                # execute(code: str) -> str
 
 1. **Fill the store** if `store.scenario == ""`: copy the metadata in and play the warm up, see [store](task.md#store).
 2. **Reset the messages.** `state.messages` becomes exactly: a system message of `render_system_prompt(skin)`, then a user message of `render_record(skin, store.record())`, as one content block or cut by [record blocks](#record-blocks). With `notes` on and `store.notes` non-empty, the user message has one more content block after the record, holding the notes, see [notes](#notes). With `rolling` on the messages are not reset, see [rolling](#rolling).
-3. **Set the tools.** `state.tools` is `[tool_with(submit(skin), name=skin.tool_name, description=skin.tool_text, parameters={"bets": skin.bets_text})]`, then `notes()` as `skin.notes_name` with `skin.notes_text` and `compute()` as `skin.compute_name` with `skin.compute_text`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
+3. **Set the tools.** `state.tools` is `[submit(skin)]`, which carries the skin's `tool_name`, `tool_text`, `bets_name` and `bets_text`, see [submit](#submit), then `notes()` as `skin.notes_name` with `skin.notes_text` and `compute()` as `skin.compute_name` with `skin.compute_text`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
 4. **Set the tool choice.** `"any"` for `"any"`, so the reply must call some tool, and `"auto"` otherwise. A `ToolFunction` naming the skin's tool is never used: it would stop the model calling notes or compute first. With `tool_choice=None` the solver calls `tool_choice_for(get_model().api, get_model().config)` on round 1 and writes the answer to `store.tool_choice` and to `state.metadata["tool_choice"]`, so the log says which it was and the analysis reads it without the store, see [result key](../analysis/runs.md#result-key). The rule: `"auto"` when the api is `"anthropic"` and the config sets `reasoning_effort` or `reasoning_tokens`, else `"any"`. Claude rejects `any` with thinking on, see [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid --model anthropic/<model>` works as typed.
 5. **Try until the round is played**, see [tries](#tries).
 6. **Repeat** until `store.round() > store.config().rounds`, or the run gave up. Then return the state.
@@ -67,7 +67,8 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 
 `submit(skin)` is the engine's `Game.play` behind a tool. The model sees it under the skin's name and text, see [tool text](../../harness/prompts.md#tool-text).
 
-- **`execute(bets)`** reads `store_as(RunStore)`, builds `store.game()`, and calls `game.play(bets)`.
+- **The tool is built from the skin.** Its name is `skin.tool_name`, its description `skin.tool_text`, and it has one required parameter named `skin.bets_name`, an array of integers, described by `skin.bets_text`. So no word on the tool is the harness's, and no two skins need share one, see [contamination](../../harness/contamination.md#why).
+- **`execute`** takes that one argument by the skin's name, reads `store_as(RunStore)`, builds `store.game()`, and calls `game.play(bets)`. A call with any other argument name, or with more than one, is a bad call.
 - **The bets go through untouched.** The harness does no coercion. A list of JSON whole numbers passes. `10.0`, `"10"` or `true` fail the engine's `shape` check, see [bets](../engine/game.md#bets).
 - **On `BetError`** the tool adds one to `store.bad_calls` and raises `ToolError(skin.bad_call)`. The engine's own message never reaches the model. The round, the record and `store.awaiting_submit` are unchanged.
 - **When `store.awaiting_submit` is false** the call raises `ToolError(skin.bad_call)` and counts as a bad call, so a second submit in one reply cannot play two rounds.
@@ -122,6 +123,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 ## Not decided
 
 - Whether `rolling` runs need their own `max_tokens`, as the conversation grows with the square of the game length, see [rejected](../../design/interface.md#rejected). inspect records usage per call, so input tokens per round are read from the log, and the rolling check reports them. Decide when the rolling cell runs.
+- **Whether the skin should name the parameters of notes and compute.** They are `text` and `code` in every skin, the two words on any tool the harness still writes. Both are as plain as a parameter name gets, so they mark little, but they are shared. Each would be one more skin field, as `bets_name` is. Decide before the first headline run on held-out skins, as the prompt freezes there.
 - Whether a run needs a try budget on top of the ten a round. A model that needs five tries every round spends two hundred calls a run with no give up. The retry share marks it, and the [cost check](../../pilot/provider-checks.md#cost-per-run) prices it. Decide when the cost check has run.
 
 ## Verify before code
@@ -131,4 +133,5 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
   - inspect sends each text block of a user message to Anthropic as its own block, and does not join them.
   - Anthropic's token count for the prompt is the same cut or whole, so no separator reaches the model.
   - In a three round run the log's cache read tokens grow each round, and by round 3 cover the system prompt and the first rows.
+- **That inspect lets a tool's parameter be named at run time.** `submit` needs a parameter whose name comes from the skin, which a plain `@tool` function with a fixed argument cannot give. Check that a `ToolDef` with explicit `ToolParams` and an `execute(**kwargs)` sends the skin's name in the schema and passes the call back under it. If it cannot, the parameter stays `bets` in every skin and `bets_name` is dropped from the skin. `submit` waits on it.
 - **Which providers let a model read its own earlier reasoning on a later turn**, and which return it summarised or empty. The per-model reading of the rolling cell waits on it, see [rolling](#rolling).

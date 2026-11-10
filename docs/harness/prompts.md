@@ -27,7 +27,7 @@ Four parts in this order, each filled by a skin field, see [skins](skins.md#what
 | How points earn | `how_points_earn` | The level of each funded channel is reported. No points report nothing. A small spend gives a rough reading |
 | Ask | `ask` | The record is below. Place this round's points with the tool |
 
-The example skin's wording, with its channel names left as brackets:
+The example skin's wording. **The real `example.toml` is coming**: its story and words are being written and will be added to this repo, see the [skins spec](../specs/skins/skin.md#the-example-skin). Until then the brackets stand where the story goes, and the frame around them is the shape it will keep:
 
     [Who the agent is and what it runs.]
 
@@ -55,7 +55,7 @@ The lint fails a skin whose rendered prompt leaves any of these out, see [lint](
 The record as CSV. Round 1 sends the header only, or a record pre-filled by a baseline in the [warm up check](../pilot/provider-checks.md#warm-up).
 
     round,<ten bet columns>,<ten level columns>,output
-    1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,61.2
+    1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,,61.2
     2,...
 
 - Column names use the skin's channel names and its four column words. The example skin's words are `round`, `bet`, `level` and `output`, and a held-out skin picks its own, see [skins](skins.md#what-a-skin-file-holds).
@@ -65,9 +65,9 @@ The record as CSV. Round 1 sends the header only, or a record pre-filled by a ba
 
 ## Tool text
 
-`submit`, `notes` and `compute` are the harness's names for the three tools. The model sees the names and text the skin gives them: `tool_name`, `tool_text`, `bets_text`, `bad_call` and `no_call` for `submit`, then `notes_name`, `notes_text`, `compute_name` and `compute_text`. `submit` always takes ten whole numbers in channel order, and `bets_text` is what the model reads beside that one parameter. The harness adds no words of its own to any tool.
+`submit`, `notes` and `compute` are the harness's names for the three tools. The model sees the names and text the skin gives them: `tool_name`, `tool_text`, `bets_name`, `bets_text`, `bad_call` and `no_call` for `submit`, then `notes_name`, `notes_text`, `compute_name` and `compute_text`. `submit` always takes ten whole numbers in channel order. `bets_name` is what that one parameter is called and `bets_text` is what the model reads beside it. The harness adds no words of its own to the submit tool. The parameters of the other two are named `text` and `code` in every skin, see the [solver spec](../specs/harness/solver.md#not-decided).
 
-The example skin's wording, `tool_text` then `bets_text`:
+The example skin's wording, `tool_name` and `bets_name` on the first line, then `tool_text`, then `bets_text`:
 
     submit(bets: list[int])
     Place this round's points.

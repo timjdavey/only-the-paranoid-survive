@@ -44,6 +44,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS15 | A lint over every message a `mockllm` run produced finds no banned word, with the example skin | [prompts](../../harness/prompts.md#banned-words) |
 | HS16 | `tool_choice_for("anthropic", GenerateConfig(reasoning_effort="low"))` is `"auto"`. `("anthropic", GenerateConfig())` and `("openai", GenerateConfig(reasoning_effort="high"))` are `"any"` | [solver](solver.md#each-round) |
 | HS17 | `record_blocks` on `render_record` of a three-row record returns four pieces, the header line then one per row, that join back to the same string. A `mockllm` run sends the record as one content block. With the model's api patched to `"anthropic"`, the round 3 user message has three record blocks, and four content blocks once a note is saved, the note last | [solver](solver.md#record-blocks) |
+| HS18 | With a copy of the example skin whose `bets_name` is `amounts`, the tool the model is offered has one required parameter named `amounts`, an array of integers, described by `bets_text`. A call of `{"amounts": [10] × 10}` plays the round. A call of `{"bets": [10] × 10}` gets `bad_call` and plays nothing | [solver](solver.md#submit) |
 
 ## Providers
 

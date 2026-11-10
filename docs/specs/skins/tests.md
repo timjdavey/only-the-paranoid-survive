@@ -10,7 +10,7 @@ Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, the
 |---|---|---|
 | KS1 | `load_skins()` with `PARANOID_SKINS` unset returns a mapping with the one key `example`, whose `name` is `example`, and assigning to it raises `TypeError` | [skin](skin.md#load_skins) |
 | KS2 | `prompt_hash(load_skins()["example"])` equals a pinned string. Changing the pinned string is a reviewed change | [skin](skin.md#the-example-skin) |
-| KS3 | A `Skin` with each bad value raises `SkinError`, one case per clause: a `name` with a capital, an empty `intro`, three channels, a name with a comma, a `bet_word` with a comma, an empty `output_word`, two names equal ignoring case, a `tool_name` with a space, a `tool_name` of 65 characters and a `notes_name` equal to `tool_name` | [skin](skin.md#validation-on-construction) |
+| KS3 | A `Skin` with each bad value raises `SkinError`, one case per clause: a `name` with a capital, an empty `intro`, three channels, a name with a comma, a `bet_word` with a comma, an empty `output_word`, two names equal ignoring case, a `tool_name` with a space, a `tool_name` of 65 characters, a `bets_name` with a capital and a `notes_name` equal to `tool_name`. A `bets_name` equal to `tool_name` builds | [skin](skin.md#validation-on-construction) |
 | KS4 | A field given as `"  text  \r\nmore \r"` is stored as `"text\nmore"`, `channels` given as a list is stored as a tuple, and a name spelled in NFD equals the same name in NFC. Two skins differing only in such whitespace or form are equal with equal hashes | [skin](skin.md#validation-on-construction) |
 | KS5 | A TOML file missing a key, with an unknown key, with a `name` key, with `channels` as a string, or with `intro` as an integer raises `SkinError` whose message names the key and the file | [skin](skin.md#the-toml-file) |
 | KS6 | `load_skin` on `rome.toml` gives a skin named `rome`. `Rome.toml` and `1x.toml` raise `SkinError` for the stem | [skin](skin.md#the-toml-file) |
@@ -45,7 +45,7 @@ Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, the
 | KL2 | `lint_text("Check the CHECKS, then recheck again")` returns `("check",)`, one entry once, and `lint_text("")` returns `()` | [lint](lint.md#words) |
 | KL3 | `lint_text` on a text with three different banned words returns them in text order | [lint](lint.md#words) |
 | KL4 | Every entry in `BANNED_WORDS` and `PREFIXES` is lowercase letters only, no entry in `BANNED_WORDS` is a prefix of another, and the three tuples `BANNED_WORDS`, `PREFIXES` and `WHOLE_NUMBER_PHRASES` equal pinned lists | [lint](lint.md#words) |
-| KL5 | A skin with a banned word in each field the model reads in turn, channel names, the three tool names, `notes_text`, `compute_text` and the four column words included, raises `LintError` whose `problems` holds `"<field>: <entry>"`, with `channels[3]` for the fourth name. A banned word in `name` alone passes | [lint](lint.md#fields) |
+| KL5 | A skin with a banned word in each field the model reads in turn, channel names, the three tool names, `bets_name`, `notes_text`, `compute_text` and the four column words included, raises `LintError` whose `problems` holds `"<field>: <entry>"`, with `channels[3]` for the fourth name. A banned word in `name` alone passes | [lint](lint.md#fields) |
 | KL6 | A skin whose text omits `100`, omits one channel name, says neither `whole number` nor `integer`, or omits the tool name raises `LintError` with the matching `missing:` problem, one case each | [lint](lint.md#frame-facts) |
 | KL7 | A skin that puts the ten names in `intro` and the tool name in `rules` passes, as the facts are checked on the whole prompt | [lint](lint.md#frame-facts) |
 | KL8 | `Whole Numbers` and `integers` both satisfy the whole-numbers fact | [lint](lint.md#frame-facts) |
@@ -68,3 +68,7 @@ With `hypothesis`, kept fast with a small example count.
 ## Not decided
 
 - Whether to run KL12 in CI against a private checkout, or on the maintainers' machines only. Held-out skins never reach CI today, see [who can see them](../../harness/contamination.md#who-can-see-them).
+
+## Waiting on the example skin
+
+- KS2, KR2, KL11 and KL13 pin or lint the bytes of `example.toml`, which is [coming](skin.md#the-example-skin). They are written when the file lands, and its `prompt_hash` is pinned then. Every other test here builds its own skin by hand and can be written now.

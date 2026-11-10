@@ -93,7 +93,7 @@ The harness imports these from `paranoid.skins`. Their signatures and behaviour 
 | `Skin`, `SkinError` | The skin a run plays. `SkinError` covers `LintError`, so a bad skin is one error on load |
 | `load_skins` | Every skin by name, the example skin always, see [task settings](task.md#task-settings) |
 | `render_system_prompt`, `render_record` | The system prompt and the record, the one way the harness renders either, see [each round](solver.md#each-round) |
-| `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
+| `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_name` and `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
 | `lint_text` | The banned word check on messages and replies, see [tests](tests.md) and [command](command.md) |
 
 ## What the analysis layer reads
@@ -111,7 +111,7 @@ The analysis is the layer above. What it takes from the harness is listed on its
 
 - **One sample is one run.** One scenario, one seed, one skin. Its id is `<scenario>/<seed position>`, see [task](task.md#dataset).
 - **The timeline is never in the log.** The store holds the scenario, the seed and the knobs, and every reader rebuilds the timeline with `make_timeline`, see [timeline](../engine/timeline.md#interface).
-- **The harness writes no text for the agent.** Every word the model sees comes from the skin or from the record's own CSV, the tool's parameter text included. The one thing the harness composes is the tool result, which is a CSV row, see [submit](solver.md#submit). The pilot tools are the exception: the notes echo and compute's output are whatever came back, and neither runs in the headline.
+- **The harness writes no text for the agent, bar two words.** Every word the model sees comes from the skin or from the record's own CSV, the submit tool's parameter name and text included. The two exceptions are `text` and `code`, the parameter names of notes and compute, see [not decided](solver.md#not-decided). The one thing the harness composes is the tool result, which is a CSV row, see [submit](solver.md#submit). The pilot tools are the exception: the notes echo and compute's output are whatever came back, and neither runs in the headline.
 - **A run never errors on the model's account.** Ten failed tries in a round is a give up, scored as a gain of 0, see [giving up](scorer.md#giving-up). An error in a log is infrastructure.
 - **Rounds are numbered from 1**, as in the [engine](../engine/README.md#conventions). The store's `rows` list is indexed from 0, so round `r` is `rows[r − 1]`.
 - **Warm up rows are not the agent's.** A record pre-filled by a baseline counts toward the record the agent sees, never toward its score, see [scorer](scorer.md#scoring-one-run).

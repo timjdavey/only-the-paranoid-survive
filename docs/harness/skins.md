@@ -16,7 +16,8 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `ask` | The record is below, place this round's points with the tool |
 | `tool_name` | The tool's name as the model sees it |
 | `tool_text` | The tool's description |
-| `bets_text` | The description of the tool's one parameter, the ten whole numbers in channel order |
+| `bets_name` | The name of the tool's one parameter as the model sees it. `bets` in the example skin. Each skin picks its own, so no parameter name is shared across skins |
+| `bets_text` | The description of that parameter, the ten whole numbers in channel order |
 | `bad_call` | The retry message for any bets the engine rejects. One generic message, no slots |
 | `no_call` | The retry message for a reply with no tool call |
 | `notes_name`, `notes_text` | The notes tool's name and description, see [tool text](prompts.md#tool-text) |
