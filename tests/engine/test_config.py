@@ -17,6 +17,7 @@ from paranoid.engine import (
     ShockSpec,
     SwitchSpec,
     engine_hash,
+    make_timeline,
 )
 
 SCENARIO_ORDER = [
@@ -179,8 +180,6 @@ def test_ec5_points_defaults_agree_with_sigmas():
 
 
 def test_ec6_int_and_float_ranges_are_one_config():
-    from paranoid.engine import make_timeline
-
     as_ints = config(leader_base=(60, 70))
     as_floats = config(leader_base=(60.0, 70.0))
     assert as_ints == as_floats
@@ -212,8 +211,6 @@ def test_ec7_canonical_json_has_the_shape_keys():
 
 @pytest.mark.parametrize("name", SCENARIO_ORDER)
 def test_ec8_noise_grid_settings(name):
-    from paranoid.engine import make_timeline
-
     pinned = dataclasses.replace(SCENARIOS[name], own_scale=8.0, pin_in_level_points=True)
     make_timeline(pinned, 0)
     with pytest.raises(ValueError):
