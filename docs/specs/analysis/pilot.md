@@ -38,7 +38,7 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 | Tool choice | `tool-choice` logs | Scenario scores per model and `tool_choice`, `paired_gap` of `auto` against `any` per model with its bar, the no call share in each | None | [Tool choice](../../pilot/provider-checks.md#tool-choice) |
 | Rolling conversation | `rolling` logs | Scenario scores fresh and rolling per model, `paired_gap` per model and whether its `headline` bar clears zero, tokens per run and input tokens per round | None | [Rolling conversation](../../pilot/provider-checks.md#rolling-conversation) |
 | Warm up | `warm-up` logs | Scenario scores with an empty record and pre-filled per model, `paired_gap` | None | [Warm up](../../pilot/provider-checks.md#warm-up) |
-| Cost per run | `seeds` and `repeats` logs | `write_cost` | None | [Cost per run](../../pilot/provider-checks.md#cost-per-run) |
+| Cost per run | `seeds` and `repeats` logs | `write_cost`, and the retry share per result row, `sum(retry_rounds) / sum(rounds)` | None | [Cost per run](../../pilot/provider-checks.md#cost-per-run) |
 
 - **Recognition shows numbers and skin names only.** The CSV holds replies about held-out prompts and is private whenever a held-out skin ran, see [recognition](../../pilot/provider-checks.md#recognition). `load_recognition` drops the reply on read, see [flags](scores.md#flags), so the section cannot hold one.
 - **The inertia check reads the main logs**, so it appears as paired gaps in the Up against down section, see [inertia](../../pilot/provider-checks.md#inertia). The warm up check has its own cell and section.

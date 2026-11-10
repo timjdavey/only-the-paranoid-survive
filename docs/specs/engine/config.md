@@ -99,7 +99,7 @@ def engine_hash(config: ScenarioConfig) -> str
   - `loading` has a low at or below 0. `hedge_loading` has a high at or above 0.
   - `onset` low is below 1 or `onset` high is above `rounds`.
   - `hedge_base` high is not below `field_base` low.
-  - `field_base` low is above `leader_base` low minus the larger of `runner_up_gap_points` high and `runner_up_gap_sigmas` high × `own_scale`, minus `field_headroom`.
+  - `field_base` low is above `leader_base` low minus the widest runner-up gap the config can draw, minus `field_headroom`. The widest gap is `runner_up_gap_points` high when `pin_in_level_points` is true, and `runner_up_gap_sigmas` high × `own_scale` when it is not, as only the pair the engine reads can break the ladder, see [pinning](timeline.md#pinning). So the noise grid's settings all build: pinned at `own_scale` 8 the check is 60 − 16 − 4 = 40, above the field's low of 30. Unpinned at 8 it is 60 − 32 − 4 = 24 and raises, which is right, as that ladder could put a field channel above the runner-up.
   - In any event spec: `riser_share` or `short_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, or any `*_sigmas` or `*_points` range has a low at or below 0.
   - A `SwitchSpec` has `short_share` above 0 and a `kind` other than `"rise"`, or a `short_level` low at or below 0 or high at or above 1.
   - A `SwitchSpec` with `kind="undo"` is the first event, or the most recent `SwitchSpec` before it does not have `kind` `"rise"` or `"fall_and_rise"`.

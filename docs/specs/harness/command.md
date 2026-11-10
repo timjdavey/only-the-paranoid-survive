@@ -95,12 +95,12 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | Check | Needs a model | What it runs | Writes |
 |---|---|---|---|
 | `streaks` | No | Timelines over a grid of `persistence`, 1000 seeds each, the No change and Down switch scenarios | A CSV: setting, seed, longest run of rounds the leader reads below the runner-up by chance, and the round the Scout rule moves |
-| `tell` | No | Timelines over a grid of `factor_scale`, One shock and Down switch, 1000 seeds | A CSV: setting, seed, hedge move at the trough, and the hedge rule's hold or move |
+| `tell` | No | Timelines over a grid of `factor_scale`, One shock, Down switch and No change, 1000 seeds, with `hedge_rule`. Then at the default scale, `HedgeRule` over a small grid of `window`, `fall_points` and `tell_points` | A CSV: setting, baseline parameters, seed, hedge move at the trough, and the hedge rule's hold or move |
 | `luck` | No | `perfect` minus `discerning` on every scenario at every grid setting | A CSV: scenario, setting, seed, gap |
 | `timeline-sanity` | No | [BP14](../baselines/tests.md#policies) and [BP7](../baselines/tests.md#policies) at every setting in `configs/grid.toml` | A CSV: scenario, setting, baseline, pooled output |
 | `noise-grid` | No | Every fixed baseline on One shock, Down switch and Up switch at every setting in `configs/grid.toml`, 1000 seeds | A CSV: scenario, setting, baseline, seed, output |
 | `game-length` | No | The baselines at `rounds` of 30, 40 and 60 and `onset` ranges around the default, One shock, Down switch, Slow drift and the two-event scenarios | A CSV: scenario, rounds, onset, baseline, seed, output, move round, and the round the last event ends, see [rounds to spare](../../pilot/engine-checks.md#game-length-and-switch-round) |
-| `reading-roughness` | No | `HedgeRule(explore=1,2,5)` and `ScoutRule(s=1,2,5)` over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |
+| `reading-roughness` | No | `HedgeRule(explore=1,2,5)` at `scout_rounds` of 1, 2 and 3, and `ScoutRule(s=1,2,5)`, over a grid of `read_noise_k` | A CSV: setting, baseline, parameter, seed, output, move round |
 | `up-and-down` | No | Discerning, Complacent, hedge rule and Scout rule at `s` 1, 2, 5 on 1000 Down switch, Up switch and No change seeds | A CSV: scenario, kind of switch, baseline, seed, output, move round |
 | `bayesian-frontier` | No | Every `Bayesian(hazard, rule)` over `HAZARDS` × `BAYESIAN_RULES`, with `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule`, on 1000 seeds of every scenario | A CSV: scenario, baseline, hazard, rule, seed, output. Hazard and rule are blank on the five fixed baselines |
 | `baseline-order` | No | Every fixed baseline on every scenario, 1000 seeds | A CSV: scenario, baseline, pooled output, and a line per order that breaks |

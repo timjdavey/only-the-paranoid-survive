@@ -18,6 +18,8 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BP10 | `discerning` never moves on 50 short Up switch seeds. On 50 Up switch then down switch seeds it moves to the sleeper once and back to `start.leader` once, and ends on `start.leader` | [policies](policies.md#the-four-fixed-baselines) |
 | BP11 | `POLICIES` has exactly the seven glossary keys, assigning to it raises `TypeError`, `POLICIES[name]()` equals the exported instance of the same name for all seven, and `POLICIES["hedge_rule"](nope=1)` and `POLICIES["uniform"](explore=1)` raise `TypeError` | [policies](policies.md#policies) |
 | BP12 | In a subprocess that imports `paranoid.baselines` and nothing else, `sys.modules` holds no top-level package outside `paranoid`, numpy and the standard library | [README](README.md#modules) |
+| BP13 | On 20 seeds of a One shock config with `one_channel_shock` on, `discerning` plays the same bets in every round as on the No change timeline of the same seed, as the climate does not move. The engine's half is [ET14](../engine/tests.md#timeline) | [policies](policies.md#the-four-fixed-baselines) |
+| BP14 | Pinning, **slow**: over 1000 Down switch seeds, the pooled output of `discerning` minus `complacent` at `own_scale` 2, 4 and 8, each pinned in level points, agrees within 5%. Moved from the engine suite, where it was ET22 | [pinning](../engine/timeline.md#pinning) |
 
 ## Rules
 
@@ -38,7 +40,7 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | Id | Test | Page |
 |---|---|---|
 | BF1 | On hand-built quantiles: `top_pick` puts 100 on the highest median, `explore_2` puts 2 on the rest and 82 on it, `odds` on two channels with equal quantiles gives `50, 50` within 3, and a `NaN` channel gets 0 from `top_pick` and `odds` and `explore` from `explore_2` | [forecast](forecast.md#the-rules) |
-| BF2 | `QUANTILE_LEVELS` has 21 ascending values, `QUANTILE_LEVELS[10] == 0.5`, and `FORECAST_RULES` has the five ids mapping to the five instances | [forecast](forecast.md#interface) |
+| BF2 | `QUANTILE_LEVELS` has 21 ascending values from 0.01 to 0.99, with 0.05, 0.10 and 0.95 among them, `MEDIAN_INDEX == 10` and `QUANTILE_LEVELS[MEDIAN_INDEX] == 0.5`, and `FORECAST_RULES` has the five ids mapping to the five instances | [forecast](forecast.md#interface) |
 | BF3 | `odds` twice on one array gives equal splits, and the array is unchanged after | [forecast](forecast.md#invariants) |
 | BF4 | An all-`NaN` array, a one-dimensional array, an array with 20 columns, a row with one `NaN` among finite values and a finite row in descending order each raise `ValueError` from every rule. `TopPickWithExploreBets(12)` raises `ValueError` on ten channels | [forecast](forecast.md#the-rules) |
 
@@ -69,7 +71,8 @@ With `hypothesis`, kept fast with a small example count.
 ## Pilot decides
 
 - The pilot's [Baseline order](../../pilot/engine-checks.md#baseline-order) runs every entry in `POLICIES` on every scenario at every grid setting and records the full order. BP7 keeps only the part no knob can change.
+- The pilot's [Timeline sanity](../../pilot/engine-checks.md#timeline-sanity) runs BP14 at every grid setting and records the numbers.
 
 ## Not decided
 
-- The tolerances in BR2, BR6, BR8 and BB8 are first guesses. Tighten them once the suite runs.
+- The tolerances in BP14, BR2, BR6, BR8 and BB8 are first guesses. Tighten them once the suite runs.
