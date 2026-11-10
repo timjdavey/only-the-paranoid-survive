@@ -2,14 +2,14 @@
 
 ## Purpose
 
-The two baselines with parameters: the hedge rule, the simplest player that reads the [tell](../../glossary.md#the-world), and the Scout rule, the hedge rule that looks everywhere all the time. Both read only their own record, so they are players with a mark on every bar, never the yardstick, see [fixed baselines](../../design/baselines.md#fixed-baselines). Their parameters are what the pilot sweeps, see [pilot decides](#pilot-decides).
+The two baselines with parameters: the hedge rule, the simplest player that reads the [tell](../../glossary.md#the-world), and the Scout rule, the hedge rule that explores everywhere all the time. Both read only their own record, so they are players with a mark on every bar, never the yardstick, see [fixed baselines](../../design/baselines.md#fixed-baselines). Their parameters are what the pilot sweeps, see [pilot decides](#pilot-decides).
 
 ## Interface
 
 ```python
 @dataclass(frozen=True)
 class HedgeRule:                            # peeks: ClassVar[bool] = False
-    look: int = 2
+    explore: int = 2
     window: int = 3
     fall_points: float = 8.0
     tell_points: float = 4.0
@@ -33,17 +33,17 @@ scout_rule: Policy     # ScoutRule() at the defaults
 
 ### Hedge rule
 
-`look` on the hedge, the rest on its pick. State: a `pick`, a `phase` of hold or scout, the round the pick was last set `moved_at`, and the round scouting began `scout_start`.
+`explore` on the hedge, the rest on its pick. State: a `pick`, a `phase` of hold or scout, the round the pick was last set `moved_at`, and the round scouting began `scout_start`.
 
-- **Round 1.** `pick = start.leader`, phase hold, `moved_at = 1`. Split: `look` on the hedge, `budget − look` on the pick.
+- **Round 1.** `pick = start.leader`, phase hold, `moved_at = 1`. Split: `explore` on the hedge, `budget − explore` on the pick.
 - **Hold.** Each round, run the fall test on the pick's readings since `moved_at`. The recent readings are the last `window` of them. The earlier readings are all the ones before those, and there must be at least `window` of them or the test does not run.
   - **Fall** when `mean(recent) < mean(earlier) − fall_points`.
   - **Tell** when the hedge's mean over the same recent rounds is above its mean over the same earlier rounds by more than `tell_points`. The hedge rose while the pick fell, so it is a shock. Hold.
   - **Fall and no tell**: phase scout, `scout_start = round`.
-- **Scout.** For `scout_rounds` rounds: `look` on the hedge and `budget − look` split by `split_budget` evenly over every other channel, the pick included.
+- **Scout.** For `scout_rounds` rounds: `explore` on the hedge and `budget − explore` split by `split_budget` evenly over every other channel, the pick included.
 - **Move.** On the round after the last scout round: `pick` becomes the channel, hedge excluded, with the highest mean reading over the scout rounds, lowest index on a tie. The old pick can win, after a false alarm. Phase hold, `moved_at = round`. Bet the hold split with the new pick. The fall test then starts over on the new pick's readings.
 - It has no reason to move in the Up switch or Up switch then down switch scenarios, as the leader never falls. Any scout there is a false alarm on weather, which costs it the scout rounds, so it sits at or a little below the Complacent baseline, see [baseline order](../../pilot/engine-checks.md#baseline-order).
-- **Construction checks** `look ≥ 1`, `window ≥ 1`, `scout_rounds ≥ 1`, and `fall_points` and `tell_points` finite and above 0, else `ValueError`. **The first view checks** `look < budget` and `budget − look ≥ channels − 1`, so every scouted channel gets a reading, else `ValueError`, as `budget` and `channels` are the view's.
+- **Construction checks** `explore ≥ 1`, `window ≥ 1`, `scout_rounds ≥ 1`, and `fall_points` and `tell_points` finite and above 0, else `ValueError`. **The first view checks** `explore < budget` and `budget − explore ≥ channels − 1`, so every scouted channel gets a reading, else `ValueError`, as `budget` and `channels` are the view's.
 
 ### Scout rule
 
@@ -65,24 +65,24 @@ Every number is **pilot to confirm**.
 
 | Parameter | Default | Why | Settled by |
 |---|---|---|---|
-| `look` | 2 | Reads the hedge less roughly than one point, for 2 of the 100 points | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
+| `explore` | 2 | Reads the hedge less roughly than one point, for 2 of the 100 points | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
 | `window` | 3 | Three rounds is the streak that is ordinary by chance on No change, so the fall test needs a real drop | [Streaks](../../pilot/engine-checks.md#streaks) |
 | `fall_points` | 8.0 | Two weather SDs at the default `own_scale` of 4, well inside a switch's size | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `tell_points` | 4.0 | One weather SD at the default `own_scale`. The hedge's rise in a shock is its loading times the depth, and should clear this | [The tell](../../pilot/engine-checks.md#the-tell) |
-| `scout_rounds` | 2 | Two rounds of a spread look reads each channel twice before the move | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
-| `s` | 1 | The cheapest look, 9 of the 100 points off the pick each round | [Up and down](../../pilot/engine-checks.md#up-and-down) |
+| `scout_rounds` | 2 | Two rounds of a spread explore bet reads each channel twice before the move | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
+| `s` | 1 | The cheapest explore bet, 9 of the 100 points off the pick each round | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `n` | 3 | A streak of a field reading above the leader's that is rare on No change | [Streaks](../../pilot/engine-checks.md#streaks) |
 
 ## Invariants
 
-- The hedge rule never bets on the hedge beyond `look`, and never picks it.
+- The hedge rule never bets on the hedge beyond `explore`, and never picks it.
 - The Scout rule's split always has `s` on every channel but the pick.
 
 ## Pilot decides
 
-- `look` and `scout_rounds` from [reading roughness](../../pilot/engine-checks.md#reading-roughness), `window` from [Streaks](../../pilot/engine-checks.md#streaks), and `fall_points` and `tell_points` from [the tell](../../pilot/engine-checks.md#the-tell), as the [defaults](#defaults) table says.
+- `explore` and `scout_rounds` from [reading roughness](../../pilot/engine-checks.md#reading-roughness), `window` from [Streaks](../../pilot/engine-checks.md#streaks), and `fall_points` and `tell_points` from [the tell](../../pilot/engine-checks.md#the-tell), which also tries `window` beside them, as the [defaults](#defaults) table says.
 - `s` from [Up and down](../../pilot/engine-checks.md#up-and-down) and `n` from [Streaks](../../pilot/engine-checks.md#streaks).
 
 ## Not decided
 
-- The thresholds are in level points so they survive [pinning](../engine/tape.md#pinning). Whether they should scale with read noise instead. Decide when [reading roughness](../../pilot/engine-checks.md#reading-roughness) has run.
+- The thresholds are in level points so they survive [pinning](../engine/timeline.md#pinning). Whether they should scale with read noise instead. Decide when [reading roughness](../../pilot/engine-checks.md#reading-roughness) has run.

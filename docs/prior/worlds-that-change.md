@@ -29,7 +29,7 @@ Ziwei Ye. "Set-shifting Behavioral Test for Harnessed Agents." COLM 2026 Worksho
 **Why it matters here.**
 - **The copies with no change are the nearest thing to our No change scenario on the same world**, but they are reported beside the score, not in it. Our No change and One shock scenarios count in the same headline as the Down switch and Slow drift scenarios, see [scoring](../design/scoring.md#how-we-score).
 - **Our leader keeps paying after a switch**, so one bad round proves nothing. That is the noisy version the authors list as future work.
-- **The adaptive prompt's large effect** is why nothing tells our agent the world might change, see [interface](../design/interface.md#how-the-agent-plays). gpt-5.5 calling old and new tools together is a [look](../glossary.md) without a switch, which our bets show directly.
+- **The adaptive prompt's large effect** is why nothing tells our agent the world might change, see [interface](../design/interface.md#how-the-agent-plays). gpt-5.5 calling old and new tools together is an [explore bet](../glossary.md) without a switch, which our bets show directly.
 
 ## AdaExploreBench 2026: hidden rules that drift
 
@@ -53,8 +53,8 @@ Rui Wang et al. "AdaExploreBench: Benchmarking LLM Agents for Proactive Explorat
 
 **Why it matters here.**
 - **It is the closest benchmark in design.** One silent change, and a score that runs from a floor to an oracle, like our score, which runs from the [Uniform baseline](../design/baselines.md#fixed-baselines) to the Discerning baseline.
-- **Their oracle knows the true rule, as our Discerning baseline knows the climate.** Neither sees only what the agent sees, and ours is meant not to: a yardstick that reads the agent's own record depends on what the agent chose to look at, see [scoring](../design/scoring.md#why-these-two-baselines).
-- **Forced probing did nothing**, so a look has to be the agent's own idea. That is why our prompt never asks for one, and a look is just a small bet, see [interface](../design/interface.md#how-the-agent-plays).
+- **Their oracle knows the true rule, as our Discerning baseline knows the climate.** Neither sees only what the agent sees, and ours is meant not to: a yardstick that reads the agent's own record depends on what the agent chose to explore, see [scoring](../design/scoring.md#why-these-two-baselines).
+- **Forced probing did nothing**, so an explore bet has to be the agent's own idea. That is why our prompt never asks for one, and an explore bet is just a small bet, see [interface](../design/interface.md#how-the-agent-plays).
 - **The kind of change matters.** Swaps were noticed far more than reversals. Our switch sometimes has a sleeper rising and sometimes not, drawn per seed, so no one kind is learnable, see [events](../design/mechanics.md#events).
 
 ## STOCKTAKE 2026: a fair oracle for supply chains
@@ -85,8 +85,8 @@ Sagar Deb and Ashwanth Krishnan (QpiAI). "STOCKTAKE: Measuring the Gap Between P
 **Watch out for.** Calm-week overreactions "are excluded from every reported metric by construction", so the score never counts a false alarm.
 
 **Why it matters here.**
-- **It is the closest study in method.** Their event tape is our [tape](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill, from a dumb policy to a yardstick, is the shape of our scenario score.
-- **Their oracle sees only what the agent saw. Ours does not, on purpose.** A yardstick built on the agent's own readings depends on what the agent chose to look at, so a lazy agent gets a lenient yardstick. Our [Discerning baseline](../design/baselines.md#fixed-baselines) reads the climate from the tape, so it is the same for every player and reachable in expectation.
+- **It is the closest study in method.** Their event tape is our [timeline](../design/scoring.md#seeds): every policy plays the same world. Their 0 to 1 skill, from a dumb policy to a yardstick, is the shape of our scenario score.
+- **Their oracle sees only what the agent saw. Ours does not, on purpose.** A yardstick built on the agent's own readings depends on what the agent chose to explore, so a lazy agent gets a lenient yardstick. Our [Discerning baseline](../design/baselines.md#fixed-baselines) reads the climate from the timeline, so it is the same for every player and reachable in expectation.
 - **The week-long false alarm is the nearest thing in the literature to bad luck in streaks**, which our weather with persistence makes ordinary, see [each round](../design/mechanics.md#each-round). Unlike them, our No change and One shock scenarios put a price on overreacting.
 - We don't measure their split between knowing and acting, because asking for a view on change tells the agent change is the question, see [rejected](../design/interface.md#rejected).
 
@@ -124,9 +124,9 @@ Thomas Grady, Kip Parker, Iliyan Zarov, Henry Course, Chengxi Taylor and Ross Ta
 
 **Why it matters here.**
 - **A bankroll that compounds adds sizing and ruin**, which the authors say made losses worse. That is why our budget is the same every round and the payout is linear, see [payout](../design/mechanics.md#payout) and the compounding bankroll row in [rejected](../design/interface.md#rejected).
-- **The change is the real season**, so nobody can say when it began or what a good agent should have done. Our tape fixes both, and the Discerning baseline sets the ceiling.
+- **The change is the real season**, so nobody can say when it began or what a good agent should have done. Our timeline fixes both, and the Discerning baseline sets the ceiling.
 - **There is no copy where nothing changes**, so a model that bets less after losses can't be told from one that noticed something. Our One shock scenario is that copy.
-- Writing Kelly code and never using it says a tool on hand is not a tool used. The [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check measures how often each tool is used.
+- Writing Kelly code and never using it says a tool on hand is not a tool used. The [tool use share](../glossary.md) beside every score measures how often each tool is used.
 
 ## Bazaar (Ahmed et al. 2026): pricing when customers' tastes swap
 
@@ -168,7 +168,7 @@ Shocked customers only, the last ten rounds against rounds 26 to 30.
 - **The unshocked customers share a run with the shocked ones but get no score of their own**, so false alarms on them go uncounted. Our No change and One shock scenarios are scored on their own seeds.
 - **"Revision, not detection"** is the decoy risk in our switch. A model that notices the leader fall and moves everything to the runner-up misses a sleeper that rose, see [events](../design/mechanics.md#events).
 - **The fastest learners adapted worst.** That is what the [Shock then switch scenario](../design/scenarios.md#scenarios-we-test) tests: a lesson learnt well becomes the wrong one.
-- The lock-in ledger is one reason notes stay out of the headline, see [notepad and compute](../pilot/provider-checks.md#notepad-and-compute).
+- The lock-in ledger is one reason the [bare harness](../pilot/provider-checks.md#bare-harness) check plays every model without its note, so a note that locks a plan in shows as a gap.
 - Thompson sampling beating half the models on profit is why simple strategies run before any model, see [baseline order](../pilot/engine-checks.md#baseline-order). A swap makes the old offer lose outright, unlike our leader.
 
 ## CoffeeBench (Sugiura et al. 2026): a coffee supply chain with a demand surge

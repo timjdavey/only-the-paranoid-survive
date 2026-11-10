@@ -56,9 +56,9 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 ### Baseline
 
 - **The name after the slash is a key of [`POLICIES`](../baselines/policies.md#policies)**, from the baselines layer, and the policy is `POLICIES[name](**args)` with the model args cast.
-- **Model args are policy parameters.** `--model baseline/hedge_rule -M look=1 -M window=4` builds `HedgeRule(look=1, window=4)`. inspect passes `-M` values as strings, so each is cast to the dataclass field's type, read from `dataclasses.fields`. A model arg that is not a field of the class, which for the four fixed baselines is any model arg at all, raises `ValueError` on construction naming the known fields. With no model args every entry is built at its defaults, so it equals the layer's instance of the same name.
-- **`bets`** is `policy(store.game().view(policy.peeks))`, see [view](../engine/game.md#view). The peeking baselines get the tape, the rest get `None`.
-- **The same rounds as a model.** A baseline run through the provider has the same `rows` as `play(policy, tape)`, warm up included, so the scorer's own baseline sums agree with the provider's run to the last decimal, see [scorer invariants](scorer.md#invariants).
+- **Model args are policy parameters.** `--model baseline/hedge_rule -M explore=1 -M window=4` builds `HedgeRule(explore=1, window=4)`. inspect passes `-M` values as strings, so each is cast to the dataclass field's type, read from `dataclasses.fields`. A model arg that is not a field of the class, which for the four fixed baselines is any model arg at all, raises `ValueError` on construction naming the known fields. With no model args every entry is built at its defaults, so it equals the layer's instance of the same name.
+- **`bets`** is `policy(store.game().view(policy.peeks))`, see [view](../engine/game.md#view). The peeking baselines get the timeline, the rest get `None`.
+- **The same rounds as a model.** A baseline run through the provider has the same `rows` as `play(policy, timeline)`, warm up included, so the scorer's own baseline sums agree with the provider's run to the last decimal, see [scorer invariants](scorer.md#invariants).
 - **`max_connections`** is 32. A baseline does no I/O, so the cap only bounds concurrency.
 
 ### Jev
@@ -79,18 +79,18 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 - **Output** is `(channels, len(QUANTILE_LEVELS))` quantiles for next round, in ascending quantile order, on the baselines layer's [`QUANTILE_LEVELS`](../baselines/forecast.md#interface). The levels the Timestral package reports are to be read, see [verify before code](#verify-before-code). The provider sorts each row ascending before it calls a rule, as a forecaster can return crossed quantiles and the rules raise on them, see [forecast](../baselines/forecast.md#the-rules).
 - **Determinism and cache.** `torch.set_num_threads(1)` once, `torch.manual_seed(0)` before each forecast, and one forecast at a time, as CPU inference can differ across thread counts and the seed is process-wide, see [shared behaviour](#shared-behaviour). The result is cached under `$PARANOID_CACHE`, default `~/.cache/paranoid/timestral/`, keyed by the SHA-256 of the model id, the weights revision, the input arrays' bytes and shapes, and whether `bets` was passed. A cache hit never calls the model, so a rerun replays the same bets. The key is logged on the message's `metadata` as `cache_key`, with the quantiles, and `rounded_out`: true for `odds` and `odds-bet-aware` when a channel with a finite forecast got a bet of 0, false for the other rules, which go dark by design. The `timestral` cell reads it from the log, see [pilot](pilot.md#timestral).
 - **The cache is as private as a log.** It holds forecasts of the readings a run saw, so after a held-out run it stays on the machine like the log does, see [contamination](../../harness/contamination.md#public-and-held-out).
-- **`TIMESTRAL_POLICIES`** maps each `timestral/<id>` in the [glossary](../../glossary.md#the-study) to a [forecast rule](../baselines/forecast.md#the-rules) and a flag for the `bets` input. `top-pick`, `odds`, `look-1`, `look-2` and `look-5` map to `FORECAST_RULES[id]` with the flag off. `odds-bet-aware` maps to `FORECAST_RULES["odds"]` with it on. The rules themselves, and what they do with a `NaN` channel, are the baselines layer's.
+- **`TIMESTRAL_POLICIES`** maps each `timestral/<id>` in the [glossary](../../glossary.md#the-study) to a [forecast rule](../baselines/forecast.md#the-rules) and a flag for the `bets` input. `top-pick`, `odds`, `explore-1`, `explore-2` and `explore-5` map to `FORECAST_RULES[id]` with the flag off. `odds-bet-aware` maps to `FORECAST_RULES["odds"]` with it on. The rules themselves, and what they do with a `NaN` channel, are the baselines layer's.
 - **Bets** are `rule(quantiles, budget)` from round 2 on. The quantiles the forecaster returns must sit on `QUANTILE_LEVELS`, see [verify before code](#verify-before-code).
 
 ## Invariants
 
 - `generate` on any provider returns exactly one tool call to `tools[0].name` and no text.
-- `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name], tape)` on the same tape and warm up.
+- `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name](), timeline)` on the same timeline and warm up.
 - A provider never writes to the store. Only the solver and the tools do.
 - A fake `JevClient` or `Forecaster` is enough to run a whole eval with no network.
 
 ## Verify before code
 
 - **Store in scope.** `store_as` inside `generate` relies on inspect's sample context reaching the model call. Check it with `mockllm` and a stub provider before `StoreAPI.generate` is written. If it does not hold, the solver sets a `ContextVar` holding the store before each generate and the base reads that instead.
-- **Timestral's quantile levels and call signature.** Read them from the package when the extra is first installed. They are assumed to equal `QUANTILE_LEVELS`, 21 levels evenly spaced from 0.05 to 0.95, until then. If they differ, the default `Forecaster` interpolates onto `QUANTILE_LEVELS`, see the baselines side at [verify before code](../baselines/forecast.md#verify-before-code). `Forecaster` waits on it.
+- **Timestral's quantile levels and call signature.** Read them from the package when the extra is first installed. The levels are assumed to equal `QUANTILE_LEVELS`, the 21 on its model card, until then. If they differ, the default `Forecaster` interpolates onto `QUANTILE_LEVELS`, see the baselines side at [verify before code](../baselines/forecast.md#verify-before-code). `Forecaster` waits on it.
 - **`typesafe-sdk`'s call shape.** `JevClient` is the seam, so only `TypesafeClient` changes if the SDK differs. `TypesafeClient` waits on it.

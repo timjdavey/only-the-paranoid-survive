@@ -2,7 +2,7 @@
 
 These studies ask how LLMs learn from noisy results: which option they try, how far one result moves them and how fast they forget. Most use a bandit, where each round the agent picks one of several options, called arms, and sees what it paid. The worlds mostly stand still or switch once, so they predict how a model will cope with our shock or switch rather than test it.
 
-- **Models explore too little**, even when nothing changes. They fall far short of simple algorithms and avoid what they know least about. In our game that means few looks at the field.
+- **Models explore too little**, even when nothing changes. They fall far short of simple algorithms and avoid what they know least about. In our game that means few explore bets on the field.
 - **Models lean hard on the latest result**, and some forget within a couple of rounds. That predicts overreaction in the One shock scenario and false alarms in the No change scenario.
 - **Yet when the better option really swaps, models are slow to let go.** The same model can be too jumpy and too stuck, which is why our game prices both mistakes.
 
@@ -32,8 +32,8 @@ Win rates in %. Finetuned Flash reached 65.6 and beat Pro. Gemma never settled o
 **Why it matters here.**
 
 - Models fall well short of a simple algorithm in a world that stands still. So the [fixed baselines](../design/baselines.md#fixed-baselines) must land in the [expected order](../pilot/engine-checks.md#baseline-order) before any model runs, or a model's score has nothing firm to sit against.
-- A summary beat the raw log. Our agent gets its record as raw rows and no summary ([tools](../design/interface.md#tools)). The `compute` tool in the [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check is the nearest test of whether working out averages helps.
-- Example runs helped Flash and hurt Pro. The warm-up cell, where the record starts pre-filled by a baseline, pulls the same lever ([TODO](../../TODO.md#pilot)).
+- A summary beat the raw log. Our agent gets its record as raw rows and no summary ([tools](../design/interface.md#tools)). The `compute` tool in the headline, and the [bare harness](../pilot/provider-checks.md#bare-harness) check that takes it away, is the nearest test of whether working out averages helps.
+- Example runs helped Flash and hurt Pro. The warm-up cell, where the record starts pre-filled by a baseline, pulls the same lever ([warm up](../pilot/provider-checks.md#warm-up)).
 
 ## Krishnamurthy et al. 2024: a summarised history and exploration
 
@@ -57,8 +57,8 @@ Akshay Krishnamurthy, Keegan Harris, Dylan J. Foster, Cyril Zhang and Aleksandrs
 
 **Why it matters here.**
 
-- What worked was exact counts and averages computed for the model, plus a hint to explore. Our agent gets neither. The record is raw rows and the prompt never mentions exploring or change ([how the agent plays](../design/interface.md#how-the-agent-plays)). So expect few looks from a bare model.
-- The `compute` tool in the [notepad and compute](../pilot/provider-checks.md#notepad-and-compute) check lets the agent work the averages out itself. That tests whether the missing summary is what holds it back.
+- What worked was exact counts and averages computed for the model, plus a hint to explore. Our agent gets neither. The record is raw rows and the prompt never mentions exploring or change ([how the agent plays](../design/interface.md#how-the-agent-plays)). So expect few explore bets from a bare model.
+- The `compute` tool ([tools](../design/interface.md#tools)) lets the agent work the averages out itself, and the [bare harness](../pilot/provider-checks.md#bare-harness) check takes it away. That tests whether the missing summary is what holds it back.
 - A suffix failure is close to never finding a sleeper after a switch ([events](../design/mechanics.md#events)). The agent keeps earning, just less than it could.
 
 ## Coda-Forno et al. 2023: meta in-context learning
@@ -81,7 +81,7 @@ Julian Coda-Forno et al. "Meta-in-context learning in large language models." Ne
 
 **Why it matters here.**
 
-- A past in the prompt moves a model's expectations towards the truth. Our round 1 starts with an empty record, so the agent finds the leader itself in the first rounds ([tools](../design/interface.md#tools)). The pre-filled warm-up cell asks whether a baseline's record does that job for it ([TODO](../../TODO.md#pilot)).
+- A past in the prompt moves a model's expectations towards the truth. Our round 1 starts with an empty record, so the agent finds the leader itself in the first rounds ([tools](../design/interface.md#tools)). The pre-filled warm-up cell asks whether a baseline's record does that job for it ([warm up](../pilot/provider-checks.md#warm-up)).
 - It got greedier as it learnt. In the Shock then switch scenario the agent learns from the first dip that dips recover, then that lesson goes wrong ([scenarios](../design/scenarios.md#scenarios-we-test)). This is the same carry over, in a world that punishes it.
 
 ## Schmied et al. 2025: greedy agents and the knowing-doing gap
@@ -119,8 +119,8 @@ Percent of all actions.
 **Why it matters here.**
 
 - The model wrote the right rule and then didn't follow it 64% of the time. We read belief from bets, not words ([how the agent plays](../design/interface.md#how-the-agent-plays)), and we don't ask for a stated chance of change ([rejected](../design/interface.md#rejected)). So a gap like this shows up as lost output, not as a number of its own.
-- Frequency bias says a record full of the same bets pulls a model to repeat them. The record is the agent's own play, so a model that held through calm rounds may keep holding for that reason alone. A record pre-filled by a baseline makes the pull stronger ([TODO](../../TODO.md#pilot)).
-- Trying every arm once closed most of the gap. In our game a look at the field tells a shock from a switch ([events](../design/mechanics.md#events)), so a few cheap looks should be worth a lot.
+- Frequency bias says a record full of the same bets pulls a model to repeat them. The record is the agent's own play, so a model that held through calm rounds may keep holding for that reason alone. A record pre-filled by a baseline makes the pull stronger ([warm up](../pilot/provider-checks.md#warm-up)).
+- Trying every arm once closed most of the gap. In our game an explore bet on the field tells a shock from a switch ([events](../design/mechanics.md#events)), so a few cheap explore bets should be worth a lot.
 
 ## Horowitz and Plonsky 2025: a pull towards the latest result
 
@@ -154,7 +154,7 @@ Means over the four tasks.
 **Why it matters here.**
 
 - The world never changes here, so this predicts rather than tests. A model that follows the last result reads each bad round of a shock as news. Our weather has persistence, so bad rounds come in runs ([each round](../design/mechanics.md#each-round)). That predicts overreaction in the One shock scenario and false alarms in the No change scenario, and both count in the headline ([scoring](../design/scoring.md#how-we-score)).
-- They showed the payoff of the option not picked. We don't: a channel with a bet of 0 shows a blank ([what the agent sees](../design/mechanics.md#what-the-agent-sees)). So a recency habit never sees a sleeper rise unless the agent pays to look.
+- They showed the payoff of the option not picked. We don't: a channel with a bet of 0 shows a blank ([what the agent sees](../design/mechanics.md#what-the-agent-sees)). So a recency habit never sees a sleeper rise unless the agent pays to explore.
 - Restating the full history each prompt didn't stop the chasing. Our record is restated in full each round, in a fresh call ([tools](../design/interface.md#tools)), so expect the same pull.
 
 ## Wang, Ward and Zhang 2026: reversal learning
@@ -213,7 +213,7 @@ Ziyuan Zhang et al. "Comparing Exploration-Exploitation Strategies of LLMs and H
 **Why it matters here.**
 
 - It is the only LLM study we found where the world drifts slowly, so a good option fades rather than fails. Its random walk is the nearest thing here to our weather ([each round](../design/mechanics.md#each-round)), and the fade is what our Slow drift scenario tests ([scenarios](../design/scenarios.md#scenarios-we-test)).
-- Avoiding the unknown predicts few looks at the field. Then a model can't tell a shock from a switch, and it misses a sleeper ([events](../design/mechanics.md#events)).
+- Avoiding the unknown predicts few explore bets on the field. Then a model can't tell a shock from a switch, and it misses a sleeper ([events](../design/mechanics.md#events)).
 - Random exploration predicts bets that wobble without tracking any change, which costs output in the No change scenario. Reasoning is a setting we report beside every score ([reasoning](../harness/models.md#reasoning)).
 
 ## Gupta et al. 2025: coin flips and Bayes
@@ -276,5 +276,5 @@ Jensen Zhang, Jing Yang and Keze Wang (Sun Yat-sen University). "Large Language 
 
 **Why it matters here.**
 
-- Lean on Gupta for the numbers. The useful idea is the error split, which separates a model with bad starting beliefs from one that updates badly. The empty and pre-filled warm-up cells pull the same two apart ([TODO](../../TODO.md#pilot)).
+- Lean on Gupta for the numbers. The useful idea is the error split, which separates a model with bad starting beliefs from one that updates badly. The empty and pre-filled warm-up cells pull the same two apart ([warm up](../pilot/provider-checks.md#warm-up)).
 - A low γ means fast forgetting. That looks quick in the Down switch scenario and jumpy in the One shock and No change scenarios. It would also make the calm rounds before a shock count for little, so the "dips recover" lesson that the Shock then switch scenario tests would never form ([scenarios](../design/scenarios.md#scenarios-we-test)).

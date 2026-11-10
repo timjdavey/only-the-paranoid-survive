@@ -6,8 +6,10 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 
 | List | File | When |
 |---|---|---|
-| Proof of concept | [`poc.toml`](../../configs/models/poc.toml) | Now. Cheap models, one skin, enough to check the harness and the baseline order |
+| Proof of concept | [`poc.toml`](../../configs/models/poc.toml) | Now. Cheap models, two held-out skins, enough to check the harness and the baseline order and to put a first number on [skin sensitivity](../design/scoring.md#spread) |
 | Full study | [`full.toml`](../../configs/models/full.toml) | When budget lands. The wider array for the headline |
+
+- **Only a row that reads the skin plays every skin.** LLM rows read the whole prompt and Jev reads the skin's question, so both play each skin. Timestral and the fixed baselines read numbers only, see [baselines](../design/baselines.md#timestral), so they play the first skin and no more, see the [command spec](../specs/harness/command.md#run).
 
 ## Columns
 
@@ -30,11 +32,14 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 
 | Setting | Meaning |
 |---|---|
-| `off` | No thinking |
+| `off` | No thinking. The harness sends the provider's explicit off, never its default, see the [command spec](../specs/harness/command.md#reasoning) |
 | `low`, `medium`, `high`, `max` | Effort levels, mapped to the provider's own setting: `reasoning_effort` for OpenAI, `thinking_level` for Gemini, `effort` for Claude, `reasoning` for OpenRouter. Where a model only takes a token budget, the harness picks one per level |
 | `on` | Thinking the model won't let us change, such as DeepSeek R1 |
 
+- **A model that cannot turn thinking off does not list `off`.** Its row lists its lowest setting, or `on` when nothing can be set. Otherwise a model that thinks by default would play its `off` row with thinking on.
 - **`xhigh` is skipped** to keep the grid at five steps.
+- **Tool choice follows the reasoning setting on Anthropic.** With thinking on, Claude takes only `auto`, so the solver uses it there and `any` elsewhere, see [each round](../specs/harness/solver.md#each-round). The value is in every sample's metadata and in the result row's `Setting`, and the [tool choice](../pilot/provider-checks.md#tool-choice) check prices the difference.
+- **What a model keeps of its reasoning across turns is the provider's choice.** In the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) check every provider keeps the text and the tool calls, but whether the model reads its own earlier reasoning next turn varies by provider and model. So that check is read per model, and the row's `notes` says what its provider keeps.
 
 ## Sampling
 
@@ -42,6 +47,16 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 - **Max tokens is the model's own output limit.** There is no standard number across evals. The usual practice is a cap high enough that it never binds, so the cap can't make a choice for the model. Where a provider's default is lower, the harness sets `max_tokens` to the model's limit.
 - **A reply cut off by the limit is a retry**, see the [retry rule](prompts.md#retry-rule). It is counted apart from other retries, so a cap problem can't pass as a model problem.
 - **Cost is guarded elsewhere**, by `--limit` and the [cost per run](../pilot/provider-checks.md#cost-per-run) check, not by a low cap.
+
+## Prompt caching
+
+- **On by default and never switched off.** inspect marks the system prompt, the tools and the end of the prompt for Anthropic's cache, and OpenAI caches a repeated start of a prompt on its own. The harness never sets `cache_prompt`, see the [command spec](../specs/harness/command.md#reasoning).
+- **It changes the bill, never the prompt.** A cached token is the same token at a lower price, so no score depends on it.
+- **A fresh call each round is why it pays.** Round 20's prompt is round 19's plus one row, so all but the newest row can come from the cache. The notes sit below the record, so a changed note never spoils the rows above it.
+- **Anthropic caches by content block.** A record sent as one growing block would only ever hit on the system prompt, and the record would be billed in full every round. So the solver sends the record one block per line to Anthropic models, see the [solver spec](../specs/harness/solver.md#record-blocks). Other providers match the start of the prompt whatever its blocks, so they get one block.
+- **Cached tokens are counted apart.** inspect leaves them out of its input count, so the [cost table](../specs/analysis/tables.md#cost) prices them on their own and the [cost per run](../pilot/provider-checks.md#cost-per-run) check reports each model's cached share.
+- **Batches do not fit.** A batch costs half as much, but each round needs the last round's reply, so a run is forty calls in a row and cannot be queued as one.
+- **To verify:** whether Google caches a repeated start on the models in `configs/models/`.
 
 ## Trend plots
 
@@ -59,7 +74,7 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 
 | Provider | Env var |
 |---|---|
-| Anthropic | `ANTHROPIC_API_KEY` |
+| Anthropic | `ANTHROPIC_API_KEY`, or `ANTHROPIC_AUTH_TOKEN` for an OAuth token |
 | OpenAI | `OPENAI_API_KEY` |
 | Google | `GOOGLE_API_KEY` |
 | OpenRouter | `OPENROUTER_API_KEY` |
@@ -67,7 +82,11 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 | Timestral | None. Runs locally, see [providers](providers.md#timestral) |
 | Baselines | None |
 
-- **A Claude.ai subscription does not work here.** inspect calls the Anthropic API, which needs a key from the console. The proof of concept is small, so it runs on API credits.
+- **A Claude subscription works only if the plan gives API access.** inspect calls the Anthropic API with a console key, or with an OAuth token in `ANTHROPIC_AUTH_TOKEN`, which wins when both are set. A chat-only plan has neither.
+- **Check a subscription before a held-out skin goes through it.** Three things, none verified yet:
+  - That the plan neither keeps prompts nor trains on them. A held-out skin a provider trains on is no longer held out, see [who can see them](contamination.md#who-can-see-them).
+  - That its rate limit covers the run. At twenty seeds and two skins a Claude row is 320 runs of at least forty calls each, so about 13,000 calls.
+  - That a `--limit 2` run completes and its cost table shows cache reads, see [prompt caching](#prompt-caching).
 
 ## Concurrency and cost
 

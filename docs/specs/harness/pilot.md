@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The pilot cells. `paranoid pilot <check>` runs one, see [command](command.md#pilot). An engine cell plays tapes and fixed baselines with no model and writes a CSV. A provider cell plays a model through the task and leaves eval logs. The measures that turn these into tables are the analysis layer's, see [analysis pilot](../analysis/pilot.md), and the decisions are a person's, see [decisions](../../pilot/decisions.md). Why each check exists is on [engine checks](../../pilot/engine-checks.md) and [provider checks](../../pilot/provider-checks.md). This page says what each cell runs and writes, exactly.
+The pilot cells. `paranoid pilot <check>` runs one, see [command](command.md#pilot). An engine cell plays timelines and fixed baselines with no model and writes a CSV. A provider cell plays a model through the task and leaves eval logs. The measures that turn these into tables are the analysis layer's, see [analysis pilot](../analysis/pilot.md), and the decisions are a person's, see [decisions](../../pilot/decisions.md). Why each check exists is on [engine checks](../../pilot/engine-checks.md) and [provider checks](../../pilot/provider-checks.md). This page says what each cell runs and writes, exactly.
 
 ## Interface
 
@@ -16,7 +16,7 @@ class CellArgs:
     dry_run: bool = False
 
 Cell = Callable[[CellArgs], list[Path]]   # returns the paths it wrote
-CELLS: Mapping[str, Cell]                 # read only, the 18 names below in page order
+CELLS: Mapping[str, Cell]                 # read only, the 20 names below in page order
 def run_cell(name: str, args: CellArgs) -> list[Path]
 
 RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
@@ -30,16 +30,17 @@ RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
 - **A CSV row is one seed's numbers**, or an aggregate over seeds. No CSV holds one seed's levels round by round, so a CSV gives away nothing a log does not. The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Engine cells play positions `0` to `seeds − 1`** of the public list, with `load_seeds("public")`. A list shorter than `seeds` raises `ValueError` naming `PARANOID_PILOT_SEEDS`, which caps `seeds` when set and is the harness's one test hook, see [tests](tests.md).
 - **A knob the pilot moves is a `replace` on the config in memory**, through `scenario_config` where it has an arg and `dataclasses.replace` otherwise, so the engine's validation runs again. Nothing here writes a config or a spec. The frozen defaults change only through [decisions](../../pilot/decisions.md).
-- **Cells that need a model** read `--models` and take the first `llm` row unless `--only` names one. The `jev` and `timestral` cells take the rows of their own `kind`. Every eval passes `config=generate_config(row, row.reasoning[0])`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `poc` does, see [poc](command.md#poc).
+- **Cells that need a model** read `--models`. `recognition` and `up-against-down` take the first `llm` row unless `--only` names one. `seeds`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
+- **Every eval** passes `config=generate_config(row, row.reasoning[0])`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `run` does by default, see [run](command.md#run). The task's other args stay at their defaults unless a cell names them, so a provider cell plays the headline tools, `notes,compute`, and needs Docker as a headline run does.
 - **The seed positions pair.** Every provider cell plays `seeds="0-19"`, so every pilot log pairs by seed with every other, see [paired gap](../analysis/scores.md#paired-gap).
 - **Columns that do not apply are empty**, which pandas reads as NA. A round column that means "never" is `0`, as rounds start at 1.
 - **`--dry-run`** prints each eval call or each CSV's path and columns, and writes nothing.
-- **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the `poc` logs instead, see [analysis pilot](../analysis/pilot.md#sections).
+- **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the proof of concept logs instead, see [analysis pilot](../analysis/pilot.md#sections).
 - **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`, see [analysis command](../analysis/command.md#cost).
 
 ### Words the columns use
 
-Every engine cell plays each baseline with `play(policy, tape)` and reads the tape and the record. These names are shared by the tables below.
+Every engine cell plays each baseline with `play(policy, timeline)` and reads the timeline and the record. These names are shared by the tables below.
 
 | Column | Meaning |
 |---|---|
@@ -50,6 +51,7 @@ Every engine cell plays each baseline with `play(policy, tape)` and reads the ta
 | `baseline`, `parameter` | A key of `POLICIES`, and the one parameter a rule was built with, empty at the defaults |
 | `output` | The policy's output summed over every round, from the record |
 | `move_round` | The first round whose largest bet is not on `start.leader`, lowest index on a tie. `0` when it never happens. A scout round counts, as the rule acted |
+| `last_end` | The round the last event ends: `onset + ramp − 1` for a switch, `onset + length − 1` for a drift, and for a shock the first round its impulse is back to an eighth of `depth`, which is `onset + ceil(3 × half_life)` sharp and `onset + half_life + 3 × ceil(half_life / 2)` slide. Empty with no event. The rounds to spare are `rounds − last_end`, see [rounds to spare](../../pilot/engine-checks.md#game-length-and-switch-round) |
 
 ### Engine cells
 
@@ -66,8 +68,9 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 #### `tell`
 
 - **Runs.** `factor_scale` at 1.5, 3, 4.5 and 6, crossed with `loading` at `(0.3, 1.0)` and `(0.5, 1.0)`. The One shock, Down switch and No change scenarios, the hedge rule at its defaults.
-- **Writes** `tell.csv`: `factor_scale, loading_low, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, field_together_rounds`.
-  - `depth_capped`: 1 when `numbers["depth"] < numbers["depth_drawn"]` on the shock, else 0. Empty with no shock. The share of 1s is what [tape](../engine/tape.md#pilot-decides) asks The tell to report.
+- **Then the thresholds.** At `factor_scale` 3 and `loading` `(0.3, 1.0)`, the same scenarios with `HedgeRule(window=w, fall_points=f, tell_points=t)` for `w` in 2, 3 and 4, `f` in 4, 8 and 12, and `t` in 2, 4 and 6, see [the tell](../../pilot/engine-checks.md#the-tell). The measure picks the scale first and reads this pass at it, so a scale the first pass moves away from reruns the cell.
+- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, field_together_rounds`. The three threshold columns are empty on the first pass, which plays the defaults.
+  - `depth_capped`: 1 when `numbers["depth"] < numbers["depth_drawn"]` on the shock, else 0. Empty with no shock. The share of 1s is what [timeline](../engine/timeline.md#pilot-decides) asks The tell to report.
   - `hedge_rise`: the hedge rule's mean hedge reading over the `window` rounds from `onset`, `window` being the rule's, minus its mean over the rounds before `onset`. The same rounds the rule's tell test reads, see [hedge rule](../baselines/rules.md#hedge-rule). Empty with no event.
   - `held`: 1 when the hedge rule's largest bet is on `start.leader` in the last round, else 0.
   - `field_together_rounds`: the rounds in which every channel but the hedge moved by more than `own_scale` from the round before, all the same way, on levels.
@@ -77,11 +80,11 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 - **Runs.** The Down switch scenario at every `own_scale` in `configs/grid.toml`, pinned, through `scenario_config("down_switch", own_scale=s)`, with `perfect`, `discerning` and `uniform`.
 - **Writes** `luck.csv`: `setting, seed, perfect, discerning, uniform`, each the baseline's output. The ratio is the measure's, see [analysis pilot](../analysis/pilot.md#sections).
 
-#### `tape-sanity`
+#### `timeline-sanity`
 
 - **Runs.** Every scenario at every grid setting, pinned, with `discerning` and `complacent`.
-- **Writes** `tape-sanity.csv`: `setting, scenario, seed, below_zero_rounds, discerning, complacent`. `below_zero_rounds` counts channel rounds with a level below 0.
-- **Also writes** `tape-sanity-sparklines.csv` at the default setting only: `scenario, round, median, p10, p90` of `levels[t, leader]` over seeds, the leader being each seed's own. A percentile over a thousand seeds is not a tape.
+- **Writes** `timeline-sanity.csv`: `setting, scenario, seed, below_zero_rounds, discerning, complacent`. `below_zero_rounds` counts channel rounds with a level below 0.
+- **Also writes** `timeline-sanity-sparklines.csv` at the default setting only: `scenario, round, median, p10, p90` of `levels[t, leader]` over seeds, the leader being each seed's own. A percentile over a thousand seeds is not a timeline.
 
 #### `noise-grid`
 
@@ -91,19 +94,24 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 #### `game-length`
 
 - **Runs.** `rounds` at 30, 40 and 60, crossed with `onset` at `(8, 12)`, `(12, 20)` and `(16, 24)`. The One shock, Down switch and Slow drift scenarios, and the Shock then switch, Switch then shock and Up switch then down switch scenarios, which are also crossed with `gap` at `(6, 8)`, `(8, 12)` and `(12, 16)` on every event spec. Every entry in `POLICIES` at its defaults.
-- **Writes** `game-length.csv`: `rounds, onset_low, onset_high, gap_low, gap_high, scenario, seed, onset_1, onset_2, baseline, output, output_window_1, output_window_2`.
+- **Writes** `game-length.csv`: `rounds, onset_low, onset_high, gap_low, gap_high, scenario, seed, onset_1, onset_2, last_end, baseline, output, output_window_1, output_window_2, move_round`.
   - `onset_k` is event k's onset. `output_window_k` is the output summed from `onset_k` to the round before `onset_{k+1}`, or to the end. Both are empty where there is no event k, and the `gap` columns are empty for the one-event scenarios.
-  - The data behind "Events per run and minimum gap" in [decisions](../../pilot/decisions.md#engine-checks), and the two length questions on [tape](../engine/tape.md#pilot-decides).
+  - The data behind "Events per run and minimum gap" in [decisions](../../pilot/decisions.md#engine-checks), and the two length questions on [timeline](../engine/timeline.md#pilot-decides). `move_round` gives the unmoved share, and `last_end` the rounds to spare.
 
 #### `reading-roughness`
 
-- **Runs.** `read_noise_k` at 4, 8 and 16. `HedgeRule(look=l)` for `l` in 1, 2 and 5 on the Down switch and No change scenarios. `ScoutRule(s=s)` for `s` in 1, 2 and 5 on the Up switch and No change scenarios.
-- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, seed, output, move_round`.
+- **Runs.** `read_noise_k` at 4, 8 and 16. `HedgeRule(explore=e, scout_rounds=k)` for `e` in 1, 2 and 5 and `k` in 1, 2 and 3 on the Down switch and No change scenarios. `ScoutRule(s=s)` for `s` in 1, 2 and 5 on the Up switch and No change scenarios.
+- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows.
 
 #### `up-and-down`
 
 - **Runs.** The Down switch, Up switch and No change scenarios at the defaults, with `discerning`, `complacent`, the hedge rule and `ScoutRule(s=s)` for `s` in 1, 2 and 5.
 - **Writes** `up-and-down.csv`: `scenario, kind, baseline, parameter, seed, onset, output, move_round`.
+
+#### `bayesian-frontier`
+
+- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for every `h` in `HAZARDS` and `r` in `BAYESIAN_RULES`, 30 players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md).
+- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the 30 players, and `hazard` and `rule` are empty on the five fixed baselines. The split into seeds 0 to 499 and 500 to 999 is the measure's, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier), so the cell plays 1000 seeds unless capped.
 
 #### `baseline-order`
 
@@ -116,24 +124,24 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 #### `seeds`
 
-- **Runs.** One eval: `scenario="one_shock"`, `seeds="0-19"`.
+- **Runs.** For every `llm` row, one eval: `scenario="one_shock,up_switch"`, `seeds="0-19"`. Every row, as the [seeds check](../../pilot/provider-checks.md#seeds) sizes the count on the widest spread.
 
 #### `repeats`
 
-- **Runs.** Reads the newest log in `<out>/seeds/`, ranks its twenty samples by `run_score`, and takes the positions at the lowest, the 25th percentile, the median, the 75th percentile and the highest, nearest rank, lowest position on a tie. One eval: `scenario="one_shock"`, `seeds` as the five positions joined by commas, `epochs=4`, see [seeds](task.md#seeds). No `seeds` log raises `ValueError` naming the cell to run first.
-- The five positions are printed, so the decisions row can name them.
+- **Runs.** Reads every log in `<out>/seeds/` and takes the row and scenario with the widest SD of `run_score` over its twenty samples, first in file order on a tie. The row is the log's `eval.model` and `eval.metadata["reasoning"]`, found in `--models`. It ranks that scenario's samples by `run_score` and takes the ten at ranks `round(1 + 19 × i / 9)` for `i` from 0 to 9, lowest position on a tie, so the picks span the range. One eval: that `scenario`, `seeds` as the ten positions joined by commas, `epochs=4`, see [seeds](task.md#seeds). No `seeds` log raises `ValueError` naming the cell to run first.
+- The row, the scenario and the ten positions are printed, so the decisions row can name them.
 
 #### `recognition`
 
 - **Runs.** Not an eval. For every `llm` row in `--models` and every skin `load_skins()` returns, three fresh calls to `get_model(row.id).generate` with `generate_config(row, row.reasoning[0])`:
   - **`round_1`**: a system message of `render_system_prompt(skin)`, a user message of `render_record(skin, Record())`, then a user message of `RECOGNITION_QUESTION`.
-  - **`round_20`**: the same with the record of `play(complacent, make_tape(SCENARIOS["one_shock"], seed_0), max_rounds=19)`, `seed_0` being public position 0.
+  - **`round_20`**: the same with the record of `play(complacent, make_timeline(SCENARIOS["one_shock"], seed_0), max_rounds=19)`, `seed_0` being public position 0.
   - **`canary`**: one user message holding the [canary](../../harness/contamination.md#canary) line cut after `canary GUID only-the-paranoid-survive:` and a request to finish it. The GUID itself is `CANARY` from the skins layer and is never sent.
 - **Writes** `recognition.csv`: `model, skin, probe, reply, lint_hits, canary_finished`. `lint_hits` is `len(lint_text(reply))`. `canary_finished` is 1 when the reply holds the GUID, else 0, on the `canary` probe only. The analysis reads this file through `load_recognition`, which drops `reply`, see [flags](../analysis/scores.md#flags).
 
 #### `up-against-down`
 
-- **Runs.** One eval: `scenario="no_change,down_switch,up_switch,up_switch_then_down_switch,switch_then_shock"`, `seeds="0-19"`. With the `seeds` log it gives every scenario pair in [scenario gap](../analysis/scores.md#scenario-gap). The sleeper round and the looks before onset are in every run's `Score.value`, see [scoring one run](scorer.md#scoring-one-run).
+- **Runs.** One eval: `scenario="no_change,down_switch,up_switch,up_switch_then_down_switch,switch_then_shock"`, `seeds="0-19"`. With the `seeds` log it gives every scenario pair in [scenario gap](../analysis/scores.md#scenario-gap). The sleeper round and the explore points before onset are in every run's `Score.value`, see [scoring one run](scorer.md#scoring-one-run).
 
 #### `jev`
 
@@ -142,30 +150,34 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 #### `timestral`
 
-- **Runs.** First two probes on the default `Forecaster`, then for every `timestral` row and every grid setting one eval: `scenario="one_shock,down_switch,up_switch"`, `seeds="0-19"`, `own_scale=s`. A row whose extra is missing is skipped with one line, as `poc` does.
-  - **The gap test.** `readings` of shape `(40, channels)`: rows 0 to 9 from `play(uniform, make_tape(SCENARIOS["one_shock"], seed_0), max_rounds=10)`, rows 10 to 39 `NaN`. The forecaster is called on the first `10 + g` rows for `g` from 1 to 30.
+- **Runs.** First two probes on the default `Forecaster`, then for every `timestral` row and every grid setting one eval: `scenario="one_shock,down_switch,up_switch"`, `seeds="0-19"`, `own_scale=s`. A row whose extra is missing is skipped with one line, as `run` does.
+  - **The gap test.** `readings` of shape `(40, channels)`: rows 0 to 9 from `play(uniform, make_timeline(SCENARIOS["one_shock"], seed_0), max_rounds=10)`, rows 10 to 39 `NaN`. The forecaster is called on the first `10 + g` rows for `g` from 1 to 30.
   - **Determinism.** The forecaster is called twice on the ten finite rows.
 - **Writes** `timestral.csv`: `probe, gap, channel, spread, equal`. For `gap` rows, `spread` is the forecast's last quantile minus its first per channel at each `g`. The one `determinism` row has `equal` 1 when the two outputs are equal, else 0.
 - **Also writes** `timestral-rounding.csv` from the logs: `model, scenario, seed_index, round, rounded_out`, as `jev.csv`, see [Timestral](providers.md#timestral).
 
-#### `notepad`
+#### `bare`
 
-- **Runs.** Three evals with `tools` at `"none"`, `"notes"` and `"compute"`: `scenario="one_shock,down_switch"`, `seeds="0-19"`. The `compute` eval is skipped with one line when Docker is not available. The tool calls per run are in `Score.value`, see [scoring one run](scorer.md#scoring-one-run).
+- **Runs.** For every `llm` row, four evals with `tools` at `"notes,compute"`, `"notes"`, `"compute"` and `"none"`: `scenario="one_shock,down_switch"`, `seeds="0-19"`. The tool use per run is in `Score.value` as `notes_rounds` and `compute_rounds`, see [scoring one run](scorer.md#scoring-one-run).
+
+#### `tool-choice`
+
+- **Runs.** For every `llm` row for which `tool_choice_for(get_model(row.id).api, generate_config(row, row.reasoning[0]))` gives `"any"`, two evals with `tool_choice` at `"any"` and `"auto"`: `scenario="one_shock,down_switch"`, `seeds="0-19"`, see [each round](solver.md#each-round). A row that resolves to `"auto"` is skipped with one line, as it cannot be asked for `any`.
 
 #### `rolling`
 
-- **Runs.** Two evals with `rolling` off and on: `scenario="one_shock,down_switch"`, `seeds="0-19"`.
+- **Runs.** For every `llm` row, two evals with `rolling` off and on: `scenario="no_change,one_shock,down_switch"`, `seeds="0-19"`.
 
 #### `warm-up`
 
-- **Runs.** Two evals with `warm_up` unset and at `"complacent:5"`: `scenario="one_shock,down_switch"`, `seeds="0-19"`.
+- **Runs.** For every `llm` row, two evals with `warm_up` unset and at `"complacent:5"`: `scenario="no_change,down_switch"`, `seeds="0-19"`.
 
 ## Invariants
 
 - Every engine cell runs with no key and no network, and reads nothing but `configs/grid.toml` and the public seed file.
 - Every CSV has exactly the columns named here, in that order.
 - No CSV holds a level for one seed and one round, a held-out seed's value, or a word of any skin but its name. `recognition.csv` is the one file that holds model replies.
-- `CELLS` has exactly the eighteen names on this page, and `run_cell` on any other raises `ValueError` listing them.
+- `CELLS` has exactly the twenty names on this page, and `run_cell` on any other raises `ValueError` listing them.
 
 ## Pilot decides
 

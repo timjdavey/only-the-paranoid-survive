@@ -1,8 +1,8 @@
-# Tape
+# Timeline
 
 ## Purpose
 
-`make_tape(config, seed)` turns a scenario and a seed into a tape: the true level of every channel in every round, plus everything drawn on the way. Every run on a seed replays the same tape. The design is in [generator](../../design/mechanics.md#generator).
+`make_timeline(config, seed)` turns a scenario and a seed into a timeline: the ground truth, every channel's level in every round, plus everything drawn on the way. Every run on a seed replays the same timeline. The design is in [generator](../../design/mechanics.md#generator).
 
 ## Interface
 
@@ -16,7 +16,7 @@ class Event:
     numbers: Mapping[str, float | int | str]  # every per-seed draw by name, see Draw order below
 
 @dataclass(frozen=True)
-class Tape:
+class Timeline:
     config: ScenarioConfig
     seed: int
     engine_hash: str
@@ -36,19 +36,19 @@ class Tape:
 
     def climate_leader(self, round: int) -> int   # argmax of base in that round, lowest index on a tie
 
-def make_tape(config: ScenarioConfig, seed: int) -> Tape
+def make_timeline(config: ScenarioConfig, seed: int) -> Timeline
 ```
 
-- **Every array is read only.** `make_tape` calls `setflags(write=False)` on each, so a peeking policy or a test cannot edit the truth by accident.
-- **A tape is never written to disk or into a log.** It is regenerated from `config` and `seed`, and `engine_hash` says which engine made it. A held-out seed's tape is as secret as the seed, see [contamination](../../harness/contamination.md#public-and-held-out). The harness logs the hash and, for a held-out seed, its position in the list, never `seed` or any array.
+- **Every array is read only.** `make_timeline` calls `setflags(write=False)` on each, so a peeking policy or a test cannot edit the ground truth by accident.
+- **A timeline is never written to disk or into a log.** It is regenerated from `config` and `seed`, and `engine_hash` says which engine made it. A held-out seed's timeline is as secret as the seed, see [contamination](../../harness/contamination.md#public-and-held-out). The harness logs the hash and, for a held-out seed, its position in the list, never `seed` or any array.
 
 ## Behaviour
 
 ### Seed streams
 
 - **One `SeedSequence(seed)`, spawned into seven children, in this order:** `ladder`, `loadings`, `weather`, `factor`, `onset`, `read_noise`, `events`. Each child makes its own `numpy.random.default_rng`. The `events` child is spawned once more into one child per event in `config.events`.
-- **The first six streams never see the event list.** They draw the same numbers for every scenario on a seed, which is what makes [twin tapes](#twin-tapes).
-- **Every draw consumes its stream in the order written on this page.** Changing the order changes every tape, so it bumps `GENERATOR_VERSION`, see [config](config.md#engine-hash).
+- **The first six streams never see the event list.** They draw the same numbers for every scenario on a seed, which is what makes [twin timelines](#twin-timelines).
+- **Every draw consumes its stream in the order written on this page.** Changing the order changes every timeline, so it bumps `GENERATOR_VERSION`, see [config](config.md#engine-hash).
 - **`seed` is any non-negative int up to 2^64 − 1.** Public seeds are small, held-out seeds are random 64-bit, see [contamination](../../harness/contamination.md#two-seed-sets).
 
 ### The ladder
@@ -106,7 +106,7 @@ An impulse `s` that decays. By default it goes into the shared factor, `factor[t
 
 - **Sharp.** `s[onset] = −depth`, then `s[t] = s[t−1] × 2^(−1 / half_life)`.
 - **Slide.** Falls in a straight line over `half_life + 1` rounds, `s[onset + j] = −depth × (j + 1) / (half_life + 1)` for `j` from 0 to `half_life`, then rebounds from the trough with half-life `ceil(half_life / 2)`, `s[t] = s[t−1] × 2^(−1 / ceil(half_life / 2))`.
-- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above `depth_points` high, `make_tape` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided).
+- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above `depth_points` high, `make_timeline` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided).
 - **`one_channel_shock`.** The impulse goes into `impulse[t, l]` instead of the factor, with no loading. `base` and `factor` are untouched, so the climate does not move and the Discerning baseline holds. The cap above does not apply. `Event.channel` is `l`.
 
 #### Switch
@@ -118,7 +118,7 @@ Edits `base`, and the sleeper's `loadings`. Let `l` be the climate leader at ons
 - **Short.** When `short` is 1, `target` is instead `base[e, q] + short_level × (base[e, l] − base[e, q])`, where `e` is the row at the end of the ramp and `q` the channel with the highest base at `e` other than `l` and the sleeper. So the sleeper ends above the runner-up and below the leader, and the climate leader never changes. Validation lets `short` be 1 only when `kind` is `"rise"`, see [config](config.md#fields).
 - **`fall_and_rise`** does both. **`rise`** leaves the leader alone. **`fall`** leaves every other channel alone, and `sleeper` on the event is `None`.
 - **Undo.** Let `s` be the sleeper of the most recent earlier switch. Its base moves in a straight line over this event's ramp, from `base[onset−1, s]` back to `base[0, s]`, then holds. From `onset` on, `loadings[t, s] = loadings[0, s]`. Row 0 holds its values from before it rose, as no event moves a channel before it is a sleeper. No other channel moves. `Event.channel` is `s`, `Event.sleeper` is `None`, `fall` is the points `s` moved and `target` is `base[0, s]`. It ignores the `kind`, `size`, `rise`, `sleeper`, `sleeper_loading`, `short` and `short_level` draws.
-- `Tape.sleeper` is the last sleeper any event made, or `None`.
+- `Timeline.sleeper` is the last sleeper any event made, or `None`.
 
 #### Drift
 
@@ -129,13 +129,13 @@ Edits the leader's `base` over `length` rounds, with `fall` defined as for a [sw
 
 #### No two alike
 
-Consecutive events of the same shape must differ in at least two of the shape's draws, `gap` excluded. An int or string draw differs when not equal. A float draw differs when the two are at least a tenth of the range's width apart, so a fixed range never differs. If they do not, the later event redraws every one of its draws, `gap` included, from where its stream left off. `numbers["tries"]` is how many times the event was drawn, 1 when the first draw was kept, so a log says how often the rule bit. After 100 tries `make_tape` raises `ValueError`. See [stringing events](../../design/mechanics.md#stringing-events).
+Consecutive events of the same shape must differ in at least two of the shape's draws, `gap` excluded. An int or string draw differs when not equal. A float draw differs when the two are at least a tenth of the range's width apart, so a fixed range never differs. If they do not, the later event redraws every one of its draws, `gap` included, from where its stream left off. `numbers["tries"]` is how many times the event was drawn, 1 when the first draw was kept, so a log says how often the rule bit. After 100 tries `make_timeline` raises `ValueError`. See [stringing events](../../design/mechanics.md#stringing-events).
 
 ### Pinning
 
 With `pin_in_level_points` true, every size that has a points range uses it and ignores the sigmas range: the runner-up gap, shock depth, switch size and rise, drift size. `hedge_margin_points` is already in points. Nothing else changes. So two configs that differ only in `own_scale` draw the same ladder and the same events, and only the weather grows, see [difficulty](../../design/mechanics.md#difficulty).
 
-### Twin tapes
+### Twin timelines
 
 What one seed guarantees across scenarios whose configs differ only in `events`.
 
@@ -157,8 +157,8 @@ What one seed guarantees across scenarios whose configs differ only in `events`.
 - At round 1, `base[0, leader] > base[0, runner_up] > base[0, c]` for every other channel, and the hedge's base is the lowest.
 - Every loading is positive except the hedge's, which is negative, until a switch redraws the sleeper's, which is positive.
 - After a fall or drift completes, the fallen channel's base is `size` below the channel that was second at onset. After a rise completes, the sleeper's base is `rise` above every other channel's, unless it is short, when it lies strictly between the runner-up's and the leader's.
-- After an undo completes, the undone sleeper's base and loading equal their row 0 values. In the Up switch then down switch scenario that makes `base` and `loadings` equal the No change tape's.
-- A switch or drift leaves the leader's base above 0 on every seed. If a draw would not, `make_tape` raises `ValueError`, as the config is wrong.
+- After an undo completes, the undone sleeper's base and loading equal their row 0 values. In the Up switch then down switch scenario that makes `base` and `loadings` equal the No change timeline's.
+- A switch or drift leaves the leader's base above 0 on every seed. If a draw would not, `make_timeline` raises `ValueError`, as the config is wrong.
 - With `hedge_may_overtake` off, the hedge's `base + loading × trough` is at least `hedge_margin_points` below the leader's. Weather is not counted, see [shock](#shock).
 - Same config and seed give equal arrays and equal `engine_hash` on every call within one environment. Across numpy versions or CPUs, `allclose` at `1e-9`, see [config](config.md#engine-hash).
 

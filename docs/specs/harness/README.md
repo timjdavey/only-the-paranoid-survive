@@ -1,17 +1,17 @@
 # Harness spec
 
-The harness is the inspect_ai layer. It turns one run of the game into one inspect sample, plays a model through it one fresh call a round, scores the run against the fixed [baselines](../../design/baselines.md) on the same tape, and reads the metrics off the log. It also plays the models that cannot call a tool, through providers, and holds the `paranoid` command. It depends on the skins layer, the baselines layer, the engine and inspect_ai, and knows nothing about pandas or plots. Why it is shaped this way lives in [inspect](../../harness/inspect.md), [prompts](../../harness/prompts.md), [interface](../../design/interface.md) and [scoring](../../design/scoring.md).
+The harness is the inspect_ai layer. It turns one run of the game into one inspect sample, plays a model through it one fresh call a round, scores the run against the fixed [baselines](../../design/baselines.md) on the same timeline, and reads the metrics off the log. It also plays the models that cannot call a tool, through providers, and holds the `paranoid` command. It depends on the skins layer, the baselines layer, the engine and inspect_ai, and knows nothing about pandas or plots. Why it is shaped this way lives in [inspect](../../harness/inspect.md), [prompts](../../harness/prompts.md), [interface](../../design/interface.md) and [scoring](../../design/scoring.md).
 
 ## Pages
 
 | Page | What it specifies |
 |---|---|
-| [task](task.md) | The `paranoid` task and its args, seeds and seed files, the dataset, sample metadata, `RunStore`, warm up, the noise grid |
-| [solver](solver.md) | `round_loop`, the `submit` tool, the retry rule and giving up, tool choice, the pilot's `notes` and `compute` tools |
+| [task](task.md) | The `paranoid` task and its args, seeds and seed files, the dataset, sample metadata, `RunStore`, warm up, the noise grid and the release name |
+| [solver](solver.md) | `round_loop`, the `submit` tool, the retry rule and giving up, tool choice, the `notes` and `compute` tools, the pilot's rolling conversation |
 | [providers](providers.md) | `StoreAPI` and the three providers, `baseline/`, `jev/` and `timestral/` |
-| [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share |
-| [command](command.md) | `paranoid poc` and `paranoid pilot`, the models config, reasoning settings |
-| [pilot](pilot.md) | The eighteen pilot cells: what each runs and writes, and the paths the analysis reads |
+| [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share, tool use share |
+| [command](command.md) | `paranoid run` and `paranoid pilot`, the models config, reasoning settings |
+| [pilot](pilot.md) | The twenty pilot cells: what each runs and writes, and the paths the analysis reads |
 | [tests](tests.md) | Every test the harness suite runs, with the page it checks |
 
 ## Exports
@@ -23,7 +23,8 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `paranoid` | The inspect `@task` | [task](task.md) |
 | `RunStore`, `StoredRow` | The `StoreModel` on every sample, and its row type | [task](task.md) |
 | `load_seeds`, `parse_seeds`, `scenario_config` | Seed files, the `seeds` arg, the config a sample plays | [task](task.md) |
-| `round_loop`, `tool_choice_for` | The round loop solver and the forced or auto rule | [solver](solver.md) |
+| `load_grid`, `Grid` | The noise grid and the release it belongs to, from `configs/grid.toml` | [task](task.md) |
+| `round_loop`, `tool_choice_for`, `record_blocks` | The round loop solver, the `any` or `auto` rule, and the cut of the record into content blocks for the prompt cache | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
 | `JevAnswer`, `JevClient`, `Forecaster` | Jev's reply, and the two seams a test fakes | [providers](providers.md) |
@@ -41,9 +42,9 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
     src/paranoid/harness/
       __init__.py      the exports above, nothing else
       task.py          paranoid, scenario_config, the dataset
-      seeds.py         load_seeds, parse_seeds
+      seeds.py         load_seeds, parse_seeds, load_grid, Grid
       store.py         RunStore, StoredRow
-      solver.py        round_loop, tool_choice_for
+      solver.py        round_loop, tool_choice_for, record_blocks
       tools.py         submit, notes, compute
       compose.yaml     the sandbox for compute, network off
       scorer.py        gain
@@ -54,7 +55,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
         jev.py         JevAPI, JevClient
         timestral.py   TimestralAPI, Forecaster, TIMESTRAL_POLICIES, over the baselines layer's FORECAST_RULES
       models.py        load_models, ModelRow, generate_config
-      cli.py           main, poc, pilot
+      cli.py           main, run, pilot
       pilot.py         CellArgs, CELLS, run_cell, one function per cell
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.harness` only.
@@ -68,7 +69,7 @@ The harness imports these from `paranoid.engine`. Their behaviour is in the [eng
 | Name | What the harness uses it for |
 |---|---|
 | `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION` | The config a sample plays, and the hash and version in its metadata, see [scenarios and config](task.md#scenarios-and-config) |
-| `make_tape`, `Tape`, `Event` | The tape the store rebuilds from config and seed, see [store](task.md#store), and the events the scorer and the pilot cells read for an onset, a sleeper and a draw, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#words-the-columns-use) |
+| `make_timeline`, `Timeline`, `Event` | The timeline the store rebuilds from config and seed, see [store](task.md#store), and the events the scorer and the pilot cells read for an onset, a sleeper and a draw, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#words-the-columns-use) |
 | `Game`, `Record`, `Row`, `Bets`, `BetError` | The round the `submit` tool plays, the rows the store keeps and the split a provider returns, see [submit](solver.md#submit) |
 | `play` | Warm up rows, and every baseline's output in the score, see [warm up](task.md#warm-up) and [scoring one run](scorer.md#scoring-one-run) |
 | `Policy` | The type the baseline provider holds, see [baseline](providers.md#baseline) |
@@ -80,8 +81,9 @@ The harness imports these from `paranoid.baselines`. Their behaviour is in the [
 
 | Name | What the harness uses it for |
 |---|---|
-| `POLICIES` | The six `baseline/<name>` names, for the baseline provider and warm up, see [baseline](providers.md#baseline) and [warm up](task.md#warm-up) |
-| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule`, `HedgeRule`, `ScoutRule` | Every baseline's output in the score, and the pilot cells' sweeps, see [scoring one run](scorer.md#scoring-one-run) and [pilot cells](pilot.md) |
+| `POLICIES` | The seven `baseline/<name>` names, for the baseline provider and warm up, see [baseline](providers.md#baseline) and [warm up](task.md#warm-up) |
+| `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule`, `HedgeRule`, `ScoutRule` | Every baseline's output in the score, and the pilot cells' sweeps, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#engine-cells) |
+| `Bayesian`, `HAZARDS`, `BAYESIAN_RULES` | The Bayesian frontier cell, see [pilot](pilot.md#bayesian-frontier) |
 | `FORECAST_RULES`, `ForecastRule`, `QUANTILE_LEVELS` | Timestral's quantiles into bets, and the grid its forecast must be on, see [Timestral](providers.md#timestral) |
 
 ## Names from the skins layer
@@ -93,7 +95,7 @@ The harness imports these from `paranoid.skins`. Their signatures and behaviour 
 | `Skin`, `SkinError` | The skin a run plays. `SkinError` covers `LintError`, so a bad skin is one error on load |
 | `load_skins` | Every skin by name, the example skin always, see [task settings](task.md#task-settings) |
 | `render_system_prompt`, `render_record` | The system prompt and the record, the one way the harness renders either, see [each round](solver.md#each-round) |
-| `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
+| `prompt_hash` | The skin's hash in log metadata. It covers every word the model reads from the skin, `bets_name` and `bets_text` included, see [prompt hash](../skins/render.md#prompt-hash) |
 | `lint_text`, `CANARY` | The banned word check on messages and replies, see [tests](tests.md), and the GUID the `recognition` cell checks a reply for and never sends, see [pilot](pilot.md#recognition) |
 
 ## What the analysis layer reads
@@ -102,16 +104,16 @@ The analysis is the layer above. What it takes from the harness is listed on its
 
 | Layer | Its list |
 |---|---|
-| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `scenario_config` and `load_seeds` for the one tape it rebuilds |
+| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `scenario_config` and `load_seeds` for the one timeline it rebuilds |
 
 - **The analysis reads a log's scores and metadata, never its messages or store**, see [runs](../analysis/runs.md#privacy). So every number it reports is in `Score.value` or `Sample.metadata`, which is why the [scorer](scorer.md#scoring-one-run) puts the baselines' outputs there and the [task](task.md#dataset) puts every identifier in the metadata.
-- **`poc` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [poc](command.md#poc).
+- **`run` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [run](command.md#run).
 
 ## Conventions
 
 - **One sample is one run.** One scenario, one seed, one skin. Its id is `<scenario>/<seed position>`, see [task](task.md#dataset).
-- **The tape is never in the log.** The store holds the scenario, the seed and the knobs, and every reader rebuilds the tape with `make_tape`, see [tape](../engine/tape.md#interface).
-- **The harness writes no text for the agent.** Every word the model sees comes from the skin or from the record's own CSV, the tool's parameter text included. The one thing the harness composes is the tool result, which is a CSV row, see [submit](solver.md#submit). The pilot tools are the exception: the notes echo and compute's output are whatever came back, and neither runs in the headline.
+- **The timeline is never in the log.** The store holds the scenario, the seed and the knobs, and every reader rebuilds the timeline with `make_timeline`, see [timeline](../engine/timeline.md#interface).
+- **The harness writes no text for the agent, bar two words.** Every word the model sees comes from the skin or from the record's own CSV, the submit tool's parameter name and text included. The two exceptions are `text` and `code`, the parameter names of notes and compute, see [not decided](solver.md#not-decided). The one thing the harness composes is the tool result, which is a CSV row, see [submit](solver.md#submit). The pilot tools are the exception: the notes echo and compute's output are whatever came back, and neither runs in the headline.
 - **A run never errors on the model's account.** Ten failed tries in a round is a give up, scored as a gain of 0, see [giving up](scorer.md#giving-up). An error in a log is infrastructure.
 - **Rounds are numbered from 1**, as in the [engine](../engine/README.md#conventions). The store's `rows` list is indexed from 0, so round `r` is `rows[r − 1]`.
 - **Warm up rows are not the agent's.** A record pre-filled by a baseline counts toward the record the agent sees, never toward its score, see [scorer](scorer.md#scoring-one-run).

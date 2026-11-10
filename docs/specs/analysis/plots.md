@@ -41,6 +41,8 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 
 ### Noise plot
 
+`write_results` calls it with `plots` on, once for each [noise threshold table](tables.md#the-results-page) it writes, with that table's result rows and their `Threshold`s.
+
 - **One line per model**: headline against signal to noise on a log x axis, one point per grid setting with its bar, and the logistic fit from [noise threshold](scores.md#noise-threshold) drawn through it.
 - **The floor** is a grey line at the Complacent baseline's headline, and the half way mark a dotted one.
 - **Each threshold** is a tick on the x axis with the model's name. A model off the grid is named at the end it fell off.

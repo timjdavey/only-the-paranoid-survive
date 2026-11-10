@@ -15,7 +15,7 @@ def load_recognition(path: Path) -> pd.DataFrame
 
 def scenario_scores(runs: pd.DataFrame, *, recognition: pd.DataFrame | None = None) -> pd.DataFrame
 # one row per ResultKey and scenario: the key's columns, scenario, trait, score, lo, hi, n, failed,
-# retry_share, cut_off_share, complacent, hedge_rule, scout_rule, perfect, flags
+# retry_share, cut_off_share, notes_share, compute_share, complacent, hedge_rule, scout_rule, perfect, flags
 
 def headlines(runs: pd.DataFrame, *, recognition: pd.DataFrame | None = None) -> pd.DataFrame
 # one row per ResultKey: the key's columns, headline, lo, hi, scenarios, weakest_scenario, weakest_trait,
@@ -30,7 +30,7 @@ def public_gap(runs, model: str, reasoning: str, skin: str) -> pd.DataFrame # on
 def spread(runs) -> pd.DataFrame                 # per ResultKey and scenario: sd, p10, n
 def sampling_share(runs) -> pd.DataFrame         # per ResultKey and scenario: within_sd, total_sd, share, seeds, epochs
 
-def switch_kinds(runs) -> pd.DataFrame           # per scenario, seed_set, seed_index, engine_hash, rounds, inertia, own_scale: kind
+def switch_kinds(runs) -> pd.DataFrame           # per scenario, seed_set, seed_index, engine_hash, game_rounds, inertia, own_scale: kind
 
 def signal_points(config: ScenarioConfig) -> float
 
@@ -64,6 +64,7 @@ Every function here takes the run table after [`mean_over_epochs`](runs.md#mean-
 - **Group by `ResultKey` and `scenario`.** `score`, `lo`, `hi` as above. `n` is the rows scored, `failed` the rows with `gave_up`, as in the [scenario score metric](../harness/scorer.md#scenario-score).
 - **`trait`** is `TRAITS[scenario]`.
 - **`retry_share`** is `sum(retry_rounds) / sum(rounds)` and **`cut_off_share`** is `sum(cut_offs) / sum(rounds)`, as the [retry share metric](../harness/scorer.md#retry-share).
+- **`notes_share`** is `sum(notes_rounds) / sum(rounds)` and **`compute_share`** is `sum(compute_rounds) / sum(rounds)`, as the [tool use share metric](../harness/scorer.md#tool-use-share).
 - **The marks** are the fixed baselines' pooled scores on the same seeds: `complacent` is `pooled_score(complacent − uniform, gap)`, and the same for `hedge_rule`, `scout_rule` and `perfect`, each read from `Score.value`. The Perfect baseline is a mark and divides nothing, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
 - **A check, not a source.** When `log.results` holds the `scenario_score` metric and the log has one epoch, `score`, `lo` and `hi` must equal it to `1e-9`, else `scenario_scores` raises `ValueError` naming the log. This is how the layer knows it read the right numbers. At more than one epoch the check is skipped, see [verify before code](runs.md#verify-before-code).
 
@@ -104,7 +105,7 @@ Every model plays the same seeds, so a gap between two result rows is paired by 
 
 ### Scenario gap
 
-The same pairing across two scenarios of one result row, for the twin tapes in [seeds](../../design/scoring.md#seeds).
+The same pairing across two scenarios of one result row, for the twin timelines in [seeds](../../design/scoring.md#seeds).
 
 - **`scenario_gap(runs, key, a, b, seeds)`** is `a`'s pooled score minus `b`'s on the seeds both scored, or on `seeds` when given, with one set of indices per draw. `pair` is `"<a> − <b>"`.
 - **The pairs the pilot reads**, see [up against down](../../pilot/provider-checks.md#up-against-down): One shock against Down switch, Up switch against No change, Up switch then down switch against Up switch on the seeds whose Up switch kind is not `short`, Switch then shock against Down switch.
@@ -123,17 +124,17 @@ The same pairing across two scenarios of one result row, for the twin tapes in [
 
 Which kind of switch each seed drew, so run scores can be split by it, see [up and down](../../pilot/engine-checks.md#up-and-down).
 
-- **One tape per distinct `(scenario, seed_set, seed_index, engine_hash, rounds, inertia, own_scale)`** in the table. The seed is `load_seeds(seed_set)[seed_index]`, so a held-out seed is read from the private seed file on the maintainer's machine and never from the table. The config is `scenario_config(scenario, rounds=..., inertia=..., own_scale=...)` with the row's knobs, and `engine_hash` of it must equal the row's, else `ValueError`.
-- **`kind`** reads the first `Event` with `shape == "switch"`: `numbers["kind"]`, and `short` when `numbers["short"] == 1`. `none` when the scenario has no switch. The tape is dropped as soon as the word is read, and nothing else from it reaches any table.
+- **One timeline per distinct `(scenario, seed_set, seed_index, engine_hash, game_rounds, inertia, own_scale)`** in the table. The seed is `load_seeds(seed_set)[seed_index]`, so a held-out seed is read from the private seed file on the maintainer's machine and never from the table. The config is `scenario_config(scenario, rounds=game_rounds, inertia=..., own_scale=...)` with the row's knobs, and `engine_hash` of it must equal the row's, else `ValueError`.
+- **`kind`** reads the first `Event` with `shape == "switch"`: `numbers["kind"]`, and `short` when `numbers["short"] == 1`. `none` when the scenario has no switch. The timeline is dropped as soon as the word is read, and nothing else from it reaches any table.
 - **A kind per held-out seed is published** in the pilot's tables. It is one word per world and the engine is public, so it was weighed: it narrows a 64-bit seed by at most two bits and places nothing.
-- **Nothing is cached to disk.** Tapes are rebuilt every call, as a cache would be a tape on disk, see [tape](../engine/tape.md#interface).
+- **Nothing is cached to disk.** Timelines are rebuilt every call, as a cache would be a timeline on disk, see [timeline](../engine/timeline.md#interface).
 
 ### Noise threshold
 
 The full study headline, see [noise threshold](../../design/scoring.md#noise-threshold). It needs one result row per setting of the [noise grid](../../pilot/engine-checks.md#noise-grid), all else equal.
 
 - **The curve.** `noise_threshold(runs, key)` collects every result row with `key`'s model and reasoning whose `Setting` equals `key.setting` in every field but `own_scale`, and has `own_scale` set. Fewer than three settings raise `ValueError`.
-- **The axis** is signal to noise, `snr = signal_points(config) / own_scale`, with `x = log(snr)`. `signal_points(config)` is the midpoint of `size_points` of the first `SwitchSpec` in `config.events`, read from `scenario_config("down_switch")`, so it is the switch size in level points the grid pins, see [pinning](../engine/tape.md#pinning). `own_scale` is the weather's SD per round, see [config](../engine/config.md#fields), so the ratio is the [glossary's](../../glossary.md#scoring). A config with no `SwitchSpec` raises `ValueError`.
+- **The axis** is signal to noise, `snr = signal_points(config) / own_scale`, with `x = log(snr)`. `signal_points(config)` is the midpoint of `size_points` of the first `SwitchSpec` in `config.events`, read from `scenario_config("down_switch")`, so it is the switch size in level points the grid pins, see [pinning](../engine/timeline.md#pinning). `own_scale` is the weather's SD per round, see [config](../engine/config.md#fields), so the ratio is the [glossary's](../../glossary.md#scoring). A config with no `SwitchSpec` raises `ValueError`.
 - **The floor** is the Complacent baseline's headline on the same logs: the plain mean over scenarios of the `complacent` mark, at the quietest setting. The design says it does not move with noise. `floor_drift` is how far it did move across the grid, and the table shows it beside the floor so a reader can judge, see [not decided](#not-decided).
 - **The fit** is `h(x) = floor + (1 − floor) / (1 + exp(−k (x − x0)))` by `scipy.optimize.curve_fit` on the settings' headlines, with `k > 0` bounded and `x0` free, from a start of `k = 1` and `x0` the mean of `x`.
 - **The threshold** is `snr = exp(x0)`, where the model sits half way between the floor and 1. `snr_80` is where `h = floor + 0.8 (1 − floor)`, `x0 + log(4) / k`. `own_scale` is `signal_points / snr`.
@@ -154,7 +155,7 @@ The full study headline, see [noise threshold](../../design/scoring.md#noise-thr
 - `scenario_scores` and `headlines` equal the log's `scenario_score` and `headline` metrics wherever a one-epoch log has them.
 - `paired_gap(runs, a, a)` is all zeros. `paired_gap(runs, a, b).diff == −paired_gap(runs, b, a).diff`.
 - `noise_threshold` gives the same `Threshold` on every machine for the same logs.
-- `switch_kinds` on public seeds agrees with `make_tape` called by hand, and writes nothing.
+- `switch_kinds` on public seeds agrees with `make_timeline` called by hand, and writes nothing.
 - No function here returns, logs or raises with a word from a recognition reply.
 
 ## Pilot decides
