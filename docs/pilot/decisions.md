@@ -26,7 +26,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 
 | Check | Decision | Date | Log |
 |---|---|---|---|
-| [Seeds](provider-checks.md#seeds) | | | |
+| [Seeds](provider-checks.md#seeds), the count, and the row and scenario with the widest spread that set it | | | |
 | [Repeats](provider-checks.md#repeats) | | | |
 | [Recognition](provider-checks.md#recognition), share that marks a bar | | | |
 | [Up against down](provider-checks.md#up-against-down) | | | |

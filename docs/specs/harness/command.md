@@ -100,8 +100,8 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `up-and-down` | No | Discerning, Complacent, hedge rule and Scout rule at `s` 1, 2, 5 on 1000 Down switch, Up switch and No change seeds | A CSV: scenario, kind of switch, baseline, seed, output, move round |
 | `bayesian-frontier` | No | Every `Bayesian(hazard, rule)` over `HAZARDS` × `BAYESIAN_RULES`, with `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule`, on 1000 seeds of every scenario | A CSV: scenario, baseline, hazard, rule, seed, output. Hazard and rule are blank on the five fixed baselines |
 | `baseline-order` | No | Every fixed baseline on every scenario, 1000 seeds | A CSV: scenario, baseline, pooled output, and a line per order that breaks |
-| `seeds` | Yes | One LLM row on One shock, twenty public seeds | An eval log |
-| `repeats` | Yes | Five of those seeds at `--epochs 4` | An eval log |
+| `seeds` | Yes | Every LLM row on One shock and Up switch, twenty public seeds | An eval log per row |
+| `repeats` | Yes | The row and scenario with the widest SD of `run_score` in the `seeds` logs, ten of its seeds picked across the range of its run scores, at `--epochs 4` | An eval log |
 | `recognition` | Yes | A fresh call per model and skin with the round 1 and round 20 prompts, then the cut canary, see [recognition](../../pilot/provider-checks.md#recognition) | A CSV: model, skin, reply, lint hits, canary finished |
 | `up-against-down` | Yes | One LLM row on Down switch, Up switch, Up switch then down switch and Switch then shock, the `seeds` seeds | An eval log |
 | `jev` | Yes | `jev/jev-latest` on No change and Down switch | An eval log |
@@ -112,7 +112,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 | `warm-up` | Yes | Every LLM row on No change and Down switch, with `warm_up` unset and at `complacent:5` | Two eval logs per row |
 
 - **Every CSV has one row per seed, never a timeline.** The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
-- **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one. The `bare`, `tool-choice`, `rolling` and `warm-up` cells take every `llm` row, as their checks ask, and `--only` narrows them.
+- **Cells that need a model** read the row from `--models` and take the first `llm` row unless `--only` names one. The `seeds`, `bare`, `tool-choice`, `rolling` and `warm-up` cells take every `llm` row, as their checks ask, and `--only` narrows them. The `repeats` cell reads the `seeds` logs in `--out` to pick its row, and fails with one line naming the `seeds` cell when there are none.
 - **Nothing here changes a config.** A knob the pilot moves is passed as a task arg or a `replace` on the config in memory. The frozen defaults change only through [decisions](../../pilot/decisions.md).
 - **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the main pilot logs instead.
 - **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`.

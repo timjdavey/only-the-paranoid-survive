@@ -9,17 +9,24 @@ The second half of the pilot, a short run before the full study to settle the kn
 
 Sizes the [error bar](../design/scoring.md#error-bars).
 
-- **Question.** How many seeds a scenario needs.
-- **Run.** One model, one scenario, say the One shock scenario. Twenty public seeds played once, as pilot logs are published. See [contamination](../harness/contamination.md#two-seed-sets).
-- **Measure.** The SD of the run score across seeds. This is the [spread](../design/scoring.md#spread).
-- **Decide.** Seeds per scenario = (SD ÷ target error bar)², rounded up. The target is a fraction, say a fifth, of the smallest gap between [baselines](../design/baselines.md) we want to read. This sizes the held-out seed set.
+- **Question.** How many seeds a scenario needs, so that the model whose runs land furthest apart still gets a bar we can read.
+- **Run.** Every LLM row in the [proof of concept list](../harness/models.md#two-lists), at the reasoning setting it plays there, in the One shock and Up switch scenarios. Twenty public seeds played once, as pilot logs are published, see [contamination](../harness/contamination.md#two-seed-sets). 120 runs on three rows.
+  - **Why every row.** A weak model whipsaws more, so its runs land further apart and it needs more seeds. We cannot say which row that is before they play, so we measure them all.
+  - **Why the Up switch scenario.** Its run scores may split into found and not found, so it is where we expect the widest spread.
+- **Measure.** The SD of the run score across seeds, per row and scenario. This is the [spread](../design/scoring.md#spread).
+- **Decide.** Seeds = 1.5 × (widest SD ÷ target error bar)², rounded up. The widest SD is the largest over every row and both scenarios.
+  - **One count for every scenario and model**, as they all play one seed list. This sizes the held-out seed set.
+  - **The target** is a fraction, say a fifth, of the smallest gap between [baselines](../design/baselines.md) we want to read.
+  - **The 1.5 is fixed here, before any model plays.** Twenty seeds give a rough SD, and the margin covers a read that came out low.
+  - **Worked.** At a target of 0.05, a widest SD of 0.2 needs 24 seeds and one of 0.4 needs 96.
+- **If a later bar is wider than the target.** A model added after the pilot may spread wider than any row here. Its bar is still honest, only wide, and the count stays frozen. The next release draws [fresh held-out seeds](../harness/contamination.md#who-can-see-them), so it runs this check again with that model in it.
 
 ## Repeats
 
 Splits [spread](../design/scoring.md#spread) into the world's dice and the model's.
 
 - **Question.** How much of the spread is the model's own sampling, so we know whether a per-seed dot means "this world was hard" or "the model rolled badly".
-- **Run.** Five of the twenty seeds from [Seeds](#seeds), each played three more times. Pick them across the range of single-run scores, not the first five, because sampling matters most on ambiguous worlds. 15 extra runs.
+- **Run.** The row and scenario with the widest spread in [Seeds](#seeds), as those are the dots that most need explaining. Ten of its twenty seeds, each played three more times. Pick them across the range of single-run scores, not the first ten, because sampling matters most on ambiguous worlds. 30 extra runs.
 - **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
 - **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
@@ -49,7 +56,7 @@ Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down
   - Mean points on unfunded channels before onset, which is exploring when nothing is wrong.
   - The gap between the Up switch and Up switch then down switch run scores, paired by seed on the seeds where the Up switch sleeper does not stop short, which is what the revert cost.
   - The gap between the Down switch and Switch then shock run scores, paired by seed, which is what the whipsaw cost.
-- **Decide.** Whether the Up switch scenario needs its own seed count, as its run scores may split into found and not found. Report the four kinds beside the headline.
+- **Decide.** Report the four kinds beside the headline. The Up switch scenario needs no seed count of its own: its spread is already in the [seeds check](#seeds), which sizes the one count on the widest.
 
 ## Jev checks
 
