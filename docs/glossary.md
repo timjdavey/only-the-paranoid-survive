@@ -98,6 +98,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
 | Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or an explore bet |
+| Channel order | The order of a skin's `channels` list. A split's ten numbers and the record's columns both follow it |
+| Slip | A valid split that holds the numbers the agent meant on the wrong channels. It still sums to 100, so nothing retries it. Measured by the [channel order check](pilot/provider-checks.md#channel-order). `slipped` in code |
 | Exploit | Betting on the channel the agent believes is best. Payout is linear, so exploiting alone means all 100 points on one channel. The opposite of an explore bet |
 | Explore bet | A small bet on a channel the agent isn't backing, to read its level. To explore is to place one. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees). `explore` in code |
 | Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot check, see [warm up](pilot/provider-checks.md#warm-up) and the [task spec](specs/harness/task.md#warm-up). `warm_up` in code |

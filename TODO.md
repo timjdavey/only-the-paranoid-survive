@@ -21,6 +21,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Put the canary GUID in `paranoid.skins.canary`, see [contamination](docs/harness/contamination.md#canary).
 - Ship `compose.yaml` and the sandbox extra before the first headline run, as the headline needs Docker, see [running](docs/harness/running.md#setup).
 - Add `src/paranoid/skins/example.toml`, the example skin's real words, which are coming. KS2, KR2, KL11 and KL13 wait on it, see the [skins spec](docs/specs/skins/skin.md#the-example-skin).
+- Run the [channel order check](docs/pilot/provider-checks.md#channel-order) before any other provider check, as its answer can change the `submit` tool they all play.
 - Add a `bets_name` line to every held-out skin, see [skins](docs/harness/skins.md#what-a-skin-file-holds).
 - Decide [banning numbers](docs/specs/skins/lint.md#not-decided) in the skins spec, due now that held-out skins exist.
 - Decide whether the skin names the notes and compute parameters before the first headline run on held-out skins, see the [solver spec](docs/specs/harness/solver.md#not-decided).

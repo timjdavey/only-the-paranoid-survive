@@ -16,10 +16,12 @@ class CellArgs:
     dry_run: bool = False
 
 Cell = Callable[[CellArgs], list[Path]]   # returns the paths it wrote
-CELLS: Mapping[str, Cell]                 # read only, the 20 names below in page order
+CELLS: Mapping[str, Cell]                 # read only, the 21 names below in page order
 def run_cell(name: str, args: CellArgs) -> list[Path]
 
 RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
+CHANNEL_ORDER_REQUEST = "Send exactly this now: {split}. Every one not named gets 0."
+ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to 100
 ```
 
 ## Behaviour
@@ -30,7 +32,7 @@ RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
 - **A CSV row is one seed's numbers**, or an aggregate over seeds. No CSV holds one seed's levels round by round, so a CSV gives away nothing a log does not. The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Engine cells play positions `0` to `seeds − 1`** of the public list, with `load_seeds("public")`. A list shorter than `seeds` raises `ValueError` naming `PARANOID_PILOT_SEEDS`, which caps `seeds` when set and is the harness's one test hook, see [tests](tests.md).
 - **A knob the pilot moves is a `replace` on the config in memory**, through `scenario_config` where it has an arg and `dataclasses.replace` otherwise, so the engine's validation runs again. Nothing here writes a config or a spec. The frozen defaults change only through [decisions](../../pilot/decisions.md).
-- **Cells that need a model** read `--models`. `recognition` and `up-against-down` take the first `llm` row unless `--only` names one. `seeds`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
+- **Cells that need a model** read `--models`. `recognition` and `up-against-down` take the first `llm` row unless `--only` names one. `seeds`, `channel-order`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
 - **Every eval** passes `config=generate_config(row, row.reasoning[0])`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `run` does by default, see [run](command.md#run). The task's other args stay at their defaults unless a cell names them, so a provider cell plays the headline tools, `notes,compute`, and needs Docker as a headline run does.
 - **The seed positions pair.** Every provider cell plays `seeds="0-19"`, so every pilot log pairs by seed with every other, see [paired gap](../analysis/scores.md#paired-gap).
 - **Columns that do not apply are empty**, which pandas reads as NA. A round column that means "never" is `0`, as rounds start at 1.
@@ -139,6 +141,27 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
   - **`canary`**: one user message holding the [canary](../../harness/contamination.md#canary) line cut after `canary GUID only-the-paranoid-survive:` and a request to finish it. The GUID itself is `CANARY` from the skins layer and is never sent.
 - **Writes** `recognition.csv`: `model, skin, probe, reply, lint_hits, canary_finished`. `lint_hits` is `len(lint_text(reply))`. `canary_finished` is 1 when the reply holds the GUID, else 0, on the `canary` probe only. The analysis reads this file through `load_recognition`, which drops `reply`, see [flags](../analysis/scores.md#flags).
 
+#### `channel-order`
+
+- **Runs.** Not an eval. For every `llm` row and every skin `load_skins()` returns, thirty fresh calls to `get_model(row.id).generate` with `generate_config(row, row.reasoning[0])`, `tools=[submit(skin)]` and the tool choice `tool_choice_for` gives the row, see [each round](solver.md#each-round). Each call has a system message of `render_system_prompt(skin)`, a user message of `render_record(skin, Record())`, then a user message of `CHANNEL_ORDER_REQUEST` with its slot filled.
+- **One call a probe.** The tool is never run, so no game is played and no retry is sent. The notes and compute tools are not offered, so the one thing a reply can call is the skin's tool.
+- **The slot** is each funded channel as `<name> <bet>`, joined by `, `, in the order the table names them. Probe `i` runs from 0 to 9 in each shape, and channels are counted from 0. A skin without ten channels raises `ValueError`.
+
+| `shape` | Bets, in the order named |
+|---|---|
+| `one` | 100 on channel `i` |
+| `pair` | 55 on channel `i`, then 45 on channel `(i + 3) % 10`. So probes 7, 8 and 9 name the later channel first |
+| `all` | `ALL_BETS[j]` on channel `(i + 3 × j) % 10`, for `j` from 0 to 9. Every channel is named once, never in channel order, and no two bets are equal, so any swap shows |
+
+- **Writes** `channel-order.csv`: `model, skin, shape, probe, called, valid, matched, slipped, wanted, sent`.
+  - `called`: 1 when the reply holds a call to `skin.tool_name`, else 0. The first such call is the one read.
+  - `valid`: 1 when that call's argument under `skin.bets_name` plays without a `BetError` on a fresh `Game(make_timeline(SCENARIOS["no_change"], seed_0))`, `seed_0` being public position 0, so the test is the engine's own, see [bets](../engine/game.md#bets). Else 0, a missing argument and no call included.
+  - `matched`: 1 when the split sent equals the split asked for, else 0.
+  - `slipped`: 1 when it is not matched and `sorted(sent) == sorted(wanted)`, the right numbers on the wrong channels, else 0. A valid row with both at 0 is the model sending numbers of its own.
+  - `wanted`, `sent`: the ten bets in channel order, joined by single spaces.
+  - `matched`, `slipped` and `sent` are empty when `valid` is 0.
+- **No skin word is written.** Channels are positions in `wanted` and `sent`, so the file is publishable whichever skins ran, see [channel order](../../pilot/provider-checks.md#channel-order).
+
 #### `up-against-down`
 
 - **Runs.** One eval: `scenario="no_change,down_switch,up_switch,up_switch_then_down_switch,switch_then_shock"`, `seeds="0-19"`. With the `seeds` log it gives every scenario pair in [scenario gap](../analysis/scores.md#scenario-gap). The sleeper round and the explore points before onset are in every run's `Score.value`, see [scoring one run](scorer.md#scoring-one-run).
@@ -177,7 +200,7 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 - Every engine cell runs with no key and no network, and reads nothing but `configs/grid.toml` and the public seed file.
 - Every CSV has exactly the columns named here, in that order.
 - No CSV holds a level for one seed and one round, a held-out seed's value, or a word of any skin but its name. `recognition.csv` is the one file that holds model replies.
-- `CELLS` has exactly the twenty names on this page, and `run_cell` on any other raises `ValueError` listing them.
+- `CELLS` has exactly the twenty-one names on this page, and `run_cell` on any other raises `ValueError` listing them.
 
 ## Pilot decides
 
@@ -191,3 +214,4 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 - **`inspect_ai.eval(..., epochs=4)`** keeps one sample per epoch in the log, with `EvalSample.epoch` set, which `repeats` and the analysis's [sampling share](../analysis/scores.md#spread-and-sampling-share) need. `repeats` waits on it.
 - **`get_model(id).generate(messages)`** works outside an eval, with a config. `recognition` waits on it.
+- **The same call with `tools` and `tool_choice`** returns the model's call in `output.message.tool_calls` and runs no tool. `channel-order` waits on it, and on the named parameter `submit` waits on, see [solver](solver.md#verify-before-code).

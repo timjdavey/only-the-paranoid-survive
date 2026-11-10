@@ -70,6 +70,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AI3 | With a hand-built `recognition.csv` holding a reply column, the section's table has counts and shares and the reply text appears nowhere in the page or its CSV | [pilot](pilot.md#sections) |
 | AI4 | An existing `results.md` with one heading renamed raises `ValueError` naming it, and the file is unchanged | [pilot](pilot.md#writing-the-page) |
 | AI5 | With a hand-built `up-against-down-bets.csv` of four runs, two with a `sleeper_round`, the Up against down section reports a share of 0.5 and their median, and a file with a column this page does not name raises `ValueError` naming it | [pilot](pilot.md#sections) |
+| AI6 | With a hand-built `channel-order.csv` of twelve rows for one model, ten valid, two of those with `slipped` 1 and one with neither `matched` nor `slipped`, the Channel order section reports a valid share of 10 in 12, a slip share of 0.2 and an own numbers share of 0.1 | [pilot](pilot.md#sections) |
 
 ## Command
 

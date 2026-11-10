@@ -119,6 +119,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 ## Pilot decides
 
 - `notes_cap`, see [bare harness](../../pilot/provider-checks.md#bare-harness).
+- **Whether `submit` keeps one list in channel order.** A list makes the model count to the right place, and a miscount is a valid call. If the [channel order check](../../pilot/provider-checks.md#channel-order) finds slips, the tool takes one number per channel by name, and this page, [tool text](../../harness/prompts.md#tool-text) and the skin's `bets_name` change with it.
 
 ## Not decided
 
