@@ -36,17 +36,20 @@ The model's missing 0.24 is lag, looks and a wrong destination. None of it is we
 
 Each scenario tests one trait, named as the virtue a high score shows. A low score is that trait's failure mode.
 
-| Scenario | Trait | What a high score means | Failure mode |
-|---|---|---|---|
-| [No change](scenarios.md#scenarios-we-test) | Composure | Ignores noise when nothing is happening | False alarms |
-| [One shock](scenarios.md#scenarios-we-test) | Patience | Holds through a dip that passes | Overreaction |
-| [Down switch](scenarios.md#scenarios-we-test) | Doubt | Questions the plan when the change is real | Underreaction |
-| [Up switch](scenarios.md#scenarios-we-test) | Curiosity | Looks at the field when nothing is wrong, and moves only for a rise that beats the plan | Contentment: the old plan still pays, so it never looks. Or distraction: chases a rise that stops short |
-| [Shock then switch](scenarios.md#scenarios-we-test) | Unlearning | Drops "dips recover" once it stops being true | Learned complacency |
-| [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | Boiling frog: never acts, as no single round looks bad |
-| [Switch then shock](scenarios.md#scenarios-we-test) | Conviction | Holds a plan it just chose through a dip that passes | Second thoughts: the first bad round on the new plan sends it back to the old one |
-| [Up switch then down switch](scenarios.md#scenarios-we-test) | Recall | Goes back to a plan it has seen pay when the change undoes itself | Hopin: treats the change as permanent, so stays on the new plan after the rise it moved for has gone. Or burnt bridges: treats the old leader as finished and relearns a climate it has already seen |
+| Scenario | Trait | What a high score means | The question the score answers | Failure mode |
+|---|---|---|---|---|
+| [No change](scenarios.md#scenarios-we-test) | Composure | Ignores noise when nothing is happening | When nothing changes, how much does it keep betting on the best channel? | False alarms |
+| [One shock](scenarios.md#scenarios-we-test) | Patience | Holds through a dip that passes | When the best channel dips and recovers, how much does it keep on it through the dip? | Overreaction |
+| [Down switch](scenarios.md#scenarios-we-test) | Doubt | Questions the plan when the change is real | When the best channel falls for good in one round, how soon does it move to the new best channel? | Underreaction |
+| [Up switch](scenarios.md#scenarios-we-test) | Curiosity | Looks at the field when nothing is wrong, and moves only for a rise that beats the plan | When another channel rises past the best one, with nothing to see unless it looks, how soon does it find the riser and move, and what did the looking cost? | Contentment: the old plan still pays, so it never looks. Or distraction: chases a rise that stops short |
+| [Shock then switch](scenarios.md#scenarios-we-test) | Unlearning | Drops "dips recover" once it stops being true | When the best channel dips and recovers, then later falls for good, how soon does it move after the real fall? | Learned complacency |
+| [Slow drift](scenarios.md#scenarios-we-test) | Vigilance | Notices a decline that has no sudden move | When the best channel slides over many rounds, so no single round looks bad, how soon does it move to the new best channel? | Boiling frog: never acts, as no single round looks bad |
+| [Switch then shock](scenarios.md#scenarios-we-test) | Conviction | Holds a plan it just chose through a dip that passes | When it has just moved to a new best channel and that channel dips and recovers, how much does it keep on it through the dip? | Second thoughts: the first bad round on the new plan sends it back to the old one |
+| [Up switch then down switch](scenarios.md#scenarios-we-test) | Recall | Goes back to a plan it has seen pay when the change undoes itself | When the channel it moved to falls back, so the old one is best again, how soon does it move back? | Hopin: treats the change as permanent, so stays on the new plan after the rise it moved for has gone. Or burnt bridges: treats the old leader as finished and relearns a climate it has already seen |
 
+- **A trait is a score, not a disposition.** Each is its scenario score, the share of the gap earned on that scenario's seeds, see [how we score](#how-we-score). Doubt is what a model earned where the best channel fell, and says nothing else about it.
+- **"How soon" and "how much" are one number.** Every round the score counts how much of the budget sits on the best channel, and the rounds add up. Leaving the whole budget on a fallen channel for two rounds costs about what leaving half of it there for four does. The question names which of the two a scenario mostly tests. Both count in every scenario.
+- **Doubt and Vigilance differ only in the shape of the fall.** Doubt's fall lands in one round. Vigilance's is spread over many, so no single round looks bad.
 - **Composure and patience differ.** Composure ignores noise when nothing is happening. Patience holds through a real dip that passes.
 - **Composure and curiosity pull against each other.** Every look costs in the No change scenario and is the only way to score in the Up switch scenario. A model buys one with the other unless its looks are small and steady.
 - **Conviction and recall pull against each other.** A model that always goes back scores in the Up switch then down switch scenario and not in the Switch then shock scenario. One that never goes back does the reverse.
@@ -101,7 +104,7 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 
 - **Spread says how far one run lands from another** (aleatoric uncertainty). It does not shrink with more seeds, it only gets estimated better. It is the SD of the run scores, each seed's own share of the gap.
 - **Two sets of dice.** World spread, from the seed, and sampling spread, from the model's own draws. Played once per seed the two are mixed, and the error bar is still honest for "a fresh run on a fresh world". The [pilot](../pilot/provider-checks.md#repeats) measures the sampling share once and we report it as a number, such as "two fifths of the spread in the One shock scenario is sampling".
-- **Why it is reported, not just absorbed.** Two models can share a score while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: overreacting on some worlds and not others is poor composure.
+- **Why it is reported, not just absorbed.** Two models can share a score while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: moving off the best channel on some No change seeds and not others is a low Composure dot on those seeds.
 - **How it is shown.** A strip of per-seed run scores next to each scenario's bar, and the 10th percentile run score beside it.
 - **Why the headline still plays each seed once.** For a fixed run budget, more seeds always shrinks the error bar faster than repeats of a seed. Repeats only buy the sampling share.
 - **Skins are a sensitivity, not an error.** If a model scores 0.8 on one story and 0.6 on another with the same engine and seed, that is a finding: the story swayed it (skin sensitivity). Averaging skins and widening the bar would hide the most interesting number, so skins are never resampled and never pooled into a headline. **The proof of concept runs one skin**, so skin sensitivity is a named layer we do not measure yet. When more skins run, each gets its own headline and the gap between them is reported beside it.

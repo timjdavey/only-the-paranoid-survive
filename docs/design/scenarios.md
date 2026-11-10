@@ -47,4 +47,4 @@ A scenario is a list of [events](mechanics.md#events), and each event has a shap
 ## Rules for adding a scenario
 
 - If we test a positive effect, we need to make sure we test its reverse. The Down switch and Up switch scenarios are each other's reverse.
-- Tie each scenario to one trait and its failure mode, and add the trait to [traits](scoring.md#traits).
+- Tie each scenario to one trait, write the question its score answers, and name its failure mode. Add the trait to [traits](scoring.md#traits).

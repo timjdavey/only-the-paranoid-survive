@@ -23,6 +23,7 @@ What is published and what is held back, and why.
 - **The [frame](../glossary.md) is a fingerprint.** If every skin used the same rules and tool text, a model that saw them once could spot the benchmark under any story. So each skin words the frame itself, and the published wording is only the example skin's, see [prompts](prompts.md).
 - **A seed is a world.** The engine is public and deterministic, so a published seed is a published tape. A lab could tune on the exact worlds the headline uses.
 - **A log is a prompt.** It holds the whole skin and every reading, so a log from a held-out skin or seed is as private as the skin or seed.
+- **A public log is the audit.** The example skin on public seeds runs the same engine, harness, prompt and scorer as the headline, and every one of its logs is published. A reader can check the pipeline round by round without any held-out file leaving the machine. The held-out number then rests on the [public gap](#the-public-gap) and the [canary](#canary).
 - **A log never holds a held-out seed's value.** Only its position in the list. The engine is public, so one seed is eight worlds, where one record is one run. A leaked held-out log costs the skin and a record, not the seed set, see the [task spec](../specs/harness/task.md#dataset). The Timestral forecast cache holds the same readings, so it stays on the machine too.
 
 ## Two seed sets

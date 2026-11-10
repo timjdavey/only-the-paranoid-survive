@@ -48,7 +48,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Loading | How much a channel moves with the shared factor. Uneven across channels |
 | Hedge | The one channel with a negative loading. It rises when everything else falls |
 | Tell | The hedge rising while the field falls. It marks a shock rather than a switch. See [the tell](pilot/engine-checks.md#the-tell) |
-| Leader | The channel that pays best when a run starts |
+| Leader | The channel that pays best when a run starts. A channel, not a baseline |
 | Runner-up | The second best channel at the start. The obvious fallback |
 | Field | The other channels, including the hedge |
 | Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
@@ -100,15 +100,15 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Noise threshold | The full study headline. The signal to noise at which a model's headline sits half way between the Complacent baseline's and 1. Lower is better. See [scoring](design/scoring.md#noise-threshold) |
 | Signal to noise | The size of a switch in level points over the weather's SD per round. The axis every release shares. See [difficulty](design/mechanics.md#difficulty) |
 | Noise grid | The fixed signal to noise settings the full study plays, chosen from the baselines before any model runs. See [pilot](pilot/engine-checks.md#noise-grid) |
-| Trait | What one scenario tests, named as the virtue a high score shows. See [traits](design/scoring.md#traits) |
-| Composure | The No change scenario's trait. Ignoring noise when nothing is happening |
-| Patience | The One shock scenario's trait. Holding through a dip that passes |
-| Doubt | The Down switch scenario's trait. Questioning the plan when the change is real |
-| Curiosity | The Up switch scenario's trait. Looking when nothing is wrong, and moving only for a rise that beats the plan |
-| Unlearning | The Shock then switch scenario's trait. Dropping "dips recover" once it stops being true |
-| Vigilance | The Slow drift scenario's trait. Noticing a decline that has no sudden move |
-| Conviction | The Switch then shock scenario's trait. Holding a plan it just chose through a dip that passes |
-| Recall | The Up switch then down switch scenario's trait. Going back to a plan it has seen pay when the change undoes itself, rather than treating the change as permanent |
+| Trait | One scenario's score, named for what a high score shows. A label on a number, not a disposition. See [traits](design/scoring.md#traits) |
+| Composure | The No change scenario score. Ignoring noise when nothing is happening. When nothing changes, how much does it keep betting on the best channel? |
+| Patience | The One shock scenario score. Holding through a dip that passes. When the best channel dips and recovers, how much does it keep on it through the dip? |
+| Doubt | The Down switch scenario score. Questioning the plan when the change is real. When the best channel falls for good in one round, how soon does it move to the new best channel? |
+| Curiosity | The Up switch scenario score. Looking when nothing is wrong, and moving only for a rise that beats the plan. When another channel rises past the best one, with nothing to see unless it looks, how soon does it find the riser and move, and what did the looking cost? |
+| Unlearning | The Shock then switch scenario score. Dropping "dips recover" once it stops being true. When the best channel dips and recovers, then later falls for good, how soon does it move after the real fall? |
+| Vigilance | The Slow drift scenario score. Noticing a decline that has no sudden move. When the best channel slides over many rounds, so no single round looks bad, how soon does it move to the new best channel? |
+| Conviction | The Switch then shock scenario score. Holding a plan it just chose through a dip that passes. When it has just moved to a new best channel and that channel dips and recovers, how much does it keep on it through the dip? |
+| Recall | The Up switch then down switch scenario score. Going back to a plan it has seen pay when the change undoes itself. When the channel it moved to falls back, so the old one is best again, how soon does it move back? |
 | Trait profile | A model's scores across scenarios, one per trait. The signal the headline combines |
 | Error bar | How sure we are of a score. Spread over √seeds, so it shrinks with more seeds (epistemic uncertainty). See [scoring](design/scoring.md#error-bars) |
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
