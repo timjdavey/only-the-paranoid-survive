@@ -73,8 +73,8 @@ class ScenarioConfig:
     one_channel_shock: bool = False
     inertia_cap: int | None = None
 
-SCENARIOS: Mapping[str, ScenarioConfig]     # read only
-GENERATOR_VERSION: int                      # bumped when make_timeline changes for the same config
+SCENARIOS: Mapping[str, ScenarioConfig]     # read only, in the scenario table's order
+GENERATOR_VERSION: int                      # 1. Bumped when make_timeline changes for the same config
 def engine_hash(config: ScenarioConfig) -> str
 ```
 
@@ -84,29 +84,33 @@ def engine_hash(config: ScenarioConfig) -> str
 
 - **Every number in [mechanics](../../design/mechanics.md) is a field.** Nothing is hard coded in `timeline.py` or `game.py`. If a rule needs a number, it gets a field here first.
 - **A `Range` is drawn uniform per seed**, low and high inclusive. An `IntRange` is drawn uniform over the whole numbers from low to high inclusive. A range with low equal to high is a fixed value.
-- **Ranges are stored as floats and `IntRange`s as ints.** `__post_init__` casts each entry, so `leader_base=(60, 70)` and `(60.0, 70.0)` are one config with one hash. A `Range` entry that is not a real number, or an `IntRange` entry that is not a whole number, raises `TypeError`.
+- **Every field is stored as its declared type.** `__post_init__`, on the config and on each event spec, casts each `Range` entry and `float` field to `float`, each `IntRange` entry and `int` field to `int`, and `events` to a tuple. So `leader_base=(60, 70)` and `(60.0, 70.0)` are one config with one hash, as are `own_scale=4` and `4.0`.
+- **A value of the wrong type raises `TypeError`.** A whole number is a `numbers.Integral` that is not a `bool`, as for [bets](game.md#bets), so `channels=10.0` and `gap=(8.5, 12)` raise. A real number is a `numbers.Real` that is not a `bool`. A `bool` field takes a `bool` only, `name` a `str` only, and `events` holds event specs only. A range is a pair.
+- **A `float` field or `Range` entry that is not finite raises `ValueError`**, as JSON cannot hash it.
 - **Sizes come in pairs**, one in sigmas and one in level points. The engine reads the sigmas pair unless `pin_in_level_points` is true, then it reads the points pair and ignores the sigmas pair. See [difficulty](../../design/mechanics.md#difficulty) for why. The pairs are set so that at the default `own_scale` they agree.
 - **A switch or drift `size` is measured from the runner-up**, not from where the leader was. The leader's base ends `size` below the runner-up's base, so a fall changes who pays best on every seed. The points the leader actually moves are the gap to the runner-up plus `size`, see [switch](timeline.md#switch).
 - **`own_scale` is the weather's SD per round**, not the SD of the innovation. [timeline](timeline.md) says how the AR(1) is scaled to make that so. It is the axis of the [noise grid](../../pilot/engine-checks.md#noise-grid).
 - **`persistence` never moves within a release**, see [difficulty](../../design/mechanics.md#difficulty). The engine does not enforce this, the release process does.
 - **A short rise and an undo** are the two switch moves the [Up switch](../../design/scenarios.md#scenarios-we-test) scenarios need, see [switch](timeline.md#switch). `short_level` is a share, not a size, so it has no sigmas or points pair and [pinning](timeline.md#pinning) leaves it alone.
 - **`hedge_margin_points`** is in level points, so it survives [pinning](timeline.md#pinning). It bounds the shock depth, see [shock](timeline.md#shock).
-- **`inertia_cap`** is off by default. When set, no bet may move more than this many points from the round before, see [game](game.md#bets) and [inertia](../../design/scoring.md#extension-inertia).
+- **`inertia_cap`** is off by default. When set, no bet may move more than this many points from the round before, see [game](game.md#bets) and [inertia](../../design/scoring.md#extension-inertia). `make_timeline` never reads it, so a config with the cap cleared draws the same arrays, which the [scorer](../harness/scorer.md) relies on.
 - **Validation on construction.** `__post_init__` raises `ValueError` if any of these hold:
   - `channels < 4`, `rounds < 1`, `budget < channels`.
   - Any range has low above high.
   - `persistence` is outside `[0, 1)`. `own_scale`, `factor_scale`, `read_noise_k`, `field_headroom` or `hedge_margin_points` is not positive.
   - `loading` has a low at or below 0. `hedge_loading` has a high at or above 0.
-  - `onset` low is below 1 or `onset` high is above `rounds`.
+  - `runner_up_gap_sigmas` or `runner_up_gap_points` has a low at or below 0, so the runner-up is always strictly below the leader.
+  - `onset` low is below 2 or `onset` high is above `rounds`. Round 1 is never edited, so the ladder holds on round 1 and an [undo](timeline.md#switch) can read row 0 as the base from before the rise.
+  - `inertia_cap` is set and below 0.
   - `hedge_base` high is not below `field_base` low.
   - `field_base` low is above `leader_base` low minus the widest runner-up gap the config can draw, minus `field_headroom`. The widest gap is `runner_up_gap_points` high when `pin_in_level_points` is true, and `runner_up_gap_sigmas` high × `own_scale` when it is not, as only the pair the engine reads can break the ladder, see [pinning](timeline.md#pinning). So the noise grid's settings all build: pinned at `own_scale` 8 the check is 60 − 16 − 4 = 40, above the field's low of 30. Unpinned at 8 it is 60 − 32 − 4 = 24 and raises, which is right, as that ladder could put a field channel above the runner-up.
-  - In any event spec: `riser_share` or `short_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, or any `*_sigmas` or `*_points` range has a low at or below 0.
+  - In any event spec: `riser_share` or `short_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, any `*_sigmas` or `*_points` range has a low at or below 0, or `kind` or `profile` is not one of its words.
   - A `SwitchSpec` has `short_share` above 0 and a `kind` other than `"rise"`, or a `short_level` low at or below 0 or high at or above 1.
   - A `SwitchSpec` with `kind="undo"` is the first event, or the most recent `SwitchSpec` before it does not have `kind` `"rise"` or `"fall_and_rise"`.
 
 ### Scenarios
 
-`SCENARIOS` maps each code name from the [glossary](../../glossary.md#how-the-world-changes) to a config. Each is the defaults above plus its events. It is a `types.MappingProxyType`, so a caller cannot replace a scenario under a name that is already in a log.
+`SCENARIOS` maps each code name from the [glossary](../../glossary.md#how-the-world-changes) to a config. Each is the defaults above plus its events. It is a `types.MappingProxyType`, so a caller cannot replace a scenario under a name that is already in a log. Its keys are in the order of the table below, which the harness and analysis use as `SCENARIOS` order.
 
 | Code name | `events` | Note |
 |---|---|---|
@@ -125,7 +129,9 @@ def engine_hash(config: ScenarioConfig) -> str
 
 ### Engine hash
 
-- **`engine_hash(config)`** is the first 12 hex characters of the SHA-256 of a canonical JSON string. The string is `dataclasses.asdict(config)` with sorted keys, no whitespace, floats as `repr`, plus two additions: each event dict gets a key `"shape"` with `"shock"`, `"switch"` or `"drift"`, and the top level gets `"generator_version": GENERATOR_VERSION`. The `shape` key is there so two spec types that ever share a field set cannot collide.
+- **`engine_hash(config)`** is the first 12 hex characters of the SHA-256 of a canonical JSON string, encoded as UTF-8. The string is `dataclasses.asdict(config)` with two additions: each event dict gets a key `"shape"` with `"shock"`, `"switch"` or `"drift"`, and the top level gets `"generator_version": GENERATOR_VERSION`. The `shape` key is there so two spec types that ever share a field set cannot collide.
+- **The recipe is `json.dumps(d, sort_keys=True, separators=(",", ":"), ensure_ascii=True)`.** Floats come out as `repr`, tuples as lists and `None` as `null`. [EC7](tests.md#config) rebuilds the string from this line.
+- **`GENERATOR_VERSION` starts at 1.**
 - **Same config, same hash**, across Python versions and machines. Two configs that differ in any field, including `name`, differ in hash.
 - **`GENERATOR_VERSION` is bumped** whenever `make_timeline` changes what it produces for a config it already accepted. Adding a field with a default that reproduces the old timelines does not bump it, as the hash changes anyway.
 - **The hash does not cover numpy.** numpy does not promise that `Generator` streams or `exp` are bit-stable across versions and CPU paths. So `pyproject.toml` pins numpy to one minor version, the harness logs the numpy version beside the hash, and bit equality is promised within one environment only, see [timeline invariants](timeline.md#invariants).

@@ -43,14 +43,23 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 
     src/paranoid/engine/
       __init__.py    the exports above, nothing else
-      config.py      ScenarioConfig, the event specs, engine_hash
+      specs.py       Range, IntRange, the event specs, their casts and checks
+      config.py      ScenarioConfig, GENERATOR_VERSION, engine_hash
       scenarios.py   SCENARIOS
-      timeline.py    make_timeline, Timeline, Event
+      draws.py       the seed streams and the four draws
+      ladder.py      the order, the ladder and the loadings
+      weather.py     own weather, the shared factor, read noise
+      events.py      Event, each shape's draws, onsets, no two alike
+      shock.py       a shock's impulse and its cap
+      switch.py      a fall, a rise and an undo
+      drift.py       a drift
+      timeline.py    make_timeline, Timeline
       game.py        Game, BetError, play
       record.py      Record, Row, Bets
       view.py        View, Start, Dials, Policy, split_budget
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.engine` only.
+- Every file stays under 300 lines, so the timeline is split by step. `timeline.py` wires the steps in the order of [timeline](timeline.md).
 - `Bets` lives in `record.py`, as `Row` holds it. So `view.py` never imports `game.py`, which imports it.
 - The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
 

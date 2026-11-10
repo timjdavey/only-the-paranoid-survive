@@ -11,9 +11,9 @@
 class Event:
     shape: Literal["shock", "switch", "drift"]
     onset: int                              # first round it edits, from 1
-    channel: int | None                     # the channel whose base or impulse moved. None for a shock through the factor
+    channel: int | None                     # the channel that moved down: the fallen leader, the undone sleeper, a one-channel shock's leader. Else None
     sleeper: int | None                     # the channel that rose, if one did
-    numbers: Mapping[str, float | int | str]  # every per-seed draw by name, see Draw order below
+    numbers: Mapping[str, float | int | str | None]  # every per-seed draw by name, see Draw order below
 
 @dataclass(frozen=True)
 class Timeline:
@@ -50,7 +50,19 @@ def make_timeline(config: ScenarioConfig, seed: int) -> Timeline
 - **One `SeedSequence(seed)`, spawned into seven children, in this order:** `ladder`, `loadings`, `weather`, `factor`, `onset`, `read_noise`, `events`. Each child makes its own `numpy.random.default_rng`. The `events` child is spawned once more into one child per event in `config.events`.
 - **The first six streams never see the event list.** They draw the same numbers for every scenario on a seed, which is what makes [twin timelines](#twin-timelines).
 - **Every draw consumes its stream in the order written on this page.** Changing the order changes every timeline, so it bumps `GENERATOR_VERSION`, see [config](config.md#engine-hash).
-- **`seed` is any non-negative int up to 2^64 − 1.** Public seeds are small, held-out seeds are random 64-bit, see [contamination](../../harness/contamination.md#two-seed-sets).
+- **`seed` is any non-negative int up to 2^64 − 1.** Public seeds are small, held-out seeds are random 64-bit, see [contamination](../../harness/contamination.md#two-seed-sets). Any other value raises `ValueError`, and a value that is not a whole number `TypeError`.
+
+### Draws
+
+Every scalar draw on this page is one `u = rng.random()`, made even when the value is fixed or unused, so every kind of event consumes its stream alike. Only the order, the weather, the factor and the read noise use other calls, as written in their sections.
+
+| Draw | Value |
+|---|---|
+| Uniform from a `Range` | `low + u × (high − low)`. A `*_sigmas` range is then multiplied by `own_scale` |
+| Uniform from an `IntRange` | `low + floor(u × (high − low + 1))` |
+| A chance `share` | True when `u < share` |
+| Even odds between two words | The first named when `u < 0.5` |
+| Uniform over a set of channels | The channels in index order, then the one at `floor(u × n)` |
 
 ### The ladder
 
@@ -86,6 +98,10 @@ From the `read_noise` stream, `read_noise_z = rng.standard_normal((rounds, chann
 
 Events are applied in order. Each event has its own stream. The first event's onset is the [onset](#onset) draw. Each later event's onset is the previous event's onset plus its `gap` draw. An event is recorded even when its onset is past the last round, and anything it would edit past the last round is cut.
 
+- **Events are built on a longer horizon.** `base`, `loadings`, `impulse` and the shock impulses are built on enough rows to hold the latest onset and ramp the config can draw, then cut to `rounds`. So every rule below reads its rows as written, wherever the onset lands, and an `Event` never depends on the cut.
+- **Every size in `Event.numbers` is in level points**, a sigmas draw already multiplied by `own_scale`.
+- **A derived key with no value is `None`**: `fall` on a rise, `target` on a fall.
+
 The channel that falls is the **climate leader at onset**, `climate_leader(onset)`, so a second switch after a first lands on the new leader. An [undo](#switch) is the one exception: it moves the earlier sleeper back, wherever that sleeper ranks.
 
 #### Draw order
@@ -95,10 +111,12 @@ The draws each shape makes from its own stream, in order, and the key each gets 
 | Shape | Draws, in order | Derived keys, not draws |
 |---|---|---|
 | Shock | `gap`, `profile` (if `"draw"`, sharp or slide at even odds), `depth_drawn` (from `depth_sigmas` × `own_scale`, or `depth_points`), `half_life` | `depth`, after the [cap](#shock). `tries`, see [no two alike](#no-two-alike) |
-| Switch | `gap`, `kind` (if `"draw"`, fall and rise with chance `riser_share`, else fall), `size`, `rise`, `ramp`, `sleeper` (uniform over the field minus the hedge minus any channel an earlier event moved), `sleeper_loading` (uniform from `loading`), `short` (1 with chance `short_share`, else 0), `short_level` (uniform from `short_level`) | `fall`, the points the leader's base moves, or the earlier sleeper's in an undo. `target`, the sleeper's end base, or the base an undo restores. `tries` |
+| Switch | `gap`, `kind` (if `"draw"`, fall and rise with chance `riser_share`, else fall), `size`, `rise`, `ramp`, `sleeper` (uniform over the field minus the hedge, minus the climate leader at onset, minus any channel an earlier event moved), `sleeper_loading` (uniform from `loading`), `short` (1 with chance `short_share`, else 0), `short_level` (uniform from `short_level`) | `fall`, the points the leader's base moves, or the earlier sleeper's in an undo. `target`, the sleeper's end base, or the base an undo restores. `tries` |
 | Drift | `gap`, `profile` (if `"draw"`, linear or logistic at even odds), `size`, `length` | `fall`, as a switch. `tries` |
 
 - **`Event.numbers` holds exactly the keys in both columns**, nothing else, so a log's columns are stable.
+- **`kind` and `profile` hold the resolved word**, never `"draw"`. An undo's `kind` is `"undo"`.
+- **A channel an earlier event moved** is the `channel` or `sleeper` of any earlier event.
 - **An empty sleeper set raises `ValueError`.** With four channels and two switches the second has no channel to raise. The config is wrong, not the seed.
 
 #### Shock
@@ -107,7 +125,7 @@ An impulse `s` that decays. By default it goes into the shared factor, `factor[t
 
 - **Sharp.** `s[onset] = −depth`, then `s[t] = s[t−1] × 2^(−1 / half_life)`.
 - **Slide.** Falls in a straight line over `half_life + 1` rounds, `s[onset + j] = −depth × (j + 1) / (half_life + 1)` for `j` from 0 to `half_life`, then rebounds from the trough with half-life `ceil(half_life / 2)`, `s[t] = s[t−1] × 2^(−1 / ceil(half_life / 2))`.
-- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above `depth_points` high, `make_timeline` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided).
+- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above the high of the depth range the engine reads, `depth_points` when pinned and `depth_sigmas` × `own_scale` when not, `make_timeline` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided). With the knob off, a cap at or below 0 raises `ValueError`, as the hedge already sits within the margin.
 - **`one_channel_shock`.** The impulse goes into `impulse[t, l]` instead of the factor, with no loading. `base` and `factor` are untouched, so the climate does not move and the Discerning baseline holds. The cap above does not apply. `Event.channel` is `l`.
 
 #### Switch
@@ -115,10 +133,10 @@ An impulse `s` that decays. By default it goes into the shared factor, `factor[t
 Edits `base`, and the sleeper's `loadings`. Let `l` be the climate leader at onset, `r` the channel with the highest base at onset other than `l`, and `f(t) = min(1, (t − onset + 1) / ramp)` for `t ≥ onset`.
 
 - **Fall.** The leader's base ends `size` below `r`'s. `fall = base[onset−1, l] − base[onset−1, r] + size`, and `base[t, l] −= fall × f(t)`. So a fall changes who pays best on every seed, see [events](../../design/mechanics.md#events).
-- **Rise.** The sleeper's base moves in a straight line over the same ramp from its old base to `target`, then holds. `target` is the highest base of every channel but the sleeper at the end of the ramp, after any fall, plus `rise`. So the sleeper ends above the runner-up as well as the fallen leader, and the runner-up is a decoy. From `onset` on, `loadings[t, sleeper] = sleeper_loading`.
+- **Rise.** The sleeper's base moves in a straight line over the same ramp from its old base to `target`, then holds. Once the ramp is done its base is set to `target` exactly, never reached by adding steps. `target` is the highest base of every channel but the sleeper at the end of the ramp, after any fall, plus `rise`. So the sleeper ends above the runner-up as well as the fallen leader, and the runner-up is a decoy. From `onset` on, `loadings[t, sleeper] = sleeper_loading`.
 - **Short.** When `short` is 1, `target` is instead `base[e, q] + short_level × (base[e, l] − base[e, q])`, where `e` is the row at the end of the ramp and `q` the channel with the highest base at `e` other than `l` and the sleeper. So the sleeper ends above the runner-up and below the leader, and the climate leader never changes. Validation lets `short` be 1 only when `kind` is `"rise"`, see [config](config.md#fields).
 - **`fall_and_rise`** does both. **`rise`** leaves the leader alone. **`fall`** leaves every other channel alone, and `sleeper` on the event is `None`.
-- **Undo.** Let `s` be the sleeper of the most recent earlier switch. Its base moves in a straight line over this event's ramp, from `base[onset−1, s]` back to `base[0, s]`, then holds. From `onset` on, `loadings[t, s] = loadings[0, s]`. Row 0 holds its values from before it rose, as no event moves a channel before it is a sleeper. No other channel moves. `Event.channel` is `s`, `Event.sleeper` is `None`, `fall` is the points `s` moved and `target` is `base[0, s]`. It ignores the `kind`, `size`, `rise`, `sleeper`, `sleeper_loading`, `short` and `short_level` draws.
+- **Undo.** Let `s` be the sleeper of the most recent earlier switch. Its base moves in a straight line over this event's ramp, from `base[onset−1, s]` back to `base[0, s]`, then holds. Once the ramp is done its base is set to `base[0, s]` exactly, so `levels` match the No change timeline's bit for bit. From `onset` on, `loadings[t, s] = loadings[0, s]`. Row 0 holds its values from before it rose, as no event moves a channel before it is a sleeper. No other channel moves. `Event.channel` is `s`, `Event.sleeper` is `None`, `fall` is the points `s` moved and `target` is `base[0, s]`. It ignores the `kind`, `size`, `rise`, `sleeper`, `sleeper_loading`, `short` and `short_level` draws.
 - `Timeline.sleeper` is the last sleeper any event made, or `None`.
 
 #### Drift
@@ -130,7 +148,7 @@ Edits the leader's `base` over `length` rounds, with `fall` defined as for a [sw
 
 #### No two alike
 
-Consecutive events of the same shape must differ in at least two of the shape's draws, `gap` excluded. An int or string draw differs when not equal. A float draw differs when the two are at least a tenth of the range's width apart, so a fixed range never differs. If they do not, the later event redraws every one of its draws, `gap` included, from where its stream left off. `numbers["tries"]` is how many times the event was drawn, 1 when the first draw was kept, so a log says how often the rule bit. After 100 tries `make_timeline` raises `ValueError`. See [stringing events](../../design/mechanics.md#stringing-events).
+Each event must differ from the previous event of the same shape in at least two of the shape's draws, `gap` excluded. Events of other shapes in between do not matter. The resolved draws in `numbers` are compared, so `depth_drawn` and not `depth`. An int or string draw differs when not equal. A float draw differs when the two are at least a tenth of the later event's range width apart, in level points, so a fixed range never differs. An undo always passes, as its `kind` and its `sleeper` draw differ from the rise before it. If they do not, the later event redraws every one of its draws, `gap` included, from where its stream left off. `numbers["tries"]` is how many times the event was drawn, 1 when the first draw was kept, so a log says how often the rule bit. After 100 tries `make_timeline` raises `ValueError`. See [stringing events](../../design/mechanics.md#stringing-events).
 
 ### Pinning
 
