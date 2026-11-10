@@ -108,7 +108,7 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 - **Why it is reported, not just absorbed.** Two models can share a score while one nails 15 seeds and tanks 5 and the other is middling everywhere. Consistency is close to a trait here: moving off the best channel on some No change seeds and not others is a low Composure dot on those seeds.
 - **How it is shown.** A strip of per-seed run scores next to each scenario's bar, and the 10th percentile run score beside it.
 - **Why the headline still plays each seed once.** For a fixed run budget, more seeds always shrinks the error bar faster than repeats of a seed. Repeats only buy the sampling share.
-- **Skins are a sensitivity, not an error.** If a model scores 0.8 on one story and 0.6 on another with the same engine and seed, that is a finding: the story swayed it (skin sensitivity). Averaging skins and widening the bar would hide the most interesting number, so skins are never resampled and never pooled into a headline. **The proof of concept runs one skin**, so skin sensitivity is a named layer we do not measure yet. When more skins run, each gets its own headline and the gap between them is reported beside it.
+- **Skins are a sensitivity, not an error.** If a model scores 0.8 on one story and 0.6 on another with the same engine and seed, that is a finding: the story swayed it (skin sensitivity). Averaging skins and widening the bar would hide the most interesting number, so skins are never resampled and never pooled into a headline. **The proof of concept plays two held-out skins on the same public seeds**, so skin sensitivity is a number from the first run. Each skin gets its own headline, and the gap between them, paired by seed, is reported beside it, see [tables](../specs/analysis/tables.md#the-results-page). Two stories are a thin sample, so the gap says a story can sway a model, not how much stories do in general.
 - **Scenario differences are not spread either.** A gap between scenarios is the signal (trait profile). It gets no bar and is never resampled.
 
 | Name | What changes between runs | Kind | Where it shows |
@@ -118,7 +118,7 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 | World spread | The seed | Aleatoric, more seeds don't shrink it | The per-seed dots |
 | Spread | The seed, each played once, so both mixed | Aleatoric, more seeds don't shrink it | The dots and the 10th percentile run |
 | Error bar | Our estimate of the score | Epistemic, more seeds shrink it | Every scenario score and the headline |
-| Skin sensitivity | The story, with engine and seed fixed | A finding, more seeds don't shrink it | A gap per skin, outside the headline. Not measured in the proof of concept, which runs one skin |
+| Skin sensitivity | The story, with engine and seed fixed | A finding, more seeds don't shrink it | A gap per pair of skins, paired by seed, outside the headline. One pair in the proof of concept |
 | Trait profile | The scenario | The signal, more seeds don't shrink it | The per-scenario scores |
 
 ## Noise threshold

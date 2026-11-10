@@ -11,7 +11,7 @@ What the agent sees. Each round is one call with a system prompt and one user me
 | Part | Where | Why |
 |---|---|---|
 | Skin, rules, tool text | System prompt | Stable across rounds, so it caches. One place to lint |
-| The record | The only user message | Grows one row a round |
+| The record | The only user message | Grows one row a round. Each round's prompt is the last round's plus one row, so a provider's [prompt cache](models.md#prompt-caching) can read all but the new row. Where the cache works by content block, the record is sent one block per line and the text the model reads is the same |
 | The bets | A call to the skin's tool | A tool call is required where the provider allows, see [tool choice](../glossary.md). Elsewhere the prompt says to call it. A text reply is never a decision: it gets a retry, see [retry rule](#retry-rule) |
 | Notes | A second content block of the user message, below the record | Never the agent's own words, so the model reads them as it reads the record. A tool message would need a call before it, which a fresh call lacks |
 | Compute | A tool over `record.csv` in a sandbox | The record goes in as a file, so the model never retypes it |

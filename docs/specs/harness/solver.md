@@ -19,6 +19,9 @@ def round_loop(
 
 def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]
 
+BLOCK_CACHE_APIS = ("anthropic",)    # apis whose prompt cache matches by content block
+def record_blocks(text: str) -> list[str]   # the record cut after every line end
+
 @tool
 def submit(skin: Skin) -> Tool       # execute(bets: list[int]) -> str
 @tool
@@ -32,11 +35,22 @@ def compute() -> Tool                # execute(code: str) -> str
 ### Each round
 
 1. **Fill the store** if `store.scenario == ""`: copy the metadata in and play the warm up, see [store](task.md#store).
-2. **Reset the messages.** `state.messages` becomes exactly: a system message of `render_system_prompt(skin)`, then a user message of `render_record(skin, store.record())`. With `notes` on and `store.notes` non-empty, the user message has a second content block holding the notes, see [notes](#notes). With `rolling` on the messages are not reset, see [rolling](#rolling).
+2. **Reset the messages.** `state.messages` becomes exactly: a system message of `render_system_prompt(skin)`, then a user message of `render_record(skin, store.record())`, as one content block or cut by [record blocks](#record-blocks). With `notes` on and `store.notes` non-empty, the user message has one more content block after the record, holding the notes, see [notes](#notes). With `rolling` on the messages are not reset, see [rolling](#rolling).
 3. **Set the tools.** `state.tools` is `[tool_with(submit(skin), name=skin.tool_name, description=skin.tool_text, parameters={"bets": skin.bets_text})]`, then `notes()` as `skin.notes_name` with `skin.notes_text` and `compute()` as `skin.compute_name` with `skin.compute_text`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
 4. **Set the tool choice.** `"any"` for `"any"`, so the reply must call some tool, and `"auto"` otherwise. A `ToolFunction` naming the skin's tool is never used: it would stop the model calling notes or compute first. With `tool_choice=None` the solver calls `tool_choice_for(get_model().api, get_model().config)` on round 1 and writes the answer to `store.tool_choice` and to `state.metadata["tool_choice"]`, so the log says which it was and the analysis reads it without the store, see [result key](../analysis/runs.md#result-key). The rule: `"auto"` when the api is `"anthropic"` and the config sets `reasoning_effort` or `reasoning_tokens`, else `"any"`. Claude rejects `any` with thinking on, see [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid --model anthropic/<model>` works as typed.
 5. **Try until the round is played**, see [tries](#tries).
 6. **Repeat** until `store.round() > store.config().rounds`, or the run gave up. Then return the state.
+
+### Record blocks
+
+How the record is cut into content blocks, and nothing else. The text is the same either way, so this moves the bill and never the prompt, see [prompt caching](../../harness/models.md#prompt-caching).
+
+- **`record_blocks(text)`** cuts the record after every line end and returns the pieces in order: the header line, then one piece per row. Nothing is added, dropped or stripped.
+- **Used when `get_model().api` is in `BLOCK_CACHE_APIS`.** Each piece is one text block of the user message. Any other api gets the record as one block.
+- **Why.** Anthropic's cache matches a prompt up to the end of a content block. Round `n` sends the blocks of round `n − 1` and one more, so what the provider cached at the end of the last prompt is read whole. As one block the record differs every round and never matches.
+- **The notes block stays last**, after every record block, so a changed note leaves the rows above it cached.
+- **inspect places the cache marks.** The solver sets none, and `cache_prompt` stays at inspect's default, see [reasoning](command.md#reasoning).
+- **With `rolling` on** every user message that holds the record is cut the same way.
 
 ### Tries
 
@@ -93,7 +107,8 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - `sum(store.tries) == ` the number of generate calls in the run, whether or not it gave up.
 - `len(store.tries) == len(store.rows) − store.warm_up_rounds`, plus one when the run gave up.
 - Replaying `store.rows` as bets on `store.timeline()` with `Game` gives the same readings and outputs, so the log is enough to check a run.
-- With `rolling` off, every round starts with exactly two messages, or two messages with two content blocks on the second when a note is saved.
+- With `rolling` off, every round starts with exactly two messages. The second holds the record, as one content block or as `record_blocks` cuts it, then one more block when a note is saved.
+- `"".join(record_blocks(text)) == text` for any text, so the model reads the same record however it is cut.
 - `state.tool_choice` is `"any"` or `"auto"`, never a `ToolFunction`.
 - `store.notes_rounds ≤ len(store.tries)` and `store.compute_rounds ≤ len(store.tries)`.
 - With `rolling` on, round `n` starts with the two messages a fresh call would send, then every reply, tool message and retry message of rounds 1 to `n − 1` in order, then the user message a fresh call would send for round `n`. So the last user message is the same with `rolling` on or off.
@@ -112,4 +127,8 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 ## Verify before code
 
 - **Which providers refuse `any` with thinking on.** Anthropic does, and `tool_choice_for` knows it. Check the other providers in `configs/models/` before the first run and add each that does. `tool_choice_for` waits on it.
+- **That cutting the record changes the bill and nothing else.** Three checks on one Anthropic model, and `record_blocks` is used only once all three pass. If one fails, `BLOCK_CACHE_APIS` is empty and the record stays one block.
+  - inspect sends each text block of a user message to Anthropic as its own block, and does not join them.
+  - Anthropic's token count for the prompt is the same cut or whole, so no separator reaches the model.
+  - In a three round run the log's cache read tokens grow each round, and by round 3 cover the system prompt and the first rows.
 - **Which providers let a model read its own earlier reasoning on a later turn**, and which return it summarised or empty. The per-model reading of the rolling cell waits on it, see [rolling](#rolling).

@@ -94,6 +94,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Give up | What the solver does after ten failed tries in one round: the run ends there, with no error, and scores as the Uniform baseline on that seed. See [solver spec](specs/harness/solver.md#tries). `gave_up` in code |
 | Tool choice | Whether a reply must call a tool: `any` where the provider allows it, `auto` where it does not, as on Claude with thinking on. The solver picks it from the model and logs it. See [solver spec](specs/harness/solver.md#each-round). `tool_choice` in code |
 | Tool use share | The share of a run's rounds in which the agent called the notes tool, and the share in which it called the compute tool. Reported beside every score. `notes_rounds` and `compute_rounds` in code, see [scorer spec](specs/harness/scorer.md#scoring-one-run) |
+| Prompt caching | A provider billing the start of a prompt at a lower rate when it matches a prompt it was sent moments before. It changes what a run costs, never what the model reads. See [models](harness/models.md#prompt-caching) |
+| Cached share | The part of a model's input tokens its provider read from the prompt cache. Near zero on a provider that caches means the cache is missing. See [cost](specs/analysis/tables.md#cost) |
 
 ## Scoring
 
@@ -120,7 +122,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
 | Sampling spread | The part of spread from the model's own draws. Same seed, run again |
 | World spread | The part of spread from the seed |
-| Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Not measured until more than one skin runs |
+| Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Reported as a gap paired by seed between two skins on one seed set, see [spread](design/scoring.md#spread) |
 | Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
 | Bayesian frontier | The scenario scores of every Bayesian baseline in a pre-registered family of hazards and forecast rules, drawn as the No change score against the Down switch and Up switch scores. Its upper envelope is the best any reader of the engine's family did, and the Bayesian baseline's defaults are the point on it with the best headline. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
 | Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
@@ -138,6 +140,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Held-out | Kept in the private repo and never published. Held-out skins and held-out seeds make the headline |
 | Release | One published set of the benchmark's frozen generator defaults, noise grid and fresh held-out seeds. Releases share the signal to noise axis. See [contamination](harness/contamination.md) |
 | Contamination | A model having seen the benchmark in training |
+| Learning the game | A model trained on timelines from the public engine. Its score still says how well it reads the game, not whether the trait carries. No secret stops it, see [contamination](harness/contamination.md#what-it-does-not-stop) |
 | Canary | A fixed line in every published file that holds prompt text. A model that can repeat it has seen our data. See [contamination](harness/contamination.md#canary) |
 
 ## Adding a word

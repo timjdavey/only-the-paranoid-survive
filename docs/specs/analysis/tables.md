@@ -41,6 +41,7 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 - **The marks table** follows: one row per scenario, the pooled scores of the Complacent, hedge rule, Scout rule and Perfect baselines on the seeds the table scored. The Uniform baseline is 0 and the Discerning baseline 1 by construction, so neither is a column.
 - **The sensitivity table** follows when a model has a second result row that differs from its headline row only in `tools`, `rolling` or `tool_choice`: `Model`, the knob and its value, that row's headline with its bar, and the `headline` row of the [paired gap](scores.md#paired-gap), headline row minus that row. The row at `tools none` is the bare gap, see [bare harness](../../pilot/provider-checks.md#bare-harness). One row per model and knob, nothing picked: every model plays the same headline setting, and this table says what each knob did for it. The second row keeps its own table too.
 - **The public gap table** follows when a model has both seed sets: public minus held-out per scenario and headline, with its interval, see [public gap](scores.md#public-gap).
+- **The skin sensitivity table** follows when a model has two result rows whose `Setting` differs in `skin` and in nothing else but `prompt_hash`: `Model`, `Skins` as `<a> − <b>`, then the eight scenarios and `Headline`, each cell the `diff` of the [paired gap](scores.md#paired-gap) with its interval, `a`'s row minus `b`'s. One row per model and pair of skins, pairs in name order, so two skins give one row and three give three. Skins are names only, and the table says which story swayed a model, never why, see [spread](../../design/scoring.md#spread).
 - **The spread table** follows: `sd` and `p10` per result row and scenario, and the sampling share when the logs have epochs, see [spread and sampling share](scores.md#spread-and-sampling-share).
 - **Plots**, when asked for, go under `out/<name>/` and the page links each under its table, see [plots](plots.md). A file is `<skin>-<seed_set>[-own<own_scale>]-<plot>[-<model>].svg`, the model string with `/` and `:` as `-`. Every part is a guarded string, see [guards](runs.md#guards), so no name holds a path step.
 
@@ -68,14 +69,15 @@ def write_cost(runs: pd.DataFrame, *, models: Path | None = None, seeds: int | N
 
 | Column | What it is |
 |---|---|
-| `model`, `reasoning`, `kind` | The row |
+| `model`, `reasoning`, `kind`, `skin` | The row. `skin` keeps a model's two skins apart |
 | `runs` | Rows scored |
-| `input`, `output`, `reasoning_tokens` | Mean tokens per run |
+| `input`, `cache_read`, `cache_write`, `output`, `reasoning_tokens` | Mean tokens per run. `input` is the tokens billed in full, so the three input columns add up to what the model read |
+| `cached_share` | `sum(cache_read) / sum(input + cache_read + cache_write)`, see [prompt caching](../../harness/models.md#prompt-caching). Near 0 on a provider that caches means the cache is missing |
 | `cut_off_share` | `sum(cut_offs) / sum(rounds)`, see [sampling](../../harness/models.md#sampling) |
-| `projected` | Mean total tokens per run × `seeds` × eight scenarios × the row's settings in `models`, when both are given |
-| `cost` | `projected` priced from `prices`, when given |
+| `projected` | Mean tokens per run of each of the four kinds × `seeds` × eight scenarios × the row's settings in `models`, when both are given. One result row is one skin, so a model's skins are separate rows and the table's total counts each |
+| `cost` | `projected` priced from `prices`, each kind at its own price, when given |
 
-- **`prices`** is a TOML file of `[[price]]` tables with `id`, `input` and `output` per million tokens, and a top-level `read_on` date. A row with no price has an empty `cost`. The printed table says the date.
+- **`prices`** is a TOML file of `[[price]]` tables with `id`, `input`, `output`, `cache_read` and `cache_write` per million tokens, and a top-level `read_on` date. A missing `cache_read` or `cache_write` is priced as `input`, so a forgotten cache price overstates the cost and never understates it. A row with no price has an empty `cost`. The printed table says the date.
 - **Provider rows** have zero usage, see [shared behaviour](../harness/providers.md#shared-behaviour), so their `projected` is 0 and they appear for completeness only.
 
 ## Invariants

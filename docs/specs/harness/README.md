@@ -22,7 +22,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `paranoid` | The inspect `@task` | [task](task.md) |
 | `RunStore`, `StoredRow` | The `StoreModel` on every sample, and its row type | [task](task.md) |
 | `load_seeds`, `parse_seeds`, `scenario_config` | Seed files, the `seeds` arg, the config a sample plays | [task](task.md) |
-| `round_loop`, `tool_choice_for` | The round loop solver and the `any` or `auto` rule | [solver](solver.md) |
+| `round_loop`, `tool_choice_for`, `record_blocks` | The round loop solver, the `any` or `auto` rule, and the cut of the record into content blocks for the prompt cache | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
 | `JevAnswer`, `JevClient`, `Forecaster` | Jev's reply, and the two seams a test fakes | [providers](providers.md) |
@@ -41,7 +41,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
       task.py          paranoid, scenario_config, the dataset
       seeds.py         load_seeds, parse_seeds
       store.py         RunStore, StoredRow
-      solver.py        round_loop, tool_choice_for
+      solver.py        round_loop, tool_choice_for, record_blocks
       tools.py         submit, notes, compute
       compose.yaml     the sandbox for compute, network off
       scorer.py        gain

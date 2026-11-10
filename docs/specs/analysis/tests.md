@@ -1,6 +1,6 @@
 # Tests
 
-Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for analysis, then the page's letter, see [test ids](../README.md#rules). They need no key and no network. Logs come from `inspect eval paranoid` run inside the suite with `baseline/uniform`, `baseline/discerning`, `baseline/complacent` and `mockllm/model` on `seeds="0-4"` into a temp folder, built once per session, plus hand-built `EvalLog` objects for the edge cases. **The `mockllm` run is scripted to a valid call every round**, as the harness suite does, see [harness tests](../harness/tests.md), else every run gives up and every score is 0 with `†`. The example skin is the skin throughout. A held-out fixture is a temp `held-out.txt` of three random seeds with `PARANOID_SEEDS` pointing at it, so the suite can check that no value leaks.
+Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for analysis, then the page's letter, see [test ids](../README.md#rules). They need no key and no network. Logs come from `inspect eval paranoid` run inside the suite with `baseline/uniform`, `baseline/discerning`, `baseline/complacent` and `mockllm/model` on `seeds="0-4"` into a temp folder, built once per session, plus hand-built `EvalLog` objects for the edge cases. **The `mockllm` run is scripted to a valid call every round**, as the harness suite does, see [harness tests](../harness/tests.md), else every run gives up and every score is 0 with `†`. The example skin is the skin throughout, bar AT9, which adds a copy of it under a second name. A held-out fixture is a temp `held-out.txt` of three random seeds with `PARANOID_SEEDS` pointing at it, so the suite can check that no value leaks.
 
 ## Runs
 
@@ -15,6 +15,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AR7 | A folder holding a non-`paranoid` log and a file that is not a log: the first is skipped and listed, the second raises `ValueError` naming it | [runs](runs.md#discovering-logs) |
 | AR8 | Hand-built logs with a `scenario` not in `SCENARIOS`, a `skin` of `Rome`, and a `model` holding `..` each raise `ValueError` naming the log. A log whose samples disagree on `tools` raises naming the field, and one whose `tool_choice` is `maybe` raises naming it | [runs](runs.md#guards) |
 | AR9 | Two logs of one key whose samples carry different `numpy_version`s load, and the report names the key and both versions | [runs](runs.md#the-report) |
+| AR10 | A hand-built log whose `model_usage` has `input_tokens_cache_read` of 300 and `input_tokens_cache_write` of 50 gives `cache_read_tokens == 300` and `cache_write_tokens == 50` on its row, and a log with neither field gives 0 for both | [runs](runs.md#one-row-per-run) |
 
 ## Scores
 
@@ -43,9 +44,10 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AT3 | `write_results` twice on the same table gives byte-identical `.md` and `.csv`, and the same bytes again after a line is appended to `<name>.md` between runs | [tables](tables.md#invariants) |
 | AT4 | On the held-out fixture, with a `recognition` table built from a CSV holding a planted reply string, none of the three seed values, the reply string, a reading or a word of the example skin's `intro` appears in any file written | [tables](tables.md#invariants) |
 | AT5 | `pooled_score` over the CSV's `gain` and `gap` per scenario equals the page's score to two decimals | [tables](tables.md#invariants) |
-| AT6 | `write_cost` on the `mockllm` log has the columns in the table, zero usage on a baseline row, `projected` set when `models` and `seeds` are given, and `cost` set only with a `prices` file | [tables](tables.md#cost) |
+| AT6 | `write_cost` on the `mockllm` log has the columns in the table, `skin` among them, zero usage on a baseline row, `projected` set when `models` and `seeds` are given, and `cost` set only with a `prices` file. On a hand-built log with 100 `input_tokens`, 300 `cache_read_tokens` and 0 `cache_write_tokens` a run, `cached_share` is 0.75, and `cost` with a `cache_read` price is lower than with none | [tables](tables.md#cost) |
 | AT7 | Two logs of one model that differ only in `tools` give two tables, each heading naming the setting that is off its default. A `name` of `../x` raises `ValueError` and writes nothing | [tables](tables.md#the-results-page) |
 | AT8 | Two logs of one model on the same seeds, the second at `tools="none"`: the page has a sensitivity table with one row naming `tools none`, that row's headline, and a gap equal to `paired_gap`'s `headline` row, headline minus bare. With the headline log alone there is no such table | [tables](tables.md#the-results-page) |
+| AT9 | Two logs of `baseline/complacent` on the same seeds, one on `example` and one on a copy of it under the stem `b`, with `PARANOID_SKINS` at the temp folder that holds the copy: the page has two score tables and a skin sensitivity table with one row, `Skins` reading `b − example` and every `diff` 0. On two hand-built logs whose run scores differ, each cell equals `paired_gap`'s row for that scenario and for `headline`. With one log alone there is no such table | [tables](tables.md#the-results-page) |
 
 ## Plots
 

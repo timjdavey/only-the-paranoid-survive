@@ -53,12 +53,13 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 | Key | `model`, `reasoning`, then every field of `Setting` in its order | `result_key(log)` |
 | Run | `kind`, `scenario`, `seed_index`, `seed`, `engine_hash`, `numpy_version`, `epoch`, `epochs` | `metadata`, see below |
 | Score | every key of `Score.value` in the [scorer's table](../harness/scorer.md#scoring-one-run): `output`, the six baselines, `gain`, `gap`, `run_score`, `rounds`, `warm_up_rounds`, `retries`, `retry_rounds`, `gave_up`, `bad_calls`, `no_calls`, `cut_offs`, `notes_rounds`, `compute_rounds`, `unchanged_rounds` | `sample.scores["gain"].value` |
-| Usage | `input_tokens`, `output_tokens`, `reasoning_tokens`, `total_tokens`, summed over the sample's model calls | `sample.model_usage` |
+| Usage | `input_tokens`, `cache_read_tokens`, `cache_write_tokens`, `output_tokens`, `reasoning_tokens`, `total_tokens`, summed over the sample's model calls | `sample.model_usage` |
 | State | `errored` | whether the sample has a score |
 
 - **`kind`** is `log.eval.metadata["kind"]`, which [`poc`](../harness/command.md#poc) writes. Without it, `baseline`, `jev` or `timestral` when the model string starts with that prefix and a slash, else `llm`.
 - **`scenario`, `seed_index`, `seed`, `engine_hash`, `numpy_version`** come from `sample.metadata`. `seed` is the metadata's `seed` key for a public sample and NA for a held-out one, see [privacy](#privacy).
 - **`engine_hash` is per row, not per key.** It hashes the scenario's config, events included, so one result row has one hash per scenario, see [engine hash](../engine/config.md#engine-hash). `generator_version` is what the key carries, as it is the part of the hash every scenario shares.
+- **Cached tokens are counted apart.** `cache_read_tokens` and `cache_write_tokens` are inspect's `input_tokens_cache_read` and `input_tokens_cache_write`, 0 when a provider reports none. inspect leaves both out of `input_tokens`, so the three add up to what the model read, and a cost from `input_tokens` alone is too low, see [cost](tables.md#cost).
 - **One row per epoch.** `epoch` is the sample's epoch and `epochs` how many the sample has. A log at one epoch has `epoch == 1` on every row.
 - **Numbers keep their types.** Counts are ints, outputs and scores are floats, `gave_up` and `errored` are bools. No column holds an array or an object.
 
@@ -139,5 +140,5 @@ The rules that make the run table publishable. They are invariants, not options,
 
 ## Verify before code
 
-- **inspect's log API.** The names assumed on this page: `read_eval_log`, `EvalLog.eval.metadata`, `.eval.model`, `.eval.model_generate_config`, `.eval.created`, `.eval.task`, `EvalLog.results.scores[].metrics`, `EvalSample.id`, `.epoch`, `.metadata`, `.scores`, `.model_usage`, and that `Score.value` comes back as a dict. `load_runs` waits on it.
+- **inspect's log API.** The names assumed on this page: `read_eval_log`, `EvalLog.eval.metadata`, `.eval.model`, `.eval.model_generate_config`, `.eval.created`, `.eval.task`, `EvalLog.results.scores[].metrics`, `EvalSample.id`, `.epoch`, `.metadata`, `.scores`, `.model_usage` with its `input_tokens_cache_read` and `input_tokens_cache_write`, and that `Score.value` comes back as a dict. `load_runs` waits on it.
 - **How inspect's `"mean"` reducer treats a dict `Score.value`.** [Mean over epochs](#mean-over-epochs) averages the scores and sums the counts. If inspect does otherwise, the log's own metrics at more than one epoch differ from this layer's, and [AS1](tests.md#scores) holds at one epoch only. Decide then whether the harness's reducer changes, see [task settings](../harness/task.md#task-settings).

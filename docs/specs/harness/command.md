@@ -7,7 +7,7 @@
 ## Interface
 
 ```
-paranoid poc   [--models configs/models/poc.toml] [--skin example] [--seeds public]
+paranoid poc   [--models configs/models/poc.toml] [--skins example] [--seeds public]
                [--limit N] [--log-dir logs/] [--only <id>] [--dry-run]
 paranoid pilot <check> [--out logs/pilot/] [--models configs/models/poc.toml] [--dry-run]
 paranoid analyse ...    registered by the analysis layer, see the analysis command page
@@ -29,6 +29,7 @@ class ModelRow:
 
 REASONING = ("off", "low", "medium", "high", "max", "on")
 EFFORT_PREFIXES = ("openai/", "anthropic/", "google/", "openrouter/")
+SKIN_READERS = ("llm", "jev")          # the kinds whose model reads the skin, see poc below
 
 def load_models(path: str | Path) -> list[ModelRow]
 def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
@@ -69,15 +70,18 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 - **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. These are a convention to verify against each provider before the first run, see [verify before code](#verify-before-code).
 - **`max_tokens`** is set from the row when present, else left to the provider's default, see [sampling](../../harness/models.md#sampling).
 - **Temperature is never set.**
+- **`cache_prompt` is never set**, so inspect's default stands and the provider's prompt cache is on wherever there is one, see [prompt caching](../../harness/models.md#prompt-caching).
 
 ### `poc`
 
-- **For every row and every `reasoning` value** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
-- **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens.
+- **`--skins` is a comma list of skin names**, `example` by default. The proof of concept passes its two held-out skins, see [running](../../harness/running.md#commands). Every name is checked against `load_skins()` before any eval runs. A name that is not loaded, or one given twice, raises `ValueError` listing the loaded names and naming `PARANOID_SKINS`, so `main` returns 1 and nothing is spent.
+- **Only a row that reads the skin plays every skin.** A row whose `kind` is in `SKIN_READERS` plays each skin in the order given. Any other row plays the first skin only: Timestral and the fixed baselines read numbers and never the story, so a second skin would repeat the first to the last digit, see [two lists](../../harness/models.md#two-lists).
+- **For every row, every `reasoning` value and every skin the row plays** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
+- **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens. Within a row and setting the skins run in the order given, so a model has both sides of its [skin sensitivity](../analysis/tables.md#the-results-page) gap before the next model starts.
 - **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own timeline, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
 - **`--only <id>`** runs one row. **`--limit`** caps samples per eval, as inspect does. **`--dry-run`** prints each eval call and runs nothing.
 - **A Timestral row with the extra missing** is skipped with one line saying so, and `poc` carries on. A missing key for an LLM row is left to inspect, which fails that eval, and `poc` carries on to the next row and returns 1 at the end.
-- **Logs** go to `--log-dir`, named by inspect. Each holds the metadata in [dataset](task.md#dataset), so the analysis layer can tell them apart without the config.
+- **Logs** go to `--log-dir`, named by inspect, one per eval and so one per skin. Each holds the metadata in [dataset](task.md#dataset), so the analysis layer can tell them apart without the config. A log from a held-out skin never leaves the machine, see [contamination](../../harness/contamination.md#public-and-held-out).
 - **The log carries its setting.** `metadata` on the eval puts `reasoning` and `kind` in `EvalLog.eval.metadata`, as neither is in a sample's metadata or readable from a generate config for `off` and `on`. The analysis reads them first and falls back to the config, see [reasoning](../analysis/runs.md#reasoning).
 
 ### Pilot cells
@@ -116,8 +120,10 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 ## Invariants
 
 - `load_models` on both files in `configs/models/` raises nothing.
-- `generate_config` never sets `temperature`.
+- `generate_config` never sets `temperature` or `cache_prompt`.
 - `paranoid poc --dry-run` runs no eval and touches no key.
+- `poc` runs no eval before every name in `--skins` is known to be loaded.
+- A row whose `kind` is not in `SKIN_READERS` is played on one skin, however many are named.
 - Every engine-only cell runs with no key and no network.
 
 ## Pilot decides

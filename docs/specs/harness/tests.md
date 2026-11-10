@@ -1,6 +1,6 @@
 # Tests
 
-Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the harness, then the page's letter, see [test ids](../README.md#rules). They need no key and no network: LLM calls go through `mockllm/model` with scripted outputs, baselines through the baseline provider, and Jev and Timestral through fakes. The forecast rules themselves are tested in the [baselines suite](../baselines/tests.md#forecast). Tests marked **sandbox** need Docker and tests marked **timestral** need the extra. Both are skipped by default, run with `-m sandbox` or `-m timestral`. The skins layer's `example` skin is the skin throughout. Every `mockllm` test passes `tools="none"` unless marked **sandbox**, so the suite needs no Docker.
+Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the harness, then the page's letter, see [test ids](../README.md#rules). They need no key and no network: LLM calls go through `mockllm/model` with scripted outputs, baselines through the baseline provider, and Jev and Timestral through fakes. The forecast rules themselves are tested in the [baselines suite](../baselines/tests.md#forecast). Tests marked **sandbox** need Docker and tests marked **timestral** need the extra. Both are skipped by default, run with `-m sandbox` or `-m timestral`. The skins layer's `example` skin is the skin throughout, bar HM14, which copies it under two more names. Every `mockllm` test passes `tools="none"` unless marked **sandbox**, so the suite needs no Docker.
 
 - **One test-only switch.** `PARANOID_PILOT_SEEDS` caps the seed count a pilot cell runs, for HM8. It is the only test hook in the harness. Keep it that way.
 
@@ -42,6 +42,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS14 | Replaying `store.rows` as bets with `Game` on `store.timeline()` gives equal readings and outputs | [solver](solver.md#invariants) |
 | HS15 | A lint over every message a `mockllm` run produced finds no banned word, with the example skin | [prompts](../../harness/prompts.md#banned-words) |
 | HS16 | `tool_choice_for("anthropic", GenerateConfig(reasoning_effort="low"))` is `"auto"`. `("anthropic", GenerateConfig())` and `("openai", GenerateConfig(reasoning_effort="high"))` are `"any"` | [solver](solver.md#each-round) |
+| HS17 | `record_blocks` on `render_record` of a three-row record returns four pieces, the header line then one per row, that join back to the same string. A `mockllm` run sends the record as one content block. With the model's api patched to `"anthropic"`, the round 3 user message has three record blocks, and four content blocks once a note is saved, the note last | [solver](solver.md#record-blocks) |
 
 ## Providers
 
@@ -84,7 +85,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 |---|---|---|
 | HM1 | `load_models` on `configs/models/poc.toml` and `full.toml` raises nothing, and every row has a `kind`, a `reasoning_kind` and at least one `reasoning` value | [command](command.md#models-config) |
 | HM2 | Each validation clause raises `ValueError` naming the row: a bad `kind`, `baseline/x` with `kind = "llm"`, `reasoning = "xhigh"`, a provider row with `reasoning = "low"`, `reasoning_kind = "lots"`, a duplicate `id` and setting, `max_tokens = 0` | [command](command.md#models-config) |
-| HM3 | `generate_config` for `off`, `on` and `n/a` sets nothing. `high` sets `reasoning_effort="high"` for an `openai/` row and `reasoning_tokens=16384` for a row with `reasoning_kind = "budget"`. `max_tokens` from the row lands in the config. `temperature` is never set | [command](command.md#reasoning) |
+| HM3 | `generate_config` for `off`, `on` and `n/a` sets nothing. `high` sets `reasoning_effort="high"` for an `openai/` row and `reasoning_tokens=16384` for a row with `reasoning_kind = "budget"`. `max_tokens` from the row lands in the config. `temperature` and `cache_prompt` are never set | [command](command.md#reasoning) |
 | HM4 | `reasoning_kind` defaults to `effort` for `anthropic/x` and `budget` for `together/x`, and the file's column wins over the prefix | [command](command.md#models-config) |
 | HM5 | `main(["poc", "--dry-run"])` returns 0, prints one line per row and setting with provider rows first, and calls `eval` zero times | [command](command.md#poc) |
 | HM6 | `main(["poc", "--models", <a temp file with one baseline/uniform row>, "--limit", "2"])` runs one eval into a temp log dir whose log has two samples and the metadata keys | [command](command.md#poc) |
@@ -95,6 +96,8 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HM11 | Without the timestral extra, a models file with a `timestral/top-pick` row then a `baseline/uniform` row: `poc` prints one line saying the Timestral row is skipped, runs the baseline eval, and returns 0 | [command](command.md#poc) |
 | HM12 | A models file with an `llm` row whose `id` names a provider inspect cannot resolve, then a `baseline/uniform` row: `poc` runs the baseline eval anyway and returns 1 | [command](command.md#poc) |
 | HM13 | The log HM6 writes has `eval.metadata["reasoning"] == "n/a"` and `eval.metadata["kind"] == "baseline"` | [command](command.md#poc) |
+| HM14 | With `PARANOID_SKINS` at a temp folder holding `example.toml` copied to `a.toml` and `b.toml`, and a models file with a `baseline/uniform` row then an `llm` row: `main(["poc", "--skins", "a,b", "--dry-run"])` prints the baseline row once, on `a`, then the LLM row on `a` and on `b` in that order. Without `--dry-run` and with the baseline row alone, the one log's samples have `skin == "a"` | [command](command.md#poc) |
+| HM15 | `main(["poc", "--skins", "nope"])` and `main(["poc", "--skins", "example,example"])` each return 1, print the loaded names and `PARANOID_SKINS`, and call `eval` zero times | [command](command.md#poc) |
 
 ## Property tests
 

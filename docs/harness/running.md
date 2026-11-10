@@ -16,7 +16,7 @@
 | One model, one scenario, a few seeds | `inspect eval paranoid -T scenario=down_switch -T seeds=0-4 --model anthropic/claude-haiku-5-5` |
 | A baseline | `inspect eval paranoid --model baseline/complacent` |
 | Smoke test with no model or Docker | `inspect eval paranoid --model mockllm/model -T tools=none --limit 2` |
-| The proof of concept list | `uv run paranoid poc`, which reads `configs/models/poc.toml` |
+| The proof of concept list | `uv run paranoid poc --skins <a>,<b>`, which reads `configs/models/poc.toml` and plays the two held-out skins named, so it needs `PARANOID_SKINS`. Without `--skins` it plays the example skin |
 | A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) |
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/`, see the [analysis command](../specs/analysis/command.md) |
@@ -32,10 +32,10 @@
 
 - Written to `logs/`, gitignored.
 - A log holds the full prompt and every reading, so logs from a held-out skin or a held-out seed never leave the machine. See [contamination](contamination.md).
-- Published logs come from the example skin on public seeds only and go in `results/logs/`.
+- Published logs come from the example skin on public seeds only and go in `results/logs/`. The proof of concept plays held-out skins, so none of its logs is published.
 
 ## Cost guard
 
-- `--limit` caps samples. Try any new model with `--limit 2` first.
+- `--limit` caps samples. Try any new model with `--limit 2` first, then read `uv run paranoid analyse cost logs/` before the full run.
 - `--max-connections` per provider. Default 4.
 - Token counts per run come from the [pilot](../pilot/provider-checks.md#cost-per-run).
