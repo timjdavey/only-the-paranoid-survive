@@ -57,12 +57,12 @@ class Script:
         return reply((submit.name, {bets: SPLITS[self.calls % len(SPLITS)]}))
 
 
-def run(model, log_dir: Path, *, metadata: dict, **task_args) -> Path:
+def run(model, log_dir: Path, *, metadata: dict, epochs: int | None = None, **task_args) -> Path:
     """One eval of the task into `log_dir`, as `run` makes it: reasoning and kind in the eval metadata."""
     args = {"scenario": "all", "seeds": SEEDS, "rounds": 20, "tools": "none"} | task_args
     logs = inspect_ai.eval(
         paranoid(**args), model=model, display="none", log_dir=str(log_dir), metadata=metadata,
-        log_realtime=False, max_connections=32,
+        log_realtime=False, max_connections=32, epochs=epochs,
     )  # fmt: skip
     assert logs[0].status == "success", logs[0].error
     return Path(logs[0].location)
@@ -73,6 +73,8 @@ def build(folder: Path) -> None:
         run(f"baseline/{name}", folder / "logs" / name, metadata={"reasoning": "n/a", "kind": "baseline"})
     mock = get_model("mockllm/model", custom_outputs=Script())
     run(mock, folder / "logs" / "mockllm", metadata={"reasoning": "off", "kind": "llm"})
+    baseline = {"reasoning": "n/a", "kind": "baseline"}
+    run("baseline/complacent", folder / "epochs-logs", metadata=baseline, epochs=2, scenario="one_shock,up_switch")
     held = folder / "held-out"
     held.mkdir()
     (held / "held-out.txt").write_text("".join(f"{s}\n" for s in HELD_OUT))
@@ -109,6 +111,12 @@ def logs(built) -> SimpleNamespace:
     return SimpleNamespace(folder=built / "logs", **paths)
 
 
+@pytest.fixture(scope="session")
+def epochs_log(built) -> Path:
+    """baseline/complacent on One shock and Up switch at two epochs."""
+    return only_log(built / "epochs-logs")
+
+
 @pytest.fixture
 def held_out(built, monkeypatch) -> Path:
     """The held-out log, with PARANOID_SEEDS pointing at its seed file."""
@@ -116,12 +124,13 @@ def held_out(built, monkeypatch) -> Path:
     return only_log(built / "held-out-logs")
 
 
-def edit(source: Path, target: Path, change: Callable[[EvalLog], None] | None = None) -> Path:
-    """A copy of `source` at `target`, changed in memory, with `results` set to None, see tests.md."""
+def edit(source: Path, target: Path, change: Callable[[EvalLog], None] | None = None, *, results: bool = False) -> Path:
+    """A copy of `source` at `target`, changed in memory, with `results` set to None unless kept, see tests.md."""
     log = read_eval_log(str(source))
     if change is not None:
         change(log)
-    log.results = None
+    if not results:
+        log.results = None
     target.parent.mkdir(parents=True, exist_ok=True)
     write_eval_log(log, str(target))
     return target
