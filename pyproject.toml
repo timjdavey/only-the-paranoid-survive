@@ -15,6 +15,11 @@ dependencies = [
     "python-dotenv>=1",
     # Jev's SDK. Imported lazily, inside paranoid.harness.providers.jev only.
     "typesafe-sdk~=0.7.5",
+    # The analysis layer's three. matplotlib is exact, as its version is written into every SVG,
+    # see docs/specs/analysis/plots.md#checked.
+    "pandas~=3.1.0",
+    "matplotlib==3.11.2",
+    "scipy~=1.18.1",
 ]
 
 [project.scripts]
@@ -23,6 +28,11 @@ paranoid = "paranoid.harness.cli:main"
 # Registers the @task and the baseline, jev and timestral providers, see docs/specs/harness/providers.md#registration.
 [project.entry-points.inspect_ai]
 paranoid = "paranoid.harness"
+
+# Subcommands from layers above the harness, which `paranoid` loads only when named,
+# see docs/specs/harness/command.md#subcommands.
+[project.entry-points."paranoid.commands"]
+analyse = "paranoid.analysis.cli:analyse"
 
 [project.optional-dependencies]
 # torch and Timestral, which only paranoid.forecasters imports. Pinned to one commit as a direct
@@ -38,6 +48,8 @@ dev = [
     "hypothesis>=6.170",
     "import-linter>=2.16",
     "pytest-xdist>=3.8.0",
+    # The analysis suite builds its fixture logs once across workers, see docs/specs/analysis/tests.md.
+    "filelock>=3.16",
 ]
 
 [build-system]
@@ -102,4 +114,19 @@ name = "The skins layer imports only the engine and the standard library"
 type = "forbidden"
 source_modules = ["paranoid.skins"]
 forbidden_modules = ["paranoid.baselines", "numpy", "inspect_ai", "pandas", "matplotlib", "scipy", "hypothesis", "pytest"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "The harness and below import no pandas, matplotlib or scipy"
+type = "forbidden"
+source_modules = ["paranoid.engine", "paranoid.baselines", "paranoid.skins", "paranoid.forecasters", "paranoid.harness"]
+forbidden_modules = ["pandas", "matplotlib", "scipy"]
+
+[[tool.importlinter.contracts]]
+# The layers contract would let the analysis import any layer below it. It reads scores, never plays.
+# See docs/specs/analysis/README.md#names-from-the-harness.
+name = "The analysis imports no baseline, skin or forecaster"
+type = "forbidden"
+source_modules = ["paranoid.analysis"]
+forbidden_modules = ["paranoid.baselines", "paranoid.skins", "paranoid.forecasters"]
 allow_indirect_imports = true

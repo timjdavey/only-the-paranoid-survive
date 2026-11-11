@@ -172,7 +172,7 @@ The rules that make the run table publishable. They are invariants, not options,
 
 ## Checked
 
-Run on 2026-11-11 against inspect_ai 0.3.289, on a log of two samples at four epochs with a dict score, and on a log the harness wrote for `baseline/complacent`. No key was used.
+Run on 2026-11-11 against inspect_ai 0.3.289 and pandas 3.1.1, on a log of two samples at four epochs with a dict score, and on a log the harness wrote for `baseline/complacent`. No key was used.
 
 | Question | Answer |
 |---|---|
@@ -185,11 +185,8 @@ Run on 2026-11-11 against inspect_ai 0.3.289, on a log of two samples at four ep
 | Does a log keep every epoch | Yes. `log.samples` has one entry per id and epoch, and `log.reductions` has the reduced value per id |
 | How the `"mean"` reducer treats a dict score | It averages every key on its own, counts too. A value that is not a number becomes 0 |
 | Does an edited log survive a write and a read | Yes. A log with one sample's metadata changed and `results` set to `None`, written with `write_eval_log`, reads back with both |
+| Does a `groupby` with `dropna=False` keep NA keys, at pandas 3.1.1 | Yes. On a three row frame with NA in a `str`, an `Int64` and a `float64` key column at once, the two rows with every key NA land in one group, beside the row with none. Without `dropna=False` that group is lost |
+| Does `attrs["report"]` survive, at pandas 3.1.1 | Yes, through `copy`, a row slice, a `groupby` result and `concat` of frames whose `attrs` are equal. `concat` of frames whose `attrs` differ drops them, so `mean_over_epochs` sets the report on its result by hand |
 
 - **So the layer never reads a reduced score.** [Mean over epochs](#mean-over-epochs) works from the per-epoch samples, and sums the counts itself.
 - **The harness's reducer stays `"mean"`.** A share of two counts is the same summed or averaged, as both are divided by the same number of epochs, and the scores are averaged either way. The one thing that differs is a bare count on the log, which nothing reads. The log's own metrics are still checked at one epoch only, see [metric check](#metric-check).
-
-## Verify before code
-
-- **pandas on NA keys.** That a `groupby` with `dropna=False` keeps a group whose key is NA in a `str`, an `Int64` and a `float64` column at once, and that two NA keys land in one group. Every group by in the layer waits on it. Run one on a three row frame at the pinned pandas.
-- **pandas `attrs`.** Whether `attrs["report"]` survives `copy`, `concat` and a `groupby` result. `mean_over_epochs` carries the report across by hand if not. The report waits on it.

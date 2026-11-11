@@ -147,10 +147,10 @@ The full study headline, see [noise threshold](../../design/scoring.md#noise-thr
 - **`complacent`** is the Complacent baseline's headline on the same logs: the plain mean over scenarios of the `complacent` mark, at the quietest setting. The design says it does not move with noise. `complacent_drift` is how far it did move across the grid, and the table shows it beside it so a reader can judge, see [not decided](#not-decided).
 - **The half way mark** is `complacent + (1 − complacent) / 2`.
 - **Status.** `crossed` when one setting's headline is at or above the half way mark and another's is below it. `off the noisy end` when every headline is at or above it: the model reads every world on the grid, extend it to noisier settings. `off the quiet end` when every one is below. Off the grid, `snr`, `lo`, `hi`, `snr_80`, `own_scale` and `k` are `None`, `uncrossed_draws` is 0 and no fit is run.
-- **The fit** is `h(x) = complacent + (1 − complacent) / (1 + exp(−k (x − x0)))` by `scipy.optimize.curve_fit` on the settings' headlines. `k` is bounded, see [defaults](#defaults), and `x0` is free. The start is `k = 1` and `x0` the mean of `x`. A fit on the logs' own headlines that does not converge raises `ValueError` naming the key.
+- **The fit** is `h(x) = complacent + (1 − complacent) / (1 + exp(−k (x − x0)))` by `scipy.optimize.curve_fit` on the settings' headlines. `k` is bounded, see [defaults](#defaults), and `x0` is free. The start is `k = 1` and `x0` the mean of `x`. **A fit fails** when `curve_fit` raises `RuntimeError` or returns `k` within `1e-6` of its lower bound, as a flat or falling draw comes back that way rather than raising, see [checked](#checked). A failed fit on the logs' own headlines raises `ValueError` naming the key.
 - **The threshold** is `snr = exp(x0)`, where the model sits half way between the Complacent baseline's headline and 1. `snr_80` is where `h = complacent + 0.8 (1 − complacent)`, `exp(x0 + log(4) / k)`. `own_scale` is `signal_points / snr`.
 - **Bars.** One rng seeded `BOOTSTRAP_SEED`, walked over the settings from the smallest `own_scale` up and over the scenarios in `SCENARIOS` order within each, one block of `draws_of` apiece. Each draw gives a headline per setting, the status test is run on them with `complacent` held at the logs' value, and a draw that crosses is fitted. `lo` and `hi` are the 2.5th and 97.5th percentiles of `exp(x0)` over those fits, `None` when there are none.
-- **`uncrossed_draws`** counts the draws that did not cross and the ones whose fit did not converge. The table says so beside the bar.
+- **`uncrossed_draws`** counts the draws that did not cross and the ones whose fit failed. The table says so beside the bar.
 
 ## Defaults
 
@@ -188,7 +188,4 @@ Run on 2026-11-11 with scipy 1.18.1 and numpy 2.5.4.
 | Question | Answer |
 |---|---|
 | Is `curve_fit` with bounds deterministic | Yes. The fit above on seven points gave the same `popt` and `pcov`, bit for bit, in four fresh processes. With bounds it uses the `trf` method, which draws no random numbers |
-
-## Verify before code
-
-- **How `curve_fit` fails on a draw it cannot fit.** Whether it raises `RuntimeError`, warns, or returns a `k` at its bound when a draw's headlines are flat or out of order. The count in `uncrossed_draws` waits on it. Run the fit above on five equal headlines, and on five that fall as `x` grows.
+| How does `curve_fit` fail on a draw it cannot fit | It does not raise or warn. On five equal headlines, and on five that fall as `x` grows, it returns `k` at its lower bound, 0.01, with a finite `pcov`. So a fit is failed when `k` lands on that bound, see [noise threshold](#noise-threshold) |
