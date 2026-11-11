@@ -9,6 +9,7 @@ See [running](docs/harness/running.md). `uv sync`, copy `.env.example` to `.env`
 - **Read the layer rule** in [layout](docs/harness/layout.md). Code imports only from the layer below it. CI checks this.
 - **Read the layer's spec** in [specs](docs/specs/README.md). Code is written from its spec and tested against it. If the code has to differ, change the spec in the same PR.
 - **Use glossary words** in code and prose, see [glossary](docs/glossary.md). Add a word there before using it anywhere else.
+- **Search for the old one.** When you change a number, a name or a rule, search the repo for the old one and change every page that states it. The tests in `tests/docs/` catch a dead link, a test id with no test and a file that is too long, and nothing else.
 - **Commit before every major change.** If the working tree has uncommitted work, commit it first, then start the change.
 
 ## Be reader friendly

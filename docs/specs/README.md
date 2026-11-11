@@ -12,6 +12,7 @@ The contract each layer of the code is written to, and tested against.
 - **A spec never contradicts a design page.** If one has to move, the design page moves first, then the spec, then the code.
 - **Code and spec move together.** When they differ, one of them is wrong. Fix it in the same PR, and say which one was wrong.
 - **The pilot fills the numbers.** A spec proposes a default for every knob so the code runs on day one. Each is marked "pilot to confirm" and listed under the page's "Pilot decides" heading with a link to the check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) that settles it. Once [decisions](../pilot/decisions.md) has the number, the spec takes it and drops the mark.
+- **An open question is never deleted.** The PR that settles a "Not decided" item writes the decision and its reason on the page that owns the rule, and names it in the PR description. An agent asks before settling one.
 - **Nothing rests on a guess about a dependency.** An assumption about inspect_ai, numpy, an SDK or a model API that nobody has checked goes under "Verify before code", and the code that rests on it waits until someone has. Once checked it moves to "Checked", with the date, the versions and what was found.
 
 ## Shape of a spec page
