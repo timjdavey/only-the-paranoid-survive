@@ -55,12 +55,13 @@ The lint fails a skin whose rendered prompt leaves any of these out, see [lint](
 The record as CSV. Round 1 sends the header only, or a record pre-filled by a baseline in the [warm up check](../pilot/provider-checks.md#warm-up).
 
     round,<ten bet columns>,<ten level columns>,output
-    1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,,61.2
+    1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,,60.5
     2,...
 
 - Column names use the skin's channel names and its four column words. The example skin's words are `round`, `bet`, `level` and `output`, and a held-out skin picks its own, see [skins](skins.md#what-a-skin-file-holds).
 - A blank level is a channel with no bet.
 - Levels and output are reported to one decimal place.
+- The level shown and the output differ even with all 100 on one channel, as a reading is rough and the output is exact, see [readings](../specs/engine/game.md#readings).
 - **With a note saved**, the user message has a second content block holding the note as the agent last wrote it, see the [solver spec](../specs/harness/solver.md#notes). Round 1 has none.
 
 ## Tool text
