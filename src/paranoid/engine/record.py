@@ -12,14 +12,18 @@ class Row:
     round: int
     bets: Bets
     readings: tuple[float | None, ...]  # one per channel, None where the bet was 0, one decimal
-    output: float  # one decimal
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "round", operator.index(self.round))
         object.__setattr__(self, "bets", tuple(operator.index(bet) for bet in self.bets))
         readings = tuple(None if reading is None else float(reading) for reading in self.readings)
         object.__setattr__(self, "readings", readings)
-        object.__setattr__(self, "output", float(self.output))
+
+    @property
+    def output(self) -> float:
+        """What the bets earned: each bet times its reading, over the budget. Worked out, never stored."""
+        paid = sum(bet * reading for bet, reading in zip(self.bets, self.readings) if bet > 0 and reading is not None)
+        return float(paid) / sum(self.bets)
 
 
 class Record:

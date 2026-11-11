@@ -118,7 +118,7 @@ def test_eg20_rows_are_read_only(timeline):
 def test_eg20_record_constructor_and_row_casts():
     assert Record() == Record(rows=()) and len(Record()) == 0
     assert Record().last_bets() is None
-    row = Row(round=np.int64(1), bets=[np.int64(100)] + [0] * 9, readings=[1] + [None] * 9, output=np.float64(1.0))
+    row = Row(round=np.int64(1), bets=[np.int64(100)] + [0] * 9, readings=[1] + [None] * 9)
     assert row.bets == A and type(row.bets[0]) is int
     assert row.readings[0] == 1.0 and type(row.readings[0]) is float
     assert type(row.round) is int and type(row.output) is float

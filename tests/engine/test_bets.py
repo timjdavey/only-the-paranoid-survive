@@ -76,14 +76,14 @@ def test_eg5_unfunded_channels_read_none(timeline):
     assert [r is None for r in row.readings] == [b == 0 for b in row.bets]
 
 
-def test_eg6_output_is_exact(timeline, hand_built):
+@pytest.mark.parametrize("bets", [FIRST, [40, 30, 30] + [0] * 7], ids=["all in", "split"])
+def test_eg6_output_is_paid_from_readings(timeline, hand_built, bets):
     t = hand_built(timeline, read_noise_z=np.full_like(timeline.read_noise_z, 2.0))
-    bets = [40, 30, 30] + [0] * 7
     row = Game(t).play(bets)
-    exact = sum(b / 100 * float(level) for b, level in zip(bets, t.levels[0]))
-    from_readings = sum(b / 100 * r for b, r in zip(bets, row.readings) if r is not None)
-    assert row.output == round(exact, 1)
-    assert row.output != round(from_readings, 1)
+    from_readings = sum(b * r for b, r in zip(bets, row.readings) if b > 0) / 100
+    from_levels = sum(b * float(level) for b, level in zip(bets, t.levels[0])) / 100
+    assert row.output == from_readings
+    assert row.output != pytest.approx(from_levels, abs=0.05)
 
 
 def test_eg7_negative_reading(timeline, hand_built):

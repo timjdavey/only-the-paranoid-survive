@@ -10,7 +10,6 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 
 ## Code
 - Write the baselines from their [spec](docs/specs/baselines/README.md), tests first.
-- Bring the engine on `main` up to its spec, as it was built from an older one. Pay a bet its reading in `game.py` and `record.py`, see [readings](docs/specs/engine/game.md#readings), with the EG6 test. Set the new ladder in `config.py`, see [defaults](docs/specs/engine/config.md#defaults), which moves the pinned hash in EC3 and the ranges in EC6.
 - Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
 - Add the console script, entry points, extras and package data to `pyproject.toml` with the harness, see [layout](docs/harness/layout.md#what-pyprojecttoml-holds). The scaffold holds only what the engine needs.
 - `configs/grid.toml`, the noise grid the `luck`, `timeline-sanity` and `noise-grid` cells read, see the [pilot spec](docs/specs/harness/pilot.md#engine-cells).

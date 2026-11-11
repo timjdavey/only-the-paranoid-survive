@@ -28,12 +28,12 @@ class ScenarioConfig:
     rounds: int = 40
     budget: int = 100
     # ladder, in level points unless the name says sigmas
-    leader_base: Range = (60.0, 70.0)
+    leader_base: Range = (90.0, 100.0)
     runner_up_gap_sigmas: Range = (2.0, 4.0)
     runner_up_gap_points: Range = (8.0, 16.0)
-    field_base: Range = (30.0, 55.0)
+    field_base: Range = (60.0, 85.0)
     field_headroom: float = 4.0
-    hedge_base: Range = (20.0, 28.0)
+    hedge_base: Range = (50.0, 58.0)
     # weather
     own_scale: float = 4.0
     persistence: float = 0.8
