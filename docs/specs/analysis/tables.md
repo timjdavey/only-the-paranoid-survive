@@ -147,7 +147,7 @@ Written when any model has three or more result rows that differ only in `own_sc
 - **Every field of `Setting` is a column**, so the rows of one section on the page are the CSV rows that share those columns, and a reader can rebuild any table from the file alone. Two settings that differ only in a knob never collapse into one.
 - **One score per run, and the two numbers that pool it.** `gain` and `gap` are what `pooled_score` needs to rebuild every score on the page, and together they say nothing about any round. The run's `output` and the baselines' outputs stay out, so the CSV holds no total that could place a timeline, see [who can see them](../../harness/contamination.md#who-can-see-them).
 - **Errored rows are left out.** The page's stamp counts them.
-- **Written with `lineterminator="\n"`, no index, floats as `repr`, NA as an empty cell**, so the same table gives the same bytes on every machine.
+- **Written with `lineterminator="\n"`, no index, floats as `repr`, booleans as `1` and `0` as the pilot CSVs write them, NA as an empty cell**, so the same table gives the same bytes on every machine.
 
 ### Cost
 

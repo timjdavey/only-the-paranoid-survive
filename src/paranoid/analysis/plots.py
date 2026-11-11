@@ -55,11 +55,14 @@ def strip_plot(runs: pd.DataFrame, key: ResultKey, out: Path) -> Path:
         made = figure(12, 3, left=0.04, right=0.99, bottom=0.2, top=0.78)
         axes = made.subplots(1, len(SCENARIOS), sharey=True)
         rng = np.random.default_rng(BOOTSTRAP_SEED)
+        every = mine["run_score"].dropna().to_numpy(dtype=float)
+        low = min(-0.15, float(every.min()) - 0.05) if len(every) else -0.15  # one axis on every panel, wide enough for
+        high = max(1.15, float(every.max()) + 0.05) if len(every) else 1.15  # a score outside 0 to 1 to show where it lands
         for axis, scenario in zip(axes, SCENARIOS):
             first = scenario == SCENARIOS_FIRST
             axis.set_xticks([])
             axis.set_xlim(-0.5, 0.5)
-            axis.set_ylim(-0.15, 1.15)
+            axis.set_ylim(low, high)
             for level, word in ((0, "Uniform"), (1, "Discerning")):
                 axis.axhline(level, color="#d9d9d9", linewidth=0.8, label=f"{word} baseline" if first else None)
             flags = scores.loc[scenario, "flags"] if scenario in scores.index else ""

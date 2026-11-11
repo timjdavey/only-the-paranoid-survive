@@ -68,3 +68,29 @@ def slug(text: str) -> str:
 def row_label(key: ResultKey, versioned: bool = False) -> str:
     """The Model cell. `versioned` ends it with the harness version, for two rows that differ in nothing else."""
     return f"{label(key)} at {key.setting.harness_version}" if versioned else label(key)
+
+
+def design_name(scenario: str) -> str:
+    """A scenario's design name, such as `Up switch then down switch`."""
+    words = scenario.replace("_", " ")
+    return words[0].upper() + words[1:]
+
+
+def number(value: float | None, places: int = 2) -> str:
+    """A number to `places` decimals, with a real minus sign. Empty for NA."""
+    if value is None or value != value:
+        return ""
+    return f"{value:.{places}f}".replace("-", "−")
+
+
+def bar(score: float, lo: float | None, hi: float | None, places: int = 2) -> str:
+    """`0.76 [0.71, 0.80]`."""
+    if lo is None or hi is None:
+        return number(score, places)
+    return f"{number(score, places)} [{number(lo, places)}, {number(hi, places)}]"
+
+
+def markdown_table(columns: Sequence[str], rows: Sequence[Sequence[str]]) -> list[str]:
+    """A markdown table, every cell as given. A `|` never reaches one, as every string in it is guarded."""
+    lines = ["| " + " | ".join(columns) + " |", "|" + "---|" * len(columns)]
+    return lines + ["| " + " | ".join(row) + " |" for row in rows]

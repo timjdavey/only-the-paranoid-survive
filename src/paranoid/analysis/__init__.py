@@ -9,6 +9,7 @@ from .run_csv import CSV_COLUMNS, write_run_csv
 from .runs import RUN_COLUMNS, load_runs, mean_over_epochs
 from .scores import RECOGNITION_FLAG, RETRY_FLAG, headlines, load_recognition, scenario_scores
 from .spread import sampling_share, spread
+from .tables import write_results
 from .threshold import Threshold, noise_threshold, signal_points
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "profile_plot",
     "trend_plot",
     "noise_plot",
+    "write_results",
 ]

@@ -26,7 +26,7 @@ One result row, eight panels in `SCENARIOS` order, one per scenario.
 - **The bar** is the pooled score with its interval, see [scenario scores](scores.md#scenario-scores).
 - **Marks** are ticks across the panel for the Complacent, hedge rule, Scout rule and Perfect baselines, each labelled once in the legend. The Complacent mark is always the same grey.
 - **Flags** are the panel title's suffix, with the legend's words under the figure.
-- **The axis** runs from a little below 0 to a little above 1, the same on every panel, with 0 and 1 drawn as lines named for the Uniform and Discerning baselines. A dot outside is drawn where it lands, as [scoring](../../design/scoring.md#why-these-two-baselines) says scores outside 0 to 1 are reported as they come.
+- **The axis** runs from a little below 0 to a little above 1, the same on every panel, with 0 and 1 drawn as lines named for the Uniform and Discerning baselines. A dot outside widens it on every panel, so the dot is drawn where it lands, as [scoring](../../design/scoring.md#why-these-two-baselines) says scores outside 0 to 1 are reported as they come.
 
 ### Profile plot
 
