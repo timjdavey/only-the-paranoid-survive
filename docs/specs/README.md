@@ -85,7 +85,7 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 |---|---|---|---|
 | engine | [engine/](engine/) | Built, the suite passes | Nothing |
 | baselines | [baselines/](baselines/) | Built, the suite passes | Nothing |
-| forecasters | [forecasters/](forecasters/) | Written, no code yet | Nothing. The Timestral package was read and run first, see [checked](forecasters/timestral.md#checked) |
+| forecasters | [forecasters/](forecasters/) | Built, the suite passes | Nothing. The Timestral package was read and run first, see [checked](forecasters/timestral.md#checked) |
 | skins | [skins/](skins/) | Written, no code yet | Nothing |
 | harness | [harness/](harness/) | Written, no code yet | Whether inspect's store is in scope inside `generate`, the `typesafe-sdk` call shape, the reasoning budgets and effort names per provider, which providers refuse a required tool call, `any`, with thinking on, and that cutting the record into content blocks changes the bill and not the prompt. See the [providers](harness/providers.md#verify-before-code), [command](harness/command.md#verify-before-code) and [solver](harness/solver.md#verify-before-code) pages |
 | analysis | [analysis/](analysis/) | Written, no code yet | inspect's log reader and how its `mean` reducer treats a dict score, matplotlib's SVG determinism, `curve_fit` determinism, and entry point discovery in an editable install. See the [runs](analysis/runs.md#verify-before-code), [plots](analysis/plots.md#verify-before-code), [scores](analysis/scores.md#verify-before-code) and [command](analysis/command.md#verify-before-code) pages |

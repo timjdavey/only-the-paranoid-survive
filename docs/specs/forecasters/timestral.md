@@ -35,7 +35,7 @@ def require_timestral() -> None        # ImportError naming the extra when torch
 ### Loading
 
 - **Nothing is imported until a forecast is needed.** torch and Timestral are imported inside the loader, so importing `paranoid.forecasters` never imports either.
-- **`require_timestral()`** raises `ImportError` naming `uv sync --extra timestral` when either package cannot be found. It imports neither. `Timestral.__call__` calls it first.
+- **`require_timestral()`** raises `ImportError` naming `uv sync --extra timestral` when either package cannot be found. It imports neither. `Timestral.__call__` calls it before it loads the model.
 - **One model per process.** `TimestralForecaster.from_pretrained(model, device="cpu", revision=revision)`, loaded on the first call and kept, one per `(model, revision)`. It takes about a second once the weights are on disk. The first load downloads them, about 840 MB.
 - **The quantile levels are checked on load.** The model's `quantile_levels` must equal `QUANTILE_LEVELS`, else `ValueError`. They do at the pin.
 - **CPU.** Documented and tested upstream. Apple MPS is not, so we do not rely on it.
