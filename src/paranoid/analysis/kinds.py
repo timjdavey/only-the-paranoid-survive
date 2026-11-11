@@ -41,4 +41,4 @@ def switch_kinds(runs: pd.DataFrame) -> pd.DataFrame:
                 f"is not {timeline.engine_hash}, the hash of the config rebuilt from its knobs"
             )
         rows.append(values | {"switch_kind": switch_kind(timeline)})
-    return pd.DataFrame(rows, columns=[*WORLD, "switch_kind"])
+    return pd.DataFrame(rows, columns=[*WORLD, "switch_kind"]).astype({c: runs[c].dtype for c in WORLD} | {"switch_kind": "str"})

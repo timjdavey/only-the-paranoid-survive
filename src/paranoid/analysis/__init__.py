@@ -4,6 +4,7 @@ from .cost import write_cost
 from .gaps import GAP_COLUMNS, paired_gap, public_gap, scenario_gap
 from .keys import ResultKey, Setting, result_key
 from .kinds import switch_kinds
+from .pilot import BAYESIAN_GAIN_PERCENTAGE_FLOOR, BAYESIAN_MOVE_SHARE_FLOOR, REACHABLE_GAIN_FLOOR, SECTIONS, write_pilot
 from .plots import noise_plot, profile_plot, strip_plot, trend_plot
 from .run_csv import CSV_COLUMNS, write_run_csv
 from .runs import RUN_COLUMNS, load_runs, mean_over_epochs
@@ -42,4 +43,9 @@ __all__ = [
     "trend_plot",
     "noise_plot",
     "write_results",
+    "write_pilot",
+    "SECTIONS",
+    "REACHABLE_GAIN_FLOOR",
+    "BAYESIAN_GAIN_PERCENTAGE_FLOOR",
+    "BAYESIAN_MOVE_SHARE_FLOOR",
 ]
