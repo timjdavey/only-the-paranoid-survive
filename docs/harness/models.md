@@ -37,8 +37,8 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | `on` | Thinking the model won't let us change, such as DeepSeek R1 |
 
 - **A model that cannot turn thinking off does not list `off`.** Its row lists its lowest setting, or `on` when nothing can be set. Otherwise a model that thinks by default would play its `off` row with thinking on.
-- **`xhigh` is skipped** to keep the grid at five steps.
-- **Tool choice follows the reasoning setting on Anthropic.** With thinking on, Claude takes only `auto`, so the solver uses it there and `any` elsewhere, see [each round](../specs/harness/solver.md#each-round). The value is in every sample's metadata and in the result row's `Setting`, and the [tool choice](../pilot/provider-checks.md#tool-choice) check prices the difference.
+- **`xhigh` is skipped** to keep the grid at five steps. `max` is sent as `max`, never as `xhigh`, which is a lower level of its own on newer Claude models, see the [command spec](../specs/harness/command.md#reasoning).
+- **Tool choice follows the reasoning setting on Anthropic.** With thinking on, `auto` is the only choice that leaves Claude thinking, so the solver uses it there and `any` elsewhere, see [each round](../specs/harness/solver.md#each-round). The value is in every sample's metadata and in the result row's `Setting`, and the [tool choice](../pilot/provider-checks.md#tool-choice) check prices the difference.
 - **What a model keeps of its reasoning across turns is the provider's choice.** In the [rolling conversation](../pilot/provider-checks.md#rolling-conversation) check every provider keeps the text and the tool calls, but whether the model reads its own earlier reasoning next turn varies by provider and model. So that check is read per model, and the row's `notes` says what its provider keeps.
 
 ## Sampling

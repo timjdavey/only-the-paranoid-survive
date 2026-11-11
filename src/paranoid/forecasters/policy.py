@@ -67,13 +67,13 @@ class ForecastPolicy:
         quantiles.setflags(write=False)
         return Forecast(quantiles, key)
 
-    def rounded_out(self, view: View) -> bool:
-        """Whether Odds rounds a channel the forecaster had not written off down to a bet of 0."""
+    def rounded_out(self, view: View) -> int:
+        """How many channels the forecaster had not written off that Odds rounds down to a bet of 0."""
         forecast = self.forecast(view)
         if forecast is None or not isinstance(self.rule, Odds):
-            return False
+            return 0
         finite = np.isfinite(forecast.quantiles).all(axis=1)
-        return any(bet == 0 and ok for bet, ok in zip(self.rule(forecast.quantiles, view.budget), finite))
+        return sum(1 for bet, ok in zip(self.rule(forecast.quantiles, view.budget), finite) if bet == 0 and ok)
 
     def __call__(self, view: View) -> Bets:
         forecast = self.forecast(view)
@@ -84,6 +84,8 @@ TIMESTRAL_POLICIES: Mapping[str, ForecastPolicy] = MappingProxyType(
     {
         **{name: ForecastPolicy(rule) for name, rule in FORECAST_RULES.items()},
         # Each channel alone, as a joint forecast cannot tie a row of bets to its channel.
+        # odds-alone has the shape without the bets, so each of the two differences from odds has its own row.
+        "odds-alone": ForecastPolicy(FORECAST_RULES["odds"], forecaster=Timestral(joint=False)),
         "odds-bet-aware": ForecastPolicy(FORECAST_RULES["odds"], with_bets=True, forecaster=Timestral(joint=False)),
     }
 )

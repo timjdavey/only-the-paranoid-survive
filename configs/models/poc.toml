@@ -54,6 +54,12 @@ kind = "timestral"
 reasoning = "n/a"
 
 [[model]]
+id = "timestral/odds-alone"
+kind = "timestral"
+reasoning = "n/a"
+notes = "Odds with each channel forecast alone, the fair mark for the row below"
+
+[[model]]
 id = "timestral/odds-bet-aware"
 kind = "timestral"
 reasoning = "n/a"

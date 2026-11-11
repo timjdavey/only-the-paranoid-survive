@@ -74,7 +74,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 - Every published file that holds prompt text carries the [canary](../glossary.md), the same line every time.
 - If a model can repeat the GUID, it has seen our data. The [recognition check](../pilot/provider-checks.md#recognition) asks before we trust a score.
 - The line follows the BIG-bench form, so filters that already drop BIG-bench data drop ours too.
-- The GUID will live in `paranoid.skins.canary` once the code exists.
+- The GUID lives in `paranoid.skins.canary`, exported as `CANARY`.
 
 The line, used exactly as written:
 

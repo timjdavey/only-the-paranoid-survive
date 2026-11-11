@@ -25,7 +25,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `load_seeds`, `parse_seeds`, `scenario_config` | Seed files, the `seeds` arg, the config a sample plays | [task](task.md) |
 | `load_grid`, `Grid` | The noise grid and the release it belongs to, from `configs/grid.toml` | [task](task.md) |
 | `round_loop`, `tool_choice_for`, `record_blocks` | The round loop solver, the `any` or `auto` rule, and the cut of the record into content blocks for the prompt cache | [solver](solver.md) |
-| `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
+| `submit`, `notes`, `compute` | The tools, each built from the skin | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
 | `JevAnswer`, `JevClient` | Jev's reply, and the seam a test fakes | [providers](providers.md) |
 | `gain` | The `@scorer` | [scorer](scorer.md) |
@@ -90,7 +90,7 @@ The harness imports these from `paranoid.forecasters`. Their behaviour is in the
 
 | Name | What the harness uses it for |
 |---|---|
-| `TIMESTRAL_POLICIES`, `require_timestral` | The six `timestral/<policy>` names and the check for the extra, for the Timestral provider, see [Timestral](providers.md#timestral) |
+| `TIMESTRAL_POLICIES`, `require_timestral` | The seven `timestral/<policy>` names and the check for the extra, for the Timestral provider, see [Timestral](providers.md#timestral) |
 | `Forecaster` | The type of the fake a test passes the provider, see [tests](tests.md) |
 | `Timestral`, `timestral` | The two input shapes the `timestral` cell probes, see [pilot](pilot.md#timestral) |
 
@@ -121,7 +121,7 @@ The analysis is the layer above. What it takes from the harness is listed on its
 
 - **One sample is one run.** One scenario, one seed, one skin. Its id is `<scenario>/<seed position>`, see [task](task.md#dataset).
 - **The timeline is never in the log.** The store holds the scenario, the seed and the knobs, and every reader rebuilds the timeline with `make_timeline`, see [timeline](../engine/timeline.md#interface).
-- **The harness writes no text for the agent, bar two words.** Every word the model sees comes from the skin or from the record's own CSV, the submit tool's parameter name and text included. The two exceptions are `text` and `code`, the parameter names of notes and compute, see [not decided](solver.md#not-decided). The one thing the harness composes is the tool result, which is a CSV row, see [submit](solver.md#submit). The pilot tools are the exception: the notes echo and compute's output are whatever came back, and neither runs in the headline.
+- **The harness writes no text for the agent.** Every word the model sees comes from the skin or from the record's own CSV, the name of every tool's parameter included. The one thing the harness composes is the tool result, which is a CSV row, see [submit](solver.md#submit). The pilot tools are the exception: the notes echo and compute's output are whatever came back, and neither runs in the headline.
 - **A run never errors on the model's account.** Ten failed tries in a round is a give up, scored as a gain of 0, see [giving up](scorer.md#giving-up). An error in a log is infrastructure.
 - **Rounds are numbered from 1**, as in the [engine](../engine/README.md#conventions). The store's `rows` list is indexed from 0, so round `r` is `rows[r − 1]`.
 - **Warm up rows are not the agent's.** A record pre-filled by a baseline counts toward the record the agent sees, never toward its score, see [scorer](scorer.md#scoring-one-run).

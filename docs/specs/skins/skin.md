@@ -23,8 +23,10 @@ class Skin:
     no_call: str                            # the retry message for a reply with no tool call
     notes_name: str                         # the notes tool's name as the model sees it
     notes_text: str                         # the notes tool's description
+    notes_param: str                        # the name of the notes tool's one parameter. "note" in the example skin
     compute_name: str                       # the compute tool's name as the model sees it
     compute_text: str                       # the compute tool's description
+    compute_param: str                      # the name of the compute tool's one parameter. "python" in the example skin
     question: str                           # Jev's choice question, see providers
     round_word: str                         # the record's first column header. "week" in the example skin
     bet_word: str                           # the suffix of each bet column. "sent" in the example skin
@@ -52,7 +54,7 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 - Any channel name or column word is empty, or contains `,`, `"` or `\n`. Each is a word in the record's header, and any of those characters would add a column or a row to the CSV the agent reads, see [record](render.md#record). So a bad word fails here and never mid-run.
 - Two channel names are equal ignoring case.
 - `tool_name`, `notes_name` or `compute_name` does not match `^[a-z][a-z0-9_]{0,63}$`, or two of the three are equal. Every provider accepts a name of that shape, and needs the three to differ.
-- `bets_name` does not match the same pattern. It is a key in the tool's JSON schema, so it has a tool name's shape. It may equal a tool name, as a parameter and a tool never share a namespace.
+- `bets_name`, `notes_param` or `compute_param` does not match the same pattern. Each is a key in its tool's JSON schema, so it has a tool name's shape. One may equal a tool name or another tool's parameter, as each tool has a namespace of its own.
 
 ### The TOML file
 
@@ -62,7 +64,7 @@ One file per skin, one table, no nesting.
 - **Every key is required.** A missing key, an unknown key, or a value of the wrong type raises `SkinError` naming the key. So a typo in a key name fails on load rather than silently dropping a part of the prompt.
 - **`name` is the file stem.** `example.toml` is the skin `example`. There is no `name` key, so a file cannot disagree with its own name. A stem that fails the `name` pattern, such as `Rome.toml`, raises `SkinError`.
 - **Comments are free.** The example skin's first line is a comment holding the [canary](lint.md#canary). Held-out skins carry it too, so a file that ever leaks is filtered, see [writing a skin](../../harness/writing-a-skin.md#before-you-start).
-- **No templating.** A skin writes the channel names, the number 100 and its tool names into its own text. The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
+- **No templating.** A skin writes the channel names, the number 100 and its tool names into its own text. 100 is the one number it may write in digits, see [numbers](lint.md#numbers). The renderer concatenates and never substitutes, see [render](render.md). The [lint](lint.md#frame-facts) checks the text and the `channels` list agree.
 
 ### `load_skin`
 

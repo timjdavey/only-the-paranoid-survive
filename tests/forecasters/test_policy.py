@@ -10,7 +10,7 @@ from paranoid.baselines import FORECAST_RULES, complacent, uniform
 from paranoid.engine import SCENARIOS, make_timeline, play
 from paranoid.forecasters import TIMESTRAL_POLICIES, ForecastPolicy, Timestral, timestral
 
-IDS = ("top-pick", "odds", "explore-1", "explore-2", "explore-5", "odds-bet-aware")
+IDS = ("top-pick", "odds", "explore-1", "explore-2", "explore-5", "odds-alone", "odds-bet-aware")
 
 
 def with_fake(name: str, fake) -> ForecastPolicy:
@@ -102,7 +102,7 @@ def test_fp6_a_second_play_never_calls_the_forecaster(Fake, down_switch):
 def test_fp7_the_policy_is_pure(Fake, down_switch, view_of):
     policy = with_fake("odds", Fake())
     empty = view_of(down_switch)
-    assert policy.forecast(empty) is None and policy.rounded_out(empty) is False
+    assert policy.forecast(empty) is None and policy.rounded_out(empty) == 0
     assert policy(empty) == uniform(empty)
 
     record = play(uniform, down_switch, max_rounds=4)
@@ -119,20 +119,21 @@ def test_fp8_rounded_out(Fake, down_switch, view_of):
     view = view_of(down_switch, play(uniform, down_switch, max_rounds=2))
     fake = Fake(lift={0: 1000.0})
     assert with_fake("odds", fake)(view) == (100, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    assert with_fake("odds", fake).rounded_out(view) is True
-    assert with_fake("top-pick", fake).rounded_out(view) is False
-    assert with_fake("explore-1", fake).rounded_out(view) is False
+    assert with_fake("odds", fake).rounded_out(view) == 9
+    assert type(with_fake("odds", fake).rounded_out(view)) is int
+    assert with_fake("top-pick", fake).rounded_out(view) == 0
+    assert with_fake("explore-1", fake).rounded_out(view) == 0
 
 
-def test_fp9_the_six_policies():
+def test_fp9_the_seven_policies():
     assert tuple(TIMESTRAL_POLICIES) == IDS
     with pytest.raises(TypeError):
         TIMESTRAL_POLICIES["nope"] = TIMESTRAL_POLICIES["odds"]
     for name, policy in TIMESTRAL_POLICIES.items():
-        aware = name == "odds-bet-aware"
-        assert policy.rule is FORECAST_RULES["odds" if aware else name]
-        assert policy.with_bets is aware
-        assert policy.forecaster == (Timestral(joint=False) if aware else timestral)
+        alone = name in ("odds-alone", "odds-bet-aware")
+        assert policy.rule is FORECAST_RULES["odds" if alone else name]
+        assert policy.with_bets is (name == "odds-bet-aware")
+        assert policy.forecaster == (Timestral(joint=False) if alone else timestral)
         assert policy.peeks is False and "peeks" not in {field.name for field in dataclasses.fields(policy)}
 
 

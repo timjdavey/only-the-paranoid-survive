@@ -20,8 +20,8 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `bets_text` | The description of that parameter, the ten whole percentages in channel order |
 | `bad_call` | The retry message for any bets the engine rejects. One generic message, no slots |
 | `no_call` | The retry message for a reply with no tool call |
-| `notes_name`, `notes_text` | The notes tool's name and description, see [tool text](prompts.md#tool-text) |
-| `compute_name`, `compute_text` | The compute tool's name and description |
+| `notes_name`, `notes_text`, `notes_param` | The notes tool's name, its description and the name of its one parameter, see [tool text](prompts.md#tool-text). `note` in the example skin |
+| `compute_name`, `compute_text`, `compute_param` | The compute tool's name, its description and the name of its one parameter. `python` in the example skin |
 | `question` | Jev's choice question, see [providers](providers.md#jev). Linted like every other skin field |
 | `round_word`, `bet_word`, `reading_word` | The three words that head the [record](prompts.md#user-message): the round column, the suffix of each bet column and the suffix of each reading column. `week`, `sent` and `price` in the example skin. `round`, `bet` and `reading` are the engine's words and head no record. Each skin picks its own, so no header is shared across skins, see [contamination](contamination.md#why) |
 

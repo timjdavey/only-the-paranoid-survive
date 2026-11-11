@@ -59,7 +59,7 @@ One file carries a duty for every layer. Each row links to the spec that owns th
 
 | Part | What it holds | Owner |
 |---|---|---|
-| Layer contract | An `import-linter` layered contract over the six packages, and a second contract that keeps torch and Timestral out of every package but forecasters. Both run in CI | [Six layers](#six-layers) |
+| Layer contract | An `import-linter` layered contract over the six packages, a contract that keeps torch and Timestral out of every package but forecasters, and one that keeps the skins layer to the engine and the standard library. All run in CI | [Six layers](#six-layers) |
 | Console script | `paranoid`, pointing at the harness's `main` | [command spec](../specs/harness/command.md#subcommands) |
 | `inspect_ai` entry point | The module that registers the `baseline`, `jev` and `timestral` providers | [providers spec](../specs/harness/providers.md) |
 | `paranoid.commands` entry point | `analyse`, which the harness finds without importing the analysis layer | [analysis command](../specs/analysis/command.md#dispatch) |

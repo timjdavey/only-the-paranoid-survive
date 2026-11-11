@@ -12,7 +12,7 @@ The contract each layer of the code is written to, and tested against.
 - **A spec never contradicts a design page.** If one has to move, the design page moves first, then the spec, then the code.
 - **Code and spec move together.** When they differ, one of them is wrong. Fix it in the same PR, and say which one was wrong.
 - **The pilot fills the numbers.** A spec proposes a default for every knob so the code runs on day one. Each is marked "pilot to confirm" and listed under the page's "Pilot decides" heading with a link to the check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md) that settles it. Once [decisions](../pilot/decisions.md) has the number, the spec takes it and drops the mark.
-- **Nothing rests on a guess about a dependency.** An assumption about inspect_ai, numpy, an SDK or a model API that nobody has checked goes under "Verify before code", and the code that rests on it waits until someone has.
+- **Nothing rests on a guess about a dependency.** An assumption about inspect_ai, numpy, an SDK or a model API that nobody has checked goes under "Verify before code", and the code that rests on it waits until someone has. Once checked it moves to "Checked", with the date, the versions and what was found.
 
 ## Shape of a spec page
 
@@ -27,7 +27,8 @@ Every page has the same sections, in this order. A section with nothing to say i
 | Invariants | What is always true, however the rules are implemented. Never a restatement of a rule above |
 | Pilot decides | The numbers the pilot settles, each with a link to its check |
 | Not decided | Design questions still open. Each says when it gets decided |
-| Verify before code | Facts about a dependency that nobody has checked. Each names the code that waits on it |
+| Checked | Facts about a dependency that someone has checked: the date, the versions, and a table of question and answer |
+| Verify before code | Facts about a dependency that nobody has checked. Each names the code that waits on it, and the call that settles it |
 
 - **Tests have no section on a page.** They live on the layer's `tests.md`, one row per test, and every row links to the section it checks. So the page says what is true and the tests page says how we know.
 
@@ -74,7 +75,7 @@ The secrecy rules, each with the one section that owns it and the tests that pro
 | A held-out seed's value | Position in the list only, the value read from the seed file at run time | [harness](harness/task.md#dataset) | `HK6`, `HO11` |
 | A held-out skin's text | A failing test names the skin, never its words. A log is as private as its skin | [skins](skins/tests.md) | `KL12` |
 | The canary GUID | In no text the model reads | [skins](skins/lint.md#canary) | `KL9`, `KL12` |
-| The engine's error text | The model reads the skin's `bad_call`, never the engine's message | [harness](harness/solver.md#submit) | `HS7` |
+| The engine's error text, or inspect's | The model reads the skin's `bad_call` or `no_call`, never the engine's message or inspect's | [harness](harness/solver.md#refused-calls) | `HS7` |
 | A Timestral forecast of a held-out run | The cache stays on the machine, like the log | [forecasters](forecasters/policy.md#the-cache) | |
 
 ## Layers
@@ -86,6 +87,6 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 | engine | [engine/](engine/) | Built, the suite passes | Nothing |
 | baselines | [baselines/](baselines/) | Built, the suite passes | Nothing |
 | forecasters | [forecasters/](forecasters/) | Built, the suite passes | Nothing. The Timestral package was read and run first, see [checked](forecasters/timestral.md#checked) |
-| skins | [skins/](skins/) | Written, no code yet | Nothing |
-| harness | [harness/](harness/) | Written, no code yet | Whether inspect's store is in scope inside `generate`, the `typesafe-sdk` call shape, the reasoning budgets and effort names per provider, which providers refuse a required tool call, `any`, with thinking on, and that cutting the record into content blocks changes the bill and not the prompt. See the [providers](harness/providers.md#verify-before-code), [command](harness/command.md#verify-before-code) and [solver](harness/solver.md#verify-before-code) pages |
-| analysis | [analysis/](analysis/) | Written, no code yet | inspect's log reader and how its `mean` reducer treats a dict score, matplotlib's SVG determinism, `curve_fit` determinism, and entry point discovery in an editable install. See the [runs](analysis/runs.md#verify-before-code), [plots](analysis/plots.md#verify-before-code), [scores](analysis/scores.md#verify-before-code) and [command](analysis/command.md#verify-before-code) pages |
+| skins | [skins/](skins/) | Built, the suite passes | Nothing |
+| harness | [harness/](harness/) | Written, no code yet | Only what needs a key. What each provider takes for a reasoning setting and whether `off` is off, which OpenRouter models refuse a required tool call, `any`, while thinking, that cutting the record into content blocks changes the bill and not the prompt, and one live Jev reply. See the [command](harness/command.md#verify-before-code), [solver](harness/solver.md#verify-before-code) and [providers](harness/providers.md#verify-before-code) pages. Everything about inspect itself is [checked](harness/solver.md#checked) |
+| analysis | [analysis/](analysis/) | Written, no code yet | Nothing the code waits on. Equal plot bytes across machines is open, see [plots](analysis/plots.md#verify-before-code) |
