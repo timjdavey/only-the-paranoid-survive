@@ -59,6 +59,11 @@ def analyse(argv: Sequence[str]) -> int
 
 - Whether `results` should refuse to write when a log's `harness_version` is older than the installed package, or only say so in the report. It only says so here. Decide when the first release ships.
 
-## Verify before code
+## Checked
 
-- **Entry point discovery in an editable install.** That `importlib.metadata.entry_points(group="paranoid.commands")` sees `analyse` after `uv sync`, so the harness's HM7 and this layer's AM1 pass without a rebuild. `analyse` waits on it.
+Run on 2026-11-11 with uv 0.10.12 and hatchling, on a scratch package installed as this one is.
+
+| Question | Answer |
+|---|---|
+| Does `entry_points(group="paranoid.commands")` see `analyse` in an editable install | Yes, after `uv sync`. `uv run` syncs first, so `uv run paranoid analyse` and `uv run pytest` both see it |
+| Is a group added to `pyproject.toml` seen before the next sync | No. The entry points are written to the install's metadata at sync time, so a stale environment run with `.venv/bin/python` misses it |

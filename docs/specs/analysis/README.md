@@ -43,7 +43,7 @@ The analysis imports these from `paranoid.harness`. Their behaviour is in the [h
 | `load_models`, `ModelRow`, `REASONING` | Row order, `kind`, `released` and `eci` for the tables and trend plots, and the reasoning grid a log's setting is read back onto, see [reasoning](runs.md#reasoning) |
 | `scenario_config`, `load_seeds` | The config and seed that rebuild one timeline for [switch kinds](scores.md#switch-kinds) and the signal in [noise threshold](scores.md#noise-threshold) |
 
-The one third-party reader is inspect_ai's `read_eval_log`, see [runs](runs.md#verify-before-code).
+The one third-party reader is inspect_ai's `read_eval_log`, see [runs](runs.md#checked).
 
 ## Names from the engine
 

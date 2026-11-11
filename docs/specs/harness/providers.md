@@ -39,7 +39,7 @@ class JevClient(Protocol):
 
 ### Shared behaviour
 
-- **`generate` reads the store**, `store_as(RunStore)`, and awaits `self.bets(store, input)`. inspect's per-sample store is in scope inside `generate` because the model call is awaited in the sample's own task, see [verify before code](#verify-before-code).
+- **`generate` reads the store**, `store_as(RunStore)`, and awaits `self.bets(store, input)`. inspect's per-sample store is in scope inside `generate` because the model call is awaited in the sample's own task, see [checked](#checked).
 - **It answers with one tool call and no text.** `ModelOutput` with one `ChatMessageAssistant` whose `content` is `""` and whose `tool_calls` is one `ToolCall` with `id` `f"{self.model_name}-{store.round()}"`, `function` `tools[0].name` and `arguments` `{name: list(bets)}`, where `name` is the one key of `tools[0].parameters.properties`. That is the skin's `bets_name`, so a provider plays any skin, see [submit](solver.md#submit). `stop_reason` is `"tool_calls"`. The submit tool is always first, see [each round](solver.md#each-round).
 - **I/O is awaited, compute is serialised.** `JevClient.ask` is async, so a network call never stalls the other samples. A Timestral forecast is CPU bound, so `TimestralAPI.max_connections` is 1 and the forecast runs on the loop. Two at once would stall the loop for no gain, see [Timestral](#timestral).
 - **`tools` is never empty.** If it is, `generate` raises `RuntimeError`, as the solver is not the one calling.
@@ -58,15 +58,16 @@ class JevClient(Protocol):
 ### Jev
 
 - **`JevAPI`** takes a `client: JevClient`. The default is `TypesafeClient`, a thin wrapper over `typesafe-sdk` that is imported lazily, so the default install needs the package only when Jev runs. Tests pass a fake.
+- **`TypesafeClient.ask`** holds one `AsyncTypeSafeClient(model=<the name after the slash>)`, which reads `TYPESAFE_API_KEY` itself, and awaits `client.system_one(state=state, questions={"channel": Choice(instructions=question, criteria={option: None for option in options})})`. The answer is `response.choices["channel"]`. Its `probabilities` is a dict keyed by option, so `JevAnswer.probabilities` reads it in option order, and an option the reply leaves out raises `ValueError`. `confidence` is the answer's own, and `raw` is `response.model_dump()`. The shape is in [checked](#checked).
 - **State** is the text of the system message and the text of the user message in `input`, joined by two newlines. That is exactly what an LLM sees this round, notes included when the pilot turns them on.
 - **Question and options** are the skin's `question` and `channels`, in channel index order. The provider loads the skin by `store.skin` from `load_skins()`, called once per process and kept.
 - **Bets** are `split_budget(answer.probabilities, budget)`, see [`split_budget`](../engine/view.md#split_budget). A probability under 0.005 of the budget gets 0 unless a leftover point falls to it. An answer with the wrong number of probabilities, a negative one, or all zeros raises `ValueError`.
-- **Logged** on the message's `metadata`: `probabilities`, `confidence`, `raw` and `rounded_out`, which is true when some option's probability is above 0 and its bet is 0, so the [Jev rounding check](../../pilot/provider-checks.md#jev-checks) can count the rounds a channel fell out of view. The `jev` cell reads it from the log, see [pilot](pilot.md#jev).
+- **Logged** on the message's `metadata`: `probabilities`, `confidence`, `raw` and `rounded_out`, which is how many options have a probability above 0 and a bet of 0, so the [Jev rounding check](../../pilot/provider-checks.md#jev-checks) can count the channels that fell out of view. It is a count for the reason Timestral's is, see [rounded out](../forecasters/policy.md#rounded-out). The `jev` cell reads it from the log, see [pilot](pilot.md#jev).
 - **No memory.** The client is awaited once a round with the state as given. Nothing is kept between rounds, see [Jev](../../harness/providers.md#jev).
 
 ### Timestral
 
-- **The name after the slash is a key of [`TIMESTRAL_POLICIES`](../forecasters/policy.md#the-six-policies)**, from the forecasters layer. The provider holds that policy and nothing else. The model, its pin, its input and its cache are that layer's, see the [forecasters spec](../forecasters/README.md).
+- **The name after the slash is a key of [`TIMESTRAL_POLICIES`](../forecasters/policy.md#the-policies)**, from the forecasters layer. The provider holds that policy and nothing else. The model, its pin, its input and its cache are that layer's, see the [forecasters spec](../forecasters/README.md).
 - **`TimestralAPI`** takes a `forecaster: Forecaster | None`. With one, the policy is `dataclasses.replace(policy, forecaster=forecaster)`, which is how tests pass a fake. With none it calls [`require_timestral()`](../forecasters/timestral.md#loading), so without the extra construction raises `ImportError` naming `uv sync --extra timestral`.
 - **`bets`** is `policy(view)` with `view = store.game().view(False)`, as a baseline's is, see [baseline](#baseline). Round 1, a blank, a channel never read and crossed quantiles are all the policy's to handle.
 - **The same rounds as `play`.** A Timestral run through the provider has the same `rows` as `play(policy, timeline)`, warm up included. So anything `play` shows about a policy holds for its row in a log.
@@ -81,7 +82,19 @@ class JevClient(Protocol):
 - A fake `JevClient` or `Forecaster` is enough to run a whole eval with no network.
 - The harness never imports torch or Timestral. `import-linter` enforces it, see [layout](../../harness/layout.md#what-pyprojecttoml-holds).
 
+## Checked
+
+Run on 2026-11-11 against inspect_ai 0.3.289 and read from `typesafe-sdk` 0.7.5. No key was used, so nothing here called Jev.
+
+| Question | Answer |
+|---|---|
+| Is the sample's store in scope inside `ModelAPI.generate` | Yes. A stub provider read `store_as(RunStore)` in `generate` and saw rounds 0, 1 and 2 of its own sample, on eight samples run at once |
+| Does a provider see the tool's parameter name | Yes. `tools[0].parameters.properties` has the one key the solver gave it, and a `ToolCall` with that key in `arguments` reaches the tool |
+| `typesafe-sdk`'s async call | `AsyncTypeSafeClient.system_one(state, questions)`, where `state` is text and `questions` maps a name to a `Choice(instructions, criteria)`. `criteria` maps each label to a description or `None` |
+| Its reply | `SystemOneResponse.choices[<name>]` is a `ChoiceAnswer` with `choice`, `confidence` from 0 to 1, and `probabilities`, a dict keyed by label that sums to about 1 |
+| Its key, model and timeout | `TYPESAFE_API_KEY`, `jev-latest` by default, 10 seconds a call, with its own retries |
+| Its usage | The reply holds `usage.input_tokens`, which Jev bills. It lands in `raw`, so the log has it, and the provider still reports zero tokens to inspect |
+
 ## Verify before code
 
-- **Store in scope.** `store_as` inside `generate` relies on inspect's sample context reaching the model call. Check it with `mockllm` and a stub provider before `StoreAPI.generate` is written. If it does not hold, the solver sets a `ContextVar` holding the store before each generate and the base reads that instead.
-- **`typesafe-sdk`'s call shape.** `JevClient` is the seam, so only `TypesafeClient` changes if the SDK differs. `TypesafeClient` waits on it.
+- **That a live Jev reply holds a probability for every option.** The types say `probabilities` is keyed by label, and only a call can show that all ten come back and none is renamed. One `system_one` call with the example skin's `question` and `channels`, and `TYPESAFE_API_KEY` set. Only the first eval of a `jev` row waits on it, as `TypesafeClient` raises on a missing option either way.

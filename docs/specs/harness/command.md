@@ -28,7 +28,7 @@ class ModelRow:
     notes: str = ""
 
 REASONING = ("off", "low", "medium", "high", "max", "on")
-EFFORT_PREFIXES = ("openai/", "anthropic/", "google/", "openrouter/")
+EFFORT_PREFIXES = ("openai/", "anthropic/", "google/", "openrouter/")   # inspect maps an effort for all four
 SKIN_READERS = ("llm", "jev")          # the kinds whose model reads the skin, see run below
 
 def load_models(path: str | Path) -> list[ModelRow]
@@ -61,15 +61,16 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 | Setting | `reasoning_kind = "effort"` | `reasoning_kind = "budget"` |
 |---|---|---|
-| `off` | `reasoning_effort="none"`, the explicit off | `reasoning_tokens=0`, the explicit off |
+| `off` | `reasoning_effort="none"`, the explicit off | The same. A budget of 0 is not off, see [checked](#checked) |
 | `low`, `medium`, `high` | `reasoning_effort` of the same name | `reasoning_tokens` from the budget table |
-| `max` | `reasoning_effort="xhigh"`. inspect maps it to the provider's highest effort where there is no `xhigh` | The `max` budget |
+| `max` | `reasoning_effort="max"`. inspect sends the provider's highest effort where it has no `max` | The `max` budget |
 | `on` | Nothing set. The model thinks and will not be told otherwise | The same |
 | `n/a` | Nothing set | Nothing set |
 
-- **`off` is sent, never left to a default.** A model that thinks unless told not to would otherwise play its `off` row with thinking on, and the row would equal its `on` row. The two values in the table are what inspect is assumed to pass through as off, see [verify before code](#verify-before-code).
+- **`off` is sent, never left to a default.** A model that thinks unless told not to would otherwise play its `off` row with thinking on, and the row would equal its `on` row. `reasoning_effort="none"` is inspect's off on every provider in `configs/models/`, see [checked](#checked).
+- **`max` is never `xhigh`.** On Claude 4.7 and later `xhigh` is a level of its own below `max`, so sending it would play the wrong row. The grid skips `xhigh`, see [reasoning](../../harness/models.md#reasoning).
 - **A model that cannot turn thinking off does not list `off`**, see [reasoning](../../harness/models.md#reasoning). The harness cannot tell which models those are, so the file says, and a provider that rejects the off value fails that eval as any bad setting does.
-- **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. These are a convention to verify against each provider before the first run, see [verify before code](#verify-before-code).
+- **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. It is ours, so a row's budget does not move when inspect's own table does. A budget row is for a model that takes no effort, which today is `claude-haiku-4-5` alone. inspect raises on `reasoning_tokens` for Claude 4.7 and later, see [checked](#checked).
 - **`max_tokens`** is set from the row when present, else left to the provider's default, see [sampling](../../harness/models.md#sampling).
 - **Temperature is never set.**
 - **`cache_prompt` is never set**, so inspect's default stands and the provider's prompt cache is on wherever there is one, see [prompt caching](../../harness/models.md#prompt-caching).
@@ -78,7 +79,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 - **`--skins` is a comma list of skin names**, `example` by default. The proof of concept passes its two held-out skins, see [running](../../harness/running.md#commands). Every name is checked against `load_skins()` before any eval runs. A name that is not loaded, or one given twice, raises `ValueError` listing the loaded names and naming `PARANOID_SKINS`, so `main` returns 1 and nothing is spent.
 - **Only a row that reads the skin plays every skin.** A row whose `kind` is in `SKIN_READERS` plays each skin in the order given. Any other row plays the first skin only, as it never reads the story, see [two lists](../../harness/models.md#two-lists).
-- **For every row, every `reasoning` value and every skin the row plays** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, config=generate_config(row, r), metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=...)`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
+- **For every row, every `reasoning` value and every skin the row plays** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=..., **generate_config(row, r).model_dump(exclude_none=True))`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. `eval` has no `config` argument, so the generate config goes in as keywords, see [checked](#checked). Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
 - **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens. Within a row and setting the skins run in the order given, so a model has both sides of its [skin sensitivity](../analysis/tables.md#the-results-page) gap before the next model starts.
 - **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own timeline, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
 - **`--own-scale`** takes one value or the word `grid`, and is passed to the task as its `own_scale` arg, see [scenarios and config](task.md#scenarios-and-config). Unset, the task plays the frozen default and no events are pinned. `grid` plays every setting in `load_grid().own_scale` in file order, one eval per setting, inside each row, reasoning value and skin. A value that is not a positive number raises `ValueError` before any eval runs.
@@ -103,8 +104,33 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 - `run` runs no eval before every name in `--skins` is known to be loaded.
 - A row whose `kind` is not in `SKIN_READERS` is played on one skin, however many are named.
 
+## Checked
+
+Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source. No key was used, so no provider was called.
+
+| Question | Answer |
+|---|---|
+| Does `eval(metadata=...)` land in `EvalLog.eval.metadata` | Yes, as given |
+| Does `eval` take a `config` | No. It raises on one. Generate config fields are keyword arguments, and they land in `EvalLog.eval.model_generate_config` |
+| The values `reasoning_effort` takes | `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max` |
+| Do all four of `EFFORT_PREFIXES` take an effort | Yes. inspect maps `reasoning_effort` for each, so the default kind is right |
+
+What inspect sends for each setting, by provider:
+
+| Provider | `low`, `medium`, `high` | `max` | `none` | `reasoning_tokens` |
+|---|---|---|---|---|
+| Anthropic, Claude 4.6 and later | Adaptive thinking with `output_config.effort` of the same name | `max` | `thinking` `disabled` on 4.7 and later, `between_tools` on Sonnet 5.5. No `thinking` field on 4.6, which is off. Left on for Opus 5.5 and Fable, which cannot turn it off | Raises on 4.7 and later |
+| Anthropic, before 4.6 | Extended thinking, with a budget from inspect's table: 4096, 10000, 16000 | A budget of 32000 | No `thinking` field, which is off | Sent as `budget_tokens`. 0 goes as a budget of 0, which is not off |
+| OpenAI | `reasoning.effort` as given | `xhigh` before GPT-5.6 | `none` as given. Dropped with a warning on a model that has no reasoning, such as `gpt-4o` | Ignored |
+| Google, Gemini 3 and later | `thinking_level` of the same name | `high` | `thinking_budget=0`. A Pro model gets a warning and keeps thinking | `thinking_budget` |
+| OpenRouter | `reasoning.effort` as given | `max` as given | `reasoning.effort` of `none` | `reasoning.max_tokens` |
+
+- **So no row needs a budget to turn thinking off**, and `reasoning_kind = "budget"` only picks who sets the budget, us or inspect.
+- **A row that lists `off` for a model that cannot turn it off plays with thinking on** on Anthropic and Google, with a warning and no error. The models files must not list it, see [reasoning](#reasoning).
+
 ## Verify before code
 
-- **The off value per provider.** That `reasoning_effort="none"` and `reasoning_tokens=0` reach each provider in `configs/models/` as thinking off, and which models reject them. If a provider needs another value, `generate_config` takes it from a table keyed by `id` prefix, as the budgets are. Every `off` row in the two models files waits on it.
-- **The budget table and the effort names per provider**, against inspect's `GenerateConfig` and each provider's API, see the "to verify" notes in [`full.toml`](../../../configs/models/full.toml). `EFFORT_PREFIXES` is a first guess for the same reason. `generate_config` waits on it.
-- **That `eval(metadata=...)` lands in `EvalLog.eval.metadata`.** If inspect has no such argument, `run` writes the two keys into every sample's metadata through a task arg instead. `run` waits on it.
+Each needs a key, so none was run. One call per row and setting, with a small `max_tokens` and the [`submit`](solver.md#submit) tool.
+
+- **That each provider takes what inspect sends.** For every `llm` row in `configs/models/` and every setting it lists, `get_model(row.id, config=generate_config(row, r)).generate(...)` returns without a 400. A setting that fails leaves the row, or the row gets a `reasoning_kind`. This also checks the model ids. The first `run` of that row waits on it.
+- **That `off` is off.** The same call on every `off` row has `usage.reasoning_tokens` of 0 or `None`, and no reasoning block in the reply. OpenRouter passes `none` on to a model it does not own, so those rows are the ones in doubt. Every `off` row waits on it.

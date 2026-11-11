@@ -66,7 +66,7 @@ Every function here takes the run table after [`mean_over_epochs`](runs.md#mean-
 - **`retry_share`** is `sum(retry_rounds) / sum(rounds)` and **`cut_off_share`** is `sum(cut_offs) / sum(rounds)`, as the [retry share metric](../harness/scorer.md#retry-share).
 - **`notes_share`** is `sum(notes_rounds) / sum(rounds)` and **`compute_share`** is `sum(compute_rounds) / sum(rounds)`, as the [tool use share metric](../harness/scorer.md#tool-use-share).
 - **The marks** are the fixed baselines' pooled scores on the same seeds: `complacent` is `pooled_score(complacent − uniform, gap)`, and the same for `hedge_rule`, `scout_rule` and `perfect`, each read from `Score.value`. The Perfect baseline is a mark and divides nothing, see [why these two baselines](../../design/scoring.md#why-these-two-baselines).
-- **A check, not a source.** When `log.results` holds the `scenario_score` metric and the log has one epoch, `score`, `lo` and `hi` must equal it to `1e-9`, else `scenario_scores` raises `ValueError` naming the log. This is how the layer knows it read the right numbers. At more than one epoch the check is skipped, see [verify before code](runs.md#verify-before-code).
+- **A check, not a source.** When `log.results` holds the `scenario_score` metric and the log has one epoch, `score`, `lo` and `hi` must equal it to `1e-9`, else `scenario_scores` raises `ValueError` naming the log. This is how the layer knows it read the right numbers. At more than one epoch the check is skipped, see [checked](runs.md#checked).
 
 ### Flags
 
@@ -168,6 +168,10 @@ The full study headline, see [noise threshold](../../design/scoring.md#noise-thr
 - Whether the public gap should be reported for the headline only, as the per-scenario rows on two different seed sets are noisy. Decide when the first held-out run exists.
 - Whether `noise_threshold` should fit the floor too, as a third parameter, if `floor_drift` turns out large once the [noise grid](../../pilot/engine-checks.md#noise-grid) check has run. Decide then, and set the drift that counts as large.
 
-## Verify before code
+## Checked
 
-- **`scipy.optimize.curve_fit` with bounds** returns a deterministic fit for the same inputs. `noise_threshold` waits on it.
+Run on 2026-11-11 with scipy 1.18.1 and numpy 2.5.4.
+
+| Question | Answer |
+|---|---|
+| Is `curve_fit` with bounds deterministic | Yes. The fit above on seven points gave the same `popt` and `pcov`, bit for bit, in four fresh processes. With bounds it uses the `trf` method, which draws no random numbers |

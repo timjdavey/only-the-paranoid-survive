@@ -50,9 +50,9 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 
 ### Every plot
 
-- **SVG only**, written with `metadata={"Date": None}` and `rcParams["svg.hashsalt"]` fixed to `"paranoid"`, so a rerun gives equal bytes.
+- **SVG only**, written with `metadata={"Date": None}` and `rcParams["svg.hashsalt"]` fixed to `"paranoid"`, so a rerun gives equal bytes, see [checked](#checked).
 - **Fixed figure sizes**: the strip plot 12 by 3 inches, the rest 6 by 4. No tight layout that depends on font metrics the machine may not share; margins are set by hand.
-- **One palette** of eight colours, colour-blind safe, used in order. Baseline marks are greys. Text is the default font with a fallback list, so a missing font changes glyphs and never layout.
+- **One palette** of eight colours, colour-blind safe, used in order. Baseline marks are greys. Text is DejaVu Sans, the font that ships inside matplotlib, with `rcParams["font.family"]` set to it by name and `rcParams["svg.fonttype"]` set to `"path"`. So no plot reads a font from the machine.
 - **The title names the skin and seed set**, and the noise setting when it is not the default. Nothing else from a skin, and no seed value, appears on any plot. Every string drawn is a [guarded](runs.md#guards) one or a number.
 - **Returns the path written.**
 
@@ -66,6 +66,17 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 
 - Whether to also write PNGs for pages that cannot show SVG. Decide when the first results page is published.
 
+## Checked
+
+Run on 2026-11-11 with matplotlib 3.11.2, on one Apple silicon machine.
+
+| Question | Answer |
+|---|---|
+| Do `svg.hashsalt` and `metadata={"Date": None}` give equal bytes | Yes. A plot with markers, error bars, a legend and a filled band gave the same bytes in fresh processes, whatever `PYTHONHASHSEED` was |
+| Is either pin optional | No. Without them the date and the element ids differ on every run |
+| How text is written | As glyph outlines, with `svg.fonttype` at `"path"`. The bytes then depend on the font file that was found, which is why the font is named |
+| What else is in the file | The matplotlib version, in the SVG's metadata. So a matplotlib upgrade changes every plot's bytes |
+
 ## Verify before code
 
-- **matplotlib SVG determinism.** That `svg.hashsalt` and `metadata={"Date": None}` give equal bytes across runs and machines with the same matplotlib version, and what else, such as font embedding, has to be pinned. Every plot function waits on it.
+- **Equal bytes across machines.** Checked on one machine only. The bundled font and matplotlib's own FreeType should make Linux and macOS agree, and nobody has compared them. Nothing waits on it: the plot functions and their tests need equal bytes on one machine. Compare one plot's hash from CI before a results page is rebuilt on a second machine.

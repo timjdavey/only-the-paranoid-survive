@@ -154,6 +154,10 @@ A [release](../../glossary.md#seeds-and-secrecy) is one frozen set of generator 
 - Whether `seeds` should also take a held-out range, such as `held-out:0-4`, for a cheap check on the private set. Not needed for the pilot.
 - **What a release freezes beyond its name.** Whether the held-out seed file should name its release so a stale file fails to load, which models are the anchor models, and how the two-setting overlap between adjacent releases is checked, see [noise threshold](../../design/scoring.md#noise-threshold). Decide before the second release, as one release has nothing to join.
 
-## Verify before code
+## Checked
 
-- **That a write to `state.metadata` in the solver lands in the log's `sample.metadata`.** The analysis reads `tool_choice` from there, see [result key](../analysis/runs.md#result-key), and never from the store. If inspect copies the metadata before the solver runs, the task resolves `tool_choice` itself from `get_model()` when it builds the dataset. `round_loop` waits on it.
+Run on 2026-11-11 against inspect_ai 0.3.289, with a stub provider and no key.
+
+| Question | Answer |
+|---|---|
+| Does a solver's write to `state.metadata` land in the log's `sample.metadata` | Yes, beside the keys the dataset set. So the solver writes `tool_choice` there and the task resolves nothing |

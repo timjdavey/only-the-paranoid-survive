@@ -171,7 +171,7 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 #### `jev`
 
 - **Runs.** For every `jev` row, one eval: `scenario="no_change,down_switch"`, `seeds="0-19"`.
-- **Writes** `jev.csv` from the logs it wrote: `model, scenario, seed_index, round, rounded_out`, one row per round, read from each assistant message's `metadata["rounded_out"]`, see [Jev](providers.md#jev). The analysis never reads a message, so the cell does, on public seeds.
+- **Writes** `jev.csv` from the logs it wrote: `model, scenario, seed_index, round, rounded_out`, one row per round, read from each assistant message's `metadata["rounded_out"]`, a count of channels, see [Jev](providers.md#jev). The analysis never reads a message, so the cell does, on public seeds.
 
 #### `timestral`
 
@@ -181,7 +181,7 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
   - **Determinism.** The forecaster is called twice on the ten finite rows.
 - **Writes** `timestral.csv`: `probe, joint, gap, channel, spread, equal`. `joint` is 1 or 0. For `gap` rows, `spread` is the forecast's last quantile minus its first per channel at each `g`. The `determinism` row of each shape has `equal` 1 when the two outputs are equal, else 0.
 - **Writes** `timestral-grid.csv`: `setting, scenario, model, seed, output`, one row per run, `model` the row's id. It joins `noise-grid.csv` on `setting`, `scenario` and `seed`, which holds every fixed baseline's output on the same timeline.
-- **Writes** `timestral-rounding.csv`: `setting, model, scenario, seed_index, round, rounded_out`, one row per round of every run, from `policy.rounded_out(view)`, see [rounded out](../forecasters/policy.md#rounded-out).
+- **Writes** `timestral-rounding.csv`: `setting, model, scenario, seed_index, round, rounded_out`, one row per round of every run, from `policy.rounded_out(view)`, a count of channels, see [rounded out](../forecasters/policy.md#rounded-out).
 - **The forecast cache makes a second run cheap.** Every forecast is read back from disk, see [the cache](../forecasters/policy.md#the-cache).
 
 #### `bare`
@@ -215,8 +215,12 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 - Whether the `recognition` probes should also run at every reasoning setting a row lists, as a thinking model may name the test where a quick one does not. One setting here. Decide when the first probe runs.
 
-## Verify before code
+## Checked
 
-- **`inspect_ai.eval(..., epochs=4)`** keeps one sample per epoch in the log, with `EvalSample.epoch` set, which `repeats` and the analysis's [sampling share](../analysis/scores.md#spread-and-sampling-share) need. `repeats` waits on it.
-- **`get_model(id).generate(messages)`** works outside an eval, with a config. `recognition` waits on it.
-- **The same call with `tools` and `tool_choice`** returns the model's call in `output.message.tool_calls` and runs no tool. `channel-order` waits on it, and on the named parameter `submit` waits on, see [solver](solver.md#verify-before-code).
+Run on 2026-11-11 against inspect_ai 0.3.289, with a stub provider and no key.
+
+| Question | Answer |
+|---|---|
+| Does `eval(..., epochs=4)` keep a sample per epoch | Yes. Every id appears four times, with `EvalSample.epoch` from 1 to 4 |
+| Does `get_model(id, config=...).generate(messages)` work outside an eval | Yes, and the config reaches the provider |
+| Does the same call with `tools` and `tool_choice` run the tool | No. The call comes back in `output.message.tool_calls` under the parameter's given name, and nothing is executed |

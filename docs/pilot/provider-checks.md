@@ -82,7 +82,7 @@ Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down
 
 Checks before we trust the Jev row, see [providers](../harness/providers.md#jev).
 
-- **Rounding.** A probability under 0.005 rounds to a bet of 0, which is a blank, so a channel can fall out of Jev's view. Watch how often it happens, as for Timestral below.
+- **Rounding.** A probability under 0.005 rounds to a bet of 0, which is a blank, so a channel can fall out of Jev's view. Count the channels it happens to each round, as for Timestral below.
 - **Explore bet size.** The points Jev puts off its top channel each round in the No change scenario. This is the explore bet its own doubt buys, which is what the row is there to show.
 
 ## Timestral checks
@@ -90,7 +90,8 @@ Checks before we trust the Jev row, see [providers](../harness/providers.md#jev)
 Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).
 
 - **Gap test.** Ten readings, then thirty blanks, on both [input shapes](../specs/forecasters/timestral.md#two-shapes). The quantiles should widen as the gap grows. If they do not, Timestral odds cannot explore and is dropped.
-- **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
+- **Joint against alone.** Timestral odds and Timestral odds, alone differ only in the input shape, so the gap between their scores is what forecasting the ten channels together adds.
+- **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Count the channels it happens to each round. On the first runs it happened to some channel on every round, so whether it happened says nothing and how many does.
 - **Determinism.** The same input twice gives the same quantiles. If not, the forecast needs a fixed seed before the cache can key on the inputs alone.
 - **On the grid.** Timestral top pick and Timestral odds at every setting on the [noise grid](engine-checks.md#noise-grid). Each should land between the hedge rule baseline and the Complacent baseline, as in the [baseline order](engine-checks.md#baseline-order).
 - **Explore bets.** Timestral top pick with explore bets at 1, 2 and 5 points, at the read noise [reading roughness](engine-checks.md#reading-roughness) chose. This confirms an explore bet is still worth its cost for a forecaster, not just for the hedge rule baseline.

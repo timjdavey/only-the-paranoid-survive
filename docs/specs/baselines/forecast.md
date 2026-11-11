@@ -33,7 +33,7 @@ explore_1, explore_2, explore_5: ForecastRule          # TopPickWithExploreBets(
 FORECAST_RULES: Mapping[str, ForecastRule]   # "top-pick", "odds", "explore-1", "explore-2", "explore-5"
 ```
 
-- **The ids are the Timestral ids** in the [glossary](../../glossary.md#the-study) after `timestral/`, bar `odds-bet-aware`, which is `odds` with a different input. The forecasters layer maps it, see [the six policies](../forecasters/policy.md#the-six-policies).
+- **The ids are the Timestral ids** in the [glossary](../../glossary.md#the-study) after `timestral/`, bar `odds-alone` and `odds-bet-aware`, which are `odds` with a different input. The forecasters layer maps them, see [the policies](../forecasters/policy.md#the-policies).
 - **Every rule is a frozen dataclass with `__call__`**, like a policy, see [conventions](README.md#conventions). A rule is pure: same quantiles, same split.
 
 ## Behaviour

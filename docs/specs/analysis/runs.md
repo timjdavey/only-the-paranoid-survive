@@ -87,7 +87,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 `reasoning` is the [reasoning setting](../../harness/models.md#reasoning) the log played.
 
 - **From the log's metadata** when `log.eval.metadata` has `reasoning`, which [`run`](../harness/command.md#run) writes for every eval it runs.
-- **Else read back from the generate config.** `reasoning_effort` set gives its name, with `xhigh` read as `max` and `none` as `off`. `reasoning_tokens` set gives `off` for 0, else the key of the [budget table](../harness/command.md#reasoning) whose value it equals, or `unknown` if none does. Nothing set gives `unknown`, as `on` and a hand run that set nothing look alike in a config.
+- **Else read back from the generate config.** `reasoning_effort` set gives its name, with `none` read as `off`. `xhigh` and `minimal` are not on the grid, so they give `unknown`. `reasoning_tokens` set gives `off` for 0, else the key of the [budget table](../harness/command.md#reasoning) whose value it equals, or `unknown` if none does. Nothing set gives `unknown`, as `on` and a hand run that set nothing look alike in a config.
 - **A provider row** is `n/a`, whatever the config says.
 - **`unknown` is a value**, not an error. It appears in the table as it is, so a log run by hand with `inspect eval` still loads.
 
@@ -140,7 +140,18 @@ The rules that make the run table publishable. They are invariants, not options,
 
 - Whether a log from a later `harness_version` with the same hashes should count as the same result row. It does not here, as the round loop is what the version covers, see [what a log carries](../README.md#what-a-log-carries). Decide when the first release ships.
 
-## Verify before code
+## Checked
 
-- **inspect's log API.** The names assumed on this page: `read_eval_log`, `EvalLog.eval.metadata`, `.eval.model`, `.eval.model_generate_config`, `.eval.created`, `.eval.task`, `EvalLog.results.scores[].metrics`, `EvalSample.id`, `.epoch`, `.metadata`, `.scores`, `.model_usage` with its `input_tokens_cache_read` and `input_tokens_cache_write`, and that `Score.value` comes back as a dict. `load_runs` waits on it.
-- **How inspect's `"mean"` reducer treats a dict `Score.value`.** [Mean over epochs](#mean-over-epochs) averages the scores and sums the counts. If inspect does otherwise, the log's own metrics at more than one epoch differ from this layer's, and [AS1](tests.md#scores) holds at one epoch only. Decide then whether the harness's reducer changes, see [task settings](../harness/task.md#task-settings).
+Run on 2026-11-11 against inspect_ai 0.3.289, on a log of two samples at four epochs with a dict score. No key was used.
+
+| Question | Answer |
+|---|---|
+| Do the names this page reads exist | Yes: `read_eval_log`, `EvalLog.eval.metadata`, `.eval.model`, `.eval.model_generate_config`, `.eval.task`, `EvalLog.results.scores[].metrics`, `EvalSample.id`, `.epoch`, `.metadata`, `.scores` and `.model_usage` |
+| `.eval.created` | An ISO 8601 string with its offset, so `started` parses it |
+| `Score.value` | Comes back as the dict the scorer wrote, ints still ints |
+| `sample.model_usage` | A dict keyed by model string. Each value has `input_tokens`, `output_tokens`, `input_tokens_cache_read`, `input_tokens_cache_write` and `reasoning_tokens`. It is empty for a provider that reports no usage, so those columns are 0 |
+| Does a log keep every epoch | Yes. `log.samples` has one entry per id and epoch, and `log.reductions` has the reduced value per id |
+| How the `"mean"` reducer treats a dict score | It averages every key on its own, counts too. A value that is not a number becomes 0 |
+
+- **So the layer never reads a reduced score.** [Mean over epochs](#mean-over-epochs) works from the per-epoch samples, and sums the counts itself.
+- **The harness's reducer stays `"mean"`.** A share of two counts is the same summed or averaged, as both are divided by the same number of epochs, and the scores are averaged either way. The one thing that differs is a bare count on the log, which nothing reads. The log's own metrics are still checked at one epoch only, see [scenario scores](scores.md#scenario-scores).
