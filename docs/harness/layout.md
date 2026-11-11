@@ -1,6 +1,6 @@
 # Layout
 
-How the code is arranged. The [design](../design/) pages say why the game is the way it is. This folder says how it is built.
+How the code is arranged. The [design](../README.md#design) pages say why the game is the way it is. This folder says how it is built.
 
 ## Five layers
 

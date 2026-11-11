@@ -2,8 +2,8 @@
 
 The contract each layer of the code is written to, and tested against.
 
-- **[design](../design/) is why.** The decisions and the reasons.
-- **[harness](../harness/) is how it is built.** Layers, tools, commands.
+- **[design](../README.md#design) is why.** The decisions and the reasons.
+- **[harness](../README.md#harness) is how it is built.** Layers, tools, commands.
 - **specs is what.** Exactly what each layer must do, precisely enough that someone can write the code and the tests from these pages alone.
 
 ## How we use them
