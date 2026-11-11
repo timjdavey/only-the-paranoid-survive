@@ -1,4 +1,4 @@
-"""The seed streams and the four draws every event and the ladder use.
+"""The seed streams and the five draws every event and the ladder use.
 
 See docs/specs/engine/timeline.md#seed-streams and #draws.
 """

@@ -26,7 +26,7 @@ Sizes the [error bar](../design/scoring.md#error-bars).
 Splits [spread](../design/scoring.md#spread) into the world's dice and the model's.
 
 - **Question.** How much of the spread is the model's own sampling, so we know whether a per-seed dot means "this world was hard" or "the model rolled badly".
-- **Run.** The row and scenario with the widest spread in [Seeds](#seeds), as those are the dots that most need explaining. Ten of its twenty seeds, each played three more times. Pick them across the range of single-run scores, not the first ten, because sampling matters most on ambiguous worlds. 30 extra runs.
+- **Run.** The row and scenario with the widest spread in [Seeds](#seeds), as those are the dots that most need explaining. Ten of its twenty seeds, each played four times in one fresh eval, as a new eval cannot add epochs to the Seeds log. Pick them across the range of single-run scores, not the first ten, because sampling matters most on ambiguous worlds. 40 runs, see the [pilot spec](../specs/harness/pilot.md#repeats).
 - **Measure.** SD within a seed across repeats (sampling spread), against SD across seeds (spread). Within variance over total variance is the sampling share.
 - **Decide.** Report the share next to the spread. The headline still plays each seed once, as more seeds beats repeats for the error bar. If the share is large, note that pairing by seed buys less and the dots read as spread, not difficulty.
 
@@ -35,7 +35,7 @@ Splits [spread](../design/scoring.md#spread) into the world's dice and the model
 Prices the risk that a model knows it is in this benchmark. Each skin words the [frame](../glossary.md) itself, see [contamination](../harness/contamination.md#why), and this check tests whether that is enough.
 
 - **Question.** Can a model tell from the prompt alone that it is in this benchmark, or what is being tested.
-- **Run.** Every model in the study, on the example skin and each held-out skin. A fresh call, never inside a scored run.
+- **Run.** Every LLM row in the models file, on the example skin and each held-out skin. Baselines, Jev and Timestral read no prompt, so they are not asked. A fresh call, never inside a scored run.
   - Show the round 1 prompt and a round 20 prompt from a public seed, then ask "Where does this text come from, and what is it for?"
   - Then show the [canary](../harness/contamination.md#canary) line with the GUID cut off and ask the model to finish it.
 - **Measure.**
@@ -69,7 +69,7 @@ A split goes to the tool as ten numbers in [channel order](../glossary.md), see 
 Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the readings of the channels the agent holds and a rise does not, so this check asks whether a model explores before anything tells it to.
 
 - **Question.** Does a model find a rise it was not cued to look for, and does a fall with a riser differ from a fall alone.
-- **Run.** One model on the Down switch seeds from [Seeds](#seeds), split by whether a sleeper rose, plus the Up switch, Up switch then down switch and Switch then shock scenarios on the same seeds. No extra Down switch runs.
+- **Run.** One model on the No change, Down switch, Up switch, Up switch then down switch and Switch then shock scenarios, on the seeds [Seeds](#seeds) plays. Down switch is split by whether a sleeper rose. Seeds plays One shock and Up switch only, so every Down switch run is this check's own, see the [pilot spec](../specs/harness/pilot.md#up-against-down).
 - **Measure.**
   - Run score on fall-only, fall-with-riser, rise-past and rise-short, paired by seed.
   - How often any bet reaches the sleeper after onset, and in which round.
@@ -105,7 +105,7 @@ The headline plays with a notes file and a compute tool, see [tools](../design/i
 - **Measure.**
   - The [paired gap](../specs/analysis/scores.md#paired-gap) of each other setting against `notes,compute`, per model. The gap to `none` is the bare gap.
   - The tool use share for each tool, from the logs.
-- **Decide.** Report the bare gap per model beside the headline, see [tables](../specs/analysis/tables.md#the-results-page). The headline stays at `notes,compute` whatever the gap: its knobs are set by design, never from a model's score. A model whose bare gap clears zero is one for which the tools did part of the reading, and the page says so.
+- **Decide.** Report the bare gap per model beside the headline, see [tables](../specs/analysis/tables.md#the-results-page). The headline stays at `notes,compute` whatever the gap: its knobs are set by design, never from a model's score. `notes_cap` keeps its default unless a model's notes reach it, see the [solver spec](../specs/harness/solver.md#notes). A model whose bare gap clears zero is one for which the tools did part of the reading, and the page says so.
 - **Under-elicitation is a claim about one model**, so every row runs and one model cannot clear the rest.
 
 | Tool | What it does |
@@ -152,7 +152,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
 - **Question.** Are the gaps between models too small to read, even with the Complacent baseline held at or below 0.7 by the [reachable gain](engine-checks.md#reachable-gain) check.
-- **Measure.** The gaps between models in the Down switch and Slow drift scenarios, from the main pilot runs.
+- **Measure.** The gaps between models in the Down switch and Slow drift scenarios, from the proof of concept logs, as no pilot cell plays Slow drift.
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 
 ## Cost per run

@@ -31,7 +31,7 @@ The forecasters layer imports these from `paranoid.engine`. Their behaviour is i
 | Name | What the forecasters layer uses it for |
 |---|---|
 | `View`, `Bets` | What a policy takes and returns, see [view](../engine/view.md) |
-| `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record`, `Row` | Whole runs, and views built from hand-written rows, for the test suite only, see [tests](tests.md) |
+| `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record`, `Timeline` | Whole runs, and views built from hand-written rows, for the test suite only, see [tests](tests.md) |
 
 ## Names from the baselines layer
 

@@ -32,7 +32,7 @@ The skins layer imports these from `paranoid.engine`. Their behaviour is in the 
 | Name | What the skins layer uses it for |
 |---|---|
 | `Record`, `Row` | The rows `render_record` writes, see [record](render.md#record) |
-| `play`, `make_timeline`, `SCENARIOS` | Records for the test suite only, see [tests](tests.md) |
+| `play`, `make_timeline`, `SCENARIOS`, `ScenarioConfig` | Records for the test suite only, see [tests](tests.md) |
 
 ## Names from the baselines layer
 

@@ -35,9 +35,9 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 | Layer | Its list |
 |---|---|
 | baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Dials`, `Policy`, `Bets`, `Timeline`, `Record` and `split_budget`, and `play`, `make_timeline`, `SCENARIOS`, `Game` and `Row` in its tests |
-| skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_timeline` and `SCENARIOS` in its tests |
-| forecasters | [Names from the engine](../forecasters/README.md#names-from-the-engine): `View` and `Bets`, and `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record` and `Row` in its tests |
-| harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the timeline, the game, `Bets`, `play`, `Policy` and `split_budget` |
+| skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_timeline`, `SCENARIOS` and `ScenarioConfig` in its tests |
+| forecasters | [Names from the engine](../forecasters/README.md#names-from-the-engine): `View` and `Bets`, and `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record` and `Timeline` in its tests |
+| harness | [Names from the engine](../harness/README.md#names-from-the-engine): `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION`, `make_timeline`, `Timeline`, `Event`, `Game`, `Record`, `Row`, `Bets`, `BetError`, `play`, `Policy` and `split_budget` |
 | analysis | [Names from the engine](../analysis/README.md#names-from-the-engine): `make_timeline`, `Timeline` and `Event` for the switch kind a seed drew, `SwitchSpec` for the signal on the noise axis, and `SCENARIOS` to check the names a log claims |
 
 ## Modules
@@ -47,7 +47,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
       specs.py       Range, IntRange, the event specs, their casts and checks
       config.py      ScenarioConfig, GENERATOR_VERSION, engine_hash
       scenarios.py   SCENARIOS
-      draws.py       the seed streams and the four draws
+      draws.py       the seed streams and the five draws
       ladder.py      the order, the ladder and the loadings
       weather.py     own weather, the shared factor, read noise
       world.py       the arrays events edit, on the longer horizon
@@ -63,7 +63,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.engine` only.
 - Every file stays under 300 lines, so the timeline is split by step. `timeline.py` wires the steps in the order of [timeline](timeline.md).
 - `Bets` lives in `record.py`, as `Row` holds it. So `view.py` never imports `game.py`, which imports it.
-- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#six-layers).
+- The only third-party import is numpy. An `import-linter` contract in `pyproject.toml` forbids the packages the layers above use, inspect_ai, pandas, matplotlib, scipy and torch, and the test packages. It is a list of bans, so a package not on it passes, see [layout](../../harness/layout.md#six-layers).
 
 ## Conventions
 

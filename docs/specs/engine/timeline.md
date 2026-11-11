@@ -34,7 +34,8 @@ class Timeline:
     sleeper: int | None
     events: tuple[Event, ...]
 
-    def climate_leader(self, round: int) -> int   # argmax of base in that round, lowest index on a tie
+    def climate_leader(self, round: int) -> int   # argmax of base in that round, lowest index on a tie.
+                                                  # ValueError unless 1 <= round <= rounds
 
 def make_timeline(config: ScenarioConfig, seed: int) -> Timeline
 ```
@@ -125,7 +126,7 @@ An impulse `s` that decays. By default it goes into the shared factor, `factor[t
 
 - **Sharp.** `s[onset] = −depth`, then `s[t] = s[t−1] × 2^(−1 / half_life)`.
 - **Slide.** Falls in a straight line over `half_life + 1` rounds, `s[onset + j] = −depth × (j + 1) / (half_life + 1)` for `j` from 0 to `half_life`, then rebounds from the trough with half-life `ceil(half_life / 2)`, `s[t] = s[t−1] × 2^(−1 / ceil(half_life / 2))`.
-- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above the high of the depth range the engine reads, `depth_points` when pinned and `depth_sigmas` × `own_scale` when not, `make_timeline` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided). With the knob off, a cap at or below 0 raises `ValueError`, as the hedge already sits within the margin.
+- **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above the high of the depth range the engine reads, `depth_points` when pinned and `depth_sigmas` × `own_scale` when not, `make_timeline` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided). With the knob off, a cap at or below 0 raises `ValueError`, as the hedge already sits within the margin. Either way, a hedge that is the leader, or that loads no lower than it, raises `ValueError`, as no depth could then hold the margin. No valid config reaches it today.
 - **`one_channel_shock`.** The impulse goes into `impulse[t, l]` instead of the factor, with no loading. `base` and `factor` are untouched, so the climate does not move and the Discerning baseline holds. The cap above does not apply. `Event.channel` is `l`.
 
 #### Switch

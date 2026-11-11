@@ -9,6 +9,7 @@ See [running](docs/harness/running.md). `uv sync`, copy `.env.example` to `.env`
 - **Read the layer rule** in [layout](docs/harness/layout.md). Code imports only from the layer below it. CI checks this.
 - **Read the layer's spec** in [specs](docs/specs/README.md). Code is written from its spec and tested against it. If the code has to differ, change the spec in the same PR.
 - **Use glossary words** in code and prose, see [glossary](docs/glossary.md). Add a word there before using it anywhere else.
+- **Search for the old one.** When you change a number, a name or a rule, search the repo for the old one and change every page that states it. The tests in `tests/docs/` catch a dead link, a test id with no test and a file that is too long, and nothing else.
 - **Commit before every major change.** If the working tree has uncommitted work, commit it first, then start the change.
 
 ## Be reader friendly
@@ -26,7 +27,7 @@ This matters most.
 |---|---|---|
 | A scenario | An events list in `paranoid.engine`, a row in [scenarios](docs/design/scenarios.md) | Tie it to a failure mode and test its reverse |
 | A skin | A TOML file, see [skins](docs/harness/skins.md) and [writing a skin](docs/harness/writing-a-skin.md) | It must pass the lint. Held-out skins go in the private repo |
-| A baseline | A pure policy in `paranoid.baselines` and a key in its `POLICIES`, see the [baselines spec](docs/specs/baselines/README.md), a row in [baselines](docs/design/baselines.md). The harness then plays it as `baseline/<name>` with no change | Check the [baseline order](docs/pilot/engine-checks.md#baseline-order) still holds |
+| A baseline | A pure policy in `paranoid.baselines`, as a frozen dataclass, and a key in its `POLICIES`, see the [baselines spec](docs/specs/baselines/README.md), a row in [baselines](docs/design/baselines.md) and a [glossary](docs/glossary.md#the-study) row naming it `baseline/<name>` in code, which a test checks. The harness then plays it as `baseline/<name>` with no change | Check the [baseline order](docs/pilot/engine-checks.md#baseline-order) still holds |
 | A forecaster | A class that meets `Forecaster` in `paranoid.forecasters`, and its policies in a mapping beside `TIMESTRAL_POLICIES`, see the [forecasters spec](docs/specs/forecasters/README.md). torch and model packages are imported nowhere else | Run it on the gap test first, see [Timestral checks](docs/pilot/provider-checks.md#timestral-checks) |
 | Seeds | Public seeds in `configs/seeds/public.txt`, held-out seeds in the private repo's `held-out.txt`. One list for every scenario, see [contamination](docs/harness/contamination.md#two-seed-sets) | Never publish a held-out seed, its timeline or a log that played it |
 | A model | A row in `configs/models/` | Say its reasoning setting |
