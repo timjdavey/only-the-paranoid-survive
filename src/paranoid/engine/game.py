@@ -1,10 +1,10 @@
 """Game, BetError and play: the round loop. See docs/specs/engine/game.md."""
 
 import math
-import numbers
 from collections.abc import Sequence
 
 from .record import Bets, Record, Row
+from .specs import is_whole
 from .timeline import Timeline
 from .view import Dials, Policy, Start, View
 
@@ -17,10 +17,6 @@ class BetError(ValueError):
     def __init__(self, check: str) -> None:
         self.check = check  # shape, sign, sum or inertia
         super().__init__(f"Bad tool call: {check}.")
-
-
-def is_whole(value: object) -> bool:
-    return isinstance(value, numbers.Integral) and not isinstance(value, bool)
 
 
 def check_timeline(timeline: Timeline) -> None:
