@@ -43,7 +43,7 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 - Ask each provider in `configs/models/` for zero data retention before the pilot's `recognition` and `channel-order` cells, as both send every held-out skin's prompt to every `llm` row, see [contamination](docs/harness/contamination.md#who-can-see-them). The proof of concept plays held-out skins too.
 - Pass the same two held-out skins to `paranoid run --skins` on every proof of concept run, see [running](docs/harness/running.md#commands).
 - Before the proof of concept, run `paranoid run --limit 2` on both skins and read `paranoid analyse cost`, so the budget rests on measured tokens and a cached share, see [cost per run](docs/pilot/provider-checks.md#cost-per-run).
-- If Claude runs through a subscription, check its data terms, rate limit and cache reads first, see [keys](docs/harness/models.md#keys).
+- If Claude runs through a subscription, check its rate limit and cache reads first, and play no held-out skin through it: Anthropic's Free, Pro and Max plans are outside zero data retention, see [keys](docs/harness/models.md#keys).
 - Pass `--seeds` to every proof of concept run. A bare `--seeds public` is the whole public list, 1000 seeds of eight scenarios, so 8000 runs a skin, see [running](docs/harness/running.md#commands).
 - Run the [channel order check](docs/pilot/provider-checks.md#channel-order) before any other provider check, as its answer can change the `submit` tool they all play.
 - Rule on the six pass names in the held-out skin `indigo` that sit one letter from a real place, before `indigo` is called done and before [recognition](docs/pilot/provider-checks.md#recognition) reads it. The search and its findings are in the private repo's `skins/README.md`.
