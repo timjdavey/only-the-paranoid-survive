@@ -68,4 +68,5 @@ def test_kl13_every_published_file_with_prompt_text_carries_it():
     for comment_first in (EXAMPLE_TOML, Path(__file__)):
         first = comment_first.read_text(encoding="utf-8").splitlines()[0]
         assert first.startswith("#") and CANARY in first, comment_first.name
-    assert CANARY in (ROOT / "docs" / "harness" / "prompts.md").read_text(encoding="utf-8")
+    for page in ("prompts.md", "writing-a-skin.md"):
+        assert CANARY in (ROOT / "docs" / "harness" / page).read_text(encoding="utf-8"), page

@@ -105,7 +105,7 @@ Then it checks that nothing the model reads carries the canary GUID.
 - **The GUID** is the part of `CANARY` after `canary GUID `. The line's first half fails the [word lint](#words) on its own, as `benchmark` and `canary` are banned, so this check needs only the GUID. The GUID holds `paranoid` and runs of digits, so a field with the GUID in it also fails the word lint with `paranoi` and the [number rule](#numbers).
 - **Checked in** the rendered system prompt, and in `tool_text`, `bets_name`, `bets_text`, `bad_call`, `no_call`, `notes_name`, `notes_text`, `notes_param`, `compute_name`, `compute_text`, `compute_param`, `question` and the three column words. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
 - **`CANARY`** is the line in [contamination](../../harness/contamination.md#canary), exactly, with no trailing newline. It lives in `paranoid.skins.canary` and is exported from `paranoid.skins`.
-- **Every published file that holds prompt text carries it.** In this repo that is `example.toml` and `tests/skins/test_example.py`, each as its first comment line, and `docs/harness/prompts.md`. The test suite checks both, see [tests](tests.md#lint).
+- **Every published file that holds prompt text carries it.** In this repo that is `example.toml` and `tests/skins/test_example.py`, each as its first comment line, and `docs/harness/prompts.md` and `docs/harness/writing-a-skin.md`, which quote the example skin. The test suite checks all four, see [tests](tests.md#lint).
 - **A model that can finish the line has seen our data.** The [recognition check](../../pilot/provider-checks.md#recognition) asks it to.
 
 ### Raising

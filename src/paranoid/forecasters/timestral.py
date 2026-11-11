@@ -1,6 +1,6 @@
 """Timestral, the default forecaster. See docs/specs/forecasters/timestral.md.
 
-torch and the Timestral package are imported inside `load`, so importing this module imports neither.
+The Timestral package is imported inside `load` and brings torch with it, so importing this module imports neither.
 """
 
 from dataclasses import dataclass
