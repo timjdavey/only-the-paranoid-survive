@@ -40,7 +40,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 
 | Id | Test | Page |
 |---|---|---|
-| AT1 | `write_results` on the fixture writes `<name>.md` with the header line naming the logs' `harness_version`, the eleven columns in order, one row per result row in models file order with provider rows first, and a legend naming `†` when a run gave up | [tables](tables.md#the-results-page) |
+| AT1 | `write_results` on the fixture writes `<name>.md` with the header line naming the logs' `harness_version`, the twelve columns in order, one row per result row in models file order with provider rows first, and a legend naming `†` when a run gave up | [tables](tables.md#the-results-page) |
 | AT2 | The CSV has exactly `CSV_COLUMNS`, one row per scored run, `seed` filled on public rows and blank on held-out rows, and no `output` column | [tables](tables.md#the-run-csv) |
 | AT3 | `write_results` twice on the same table gives byte-identical `.md` and `.csv`, and the same bytes again after a line is appended to `<name>.md` between runs | [tables](tables.md#invariants) |
 | AT4 | On the held-out fixture, with a `recognition` table built from a CSV holding a planted reply string, none of the three seed values, the reply string, a reading or a word of the example skin's `intro` appears in any file written | [tables](tables.md#invariants) |
@@ -69,7 +69,7 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AI2 | With a hand-built `baseline-order.csv`, the Baseline order section has one row per scenario and baseline, an order line that holds, and a `**bold**` line for a planted break. Every section but Baseline order and Reachable gain still reads `_Not run yet._` | [pilot](pilot.md#sections) |
 | AI3 | With a hand-built `recognition.csv` holding a reply column, the section's table has counts and shares and the reply text appears nowhere in the page or its CSV | [pilot](pilot.md#sections) |
 | AI4 | An existing `results.md` with one heading renamed raises `ValueError` naming it, and the file is unchanged | [pilot](pilot.md#writing-the-page) |
-| AI5 | With a hand-built `up-against-down-bets.csv` of four runs, two with a `sleeper_round`, the Up against down section reports a share of 0.5 and their median, and a file with a column this page does not name raises `ValueError` naming it | [pilot](pilot.md#sections) |
+| AI5 | With a hand-built `up-against-down` log of four runs, two with a `sleeper_round` above 0, the Up against down section reports a share of 0.5 and their median | [pilot](pilot.md#sections) |
 | AI6 | With a hand-built `channel-order.csv` of twelve rows for one model, ten valid, two of those with `slipped` 1 and one with neither `matched` nor `slipped`, the Channel order section reports a valid share of 10 in 12, a slip share of 0.2 and an own numbers share of 0.1 | [pilot](pilot.md#sections) |
 | AI7 | With a hand-built `baseline-order.csv` whose Up switch scenario has a reachable gain of 0.2 and whose Down switch scenario has a Bayesian gain percentage of 40%, the Reachable gain section has one row per scenario with a switch or drift and a `**bold**` line for each of the two breaks. Its Up switch then down switch row reads its gains from the `stayer` rows, not `complacent` | [pilot](pilot.md#sections) |
 
@@ -97,3 +97,4 @@ With `hypothesis`, kept fast with a small example count.
 ## Not decided
 
 - Whether the fixture logs should be built once and committed under `tests/analysis/logs/`, so the suite needs no inspect run. They are built per session here, as a committed log goes stale with every harness change. Decide when the suite's run time is known.
+- Whether a pilot CSV with a column no section names should raise. AI5 once said so of an `up-against-down-bets.csv`, which no cell writes, and no rule on [pilot](pilot.md#sections) asks for it. Decide when the pilot page is built.

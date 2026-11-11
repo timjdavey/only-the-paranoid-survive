@@ -34,7 +34,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Up against down](provider-checks.md#up-against-down) | | | |
 | [Jev checks](provider-checks.md#jev-checks) | | | |
 | [Timestral checks](provider-checks.md#timestral-checks) | | | |
-| [Bare harness](provider-checks.md#bare-harness), bare gap per model | | | |
+| [Bare harness](provider-checks.md#bare-harness), bare gap per model and `notes_cap` | | | |
 | [Tool choice](provider-checks.md#tool-choice), gap per model | | | |
 | [Rolling conversation](provider-checks.md#rolling-conversation), gap per model | | | |
 | [Inertia](provider-checks.md#inertia) | | | |

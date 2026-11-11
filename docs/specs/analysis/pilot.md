@@ -45,7 +45,7 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 | Cost per run | `seeds` and `repeats` logs | `write_cost`, and the retry share per result row, `sum(retry_rounds) / sum(rounds)` | None | [Cost per run](../../pilot/provider-checks.md#cost-per-run) |
 
 - **Recognition shows numbers and skin names only.** The CSV holds replies about held-out prompts and is private whenever a held-out skin ran, see [recognition](../../pilot/provider-checks.md#recognition). `load_recognition` drops the reply on read, see [flags](scores.md#flags), so the section cannot hold one.
-- **The inertia check reads the main logs**, so it appears as paired gaps in the Up against down section, see [inertia](../../pilot/provider-checks.md#inertia). The warm up check has its own cell and section.
+- **The inertia check reads the proof of concept logs**, so it appears as paired gaps in the Up against down section, see [inertia](../../pilot/provider-checks.md#inertia). The warm up check has its own cell and section.
 - **Each cell's folder is loaded on its own.** `load_runs` is called once per input, never over `logs/pilot/` as a whole, so the `repeats` log, whose ids are ten of one `seeds` log's twenty, is never dropped as its duplicate, see [duplicates](runs.md#duplicates).
 - **The pilot keys in `Score.value`**, `explore_points`, `sleeper_round`, `notes_rounds` and `compute_rounds`, are run table columns like any other, see [scoring one run](../harness/scorer.md#scoring-one-run). The two rounding CSVs exist because `rounded_out` sits on a message, which this layer never reads.
 
