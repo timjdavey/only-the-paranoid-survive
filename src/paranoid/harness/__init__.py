@@ -14,6 +14,7 @@ from .metrics import (
     tool_use_share,
     weakest_trait,
 )
+from .pilot import ALL_BETS, CELLS, CHANNEL_ORDER_REQUEST, RECOGNITION_QUESTION, CellArgs, run_cell
 from .providers import StoreAPI
 from .providers.baseline import BaselineAPI
 from .providers.jev import JevAnswer, JevAPI, JevClient
@@ -66,4 +67,10 @@ __all__ = [
     "JevAnswer",
     "JevClient",
     "main",
+    "CellArgs",
+    "CELLS",
+    "run_cell",
+    "RECOGNITION_QUESTION",
+    "CHANNEL_ORDER_REQUEST",
+    "ALL_BETS",
 ]

@@ -1,0 +1,138 @@
+"""HP1, HP3, HP4, HP9 and HP11: the engine cells. See docs/specs/harness/tests.md#pilot.
+
+Every cell runs with PARANOID_PILOT_SEEDS=5 into a temp `out`. The columns are read from the pilot spec's
+Writes lines, so the CSV and the page cannot drift apart.
+"""
+
+import csv
+import re
+import socket
+from pathlib import Path
+
+import pytest
+
+from paranoid.engine import SCENARIOS, Game, make_timeline
+from paranoid.harness import CELLS, CellArgs, load_grid, load_seeds, run_cell
+
+SPEC = Path(__file__).parents[2] / "docs" / "specs" / "harness" / "pilot.md"
+SEEDS, GRID = 5, len(load_grid().own_scale)
+POLICIES, SCENARIO_COUNT = 7, 8
+ROWS = {  # one row per seed per setting per scenario per baseline, as each Runs line says
+    "streaks": 4 * 2 * SEEDS,
+    "tell": (4 * 2 + 27) * 3 * SEEDS,
+    "luck": GRID * SEEDS,
+    "timeline-sanity": GRID * SCENARIO_COUNT * SEEDS,
+    "timeline-sanity-sparklines": SCENARIO_COUNT * 40,
+    "noise-grid": GRID * 3 * POLICIES * SEEDS,
+    "game-length": 9 * (4 + 3 * 3) * POLICIES * SEEDS + 9 * 3 * SEEDS,
+    "reading-roughness": 3 * (9 * 2 + 3 * 2) * SEEDS,
+    "up-and-down": 3 * 3 * 7 * SEEDS,
+    "bayesian-frontier": SCENARIO_COUNT * 35 * SEEDS,
+    "baseline-order": SCENARIO_COUNT * POLICIES * SEEDS + SEEDS,
+}
+ENGINE = ["streaks", "tell", "luck", "timeline-sanity", "noise-grid", "game-length", "reading-roughness"]
+ENGINE += ["up-and-down", "bayesian-frontier", "baseline-order"]
+SLOW = ("game-length", "bayesian-frontier")
+
+
+def written_columns() -> dict[str, list[str]]:
+    """Each CSV's columns, from the spec's `Writes` and `Also writes` lines."""
+    found = re.findall(r"\*\*(?:Also )?[Ww]rites\*\* `([a-z-]+)\.csv`[^`]*`([^`]+)`", SPEC.read_text())
+    return {name: [c.strip() for c in columns.split(",")] for name, columns in found}
+
+
+def read(path: Path) -> list[dict]:
+    with path.open(newline="") as file:
+        return list(csv.DictReader(file))
+
+
+@pytest.fixture
+def pilot(tmp_path, monkeypatch):
+    monkeypatch.setenv("PARANOID_PILOT_SEEDS", str(SEEDS))
+
+    def no_network(*args, **kwargs):
+        raise OSError("the network is blocked in the pilot tests")
+
+    monkeypatch.setattr(socket, "socket", no_network)
+    monkeypatch.setattr(socket, "create_connection", no_network)
+    return CellArgs(out=tmp_path / "out")
+
+
+@pytest.mark.parametrize("cell", [pytest.param(c, marks=pytest.mark.slow) if c in SLOW else c for c in ENGINE])
+def test_hp1_each_engine_cell(cell, pilot):
+    paths = run_cell(cell, pilot)
+    columns = written_columns()
+    assert paths and all(path.parent == pilot.out for path in paths)
+    for path in paths:
+        name = path.stem
+        with path.open(newline="") as file:
+            header = next(csv.reader(file))
+        assert header == columns[name], name
+        assert len(read(path)) == ROWS[name], name
+
+
+def test_hp3_too_few_public_seeds(configs, pilot, monkeypatch):
+    configs(seeds=list(range(10)))
+    monkeypatch.delenv("PARANOID_PILOT_SEEDS")
+    with pytest.raises(ValueError, match="PARANOID_PILOT_SEEDS"):
+        run_cell("luck", CellArgs(out=pilot.out, seeds=20))
+
+
+@pytest.fixture
+def order(pilot) -> list[dict]:
+    (path,) = run_cell("baseline-order", pilot)
+    return read(path)
+
+
+def timeline(row):
+    return make_timeline(SCENARIOS[row["scenario"]], int(row["seed"]))
+
+
+def test_hp4_baseline_order_words(order):
+    for row in order:
+        t = timeline(row)
+        if row["scenario"] == "down_switch":
+            assert row["kind"] == t.events[0].numbers["kind"]
+            if row["baseline"] == "discerning":
+                switch = t.events[0]
+                assert switch.onset <= int(row["move_round"]) <= switch.onset + switch.numbers["ramp"] - 1
+        if row["scenario"] == "no_change" and row["baseline"] == "discerning":
+            assert row["move_round"] == "0"
+        if row["baseline"] == "complacent":
+            assert row["move_round"] == "0"
+
+
+def test_hp11_the_stayer(order):
+    stayers = [row for row in order if row["baseline"] == "stayer"]
+    assert {row["scenario"] for row in stayers} == {"up_switch_then_down_switch"}
+    assert sorted(int(row["seed"]) for row in stayers) == load_seeds("public")[:SEEDS]
+    discerning = {row["seed"]: row for row in order if row["baseline"] == "discerning" and row["scenario"] == "up_switch_then_down_switch"}
+    for row in stayers:
+        t = timeline(row)
+        assert row["move_round"] == discerning[row["seed"]]["move_round"]
+        undo = t.events[-1]
+        assert t.climate_leader(undo.onset - 1) == t.sleeper
+        rounds = t.config.rounds
+        held = sum(r.output for r in held_record(t).rows)
+        assert float(row["output"]) == pytest.approx(held)
+        if undo.onset + int(undo.numbers["ramp"]) - 1 < rounds:
+            assert t.climate_leader(rounds) == t.leader
+
+
+def held_record(t):
+    """The Stayer's record, built here from its rule: discerning until the last event begins, then hold."""
+    game = Game(t)
+    while not game.done:
+        held = t.climate_leader(min(game.round, t.events[-1].onset - 1))
+        game.play([100 if c == held else 0 for c in range(t.config.channels)])
+    return game.record
+
+
+def test_hp9_a_dry_run_writes_nothing(pilot, capsys):
+    for cell in ENGINE:
+        assert run_cell(cell, CellArgs(out=pilot.out, dry_run=True)) == []
+    assert not pilot.out.exists()
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == len(ENGINE) + 1  # timeline-sanity writes two files
+    assert all(": " in line and line.split(": ")[0].endswith(".csv") for line in lines)
+    assert set(ENGINE) <= set(CELLS)
