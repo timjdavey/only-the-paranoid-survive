@@ -99,8 +99,8 @@ One row per result row and twelve columns: `Model`, the eight scenarios in `SCEN
 
 Each compares two result rows of one model and reasoning setting, so each has a `Model` column and a `Setting` column holding the heading of the first row's section. Rows go in section order, then the scores table's order.
 
-- **The sensitivity table** has a row wherever a model has a result row at the headline knobs and a second that differs from it only in `tools`, `rolling` or `tool_choice`. The headline knobs are the defaults in the table above.
-  - The columns are `Model`, `Setting`, `Knob` as a heading names it, such as `tools none`, that row's headline with its bar, and the `headline` row of the [paired gap](scores.md#paired-gap), headline row minus that row.
+- **The sensitivity table** has a row wherever a model has two result rows that differ in one of `tools`, `rolling` and `tool_choice` and in nothing else, the first at that knob's default in the table above.
+  - The columns are `Model`, `Setting`, `Knob` as a heading names it, such as `tools none`, the second row's headline with its bar, and the `headline` row of the [paired gap](scores.md#paired-gap), the first row minus the second.
   - The row at `tools none` is the bare gap, see [bare harness](../../pilot/provider-checks.md#bare-harness).
   - Nothing is picked: every model plays the same headline setting, and this table says what each knob did for it.
   - The second row keeps its own section too.
