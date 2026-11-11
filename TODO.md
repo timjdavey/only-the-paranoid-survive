@@ -22,14 +22,15 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Ship `compose.yaml` and the sandbox extra before the first headline run, as the headline needs Docker, see [running](docs/harness/running.md#setup).
 - Add `src/paranoid/skins/example.toml`, the example skin's real words, which are coming. KS2, KR2, KL11 and KL13 wait on it, see the [skins spec](docs/specs/skins/skin.md#the-example-skin).
 - Run the [channel order check](docs/pilot/provider-checks.md#channel-order) before any other provider check, as its answer can change the `submit` tool they all play.
-- Bring every held-out skin up to the [skin spec](docs/specs/skins/skin.md). Nine keys are wanted: `bets_name`, the names and text of the notes and compute tools, and the four column words, see [skins](docs/harness/skins.md#what-a-skin-file-holds).
+- Bring every held-out skin up to the [skin spec](docs/specs/skins/skin.md). Nine keys are wanted: `bets_name`, the names and text of the notes and compute tools, and the four column words, see [skins](docs/harness/skins.md#what-a-skin-file-holds). Each must also call its split percentages, which the lint now checks, see [what every skin must say](docs/harness/prompts.md#what-every-skin-must-say).
 - Decide whether the example skin is a money story with channels, then fix [prompts](docs/harness/prompts.md#system-prompt) to match.
   - Its fixed words are budget, spend, fund and channel. A story that spends money on channels can use them as written, and a story that sends people or goods cannot.
   - `prompts.md` brackets the noun once, in "ten [channels]", and writes it out three times: in the two reading sentences and in "in channel order".
   - The draft is a fruit importer that sells through ten wholesale markets on commission. It writes its own noun in all four places and swaps "fund" for a verb of its own. It keeps "budget", "points" and "spend", and "spend" sits oddly on a story that sends goods.
   - So decide whether `prompts.md` brackets the verb as well as the noun, and whether "spend" may move.
+  - Its points become percentages, see [interface](docs/design/interface.md#how-the-agent-plays). Its clause for the round hundred can then go.
 - Decide [banning numbers](docs/specs/skins/lint.md#not-decided) in the skins spec, due now that held-out skins exist.
-- If [recognition](docs/pilot/provider-checks.md#recognition) replies doubt a skin for its round hundred, decide whether a skin may state another number that the tool turns into 100 points, see [writing a skin](docs/harness/writing-a-skin.md#give-every-fixed-fact-a-reason). Not built.
+- Every skin calls its split percentages, which is the first answer to the round hundred. If [recognition](docs/pilot/provider-checks.md#recognition) replies still doubt a skin for it, decide whether a skin may state another number that the tool turns into 100 points, see [writing a skin](docs/harness/writing-a-skin.md#give-every-fixed-fact-a-reason). Not built.
   - Whole points only convert cleanly from a number that divides 100, which makes the smallest bet larger, or from a multiple of 100 placed in fixed lots.
   - It would change the lint's [budget fact](docs/specs/skins/lint.md#frame-facts), the skin spec and the `submit` tool.
 - Decide whether the skin names the notes and compute parameters before the first headline run on held-out skins, see the [solver spec](docs/specs/harness/solver.md#not-decided).

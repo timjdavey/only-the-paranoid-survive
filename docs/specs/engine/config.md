@@ -143,7 +143,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 
 | Field | Default | Why this number | Check |
 |---|---|---|---|
-| `channels`, `budget` | 10, 100 | [interface](../../design/interface.md#how-the-agent-plays) | Fixed by design |
+| `channels`, `budget` | 10, 100 | 100 so a bet is a percentage, ten so the Uniform baseline is 10 on every channel, see [interface](../../design/interface.md#how-the-agent-plays) | Fixed by design |
 | `rounds` | 40 | [defaults](../../design/mechanics.md#defaults) | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `leader_base` | 60 to 70 | Mid-range, so a deep shock stays above 0 | [Timeline sanity](../../pilot/engine-checks.md#timeline-sanity) |
 | `runner_up_gap_sigmas` | 2 to 4 | "A few sigmas below", see [the ladder](../../design/mechanics.md#the-ladder) | [Streaks](../../pilot/engine-checks.md#streaks) |

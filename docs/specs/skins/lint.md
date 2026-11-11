@@ -10,6 +10,7 @@ The lint is the one gate every word the model reads passes through. `lint_text` 
 BANNED_WORDS: tuple[str, ...]               # lowercase word starts, the table below
 PREFIXES: tuple[str, ...] = ("un", "in", "de", "re", "non")   # removed once before a second match
 WHOLE_NUMBER_PHRASES: tuple[str, ...] = ("whole number", "integer")
+PERCENT_PHRASES: tuple[str, ...] = ("percent", "per cent", "%")
 
 class LintError(SkinError):
     skin: str                               # the skin's name
@@ -75,6 +76,7 @@ Then it renders `render_system_prompt(skin)` and checks the facts in [what every
 
 | Fact | Passes when | Problem string |
 |---|---|---|
+| Percentages | any entry of `PERCENT_PHRASES` is in the prompt, ignoring case. `percent` covers `percentage` and `percentages` | `missing: percent` |
 | The budget | `"100"` is in the prompt | `missing: 100` |
 | Every channel | each name in `skin.channels` is in the prompt, case sensitive | `missing: channel <name>` |
 | Whole numbers | any entry of `WHOLE_NUMBER_PHRASES` is in the prompt, ignoring case. `whole number` covers `whole numbers`, `integer` covers `integers` | `missing: whole numbers` |
@@ -112,4 +114,5 @@ Then it checks that nothing the model reads carries the canary GUID.
 
 - **Whether to ban numbers.** A skin should hold no number but 100 and ten, see [skins](../../harness/skins.md#what-a-skin-file-holds). A lint that fails any other digit run would enforce it, but blocks a story with a year or a size in it. Decide after the first held-out skin is written.
 - **The whole-numbers phrases.** `whole number` and `integer` are a first pass. A held-out skin that words the fact another way adds its phrase to `WHOLE_NUMBER_PHRASES`, and the test suite pins the list. Decide skin by skin.
+- **The percent phrases.** `percent`, `per cent` and `%` are a first pass, as every skin calls its split percentages, see [interface](../../design/interface.md#how-the-agent-plays). A held-out skin that says it another way adds its phrase to `PERCENT_PHRASES`, and the test suite pins the list. Decide skin by skin.
 - **The prefixes.** `un`, `in`, `de`, `re`, `non` are a first pass too. A word that slips through adds its prefix, and the test suite pins the list. Decide skin by skin.

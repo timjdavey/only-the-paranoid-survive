@@ -12,8 +12,8 @@ class Skin:
     name: str                               # short id, the file stem. Goes in log metadata, never to the model
     channels: tuple[str, ...]               # one name per channel, in channel index order. Ten in the example skin
     intro: str                              # who the agent is and what it runs
-    rules: str                              # the budget of 100, the channels by name, whole numbers adding up to 100
-    how_points_earn: str                    # what a point buys, what a reading means, a small spend gives a rough reading
+    rules: str                              # the channels by name, the split in whole percentages adding up to 100
+    how_points_earn: str                    # what a percent of the budget buys, what a reading means, a small spend gives a rough reading
     ask: str                                # the record is below, place this round's points with the tool
     tool_name: str                          # the tool's name as the model sees it
     tool_text: str                          # the tool's description

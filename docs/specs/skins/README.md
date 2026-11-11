@@ -8,7 +8,7 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the chan
 |---|---|
 | [skin](skin.md) | `Skin`, its fields and validation, the TOML file, `load_skin`, `load_skins`, where the example skin lives |
 | [render](render.md) | `render_system_prompt`, `render_record`, `prompt_hash`, `RENDER_VERSION` |
-| [lint](lint.md) | `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES`, `lint_text`, `lint`, `LintError`, the frame facts, `CANARY` |
+| [lint](lint.md) | `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES`, `PERCENT_PHRASES`, `lint_text`, `lint`, `LintError`, the frame facts, `CANARY` |
 | [tests](tests.md) | Every test the skins suite runs, with the page it checks |
 
 ## Exports
@@ -22,7 +22,7 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the chan
 | `render_system_prompt`, `render_record` | `(Skin) -> str` and `(Skin, Record) -> str` | [render](render.md) |
 | `prompt_hash`, `RENDER_VERSION` | `(Skin) -> str`, the hash a log carries, and the layout version it covers | [render](render.md) |
 | `lint`, `lint_text`, `LintError` | The lint and its error, a `SkinError` | [lint](lint.md) |
-| `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES` | The lint's word lists, pinned by the test suite | [lint](lint.md) |
+| `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES`, `PERCENT_PHRASES` | The lint's word lists, pinned by the test suite | [lint](lint.md) |
 | `CANARY` | The canary line, as a string | [lint](lint.md#canary) |
 
 ## Names from the engine
@@ -49,7 +49,7 @@ The skins code imports nothing from `paranoid.baselines`. Its tests import one n
       skin.py        Skin, SkinError
       load.py        load_skin, load_skins
       render.py      RENDER_VERSION, render_system_prompt, render_record, prompt_hash
-      lint.py        BANNED_WORDS, PREFIXES, WHOLE_NUMBER_PHRASES, LintError, lint_text, lint
+      lint.py        BANNED_WORDS, PREFIXES, WHOLE_NUMBER_PHRASES, PERCENT_PHRASES, LintError, lint_text, lint
       canary.py      CANARY
       example.toml   the example skin, shipped as package data
 

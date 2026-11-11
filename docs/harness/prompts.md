@@ -23,7 +23,7 @@ Four parts in this order, each filled by a skin field, see [skins](skins.md#what
 | Part | Skin field | What it says |
 |---|---|---|
 | Intro | `intro` | Who the agent is and what it runs |
-| Rules | `rules` | The budget, the ten channels by name, whole numbers that add up to 100 |
+| Rules | `rules` | The ten channels by name, and a split in whole percentages that add up to 100 |
 | How points earn | `how_points_earn` | The level of each funded channel is reported. No points report nothing. A small spend gives a rough reading |
 | Ask | `ask` | The record is below. Place this round's points with the tool |
 
@@ -31,23 +31,25 @@ The example skin's wording. **The real `example.toml` is coming**: its story and
 
     [Who the agent is and what it runs.]
 
-    Each round you split a budget of 100 points across ten [channels]:
-    [the ten names]. Points are whole numbers and the ten add up to 100.
+    Each round you split your budget across ten [channels], as percentages:
+    [the ten names]. Each percentage is a whole number and the ten add up
+    to 100.
 
-    [How a point earns. The level of each channel you fund is reported.
-    A channel with no points reports nothing. A small spend gives a rough
-    reading, a large spend a clean one.]
+    [How a percent of the budget earns. The level of each channel you fund
+    is reported. A channel with no budget reports nothing. A small spend
+    gives a rough reading, a large spend a clean one.]
 
-    Your record of play so far is below. Place this round's points with
+    Your record of play so far is below. Set this round's percentages with
     the submit tool.
 
 ## What every skin must say
 
 The lint fails a skin whose rendered prompt leaves any of these out, see [lint](skins.md#lint).
 
-- The number 100 as the budget.
+- That the split is in percentages.
+- The number 100, as what the percentages add up to.
 - All ten channel names.
-- That points are whole numbers.
+- That the percentages are whole numbers.
 - The skin's tool name.
 
 ## User message
@@ -71,16 +73,16 @@ The record as CSV. Round 1 sends the header only, or a record pre-filled by a ba
 The example skin's wording, `tool_name` and `bets_name` on the first line, then `tool_text`, then `bets_text`:
 
     submit(bets: list[int])
-    Place this round's points.
+    Set this round's percentages.
     Ten whole numbers in channel order, adding up to 100.
 
 It returns the level of each funded channel and the output. Any bets the engine rejects return `bad_call`, whichever check failed, see the [game spec](../specs/engine/game.md#bets):
 
-    Those points can't be placed. Send ten whole numbers, none negative, adding up to 100.
+    Those percentages can't be used. Send ten whole numbers, none negative, adding up to 100.
 
 A reply with no tool call returns `no_call`:
 
-    Place this round's points with the submit tool.
+    Set this round's percentages with the submit tool.
 
 The example skin's wording for the other two, `notes_text` then `compute_text`:
 

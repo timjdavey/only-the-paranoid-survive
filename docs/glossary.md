@@ -10,7 +10,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Game engine | The simple cybernetics game at the core of the study: the rules and numbers, with no story |
 | Narrative skin | A story dressed over the game engine, so the model treats it as a real situation. It also lets us publish the engine while hiding which skin it wears |
-| Frame | The facts every prompt states whatever the skin: a budget of 100 points, ten channels, whole numbers, the record below, a tool to place points, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
+| Frame | The facts every prompt states whatever the skin: a budget split in whole percentages that add up to 100, ten channels, the record below, a tool to place the split, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
@@ -96,7 +96,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 
 | Word | What it means |
 |---|---|
-| Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
+| Point | One percent of the budget, so the budget is 100 points. The engine's unit for a bet. Every skin calls it a percentage in its own words, see [interface](design/interface.md#how-the-agent-plays). Not a level point, which is a unit of a channel's level |
+| Bet | The whole number of points the agent puts on one channel in a round, so a percentage of the budget. Its ten bets each round sum to 100 |
 | Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or an explore bet |
 | Channel order | The order of a skin's `channels` list. A split's ten numbers and the record's columns both follow it |
 | Slip | A valid split that holds the numbers the agent meant on the wrong channels. It still sums to 100, so nothing retries it. Measured by the [channel order check](pilot/provider-checks.md#channel-order). `slipped` in code |

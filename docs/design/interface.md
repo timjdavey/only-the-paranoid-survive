@@ -2,7 +2,9 @@
 
 ## How the agent plays
 
-- **Each round the agent bets a fixed budget across ten channels.** It places ten whole number bets that sum to 100, say 55 on one channel, 15 and 10 on two more, 5 on four others and 0 on the rest. Whole numbers to 100 is how budgets are talked about in every skin, the sum check is exact, and models fumble decimals more than they fumble percentages.
+- **Each round the agent bets a fixed budget across ten channels.** It places ten whole number bets that sum to 100, say 55 on one channel, 15 and 10 on two more, 5 on four others and 0 on the rest.
+- **A bet is a percentage of the budget.** A [point](../glossary.md) is one percent, and every skin calls the split percentages in its own words. Nobody asks why percentages add up to 100, so the round hundred needs no excuse. The sum check is exact, and models fumble decimals more than they fumble percentages.
+- **Ten channels, because the floor has to be even.** The Uniform baseline bets the same on every channel, and 100 only splits evenly over 4, 5, 10, 20 or 25. Ten leaves a field of eight to hide a sleeper in. The other counts are under [rejected](#rejected).
 - **It places all ten bets every round.** Bets the engine rejects, such as ones that do not sum to 100, or a reply with no bets, get a neutral message and a retry. The round ends only on a valid call, so a bad call is never read as a decision, see the [retry rule](../harness/prompts.md#retry-rule). Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
 - **Its bets are its belief.** A small bet on a new channel is an explore bet. A large bet is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
@@ -19,7 +21,7 @@
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole numbers that sum to 100 | A reading of each channel it bet on this round, and the output. A neutral error and a retry if the bets are not valid |
+| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole percentages that sum to 100 | A reading of each channel it bet on this round, and the output. A neutral error and a retry if the bets are not valid |
 | `notes(text)`, named by the skin | Text to keep for next round. It replaces the last note whole, and its length is capped | The text as stored. Next round it comes back below the record |
 | `compute(code)`, named by the skin | Python to run in a sandbox that sees the record as `record.csv` and nothing else. No network, no engine, no seeds | What the code printed, truncated |
 
@@ -48,6 +50,12 @@ Jev and Timestral are stateless and do not write text, so each gets a provider t
 | Pivot with a conversion cost | The mechanic prices lateness and overreaction itself, but the fee leaks into every trait, and it is lumpy, so a timid agent and a confident one read the same until one moves |
 | Controller with feedback | Prices both failures naturally, but the score becomes a cost rather than a share of the gap between the Uniform and Discerning baselines, and the model has to reason about a system whose past carries into the present. Kept as a second game to check the skill carries over |
 | Three channels | Where to go is a coin flip, there is no room for a decoy, and the No change scenario saturates so it stops separating models |
+| Eight or twelve channels on 100 | 100 does not split evenly, so the Uniform baseline would bet 13 and 12, or 9 and 8. A floor that is not even is no floor for a headline. Eight also thins the field from eight to six, and twelve is a longer list to count along, see [channel order](../pilot/provider-checks.md#channel-order) |
+| A budget of 80 or 120 to match | The Uniform baseline stays at 10 each, but a bet stops being a percentage. Models think in percent, so they would send splits that sum to 100 and get a retry |
+| Five channels, or twenty | The other counts that split 100 evenly. Five is a leader, a runner-up, the hedge and two others, which is close to three channels. Twenty doubles the record and asks every skin for twenty names of one kind |
+| A floor worked out as the average channel | Exact for any count, as an even spread earns the plain mean of the levels. But the Uniform baseline is also played: it is Timestral's round 1 and it makes the test suite's records. So there would be two things under one name, and a floor no agent can play |
+| A channel count per skin | A different count is a different timeline, so [skin sensitivity](scoring.md#spread) could not pair by seed |
+| Fewer channels to shrink the record | Most of a row is the channels the agent bet on, as a zero bet or a blank level is a character or two. A provider that caches rereads the old rows at its cache price. So the saving is small, and [cost per run](../pilot/provider-checks.md#cost-per-run) measures it |
 | A `read_record` tool | Lets a model never explore, and then lazy and confident read the same. A default row count is a hidden choice about how far back it can see, which is the thing the Slow drift scenario tests |
 | A rolling conversation | The agent's own reasoning piles up, and that is the one place a model will not question a claim ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Cost grows with the square of the game length. Out of the headline. What it changes is a [pilot check](../pilot/provider-checks.md#rolling-conversation) on every model, reported per model beside the headline |
 | Notes as the agent's own words | A model will not question a claim in its own voice ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Notes come back below the record in the user message, and a tool message would need a call before it, which a fresh call lacks |

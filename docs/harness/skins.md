@@ -11,13 +11,13 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `name` | Short id, the file stem, used in log metadata. Results tables publish it, so a held-out skin's name is opaque, never a word from its story |
 | `channels` | One name per channel, ten in the study. Which one leads is drawn per seed by the [ladder](../design/mechanics.md#the-ladder) |
 | `intro` | Who the agent is and what it runs |
-| `rules` | The budget of 100 points, the ten channels by name, and that points are whole numbers adding up to 100 |
-| `how_points_earn` | What a point buys, what a reading means, and that a small spend gives a rough reading |
+| `rules` | The ten channels by name, and that the split is in whole percentages adding up to 100 |
+| `how_points_earn` | What a percent of the budget buys, what a reading means, and that a small spend gives a rough reading |
 | `ask` | The record is below, place this round's points with the tool |
 | `tool_name` | The tool's name as the model sees it |
 | `tool_text` | The tool's description |
 | `bets_name` | The name of the tool's one parameter as the model sees it. `bets` in the example skin. Each skin picks its own, so no parameter name is shared across skins |
-| `bets_text` | The description of that parameter, the ten whole numbers in channel order |
+| `bets_text` | The description of that parameter, the ten whole percentages in channel order |
 | `bad_call` | The retry message for any bets the engine rejects. One generic message, no slots |
 | `no_call` | The retry message for a reply with no tool call |
 | `notes_name`, `notes_text` | The notes tool's name and description, see [tool text](prompts.md#tool-text) |
