@@ -21,6 +21,10 @@ Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, the
 | KS11 | `load_skins(path)` on a missing folder, or on a file, raises `SkinError` | [skin](skin.md#load_skins) |
 | KS12 | A folder with one clean skin and one with a banned word in `rules`: `load_skins(folder)` raises `LintError`, which is a `SkinError`, naming the bad file. `load_skin` on the bad file raises `LintError` and not a plain `SkinError` | [skin](skin.md#load_skins) |
 | KS13 | In a subprocess, importing `paranoid.skins` adds no top-level module to `sys.modules` outside `paranoid` and the standard library, beyond what importing `numpy.random` alone loads, as [BP12](../baselines/tests.md#policies) does | [skin](skin.md#invariants) |
+| KS14 | A `Skin` with a zero width joiner in `intro`, a line separator in a channel name, a soft hyphen in `rules`, a tab in `ask` or a lone combining mark in `question` raises `SkinError` naming the field and the category, and holding none of the text. `Zürich` typed in NFD builds, as NFC folds its accent | [skin](skin.md#validation-on-construction) |
+| KS15 | A `bet_word` equal to `reading_word` ignoring case raises `SkinError`, and so does a `round_word` of `Ashford_sent` beside a channel `Ashford` and a `bet_word` of `sent`. Neither message holds the words | [skin](skin.md#validation-on-construction) |
+| KS16 | `repr(skin)` is `Skin(name='bakery')` and holds none of the skin's text | [skin](skin.md#interface) |
+| KS17 | `load_skins("")` raises `SkinError` rather than reading the current folder | [skin](skin.md#load_skins) |
 
 ## Render
 
@@ -55,6 +59,7 @@ Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, the
 | KL12 | For every skin in `load_skins()`, `lint_text(render_record(skin, record))` is `()` on a played record, and the canary GUID is in none of the texts the model reads. With `PARANOID_SKINS` set this covers the held-out skins on the machine that has them, and fails with the skin's name only | [lint](lint.md#invariants) |
 | KL13 | `CANARY` equals the line in [contamination](../../harness/contamination.md#canary), with no trailing newline. The first line of `example.toml` and of `tests/skins/test_example.py` is a comment containing it, and `docs/harness/prompts.md` and `docs/harness/writing-a-skin.md` contain it | [lint](lint.md#canary) |
 | KL14 | A skin with a number in digits in a text field, a tool name, a parameter name, a channel name or a column word raises `LintError` with `"<field>: number"`, `channels[3]` for the fourth name. A field with a banned word and two numbers gives the word's problem then one `number`. `100`, `100%` and `ten` pass. A number in `name` alone passes, and `lint_text` of a text with numbers is `()` | [lint](lint.md#numbers) |
+| KL15 | `lint_text` hits `chang` on `change` typed in fullwidth letters and on `CHANGE` in fullwidth capitals, and `stabl` on `ﬆable`, whose `ﬆ` ligature folds to `st`. A Cyrillic `с` in `сhange` returns `()`, the known limit | [lint](lint.md#words) |
 
 ## Property tests
 

@@ -180,7 +180,7 @@ What a reason must never do:
 | No hint of plenty | Does a word say rich, full, empty or spent? | It does, so the model has a favourite | `Goldacre` beside `Barrenfold` |
 | One place | Do the ten place names read as one place? | They read as a list: any-town names, or British and American names mixed | `Ashby`, `Maple Creek`, `Kingsford` and `Pine Bluff` in one set |
 | Not inside another | Is one name a substring of another? | It is. The lint passes it, but an agent reading the header row trips | `Rome` and `Rome East`, see [frame facts](../specs/skins/lint.md#frame-facts) |
-| A clean header | Is each channel name short, unique and free of commas and quotes? | It breaks the CSV header | `Marsh, Vane and Sons` |
+| A clean header | Is each channel name short, unique and free of commas, quotes, tabs and invisible characters? | It breaks the CSV header, or the skin fails to build, see [validation](../specs/skins/skin.md#validation-on-construction) | `Marsh, Vane and Sons` |
 | Easy to type in code | Does a name have a space, an apostrophe or a leading article? | The compute tool reads the record as a file, so the model has to quote the column | `The Old King's Yard` |
 | No banned stem | Does any word start with a banned stem? | It does, even as the second word of a compound | `shift` fails and so does "night shift". `exchange` passes, because the stem must start the word |
 | Own column words | Are `round_word`, `bet_word` and `reading_word` the story's own? | One is `week`, `sent` or `price`, which are the example skin's, or `round`, `bet`, `reading`, `level` or `output`, which are the engine's and on every published page | A record headed `round`, see [render](../specs/skins/render.md#record) |
@@ -222,10 +222,11 @@ The frame is a fingerprint. If a held-out skin shares a sentence shape with the 
 
       uv run python -c 'import sys; from paranoid.skins import load_skin; load_skin(sys.argv[1])' path/to/amber.toml
 
-A reviewer must enforce two rules the lint cannot finish:
+A reviewer must enforce three rules the lint cannot finish:
 
 - **No number but 100 and ten anywhere in the skin.** Levels, onsets and history come from the engine, never the skin. The lint fails any number in digits but `100`, so write ten as a word, see [numbers](../specs/skins/lint.md#numbers). It cannot see a number written in words, such as `twelve` or `a dozen`, so read for those.
 - **Never say the world may move.** No "yields vary over time", no "a new season". The agent has to find that out.
+- **Type every word in one script.** The lint folds fullwidth letters and ligatures, but a Cyrillic `с` in `сhange` is another letter and passes, see [words](../specs/skins/lint.md#words). Read for a word that looks banned.
 
 ## Reviewing a skin before you commit
 

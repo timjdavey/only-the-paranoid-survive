@@ -1,4 +1,4 @@
-"""KS1, KS5 to KS13 and the exports table, see docs/specs/skins/tests.md#skin."""
+"""KS1, KS5 to KS13, KS17 and the exports table, see docs/specs/skins/tests.md#skin."""
 
 import re
 import subprocess
@@ -109,6 +109,13 @@ def test_ks11_a_folder_that_is_not_a_folder(make_target, tmp_path, write_skin):
     write_skin(tmp_path, "file")
     with pytest.raises(SkinError):
         load_skins(make_target(tmp_path))
+
+
+def test_ks17_an_empty_path_raises(tmp_path, write_skin, monkeypatch):
+    write_skin(tmp_path, "amber")  # the current folder holds a clean skin, so reading it would pass
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(SkinError):
+        load_skins("")
 
 
 def test_ks12_one_bad_file_fails_the_call(tmp_path, write_skin, clean):

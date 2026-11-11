@@ -14,13 +14,16 @@ TOOL_NAMES = ("tool_name", "notes_name", "compute_name")
 PARAM_NAMES = ("bets_name", "notes_param", "compute_param")  # one per tool, each a key in its JSON schema
 CSV_BREAKERS = {",": "a comma", '"': "a double quote", "\n": "a newline"}
 MIN_CHANNELS = 4  # the engine's floor, see docs/specs/engine/config.md#fields
+# Unicode categories no field may hold, as each can hide a word from the lint or break the record. Cc bar "\n".
+# See docs/specs/skins/skin.md#validation-on-construction.
+HIDDEN_CATEGORIES = frozenset({"Cc", "Cf", "Zl", "Zp", "Mn", "Me", "Co", "Cn", "Cs"})
 
 
 class SkinError(ValueError):
     """A skin file or a Skin that is not well formed. LintError is one too."""
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class Skin:
     name: str
     channels: tuple[str, ...]
@@ -57,7 +60,15 @@ class Skin:
         except TypeError:
             raise SkinError("channels must be a sequence of names") from None
         object.__setattr__(self, "channels", tuple(normalise(c, f"channels[{i}]") for i, c in enumerate(channels)))
+        for field in TEXT_FIELDS:
+            check_characters(getattr(self, field), field)
+        for i, channel in enumerate(self.channels):
+            check_characters(channel, f"channels[{i}]")
         self._validate()
+
+    def __repr__(self) -> str:
+        """The name alone, so a traceback or a failed assertion never prints a held-out skin's text."""
+        return f"Skin(name={self.name!r})"
 
     def _validate(self) -> None:
         if not NAME.fullmatch(self.name):
@@ -80,11 +91,34 @@ class Skin:
             if key in seen:
                 raise SkinError(f"channels[{seen[key]}] and channels[{i}] are equal ignoring case")
             seen[key] = i
+        headers: dict[str, int] = {}
+        for i, word in enumerate(header_words(self)):
+            key = word.casefold()
+            if key in headers:
+                raise SkinError(f"header words {headers[key]} and {i} of the record are equal ignoring case")
+            headers[key] = i
         for field in (*TOOL_NAMES, *PARAM_NAMES):
             if not TOOL_NAME.fullmatch(getattr(self, field)):
                 raise SkinError(f"{field} must be 1 to 64 lowercase letters, digits and underscores, from a letter")
         if len({getattr(self, field) for field in TOOL_NAMES}) < len(TOOL_NAMES):
             raise SkinError("tool_name, notes_name and compute_name must all differ")
+
+
+def header_words(skin: Skin) -> tuple[str, ...]:
+    """The record's header: round_word, then each channel's bet column, then each channel's reading column."""
+    return (
+        skin.round_word,
+        *(f"{name}_{skin.bet_word}" for name in skin.channels),
+        *(f"{name}_{skin.reading_word}" for name in skin.channels),
+    )
+
+
+def check_characters(text: str, label: str) -> None:
+    """Raise SkinError naming the label and the category of the first hidden character. `\\n` is allowed."""
+    for char in text:
+        category = unicodedata.category(char)
+        if category in HIDDEN_CATEGORIES and char != "\n":
+            raise SkinError(f"{label} holds a hidden character of Unicode category {category}")
 
 
 def normalise(value: object, label: str) -> str:
