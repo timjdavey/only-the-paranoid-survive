@@ -41,8 +41,10 @@ def result_key(log: EvalLog) -> ResultKey
 ### Discovering logs
 
 - **`paths`** are files or folders. A folder is searched for `*.eval` recursively. The list is sorted by path, so the same folder loads in the same order on every machine.
+- **No two logs share a name.** A log's name is its path relative to the folder it was found under, or its file name when given as a file. It is the `log` column and what the report and every error say. Two logs that get one name, such as `a/x.eval` and `b/x.eval` passed as two files, or two folders that each hold an `x.eval`, raise `ValueError` naming both paths, as the rows of one could no longer be told from the other's.
 - **Each log is read once** with `read_eval_log`. A file that is not an inspect log raises `ValueError` naming it.
 - **A log is the `paranoid` task when `log.eval.task` is `paranoid/paranoid`**, the name inspect gives it however it was run, see [checked](#checked). Any other log is skipped and listed in the report, see [the report](#the-report).
+- **A log with no samples is skipped** and the report says `Skipped <name>, it holds no samples`. A run that stopped before any sample finished can leave one, and it has no key, as every field of `Setting` is read from samples.
 
 ### One row per run
 
@@ -60,6 +62,7 @@ The run table has these columns, in this order. `RUN_COLUMNS` holds the names.
 - **`kind`** is `log.eval.metadata["kind"]`, which [`run`](../harness/command.md#run) writes. Without it, `baseline`, `jev` or `timestral` when the model string starts with that prefix and a slash, else `llm`. It is the model's kind. A switch's is `switch_kind`, see [switch kinds](scores.md#switch-kinds).
 - **`scenario`, `seed_index`, `seed`, `engine_hash`, `numpy_version`** come from `sample.metadata`. `seed` is the metadata's `seed` key for a public sample and NA for a held-out one, see [privacy](#privacy).
 - **`engine_hash` is per row, not per key.** It hashes the scenario's config, events included, so one result row has one hash per scenario, see [engine hash](../engine/config.md#engine-hash). `generator_version` is what the key carries, as it is the part of the hash every scenario shares.
+- **One key and scenario, one `engine_hash`.** Two logs of one key whose rows of a scenario hold two hashes played two different worlds under one version, and pooling them would mix them. `load_runs` raises `ValueError` naming the key, the scenario and both hashes.
 - **A sample is named by `sample.id`**, which is `<scenario>/<seed_index>`, see [dataset](../harness/task.md#dataset). The id is what [duplicates](#duplicates) compares and what an error names. It is no column, as `scenario` and `seed_index` already say it.
 - **Cached tokens are counted apart.** `cache_read_tokens` and `cache_write_tokens` are inspect's `input_tokens_cache_read` and `input_tokens_cache_write`. A field a provider leaves as `None` is 0. inspect leaves both out of `input_tokens`, so the three add up to what the model read, and a cost from `input_tokens` alone is too low, see [cost](tables.md#cost).
 - **One row per epoch.** `epoch` is the sample's epoch and `epochs` how many the sample has. A log at one epoch has `epoch == 1` on every row.
@@ -155,14 +158,14 @@ The rules that make the run table publishable. They are invariants, not options,
 
 ### The report
 
-`load_runs` attaches a report to the table's `attrs["report"]`: the logs read with their sample counts, how many had their metrics checked, the logs skipped as not `paranoid`, the logs dropped as duplicates with the log that won, the errored samples per log, and any result row whose rows hold more than one `numpy_version`, as timelines are bit equal within one environment only, see [what a log carries](../README.md#what-a-log-carries). The [command](command.md#behaviour) prints it.
+`load_runs` attaches a report to the table's `attrs["report"]`: the logs read with their sample counts, how many had their metrics checked, the logs skipped as not `paranoid` or as holding no samples, the logs dropped as duplicates with the log that won, the errored samples per log, and any result row whose rows hold more than one `numpy_version`, as timelines are bit equal within one environment only, see [what a log carries](../README.md#what-a-log-carries). The [command](command.md#behaviour) prints it.
 
 ## Invariants
 
 - On every row that did not error, `run_score == gain / gap` where `gap` is not 0, and `run_score` is NA where it is.
 - `len(table) == ` the number of sample epochs in the loaded logs, after duplicates are dropped. After `mean_over_epochs`, the number of distinct sample ids per log.
 - `table.columns == RUN_COLUMNS`, and `RUN_COLUMNS` without `epoch` after `mean_over_epochs`.
-- Every row of one `ResultKey` has the same `Setting`, by construction, and rows of one key and scenario have the same `engine_hash`.
+- Every row of one `ResultKey` has the same `Setting`, by construction, and rows of one key and scenario have the same `engine_hash`, else `load_runs` raises.
 - `mean_over_epochs` on a table where every `epochs == 1` changes no value.
 - No row is lost to a group by, whatever is NA in its key columns.
 

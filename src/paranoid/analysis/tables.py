@@ -213,7 +213,8 @@ def legend_of(scores: pd.DataFrame) -> str:
 
 def marks_table(rows: pd.DataFrame) -> list[str]:
     """The fixed baselines' pooled scores per scenario, on the seeds the table scored."""
-    groups = by_scenario(rows.drop_duplicates(["scenario", "seed_index"]))  # a mark is the world's, whoever played it
+    # A mark is the world's, whoever played it, so each seed counts once, from a row that scored it.
+    groups = by_scenario(scored(rows).drop_duplicates(["scenario", "seed_index"]))
     body = [[design_name(s), *(number(pooled(group, mark)) for mark in MARK_COLUMNS)] for s, group in groups.items()]
     return markdown_table(["Scenario", *MARK_COLUMNS.values()], body)
 

@@ -1,4 +1,4 @@
-"""AR8 and AR10 to AR15: the guards on a log and the fields read from it.
+"""AR8 and AR10 to AR18: the guards on a log, the fields read from it, and the logs that cannot load as they are.
 
 See docs/specs/analysis/tests.md#runs.
 """
@@ -7,7 +7,7 @@ import pytest
 from inspect_ai.log import read_eval_log
 from inspect_ai.model import ModelUsage
 
-from paranoid.analysis import headlines, load_runs, mean_over_epochs, result_key, scenario_scores
+from paranoid.analysis import analyse, headlines, load_runs, mean_over_epochs, result_key, scenario_scores
 
 
 def first_sample(**values):
@@ -129,3 +129,43 @@ def test_ar15_harness_version_splits_rows(logs, tmp_path, helpers):
     runs = load_runs([tmp_path])
     assert len(runs) == 80 and runs["harness_version"].nunique() == 2
     assert len(headlines(mean_over_epochs(runs))) == 2
+
+
+def test_ar16_a_log_with_no_samples(logs, tmp_path, helpers, capsys):
+    empty = helpers.edit(logs.uniform, tmp_path / "logs" / "empty.eval", lambda log: setattr(log, "samples", []))
+    helpers.edit(logs.complacent, tmp_path / "logs" / "full.eval")
+    runs = load_runs([tmp_path / "logs"])
+    assert set(runs["log"]) == {"full.eval"} and runs.attrs["report"]["empty"] == ["empty.eval"]
+    assert analyse([str(empty), "--out", str(tmp_path / "out"), "--dry-run"]) == 0
+    assert "Skipped empty.eval, it holds no samples" in capsys.readouterr().out
+
+
+def test_ar17_two_logs_of_one_name(logs, tmp_path, helpers):
+    a = helpers.edit(logs.uniform, tmp_path / "a" / "x.eval")
+    b = helpers.edit(logs.uniform, tmp_path / "b" / "x.eval")
+    for given in ([a, b], [tmp_path / "a", tmp_path / "b"]):
+        with pytest.raises(ValueError, match=r"a/x\.eval.*b/x\.eval"):
+            load_runs(given)
+
+
+def keep(change=None, **where):
+    """Keep the samples whose metadata matches `where`, each value a tuple of the values kept, then apply `change`."""
+
+    def edit(log):
+        log.samples = [s for s in log.samples if all(s.metadata[k] in v for k, v in where.items())]
+        if change is not None:
+            change(log)
+
+    return edit
+
+
+def test_ar18_one_engine_hash_per_key_and_scenario(logs, tmp_path, helpers):
+    moved = every_sample(engine_hash="0" * 16)
+    first, rest = (0, 1, 2), (3, 4)
+    helpers.edit(logs.complacent, tmp_path / "clash" / "a.eval", keep(seed_index=first))
+    helpers.edit(logs.complacent, tmp_path / "clash" / "b.eval", keep(moved, seed_index=rest, scenario=("down_switch",)))
+    with pytest.raises(ValueError, match="down_switch.*0000000000000000"):
+        load_runs([tmp_path / "clash"])
+    helpers.edit(logs.complacent, tmp_path / "apart" / "a.eval", keep(scenario=("one_shock",)))
+    helpers.edit(logs.complacent, tmp_path / "apart" / "b.eval", keep(moved, scenario=("down_switch",)))
+    assert len(load_runs([tmp_path / "apart"])) == 10

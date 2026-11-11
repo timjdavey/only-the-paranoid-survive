@@ -51,6 +51,18 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
   - Whole points only convert cleanly from a number that divides 100, which makes the smallest bet larger, or from a multiple of 100 placed in fixed lots.
   - It would change the lint's [budget fact](docs/specs/skins/lint.md#frame-facts), the skin spec and the `submit` tool.
 - Pin the sandbox image in `compose.yaml` by digest as well as by tag, so a rebuilt `python:3.12-slim-bookworm` cannot change what compute runs on, see [compute](docs/specs/harness/solver.md#compute).
+- Code killed past `mem_limit` returns `""` to the model, with no reason. Decide whether compute should return a word of the skin's on exit code 137 instead, see [compute](docs/specs/harness/solver.md#checked).
+- Two specs disagree, so choose one:
+  - The tie rule for the weakest trait, see [the scores table](docs/specs/analysis/tables.md#the-scores-table) and [scoring](docs/design/scoring.md).
+  - Whether "rounds to pull clear" is `clear_round − onset` or one more, see [reading the inputs](docs/specs/analysis/pilot.md#reading-the-inputs) and [game length](docs/specs/harness/pilot.md#game-length).
+  - Whether a Down switch seed that never pulls clear is `0` or empty, same two pages.
+- Design choices the review left open:
+  - One cross setting table that raises stops the whole results page, see [the cross setting tables](docs/specs/analysis/tables.md#the-cross-setting-tables). It could skip that table and say so.
+  - `move_round` misses a scout round when two channels tie for the largest bet, see [baseline order](docs/specs/harness/pilot.md#baseline-order).
+  - The Up switch order in the up and down tables, and Up switch seeds whose sleeper stops short, see [sections](docs/specs/analysis/pilot.md#sections).
+  - The cost table's `projected` column, see [cost](docs/specs/analysis/tables.md#cost).
+  - The Sensitivity table's Headline cell drops the flags the scores table shows, see [the cross setting tables](docs/specs/analysis/tables.md#the-cross-setting-tables).
+- Tidy ups: delete plot SVGs a rebuild no longer writes, move `matplotlib.use("Agg")` out of import time in `paranoid.analysis.plots`, and read a log's header alone where the samples are not needed, see [plots](docs/specs/analysis/plots.md#every-plot) and [runs](docs/specs/analysis/runs.md).
 - Run the full study's retiring rows first, or swap them before they go: `claude-haiku-4-5-20251001` (any time now), `gpt-4o-2024-11-20` (2027-01-14), `gpt-5.1` (2027-04-01).
 
 ## Needs a key

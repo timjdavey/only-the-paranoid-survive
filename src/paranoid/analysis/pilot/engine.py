@@ -203,13 +203,14 @@ def up_and_down(logs: Path, main: Path | None) -> Section | None:
         complacent = mine.set_index("player")["score"].get("complacent")
         points = float((by["discerning"]["output"] - by["complacent"]["output"]).mean())
         for player, score_row in mine.set_index("player").iterrows():
+            moved = by[player]["move_round"]
             rows.append(
                 dict(zip(keys, group))
                 | {
                     "player": player,
                     "seeds": int(score_row["seeds"]),
                     "score": score_row["score"],
-                    "median_move_round": median(by[player]["move_round"]),
+                    "median_move_round": median(moved[moved > 0]),  # 0 means it never moved
                     "reachable_points": points,
                     "reachable_score": None if complacent is None else 1 - complacent,
                 }

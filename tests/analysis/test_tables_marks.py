@@ -1,4 +1,4 @@
-"""AT12 to AT17 and AY3: the results page's weakest trait, public gap, marks, spread, flags, dry runs and file names.
+"""AT12 to AT19 and AY3: the results page's weakest trait, public gap, marks, spread, flags, dry runs, file names and cells.
 
 See docs/specs/analysis/tests.md#tables.
 """
@@ -22,6 +22,7 @@ from paranoid.analysis import (
     spread,
     write_results,
 )
+from paranoid.analysis.names import markdown_table
 from paranoid.engine import SCENARIOS
 
 HEADER = ["Model", "No change", "One shock", "Down switch", "Up switch", "Shock then switch", "Slow drift"]
@@ -190,3 +191,33 @@ def test_ay3_every_file_name_stays_under_out(mock_runs, tmp_path_factory, model,
     out = tmp_path_factory.mktemp("ay3") / "out"
     for path in write_results(runs, out, "t", plots=True, dry_run=True):
         assert path.resolve().is_relative_to(out.resolve())
+
+
+def lopsided(errored: int | None = None):
+    """Down switch's Complacent mark held by seed 0 alone, so a lost seed moves it, and seed `errored` errored."""
+
+    def change(log):
+        for sample in log.samples:
+            if sample.metadata["scenario"] == "down_switch":
+                value, index = sample.scores["gain"].value, sample.metadata["seed_index"]
+                value["complacent"] = value["discerning"] if index == 0 else value["uniform"]
+                sample.scores = None if index == errored else sample.scores
+
+    return change
+
+
+def test_at18_an_errored_seed_keeps_its_mark(logs, tmp_path, helpers):
+    helpers.edit(logs.complacent, tmp_path / "logs" / "a.eval", lopsided(errored=0))
+    helpers.edit(logs.uniform, tmp_path / "logs" / "b.eval", lopsided(errored=1))
+    marks = tables(page(load_runs([tmp_path / "logs"]), tmp_path / "out"), "## example, public, rounds 20, tools none")[1]
+    whole = helpers.edit(logs.complacent, tmp_path / "whole.eval", lopsided())
+    mark = scenario_scores(mean_over_epochs(load_runs([whole]))).set_index("scenario")["complacent"]
+    assert 0.1 < mark["down_switch"] < 0.4
+    for row, scenario in zip(marks, SCENARIOS):
+        assert number(row["Complacent"]) == pytest.approx(mark[scenario], abs=0.005), scenario
+
+
+def test_at19_a_cell_never_breaks_its_table():
+    lines = markdown_table(["a", "b"], [["x|y", "one\ntwo"], ["plain", "cell"]])
+    assert lines[2] == "| x\\|y | one two |"
+    assert len({len(re.findall(r"(?<!\\)\|", line)) for line in lines}) == 1

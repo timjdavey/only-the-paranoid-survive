@@ -45,7 +45,10 @@ SUMMED = (*COUNTS, *USAGE_COLUMNS)
 
 
 def discover(paths: Iterable[str | Path]) -> list[tuple[Path, str]]:
-    """(path, name) of every log: a folder searched for *.eval, named relative to it. Sorted by path."""
+    """(path, name) of every log: a folder searched for *.eval, named relative to it. Sorted by path.
+
+    Two logs that get one name raise ValueError, as the `log` column could no longer tell their rows apart.
+    """
     found: list[tuple[Path, str]] = []
     for given in map(Path, paths):
         if given.is_dir():
@@ -54,17 +57,26 @@ def discover(paths: Iterable[str | Path]) -> list[tuple[Path, str]]:
             found.append((given, given.name))
         else:
             raise ValueError(f"{given} is not a log or a folder")
-    return sorted(found, key=lambda pair: pair[0].as_posix())
+    found = sorted(found, key=lambda pair: pair[0].as_posix())
+    first: dict[str, Path] = {}
+    for path, name in found:
+        if name in first and first[name].resolve() != path.resolve():
+            raise ValueError(f"logs {first[name]} and {path} are both named {name}. Pass them so their names differ")
+        first.setdefault(name, path)
+    return found
 
 
 def load_runs(paths: Iterable[str | Path]) -> pd.DataFrame:
     """One row per epoch of every sample, after duplicates are dropped. See runs.md#behaviour."""
-    report: dict[str, Any] = {"read": [], "checked": 0, "skipped": [], "dropped": [], "errored": [], "numpy": []}
+    report: dict[str, Any] = {"read": [], "checked": 0, "skipped": [], "empty": [], "dropped": [], "errored": [], "numpy": []}
     logs: list[LogRows] = []
     for path, name in discover(paths):
         log = read_log(path, name)
         if log is None:
             report["skipped"].append(name)
+            continue
+        if not log.samples:
+            report["empty"].append(name)
             continue
         logs.append(rows_of_log(log, path, name))
     kept = drop_duplicates(logs, report)
@@ -75,6 +87,7 @@ def load_runs(paths: Iterable[str | Path]) -> pd.DataFrame:
             report["errored"].append((found.name, found.errored))
     table = frame([row | {"log": f.name, "started": f.started} | key_columns(f.key) for f in kept for row in f.rows])
     report["numpy"] = mixed_numpy(table)
+    check_engine_hashes(table)
     table.attrs["report"] = report
     return table
 
@@ -127,6 +140,20 @@ def mixed_numpy(table: pd.DataFrame) -> list[tuple[str, list[str]]]:
     return found
 
 
+def check_engine_hashes(table: pd.DataFrame) -> None:
+    """One engine_hash per result row and scenario, else ValueError: the rows would pool two worlds."""
+    if table.empty:
+        return
+    for _, group in table.groupby([*KEY_COLUMNS, "scenario"], dropna=False, sort=False):
+        hashes = sorted(set(group["engine_hash"].dropna()))
+        if len(hashes) > 1:
+            row = group.iloc[0]
+            raise ValueError(
+                f"{row['model']} ({row['reasoning']}) on {row['skin']} played {row['scenario']} under engine hashes "
+                f"{' and '.join(hashes)}, in {', '.join(sorted(set(group['log'])))}. Rerun one, or load them apart"
+            )
+
+
 def mean_over_epochs(runs: pd.DataFrame) -> pd.DataFrame:
     """One row per sample id of each log. The identity, bar `epoch`, when every sample has one epoch."""
     columns = [c for c in RUN_COLUMNS if c != "epoch"]
@@ -171,6 +198,7 @@ def report_lines(report: dict[str, Any]) -> list[str]:
     lines = [f"Read {len(report['read'])} logs, {report['checked']} checked against their own metrics:"]
     lines += [f"  {name}: {samples} samples" for name, samples in report["read"]]
     lines += [f"Skipped {name}, not the paranoid task" for name in report["skipped"]]
+    lines += [f"Skipped {name}, it holds no samples" for name in report["empty"]]
     lines += [f"Dropped {name} as a duplicate, {winner} won" for name, winner in report["dropped"]]
     lines += [f"{count} samples errored in {name}" for name, count in report["errored"]]
     lines += [f"{row} holds numpy {', '.join(versions)}, so its timelines may differ" for row, versions in report["numpy"]]

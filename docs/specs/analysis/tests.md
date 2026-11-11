@@ -27,6 +27,9 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AR13 | A log with `tool_choice` missing from one errored sample's metadata loads with the other samples' value. With it missing from every sample the key's `tool_choice` is `None`. A log with `skin` missing from one sample raises `ValueError` naming the field | [runs](runs.md#result-key) |
 | AR14 | On the fixture, where `own_scale`, `warm_up` and `inertia` are NA on every row, `mean_over_epochs`, `scenario_scores` and `headlines` lose no row and give one group per key | [runs](runs.md#types) |
 | AR15 | Two logs that differ only in `harness_version` and hold the same ids both load, as two result rows | [runs](runs.md#comparing-settings) |
+| AR16 | An edited log with every sample removed, beside a fixture log: `load_runs` loads the other log and the report says `Skipped <name>, it holds no samples`. The command on the empty log alone returns 0 and prints that line | [runs](runs.md#discovering-logs) |
+| AR17 | Edited logs at `a/x.eval` and `b/x.eval`, passed as two files or as the folders `a` and `b`, raise `ValueError` naming both paths | [runs](runs.md#discovering-logs) |
+| AR18 | Two edited logs of one key with disjoint ids, one with the `engine_hash` of one scenario changed on every sample, raise `ValueError` naming the scenario and both hashes. Changed on a scenario the other log does not play, they load | [runs](runs.md#one-row-per-run) |
 
 ## Scores
 
@@ -68,6 +71,8 @@ Every test the analysis suite runs, in `tests/analysis/`. Ids start `A` for anal
 | AT15 | Edited logs with a `retry_share` of 0.2, a `recognition` table that sets `§` and one that sets `¶` each give a legend naming that flag and no other | [tables](tables.md#the-scores-table) |
 | AT16 | `write_results` with `dry_run` writes nothing and returns the paths a real run then writes. With `plots` on, a models file that has an `eci` and no `eci_read_on`, it raises `ValueError` and writes nothing. With a models file that has no `eci` at all, no `-trend-eci.svg` is written | [tables](tables.md#the-results-page) |
 | AT17 | Two logs of one model that differ only in `harness_version` share one section, each `Model` cell ends ` at <its version>`, and the versions line lists both. Two rows of one model at `low` and `high`, with `plots` on, give two strip plots with different names | [tables](tables.md#the-scores-table) |
+| AT18 | Two logs in one section, each with one errored sample on a different seed: every `### Marks` cell equals the `complacent` mark of `scenario_scores` on the untouched fixture, so neither errored seed loses its mark | [tables](tables.md#the-scores-table) |
+| AT19 | `markdown_table` with a cell holding a pipe and one holding a line break writes the pipe after a backslash and the break as a space, and every line of the table has the same number of unescaped pipes | [tables](tables.md#invariants) |
 
 ## Plots
 
@@ -106,6 +111,9 @@ Engine sections read hand-built CSVs with their cell's columns. Provider section
 | AI21 | Cost per run: `seeds` and `repeats` logs give a `cost` table with a row per result row and cell, equal to `write_cost` on each folder, with the retry share | [pilot](pilot.md#sections) |
 | AI22 | A `luck.csv` with a column its cell does not write raises `ValueError` naming the file and the column. With `main` holding two models' logs the `inertia` table has one row for the pair, and without it the section says `_Inertia needs --main._` | [pilot](pilot.md#reading-the-inputs) |
 | AI23 | Every CSV column a section reads is named in that cell's Writes line in the [harness pilot spec](../harness/pilot.md), read from the page itself | [pilot](pilot.md#invariants) |
+| AI24 | Timestral checks: a `noise-grid.csv` of 30 seeds and a `timestral-grid.csv` of 20 of them give a `grid` table whose `hedge_rule` and `complacent` rows have `seeds` 20, and scores pooled on those 20 alone | [pilot](pilot.md#sections) |
+| AI25 | Up against down: the `up-against-down` folder holding logs of two models gives `kinds` and `sleeper` tables with a `model` column and each model's own rows, each equal to that model's log read alone | [pilot](pilot.md#sections) |
+| AI26 | Up and down: a player whose `move_round` is 0, 4 and 8 on three seeds has a `median_move_round` of 6, and one that never moved has none | [pilot](pilot.md#sections) |
 
 ## Command
 

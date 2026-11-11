@@ -144,6 +144,7 @@ def up_against_down(logs: Path, main: Path | None) -> Section | None:
     section.table("kinds", kinds_table(kinds))
     section.table("gaps", gaps_table(table, kinds))
     section.table("sleeper", sleeper_table(scored(table)))
+    labelled = pd.concat([rows_of(kinds, k).assign(row=label(k)) for k in keys_in(kinds)] or [kinds.assign(row="")])
     if main is None:
         section.notes.append("_Inertia needs --main._")
     else:
@@ -151,18 +152,27 @@ def up_against_down(logs: Path, main: Path | None) -> Section | None:
     section.plot(
         "kinds",
         lambda out: lines(
-            kinds.dropna(subset=["run_score"]), "switch_kind", "run_score", "scenario", "Run score by switch kind", out
+            labelled.dropna(subset=["run_score"]),
+            "switch_kind",
+            "run_score",
+            "scenario",
+            "Run score by switch kind",
+            out,
+            panels="row",
         ),
     )
     return section
 
 
 def kinds_table(kinds: pd.DataFrame) -> pd.DataFrame:
+    """Per result row, scenario and switch kind: the seeds and the pooled score with its bar."""
     rows = []
-    for (scenario, kind), group in kinds.groupby(["scenario", "switch_kind"], sort=True):
-        group = group.sort_values("seed_index")
-        lo, hi = bootstrap(group["gain"].to_numpy(float), group["gap"].to_numpy(float))
-        rows.append({"scenario": scenario, "switch_kind": kind, "seeds": len(group), "score": pooled(group), "lo": lo, "hi": hi})
+    for key in keys_in(kinds):
+        for (scenario, kind), group in rows_of(kinds, key).groupby(["scenario", "switch_kind"], sort=True):
+            group = group.sort_values("seed_index")
+            lo, hi = bootstrap(group["gain"].to_numpy(float), group["gap"].to_numpy(float))
+            row = {"model": label(key), "scenario": scenario, "switch_kind": kind, "seeds": len(group)}
+            rows.append(row | {"score": pooled(group), "lo": lo, "hi": hi})
     return pd.DataFrame(rows)
 
 
@@ -180,18 +190,21 @@ def gaps_table(table: pd.DataFrame, kinds: pd.DataFrame) -> pd.DataFrame:
 
 
 def sleeper_table(table: pd.DataFrame) -> pd.DataFrame:
+    """Per result row and scenario: how often and how soon a bet reached the sleeper, and the mean explore points."""
     rows = []
-    for scenario, group in by_scenario(table).items():
-        sleeper = group["sleeper_round"].dropna()
-        reached = sleeper[sleeper > 0]
-        rows.append(
-            {
-                "scenario": scenario,
-                "reached_share": share(sleeper > 0) if len(sleeper) else None,
-                "median_round": median(reached.astype(float)),
-                "explore_points": group["explore_points"].mean(),
-            }
-        )
+    for key in keys_in(table):
+        for scenario, group in by_scenario(rows_of(table, key)).items():
+            sleeper = group["sleeper_round"].dropna()
+            reached = sleeper[sleeper > 0]
+            rows.append(
+                {
+                    "model": label(key),
+                    "scenario": scenario,
+                    "reached_share": share(sleeper > 0) if len(sleeper) else None,
+                    "median_round": median(reached.astype(float)),
+                    "explore_points": group["explore_points"].mean(),
+                }
+            )
     return pd.DataFrame(rows)
 
 

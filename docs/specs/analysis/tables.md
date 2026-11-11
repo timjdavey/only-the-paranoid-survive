@@ -92,7 +92,7 @@ One row per result row and twelve columns: `Model`, the eight scenarios in `SCEN
 - **A result row that did not play a scenario** has an empty cell, and its headline says how many scenarios it averages: `0.70 [0.66, 0.74] of 3`.
 - **Row order** follows the models file when `models` is given: provider rows first, then LLM rows in file order, each setting in the row's `reasoning` order, as [`run`](../harness/command.md#run) runs them. A result row not in the file goes at the end, by headline. Without a file, headline descending. A tie goes to the label, in string order.
 - **The legend** under the table names every flag used, with counts: `† 3 runs gave up and scored as the Uniform baseline. ‡ Retry share over 0.1. § Recognised the prompt on over a quarter of probes. ¶ Finished the canary, see recognition.` A flag no row carries is left out.
-- **`### Marks`** has one row per scenario: the pooled scores of the Complacent, hedge rule, Scout rule and Perfect baselines on the seeds the table scored. The Uniform baseline is 0 and the Discerning baseline 1 by construction, so neither is a column.
+- **`### Marks`** has one row per scenario: the pooled scores of the Complacent, hedge rule, Scout rule and Perfect baselines on the seeds the table scored. Each seed counts once, from a row that scored it, so a seed one model errored on keeps its mark from another. The Uniform baseline is 0 and the Discerning baseline 1 by construction, so neither is a column.
 - **`### Spread`** has `sd` and `p10` per result row and scenario, and the sampling share when the logs have epochs, see [spread and sampling share](scores.md#spread-and-sampling-share).
 
 ### The cross setting tables
@@ -173,6 +173,7 @@ Written when any model has three or more result rows that differ only in `own_sc
 - Every scenario score on the page equals `pooled_score` over the CSV's `gain` and `gap` for that model, setting and scenario, to the two decimals shown. Every `Tools` cell equals the shares of the CSV's `notes_rounds`, `compute_rounds` and `rounds`.
 - No written file holds a held-out seed's value, an output, a reading, a message, a recognition reply or any skin text. `seed` is blank on every held-out row.
 - Every path `write_results` writes is under `out`, no two share a name, and with `dry_run` there are none.
+- A cell never breaks its table. A `|` in a cell is written `\|` and a line break as a space, on this page and the [pilot page](pilot.md#writing-the-page) alike. The guards keep both out of every key string, see [guards](runs.md#guards), so this is for a value from elsewhere.
 - `CSV_COLUMNS` is a subset of `RUN_COLUMNS` plus nothing. It holds `model`, `reasoning` and every field of `Setting`, so grouping the CSV by them gives the page's result rows.
 
 ## Not decided
