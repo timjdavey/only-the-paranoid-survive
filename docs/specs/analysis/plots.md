@@ -14,7 +14,7 @@ def trend_plot(headlines: pd.DataFrame, models: Sequence[ModelRow], x: Literal["
 def noise_plot(runs: pd.DataFrame, thresholds: Sequence[Threshold], out: Path) -> Path
 ```
 
-Each takes a table from [scores](scores.md) or the run table after [`mean_over_epochs`](runs.md#mean-over-epochs), and the path to write. No plot function reads a file.
+Each takes a table from [scores](scores.md) or the run table after [`mean_over_epochs`](runs.md#mean-over-epochs), and the path to write. No plot function reads a file. `strip_plot` takes one result row, `profile_plot` the scenario scores of one setting, and `trend_plot` the headlines of one setting.
 
 ## Behaviour
 
@@ -26,7 +26,7 @@ One result row, eight panels in `SCENARIOS` order, one per scenario.
 - **The bar** is the pooled score with its interval, see [scenario scores](scores.md#scenario-scores).
 - **Marks** are ticks across the panel for the Complacent, hedge rule, Scout rule and Perfect baselines, each labelled once in the legend. The Complacent mark is always the same grey.
 - **Flags** are the panel title's suffix, with the legend's words under the figure.
-- **The axis** runs from a little below 0 to a little above 1, the same on every panel, with 0 and 1 drawn as lines named for the Uniform and Discerning baselines. A dot outside is drawn where it lands, as [scoring](../../design/scoring.md#why-these-two-baselines) says scores outside 0 to 1 are reported as they come.
+- **The axis** runs from a little below 0 to a little above 1, the same on every panel, with 0 and 1 drawn as lines named for the Uniform and Discerning baselines. A dot outside widens it on every panel, so the dot is drawn where it lands, as [scoring](../../design/scoring.md#why-these-two-baselines) says scores outside 0 to 1 are reported as they come.
 
 ### Profile plot
 
@@ -37,14 +37,15 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 - **One point per result row**, headline on the y axis with its bar, `released` or `eci` from the model rows on the x axis, see [trend plots](../../harness/models.md#trend-plots). A row whose model has no value for `x` is left out and listed in the figure's footer.
 - **Settings of one model are joined by a line**, in `REASONING` order. On the ECI plot they stack in a column, as the design says.
 - **Provider rows** have neither date nor ECI, so they are drawn as horizontal lines across the plot, named.
+- **Called once per setting**, with that section's headlines, see [headings and file names](tables.md#headings-and-file-names). `write_results` does not call it for a setting where no row has a value for `x`, so a plot with no point is never written.
 - **The ECI plot credits Epoch AI**: a footer reading `ECI from Epoch AI, CC BY 4.0, read on <date>`, the date from `eci_read_on`. With `x="eci"` and no date it raises `ValueError`. Never a plot without the credit. The ECI values come from the models file alone, see [command](command.md#results), so the layer opens no network connection.
 
 ### Noise plot
 
-`write_results` calls it with `plots` on, once for each [noise threshold table](tables.md#the-results-page) it writes, with that table's result rows and their `Threshold`s.
+`write_results` calls it with `plots` on, once for each [noise threshold table](tables.md#the-noise-threshold-table) it writes, with the run table and that table's `Threshold`s. Each `Threshold` names its result row in `key`, so the plot finds the row's settings as [`noise_threshold`](scores.md#noise-threshold) did.
 
-- **One line per model**: headline against signal to noise on a log x axis, one point per grid setting with its bar, and the logistic fit from [noise threshold](scores.md#noise-threshold) drawn through it.
-- **The floor** is a grey line at the Complacent baseline's headline, and the half way mark a dotted one.
+- **One line per model**: headline against signal to noise on a log x axis, one point per grid setting with its bar, and the logistic fit from [noise threshold](scores.md#noise-threshold) drawn through it from the `Threshold`'s `snr`, `k` and `complacent`. A model off the grid has its points and no fit.
+- **The Complacent baseline's headline** is a grey line, and the half way mark a dotted one.
 - **Each threshold** is a tick on the x axis with the model's name. A model off the grid is named at the end it fell off.
 - **The axis label says signal to noise**, with the own-weather scale as a second axis along the top, so the grid's settings can be read straight off.
 
@@ -53,7 +54,7 @@ The trait profile: eight traits on the x axis in `SCENARIOS` order, named by tra
 - **SVG only**, written with `metadata={"Date": None}` and `rcParams["svg.hashsalt"]` fixed to `"paranoid"`, so a rerun gives equal bytes, see [checked](#checked).
 - **Fixed figure sizes**: the strip plot 12 by 3 inches, the rest 6 by 4. No tight layout that depends on font metrics the machine may not share; margins are set by hand.
 - **One palette** of eight colours, colour-blind safe, used in order. Baseline marks are greys. Text is DejaVu Sans, the font that ships inside matplotlib, with `rcParams["font.family"]` set to it by name and `rcParams["svg.fonttype"]` set to `"path"`. So no plot reads a font from the machine.
-- **The title names the skin and seed set**, and the noise setting when it is not the default. Nothing else from a skin, and no seed value, appears on any plot. Every string drawn is a [guarded](runs.md#guards) one or a number.
+- **The title is the setting's heading**, see [headings and file names](tables.md#headings-and-file-names), so it names the skin, the seed set and every knob off its default. The noise plot's is the curve heading. Nothing else from a skin, and no seed value, appears on any plot. Every string drawn is a [guarded](runs.md#guards) one or a number.
 - **Returns the path written.**
 
 ## Invariants

@@ -38,7 +38,7 @@ How the code is arranged. The [design](../README.md#design) pages say why the ga
       models/      poc.toml and full.toml. See models.md
       seeds/       public.txt, the one list every scenario plays, once the engine exists. Held-out seeds are private, see contamination.md
       grid.toml    the noise grid and the release name, see docs/specs/harness/task.md
-      prices.toml  token prices for the cost table, see docs/specs/analysis/tables.md
+      prices.toml  token prices for the cost table, not written yet. Without it the table has no cost column, see docs/specs/analysis/tables.md
     docs/
       design/      why. The decisions
       harness/     how. This folder
@@ -59,13 +59,13 @@ One file carries a duty for every layer. Each row links to the spec that owns th
 
 | Part | What it holds | Owner |
 |---|---|---|
-| Layer contract | An `import-linter` layered contract over the six packages, a contract that keeps torch and Timestral out of every package but forecasters, and one that keeps the skins layer to the engine and the standard library. All run in CI | [Six layers](#six-layers) |
+| Layer contract | An `import-linter` layered contract over the six packages, a contract that keeps torch and Timestral out of every package but forecasters, one that keeps the skins layer to the engine and the standard library, one that keeps pandas, matplotlib and scipy out of the harness and below, and one that keeps the baselines, skins and forecasters out of the analysis. All run in CI | [Six layers](#six-layers), [analysis modules](../specs/analysis/README.md#modules) |
 | Console script | `paranoid`, pointing at the harness's `main` | [command spec](../specs/harness/command.md#subcommands) |
 | `inspect_ai` entry point | The module that registers the `baseline`, `jev` and `timestral` providers | [providers spec](../specs/harness/providers.md) |
 | `paranoid.commands` entry point | `analyse`, which the harness finds without importing the analysis layer | [analysis command](../specs/analysis/command.md#dispatch) |
 | Extras | `timestral` for torch and Timestral, which only the forecasters layer imports. The Docker sandbox needs no extra, as inspect drives the `docker` command | [running](running.md#setup) |
 | Package data | `skins/example.toml` and the harness's `compose.yaml` | [skin spec](../specs/skins/skin.md#the-example-skin), [solver spec](../specs/harness/solver.md#compute) |
-| Pins | numpy to one minor version, and the Timestral package to one git commit | [engine hash](../specs/engine/config.md#engine-hash), [forecasters spec](../specs/forecasters/timestral.md#pinned) |
+| Pins | numpy and pandas to one minor version, scipy to one minor version, matplotlib exactly, as its version is written into every SVG, and the Timestral package to one git commit | [engine hash](../specs/engine/config.md#engine-hash), [plots](../specs/analysis/plots.md#checked), [forecasters spec](../specs/forecasters/timestral.md#pinned) |
 
 ## Naming
 

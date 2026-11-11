@@ -111,7 +111,7 @@ The example skin's wording for the other two, the name and parameter on the firs
 - **Every retry is counted** in the store. The share of rounds that needed one is reported beside every score.
 - **Ten tries a round at most**, so a broken model can't loop forever. After the tenth the solver gives up: the run ends there, with no error.
 - **A run that gives up scores as the Uniform baseline on that seed**, a gain of 0. Every model stays scored on every seed, so the pairing holds, and failing to answer never earns more than knowing nothing. An error in a log is therefore always infrastructure, never the model, see the [solver spec](../specs/harness/solver.md#tries).
-- **A mark, never a drop.** Every model is scored. A scenario where the retry share passes the mark in [decisions](../pilot/decisions.md) gets a mark on its bar.
+- **A flag, never a drop.** Every model is scored. A scenario where the retry share passes the share in [decisions](../pilot/decisions.md) gets a [flag](../glossary.md#scoring) on its bar.
 
 ## Banned words
 

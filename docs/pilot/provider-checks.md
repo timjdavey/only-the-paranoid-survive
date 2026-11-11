@@ -42,7 +42,7 @@ Prices the risk that a model knows it is in this benchmark. Each skin words the 
   - The share of replies that name the benchmark, the repo or what it tests, a shock that fades against a new normal. A [banned word](../harness/prompts.md#banned-words) in the reply counts as a hit, using the same lint.
   - Hits on the example skin against hits on held-out skins. More on the example skin means its public wording leaks.
   - Any reply that finishes the canary.
-- **Decide.** The share that marks a bar, as the retry share does. A model that finishes the canary has its scores flagged wherever they are shown. Probe logs from held-out skins stay private, like any held-out log.
+- **Decide.** The share that flags a bar, as the retry share does. A model that finishes the canary has its scores flagged wherever they are shown. Probe logs from held-out skins stay private, like any held-out log.
 
 ## Channel order
 
@@ -142,7 +142,7 @@ The record starts empty, so the agent finds the leader itself in the first round
 
 - **Question.** Does a record someone else played change how a model plays, and which way.
 - **Run.** Every LLM row in the proof of concept list, in the No change and Down switch scenarios, the seeds from [Seeds](#seeds), twice: with `warm_up` unset and at `complacent:5`.
-- **Measure.** The score gap, paired by seed, and how often the agent's first round keeps the warm up's bets.
+- **Measure.** The score gap, paired by seed, and how often the agent's first round keeps the warm up's last bets.
 - **Decide.** Report the gap beside the headline. The headline starts empty.
 
 ## Inertia
@@ -152,7 +152,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
 - **Question.** Are the gaps between models too small to read, even with the Complacent baseline held at or below 0.7 by the [reachable gain](engine-checks.md#reachable-gain) check.
-- **Measure.** The gaps between models in the Down switch and Slow drift scenarios, from the proof of concept logs, as no pilot cell plays Slow drift.
+- **Measure.** The gaps between models in the Down switch and Slow drift scenarios, paired by seed, from the proof of concept logs, as no pilot cell plays Slow drift. `paranoid analyse pilot --main` is pointed at those logs, see the [analysis pilot spec](../specs/analysis/pilot.md#reading-the-inputs).
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 
 ## Cost per run
@@ -160,4 +160,4 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 - **Question.** What the full study costs.
 - **Measure.** Tokens per run for each model, from the [seeds](#seeds) and [repeats](#repeats) runs. Also the share of replies cut off by max tokens, which should be close to 0, see [sampling](../harness/models.md#sampling). And the cached share: the part of each model's input tokens the provider read from its cache, see [prompt caching](../harness/models.md#prompt-caching). And input tokens per round against the round number, cached and not, which says what a run of another length would cost.
 - **Decide.** Tokens per run × seeds × scenarios × skins × models gives the budget, with cached tokens at the provider's cache price. If it is too high, cut seeds before scenarios, as every scenario feeds the headline. If there is budget to spare, add seeds and never rounds, see [rejected](../design/mechanics.md#rejected). A model on a provider that caches whose cached share is near zero is fixed before the full run, as the same run would cost several times more for nothing.
-- **The retry share is read off the same logs.** The share of rounds that needed a retry, per model, see [retry rule](../harness/prompts.md#retry-rule). Decide the share that marks a bar: high enough that a model which plays the tool cleanly never carries the mark, low enough that one which struggles with it always does.
+- **The retry share is read off the same logs.** The share of rounds that needed a retry, per model, see [retry rule](../harness/prompts.md#retry-rule). Decide the share that flags a bar: high enough that a model which plays the tool cleanly never carries the [flag](../glossary.md#scoring), low enough that one which struggles with it always does.

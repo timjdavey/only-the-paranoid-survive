@@ -73,8 +73,8 @@ The secrecy rules, each with the one section that owns it and the tests that pro
 |---|---|---|---|
 | A timeline or a view | Regenerated from config and seed, never serialised | [engine](engine/timeline.md#interface) | `ET28`, `HK11` |
 | A level the agent did not bet on | The record holds only what the agent saw | [engine](engine/game.md#record) | `EG5` |
-| A held-out seed's value | Position in the list only, the value read from the seed file at run time | [harness](harness/task.md#dataset) | `HK6`, `HO11` |
-| A held-out skin's text | A failing test names the skin, never its words. A log is as private as its skin | [skins](skins/tests.md) | `KL12` |
+| A held-out seed's value | Position in the list only, the value read from the seed file at run time. The analysis loads it as NA and writes no file that holds it | [harness](harness/task.md#dataset), [analysis](analysis/runs.md#privacy) | `HK6`, `HO11`, `AR2`, `AT4` |
+| A held-out skin's text | A failing test names the skin, never its words. A log is as private as its skin, and the analysis writes a skin as its name only | [skins](skins/tests.md), [analysis](analysis/README.md#conventions) | `KL12`, `AT4` |
 | The canary GUID | In no text the model reads | [skins](skins/lint.md#canary) | `KL9`, `KL12` |
 | The engine's error text, or inspect's | The model reads the skin's `bad_call` or `no_call`, never the engine's message or inspect's | [harness](harness/solver.md#refused-calls) | `HS7` |
 | A Timestral forecast of a held-out run | The cache stays on the machine, like the log | [forecasters](forecasters/policy.md#the-cache) | |
@@ -90,4 +90,4 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 | forecasters | [forecasters/](forecasters/) | Built, the suite passes | Nothing. The Timestral package was read and run first, see [checked](forecasters/timestral.md#checked) |
 | skins | [skins/](skins/) | Built, the suite passes | Nothing |
 | harness | [harness/](harness/) | Built, the suite passes. HS12, the Docker test, has not run yet | Only what needs a key. What each provider takes for a reasoning setting and whether `off` is off, which OpenRouter models refuse a required tool call, `any`, while thinking, that cutting the record into content blocks changes the bill and not the prompt, and one live Jev reply. See the [command](harness/command.md#verify-before-code), [solver](harness/solver.md#verify-before-code) and [providers](harness/providers.md#verify-before-code) pages. Everything about inspect itself is [checked](harness/solver.md#checked) |
-| analysis | [analysis/](analysis/) | Written, no code yet | Nothing the code waits on. Equal plot bytes across machines is open, see [plots](analysis/plots.md#verify-before-code) |
+| analysis | [analysis/](analysis/) | Built, the suite passes | Equal plot bytes across machines only, and nothing waits on it, see [plots](analysis/plots.md#verify-before-code). pandas on NA keys and `attrs`, and how `curve_fit` fails, are [checked](analysis/runs.md#checked) |

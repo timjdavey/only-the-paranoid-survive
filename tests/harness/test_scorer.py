@@ -17,7 +17,7 @@ MARKS = {
 KEYS = {
     "output", *MARKS, "gain", "gap", "run_score", "rounds", "warm_up_rounds", "retries", "retry_rounds", "gave_up",
     "bad_calls", "no_calls", "cut_offs", "notes_rounds", "compute_rounds", "unchanged_rounds", "explore_points",
-    "sleeper_round",
+    "sleeper_round", "warm_up_kept",
 }  # fmt: skip
 EVEN = [10] * 10
 
@@ -48,6 +48,11 @@ def test_ho2_warm_up_rounds_score_nothing(helpers):
     warm = Record(store.record().rows[:5])
     for name, policy in MARKS.items():
         assert value[name] == sum(row.output for row in play(policy, timeline, record=warm).rows[5:])
+    assert value["warm_up_kept"] == 0  # the hedge rule's first split puts 2 on the hedge, complacent's does not
+    kept = helpers.run(get_model("baseline/complacent"), scenario="down_switch", warm_up="complacent:5").samples[0]
+    assert kept.scores["gain"].value["warm_up_kept"] == 1
+    cold = helpers.run(get_model("baseline/complacent"), scenario="down_switch").samples[0]
+    assert cold.scores["gain"].value["warm_up_kept"] is None
 
 
 def kinds_by_position(positions) -> dict[str, int]:

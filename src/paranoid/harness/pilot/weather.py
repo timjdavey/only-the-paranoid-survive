@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from paranoid.baselines import HedgeRule, ScoutRule, complacent, discerning, perfect, uniform
-from paranoid.engine import SCENARIOS, Record, Timeline, make_timeline, play
+from paranoid.engine import SCENARIOS, Game, Record, Timeline, make_timeline, play
 
 from ..config import scenario_config
 from ..seeds import load_grid
@@ -67,7 +67,7 @@ def separate(t: Timeline) -> int | None:
 def tell(args: CellArgs) -> list[Path]:
     columns = (
         "factor_scale", "loading_low", "window", "fall_points", "tell_points", "scenario", "seed", "onset",
-        "depth_capped", "hedge_rise", "held", "move_round", "field_together_rounds",
+        "depth_capped", "hedge_rise", "held", "move_round", "fall_rounds", "tell_rounds", "field_together_rounds",
     )  # fmt: skip
     scenarios = ("one_shock", "down_switch", "no_change")
     first = [(scale, loading, HedgeRule(), False) for scale in (1.5, 3.0, 4.5, 6.0) for loading in ((0.3, 1.0), (0.5, 1.0))]
@@ -89,7 +89,7 @@ def tell(args: CellArgs) -> list[Path]:
                     yield (
                         scale, loading[0], *knobs, name, seed, onset(t), depth_capped(t), hedge_rise(t, record, rule),
                         int(largest(record.rows[-1].bets) == t.leader),
-                        move_round(record, t.leader), field_together(t),
+                        move_round(record, t.leader), *fall_and_tell(t, record, rule), field_together(t),
                     )  # fmt: skip
 
     return write_csv(args, "tell", columns, rows)
@@ -113,6 +113,29 @@ def hedge_rise(t: Timeline, record: Record, rule: HedgeRule) -> float | None:
     if not after or not before:
         return None
     return float(np.mean(after) - np.mean(before))
+
+
+def fall_and_tell(t: Timeline, record: Record, rule: HedgeRule) -> tuple[int | None, int | None]:
+    """Rounds from onset on which the rule's fall test fired, and of those the ones its tell test stopped.
+
+    Replays the rule's own steps on its record. The test runs only while it holds, so scout rounds are not counted.
+    A rule whose tell can never fire gives the fall test alone.
+    """
+    start = onset(t)
+    if start is None:
+        return None, None
+    blind = replace(rule, tell_points=1e300)
+    readings = [dict(record.readings_of(c)) for c in range(t.config.channels)]
+    state = rule.state(Game(t).view(False))  # the hold on round 1
+    falls = tells = 0
+    for r in range(2, len(record) + 1):
+        if state.scout_start is None and r >= start:
+            pick, hedge = readings[state.pick], readings[t.hedge]
+            if blind.falls_without_tell(state, r, pick, hedge):
+                falls += 1
+                tells += not rule.falls_without_tell(state, r, pick, hedge)
+        state = rule.step(state, r, readings, t.hedge)
+    return falls, tells
 
 
 def field_together(t: Timeline) -> int:

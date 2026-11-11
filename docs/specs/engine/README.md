@@ -38,7 +38,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 | skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_timeline`, `SCENARIOS` and `ScenarioConfig` in its tests |
 | forecasters | [Names from the engine](../forecasters/README.md#names-from-the-engine): `View` and `Bets`, and `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record` and `Timeline` in its tests |
 | harness | [Names from the engine](../harness/README.md#names-from-the-engine): `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION`, `make_timeline`, `Timeline`, `Event`, `Game`, `Record`, `Row`, `Bets`, `BetError`, `play`, `Policy` and `split_budget` |
-| analysis | [Names from the engine](../analysis/README.md#names-from-the-engine): `make_timeline`, `Timeline` and `Event` for the switch kind a seed drew, `SwitchSpec` for the signal on the noise axis, and `SCENARIOS` to check the names a log claims |
+| analysis | [Names from the engine](../analysis/README.md#names-from-the-engine): `make_timeline`, `Timeline` and `Event` for the switch kind a seed drew, `SwitchSpec` and `ScenarioConfig` for the signal on the noise axis, and `SCENARIOS` to check the names a log claims, to order scenarios and for the default game length |
 
 ## Modules
 

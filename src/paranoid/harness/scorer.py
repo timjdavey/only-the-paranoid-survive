@@ -51,6 +51,13 @@ def sleeper_round(rows: tuple[Row, ...], timeline: Timeline) -> int | None:
     return next((row.round for row in rows if row.round >= onset and row.bets[timeline.sleeper] >= 1), 0)
 
 
+def warm_up_kept(record: Record, warm: int) -> int | None:
+    """1 when the agent's first bets equal the last warm up round's, else 0. None with no warm up or no agent round."""
+    if warm == 0 or len(record.rows) <= warm:
+        return None
+    return int(record.rows[warm].bets == record.rows[warm - 1].bets)
+
+
 def score_value(store: RunStore) -> dict[str, Any]:
     """Every key of Score.value. See the table in docs/specs/harness/scorer.md#scoring-one-run."""
     config, record = store.config(), store.record()
@@ -83,6 +90,7 @@ def score_value(store: RunStore) -> dict[str, Any]:
         "unchanged_rounds": sum(1 for r in record.unchanged_rounds() if r > warm),
         "explore_points": explore_points(agent, timeline, config.budget),
         "sleeper_round": sleeper_round(agent, timeline),
+        "warm_up_kept": warm_up_kept(record, warm),
     }
 
 

@@ -29,7 +29,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 |---|---|---|---|
 | [Seeds](provider-checks.md#seeds), the count, and the row and scenario with the widest spread that set it | | | |
 | [Repeats](provider-checks.md#repeats) | | | |
-| [Recognition](provider-checks.md#recognition), share that marks a bar | | | |
+| [Recognition](provider-checks.md#recognition), share that flags a bar | | | |
 | [Channel order](provider-checks.md#channel-order), whether `submit` keeps its list | | | |
 | [Up against down](provider-checks.md#up-against-down) | | | |
 | [Jev checks](provider-checks.md#jev-checks) | | | |
@@ -40,7 +40,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Inertia](provider-checks.md#inertia) | | | |
 | [Cost per run](provider-checks.md#cost-per-run) | | | |
 | [Warm up](provider-checks.md#warm-up) | | | |
-| [Cost per run](provider-checks.md#cost-per-run), retry share that marks a bar, see [retry rule](../harness/prompts.md#retry-rule) | | | |
+| [Cost per run](provider-checks.md#cost-per-run), retry share that flags a bar, see [retry rule](../harness/prompts.md#retry-rule) | | | |
 
 - **A decision is a number or a yes or no**, plus one line on why if the run surprised us.
 - **Once a row is filled it is frozen.** Changing it means a new pilot and a new row.

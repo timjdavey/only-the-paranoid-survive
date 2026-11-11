@@ -30,9 +30,9 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `JevAnswer`, `JevClient` | Jev's reply, and the seam a test fakes | [providers](providers.md) |
 | `gain` | The `@scorer` | [scorer](scorer.md) |
 | `scenario_score`, `headline`, `weakest_trait`, `retry_share`, `tool_use_share` | The `@metric`s | [scorer](scorer.md) |
-| `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED`, `TRAITS` | The maths the metrics share, its two constants, and scenario to trait | [scorer](scorer.md) |
+| `pooled_score`, `bootstrap`, `draws_of`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED`, `TRAITS` | The maths the metrics share, the draws behind every bar, its two constants, and scenario to trait | [scorer](scorer.md) |
 | `load_models`, `ModelRow`, `generate_config` | The models config and the reasoning mapping | [command](command.md) |
-| `REASONING`, `EFFORT_PREFIXES`, `SKIN_READERS` | The reasoning grid, the providers that take an effort rather than a budget, and the kinds that play every skin | [command](command.md) |
+| `REASONING`, `EFFORT_PREFIXES`, `BUDGETS`, `SKIN_READERS` | The reasoning grid, the providers that take an effort rather than a budget, the budget table, and the kinds that play every skin | [command](command.md) |
 | `main` | The `paranoid` console script | [command](command.md) |
 | `CellArgs`, `CELLS`, `run_cell`, `RECOGNITION_QUESTION`, `CHANNEL_ORDER_REQUEST`, `ALL_BETS` | The pilot cells, how the command runs one, and the words and bets of the two probes | [pilot](pilot.md) |
 
@@ -49,13 +49,13 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
       tools.py         submit, notes, compute
       compose.yaml     the sandbox for compute, network off
       scorer.py        gain
-      metrics.py       the five metrics, pooled_score, bootstrap, TRAITS
+      metrics.py       the five metrics, pooled_score, bootstrap, draws_of, TRAITS
       providers/
         __init__.py    the @modelapi registrations, StoreAPI
         baseline.py    BaselineAPI, over the baselines layer's POLICIES
         jev.py         JevAPI, JevClient
         timestral.py   TimestralAPI, over the forecasters layer's TIMESTRAL_POLICIES
-      models.py        load_models, ModelRow, generate_config
+      models.py        load_models, ModelRow, generate_config, BUDGETS
       evals.py         the one eval call run and the pilot cells share, private
       cli.py           main, run, pilot
       pilot/           CellArgs, CELLS, run_cell, one function per cell, a file per kind of cell
@@ -118,10 +118,12 @@ The analysis is the layer above. What it takes from the harness is listed on its
 
 | Layer | Its list |
 |---|---|
-| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `scenario_config` and `load_seeds` for the one timeline it rebuilds |
+| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `draws_of`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number and bar, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `BUDGETS` to read a reasoning setting back from a config, `scenario_config` and `load_seeds` for the one timeline it rebuilds |
 
 - **The analysis reads a log's scores and metadata, never its messages or store**, see [runs](../analysis/runs.md#privacy). So every number it reports is in `Score.value` or `Sample.metadata`, which is why the [scorer](scorer.md#scoring-one-run) puts the baselines' outputs there and the [task](task.md#dataset) puts every identifier in the metadata.
 - **`run` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [run](command.md#run).
+- **`draws_of` is exported for the analysis.** Its headline, gap and threshold bars each combine several pooled scores draw by draw, and must make the draws the metrics made, see [pooling](../analysis/scores.md#pooling).
+- **A pilot cell reads what the analysis may not.** A message's metadata and a model event's tokens are the harness's to read, on public seeds, so the `jev`, `seeds` and `rolling` cells write them to CSVs, see [pilot](pilot.md#provider-cells).
 
 ## Conventions
 
