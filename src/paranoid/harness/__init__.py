@@ -13,6 +13,10 @@ from .metrics import (
     tool_use_share,
     weakest_trait,
 )
+from .providers import StoreAPI
+from .providers.baseline import BaselineAPI
+from .providers.jev import JevAnswer, JevAPI, JevClient
+from .providers.timestral import TimestralAPI
 from .models import EFFORT_PREFIXES, REASONING, SKIN_READERS, ModelRow, generate_config, load_models
 from .scorer import gain
 from .seeds import Grid, load_grid, load_seeds, parse_seeds
@@ -54,4 +58,10 @@ __all__ = [
     "REASONING",
     "EFFORT_PREFIXES",
     "SKIN_READERS",
+    "StoreAPI",
+    "BaselineAPI",
+    "JevAPI",
+    "TimestralAPI",
+    "JevAnswer",
+    "JevClient",
 ]

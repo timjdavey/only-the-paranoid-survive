@@ -11,6 +11,8 @@ class StoreAPI(ModelAPI):
     def __init__(self, model_name: str, base_url: str | None = None, api_key: str | None = None,
                  config: GenerateConfig = GenerateConfig(), **model_args: Any)
     async def bets(self, store: RunStore, input: list[ChatMessage]) -> Bets   # subclasses implement
+    async def answer(self, store: RunStore, input: list[ChatMessage]) -> tuple[Bets, dict | None]
+                                                                      # the bets and what to log beside them
     async def generate(self, input: list[ChatMessage], tools: list[ToolInfo],
                        tool_choice: ToolChoice, config: GenerateConfig) -> ModelOutput
     def max_connections(self) -> int                                       # 32 for baselines, 4 for Jev, 1 for Timestral
@@ -45,7 +47,7 @@ class JevClient(Protocol):
 - **`tools` is never empty.** If it is, `generate` raises `RuntimeError`, as the solver is not the one calling.
 - **A provider that cannot produce bets raises.** A baseline that bets badly is a bug and the sample errors, see [play](../engine/game.md#play). Providers never retry.
 - **Usage is zero tokens.** The scorer and the [cost check](../../pilot/provider-checks.md#cost-per-run) can tell a provider row from an LLM row by `kind` in the models config, not by usage.
-- **Extra information goes on the message.** Jev's probabilities and Timestral's quantiles are set on `ChatMessageAssistant.metadata`, so they sit beside the bets in the log.
+- **Extra information goes on the message.** Jev's probabilities and Timestral's quantiles are set on `ChatMessageAssistant.metadata`, so they sit beside the bets in the log. `generate` calls `answer`, which by default is `bets` with nothing logged, and Jev and Timestral override it.
 
 ### Baseline
 

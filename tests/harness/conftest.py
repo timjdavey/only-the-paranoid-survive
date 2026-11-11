@@ -10,15 +10,17 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import inspect_ai
+import numpy as np
 import pytest
 from inspect_ai.event import ModelEvent
+from inspect_ai.log import resolve_sample_attachments
 from inspect_ai.model import ChatCompletionChoice, ChatMessageAssistant, ModelOutput, get_model
 from inspect_ai.tool import ToolCall
 from inspect_ai.util import Store
 
-from paranoid.baselines import uniform
+from paranoid.baselines import QUANTILE_LEVELS, uniform
 from paranoid.engine import SCENARIOS, Record, make_timeline, play
-from paranoid.harness import RunStore, paranoid
+from paranoid.harness import JevAnswer, RunStore, paranoid
 from paranoid.skins import Skin, load_skins
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -108,6 +110,7 @@ def store_of(sample) -> RunStore:
 
 def sent(sample) -> list[list]:
     """The messages each generate call was sent, in order."""
+    sample = resolve_sample_attachments(sample, "full")
     return [event.input for event in sample.events if isinstance(event, ModelEvent)]
 
 
@@ -149,3 +152,46 @@ def skin_file_fixture():
 def played() -> Record:
     """Three rounds of uniform on a public seed."""
     return play(uniform, make_timeline(SCENARIOS["no_change"], 0), max_rounds=3)
+
+
+class Fake:
+    """A forecaster with no model: each channel's last reading, spread wider the more blanks follow it."""
+
+    key = "fake"
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def __call__(self, readings: np.ndarray, bets: np.ndarray | None) -> np.ndarray:
+        self.calls += 1
+        rows = []
+        for column in readings.T:
+            finite = np.flatnonzero(np.isfinite(column))
+            blanks = len(column) - 1 - finite[-1]
+            rows.append(column[finite[-1]] + np.linspace(-1.0, 1.0, len(QUANTILE_LEVELS)) * (5.0 + blanks))
+        return np.array(rows)
+
+
+@pytest.fixture(name="Fake", scope="session")
+def fake_fixture():
+    return Fake
+
+
+class FakeJev:
+    """A JevClient that records each ask and answers from `answers`, by round, else evenly."""
+
+    def __init__(self, answers: dict[int, list[float]] | None = None) -> None:
+        self.answers = answers or {}
+        self.asked: list[tuple[str, str, tuple[str, ...]]] = []
+
+    async def ask(self, state, question, options):
+        self.asked.append((state, question, tuple(options)))
+        rows = state.strip().split("\n")
+        played = sum(1 for line in rows if line[:1].isdigit())  # rows of the record so far
+        probabilities = self.answers.get(played + 1, [1 / len(options)] * len(options))
+        return JevAnswer(tuple(probabilities), 0.5, {"choices": {"channel": {"probabilities": probabilities}}})
+
+
+@pytest.fixture(name="FakeJev", scope="session")
+def fake_jev_fixture():
+    return FakeJev
