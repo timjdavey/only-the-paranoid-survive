@@ -95,7 +95,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Slow drift scenario | One drift. `slow_drift` in code |
 | Switch then shock scenario | One switch the leader feels, a gap, then one shock. `switch_then_shock` in code |
 | Up switch then down switch scenario | A sleeper rises past the leader, a gap, then falls back to its old level. `up_switch_then_down_switch` in code |
-| Hard variant | A harder version of a scenario: more shocks before the switch, or a longer drift |
+| Hard variant | A harder version of a scenario: more shocks before the switch, a longer drift, or a rise spread over a longer ramp |
 
 ## How the agent plays
 
@@ -143,11 +143,14 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | World spread | The part of spread from the seed |
 | Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Reported as a gap paired by seed between two skins on one seed set, see [spread](design/scoring.md#spread) |
 | Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
-| Bayesian frontier | The scenario scores of every Bayesian baseline in a pre-registered family of hazards and forecast rules, drawn as the No change score against the Down switch and Up switch scores. Its upper envelope is the best any reader of the engine's family did, and the Bayesian baseline's defaults are the point on it with the best headline. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
+| Bayesian frontier | The scenario scores of every Bayesian baseline in a pre-registered family of hazards crossed with the forecast rules and a one-step lookahead, drawn as the No change score against the Down switch and Up switch scores. Its upper envelope is the best any reader of the engine's family did, and the Bayesian baseline's defaults are the point on it with the best headline. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
 | Reachable gain | The Discerning baseline's scenario score minus the Complacent baseline's, so one minus the Complacent mark. What moving at the right time is worth. In the Up switch then down switch scenario the Stayer stands in for the Complacent baseline. In level points it is the Discerning baseline's output minus the Complacent baseline's. See [reachable gain](pilot/engine-checks.md#reachable-gain) |
 | Bayesian gain | The Bayesian baseline's scenario score minus the Complacent baseline's, or the Stayer's where it stands in. What the best blind baseline earns from moving, after explore bets and lag |
 | Bayesian gain percentage | The Bayesian gain over the reachable gain, as a whole percent. How much of the reachable gain a player can earn from its own record alone |
 | Stayer | A pilot reference, not a baseline. It plays as the Discerning baseline until the last event begins, then holds those bets. In the Up switch then down switch scenario it moves to the sleeper and never comes back. Never on a bar. See the [harness pilot spec](specs/harness/pilot.md#shared-rules) |
+| Explore cost | One minus a blind baseline's No change score. What its explore bets cost when nothing changes. Reported beside the reachable gain, see [reachable gain](pilot/engine-checks.md#reachable-gain) |
+| Irreducible lag | One minus the best Bayesian baseline's Down switch score, on seeds it was not picked on. The rounds no reader of its own record can avoid losing. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
+| Squeeze | A scenario score climbing towards 1 as the run grows, though the player plays no better, as more rounds hide the ones it was late. Measured in [game length](pilot/engine-checks.md#game-length-and-switch-round) |
 | Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
 | Bare harness | The headline harness with its notes file and compute tool taken away, `tools=none`. A sensitivity every LLM row plays once, never the headline. See [bare harness](pilot/provider-checks.md#bare-harness) |
 | Bare gap | A model's paired gap between its headline setting and the bare harness. How much of its score the tools did. Reported per model beside the headline, see [tables](specs/analysis/tables.md#the-results-page) |

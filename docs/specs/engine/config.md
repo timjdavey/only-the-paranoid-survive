@@ -125,7 +125,7 @@ def engine_hash(config: ScenarioConfig) -> str
 
 - **`name` equals the key.** `SCENARIOS["one_shock"].name == "one_shock"`.
 - **The first event lands at `onset`**, which every scenario shares. So twin timelines share their onset round, see [timeline](timeline.md#twin-timelines). Later events land `gap` rounds after the previous event's onset.
-- **A hard variant is a new config**, not a flag: more events in the tuple, or a longer `length`. It gets its own key when it exists, see [scenarios](../../design/scenarios.md#scenarios-we-test).
+- **A hard variant is a new config**, not a flag: more events in the tuple, a longer `length`, or a longer `ramp`. It gets its own key when it exists, see [scenarios](../../design/scenarios.md#scenarios-we-test).
 
 ### Engine hash
 

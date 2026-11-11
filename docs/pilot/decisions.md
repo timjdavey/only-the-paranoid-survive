@@ -6,7 +6,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 
 | Check | Decision | Date | Log |
 |---|---|---|---|
-| [Streaks](engine-checks.md#streaks), persistence | | | |
+| [Streaks](engine-checks.md#streaks), persistence and the Scout rule's `n` | | | |
 | [The tell](engine-checks.md#the-tell), shared-factor scale, and the hedge rule's `window`, `fall_points` and `tell_points` | | | |
 | [Luck on offer](engine-checks.md#luck-on-offer) | | | |
 | [Timeline sanity](engine-checks.md#timeline-sanity) | | | |
@@ -18,7 +18,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Bayesian frontier](engine-checks.md#bayesian-frontier), irreducible lag, and whether the Bayesian baseline joins the marks | | | |
 | [Game length and switch round](engine-checks.md#game-length-and-switch-round), events per run and the `gap` between them | | | |
 | [Noise grid](engine-checks.md#noise-grid), switch size in level points | | | |
-| [Up and down](engine-checks.md#up-and-down), sleeper share, rise size in level points and the Scout rule's `n` | | | |
+| [Up and down](engine-checks.md#up-and-down), sleeper share, rise size in level points and the Scout rule's `s` | | | |
 | [Up and down](engine-checks.md#up-and-down), short share of Up switch seeds and the sleeper's end level on them as a share of the gap between runner-up and leader | | | |
 | [The tell](engine-checks.md#the-tell), loading range, and [Timeline sanity](engine-checks.md#timeline-sanity), ladder ranges | | | |
 | [Reachable gain](engine-checks.md#reachable-gain), reachable gain and Bayesian gain percentage per scenario at the chosen knobs, and the knob that moved to clear them | | | |

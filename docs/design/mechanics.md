@@ -24,7 +24,7 @@ The generator turns a scenario and a seed into a **timeline**: the ground truth 
 | Loading | How much the channel moves with the shared factor. Uneven, drawn per seed from about 0.3 to 1. One channel draws a negative loading and is the **hedge** | Range per release |
 
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
-- **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that its level never passes the leader's, even mid-shock. It is a clue, not a destination.
+- **The hedge rises when everything else falls**, like gold in a downturn. Its base and loading keep it below the leader at the bottom of a shock, before weather, see the [shock spec](../specs/engine/timeline.md#shock). Weather can still lift one of its readings past the leader's. It is a clue, not a destination.
 - **The ladder sits high enough that no figure realistically falls below 0**, neither a level nor a reading, even in a deep shock. A bet is paid its reading, so a reading below 0 would be a real loss every skin would have to explain. [Timeline sanity](../pilot/engine-checks.md#timeline-sanity) confirms it, and moves the ladder up if not. The engine still never clips, see [rejected](#rejected).
 - **One seed, twin timelines.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and Down switch timelines match until the event begins, see [seeds](scoring.md#seeds).
 
@@ -52,14 +52,14 @@ A scenario is a list of events. Each event has a shape, and redraws its own numb
 ### Stringing events
 
 - **A minimum gap** between events, set per scenario. Events may still overlap, so a shock can land mid-drift.
-- **No two alike.** Each event redraws its numbers and lands on different weather, and a second switch hits a different channel unless the scenario says it undoes the first, as in the Up switch then down switch scenario. A timeline is rejected if consecutive events of the same kind differ in fewer than two draws.
+- **No two alike.** Each event redraws its numbers and lands on different weather, and a second switch hits a different channel unless the scenario says it undoes the first, as in the Up switch then down switch scenario. If two events of the same shape in a row differ in fewer than two draws, the later one is redrawn, see [no two alike](../specs/engine/timeline.md#no-two-alike).
 - **A hard variant strings more, or stretches.** More shocks before the switch, a longer drift, or a sleeper's rise spread over many rounds, which is the Up drift we [skip](scenarios.md#scenarios-we-skip). Length and count come from the pilot, see [TODO](../../TODO.md#pilot).
 
 ### Difficulty
 
 - **Signal to noise is the axis.** The size of a switch in level points over the weather's SD per round. With a high ratio one reading settles whether a dip is a shock or a switch. With a low one it takes many rounds.
 - **Three dials move it**, all set per release and picked in the [engine checks](../pilot/engine-checks.md#weather): own-weather scale, persistence and shared-factor scale. Every scenario shares them, so twin timelines keep the same weather. The own-weather scale is the axis the [noise grid](../pilot/engine-checks.md#noise-grid) turns. Persistence never moves within a release, as it changes what a bad stretch means.
-- **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the [reachable gain](../glossary.md#scoring) would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the reachable gain is the same at every setting. A rise is pinned the same way, as the sleeper's end level above the leader's.
+- **On the grid, events are pinned in level points.** By default an event's size is drawn in sigmas, so a noisier world would also get a bigger switch and the [reachable gain](../glossary.md#scoring) would grow with the noise. On the grid the switch keeps its size in level points and only the weather grows, so the reachable gain is the same at every setting. A rise is pinned the same way, as how far the sleeper's base ends above every other channel's.
 - **A harder release extends the grid** to lower signal to noise. It does not start a new chart, see [noise threshold](scoring.md#noise-threshold).
 
 ### Hard-variant knobs
