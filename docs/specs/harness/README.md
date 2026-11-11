@@ -16,7 +16,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 
 ## Exports
 
-`paranoid.harness` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.harness` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -59,7 +59,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
       pilot.py         CellArgs, CELLS, run_cell, one function per cell
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.harness` only.
-- Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py` and torch and Timestral inside `timestral.py`, imported lazily so the default install runs without them. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#five-layers).
+- Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py` and torch and Timestral inside `timestral.py`, imported lazily so the default install runs without them. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#six-layers).
 - `pyproject.toml` registers the providers under the `inspect_ai` entry point and `main` as the `paranoid` console script, and ships `compose.yaml` as package data.
 
 ## Names from the engine

@@ -1,6 +1,6 @@
 # Tests
 
-Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for baselines, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Timelines and whole runs come from `paranoid.engine`, with `play` and `make_timeline` on small whole-number seeds. Where a check uses a tolerance it is given, so the test can be written from this page alone.
+Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for baselines, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#six-layers). Timelines and whole runs come from `paranoid.engine`, with `play` and `make_timeline` on small whole-number seeds. Where a check uses a tolerance it is given, so the test can be written from this page alone.
 
 ## Three sizes
 

@@ -34,7 +34,7 @@ markers = [
     "sweep: plays a thousand seeds of a baseline, see docs/specs/baselines/tests.md. Run by hand, CI skips them",
 ]
 
-# The layer rule, see docs/harness/layout.md#five-layers. CI runs `lint-imports`.
+# The layer rule, see docs/harness/layout.md#six-layers. CI runs `lint-imports`.
 [tool.importlinter]
 root_package = "paranoid"
 include_external_packages = true

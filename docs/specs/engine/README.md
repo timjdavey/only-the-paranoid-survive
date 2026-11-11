@@ -14,7 +14,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tim
 
 ## Exports
 
-`paranoid.engine` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.engine` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -62,7 +62,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.engine` only.
 - Every file stays under 300 lines, so the timeline is split by step. `timeline.py` wires the steps in the order of [timeline](timeline.md).
 - `Bets` lives in `record.py`, as `Row` holds it. So `view.py` never imports `game.py`, which imports it.
-- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
+- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#six-layers).
 
 ## Conventions
 

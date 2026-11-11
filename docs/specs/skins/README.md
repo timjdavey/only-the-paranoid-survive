@@ -13,7 +13,7 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the chan
 
 ## Exports
 
-`paranoid.skins` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.skins` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -55,7 +55,7 @@ The skins code imports nothing from `paranoid.baselines`. Its tests import one n
 
 - **Loading is its own module** so the imports run one way: `load` imports `lint`, `lint` imports `render`, `render` imports `skin`. `skin.py` imports nothing of its own layer.
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.skins` only, plus `paranoid.engine` and `paranoid.baselines` for records.
-- The only imports are `paranoid.engine` and the standard library. TOML is read with `tomllib`. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
+- The only imports are `paranoid.engine` and the standard library. TOML is read with `tomllib`. `import-linter` enforces it, see [layout](../../harness/layout.md#six-layers).
 
 ## What the harness reads
 

@@ -15,7 +15,7 @@ The baselines layer holds every fixed [baseline](../../design/baselines.md) as a
 
 ## Exports
 
-`paranoid.baselines` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.baselines` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -64,7 +64,7 @@ What each layer above takes from this one is listed on that layer's README, so e
       names.py       POLICIES
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.baselines` only, plus `paranoid.engine` for timelines.
-- The only imports are `paranoid.engine`, numpy and the standard library. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
+- The only imports are `paranoid.engine`, numpy and the standard library. `import-linter` enforces it, see [layout](../../harness/layout.md#six-layers).
 
 ## Conventions
 
