@@ -204,6 +204,7 @@ The frame is a fingerprint. If a held-out skin shares a sentence shape with the 
 | Own order of jobs | Do two skins' sentences do the same jobs in the same order? | They do, whatever the words | Two `how_points_earn` fields that both run: what earns, what is reported, what reports nothing, a small bet is rough, a large bet is firm |
 | One use per stock answer | Has another skin in the set used the same ready answer from this page? | It has | Two skins that both call a channel's figure "what the whole lot would make there" |
 | Own parameter name | Is `bets_name` the story's word for the list, in snake case? | It is `split`, the example skin's, or `bets`, the engine's word on every published page | `bets`, see [skin](../specs/skins/skin.md#validation-on-construction) |
+| Own names for the other two | Are `notes_param` and `compute_param` this skin's own words? | One is `note` or `python`, the example skin's, or the same as another skin's in the set | `text` and `code` in every skin |
 | The question | Is `question` a which-channel question about one period, with the channels as its options? | It asks anything else, or fails the lint | A question about the whole run, see [Jev](providers.md#jev) |
 
 - **Change the shape, not just the nouns.** Lead with what is wrong in the story's terms. Fold the constraint into one clause. Say "none below zero" in the story's words in place of "none negative".
@@ -215,19 +216,21 @@ The frame is a fingerprint. If a held-out skin shares a sentence shape with the 
 
 ## What the lint checks, and what only a reader can
 
-- **The lint is a floor, not a proof.** It checks the shape, the channel names, the frame facts, the banned word starts and the canary. The rules are in the [lint spec](../specs/skins/lint.md) and [skin validation](../specs/skins/skin.md#validation-on-construction).
-- **Until `paranoid.skins.lint` ships, mirror the spec in a throwaway script.** Keep it outside both repos.
+- **The lint is a floor, not a proof.** It checks the shape, the channel names, the frame facts, the banned word starts, numbers written in digits and the canary. The rules are in the [lint spec](../specs/skins/lint.md) and [skin validation](../specs/skins/skin.md#validation-on-construction).
+- **Lint a file with `load_skin`.** It prints nothing when the skin is clean, and lists every problem by field when it is not, never the skin's text:
 
-A reviewer must enforce two rules the lint does not:
+      uv run python -c 'import sys; from paranoid.skins import load_skin; load_skin(sys.argv[1])' path/to/amber.toml
 
-- **No number but 100 and ten anywhere in the skin.** Levels, onsets and history come from the engine, never the skin. Whether the lint should fail any other digit run is [not decided](../specs/skins/lint.md#not-decided).
+A reviewer must enforce two rules the lint cannot finish:
+
+- **No number but 100 and ten anywhere in the skin.** Levels, onsets and history come from the engine, never the skin. The lint fails any number in digits but `100`, so write ten as a word, see [numbers](../specs/skins/lint.md#numbers). It cannot see a number written in words, such as `twelve` or `a dozen`, so read for those.
 - **Never say the world may move.** No "yields vary over time", no "a new season". The agent has to find that out.
 
 ## Reviewing a skin before you commit
 
 Every skin so far has needed a second pass that only reading found.
 
-With the lint or the throwaway script:
+With the lint:
 
 - [ ] The shape, channel and frame fact checks pass.
 - [ ] No banned stem starts a word in any field or channel name.

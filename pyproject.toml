@@ -74,3 +74,12 @@ name = "Only the forecasters layer imports torch or Timestral"
 type = "forbidden"
 source_modules = ["paranoid.engine", "paranoid.baselines", "paranoid.skins", "paranoid.harness", "paranoid.analysis"]
 forbidden_modules = ["torch", "timestral", "huggingface_hub"]
+
+[[tool.importlinter.contracts]]
+# The layers contract would let skins import baselines and numpy. See docs/specs/skins/README.md#modules.
+# Indirect imports are allowed, as the engine imports numpy itself.
+name = "The skins layer imports only the engine and the standard library"
+type = "forbidden"
+source_modules = ["paranoid.skins"]
+forbidden_modules = ["paranoid.baselines", "numpy", "inspect_ai", "pandas", "matplotlib", "scipy", "hypothesis", "pytest"]
+allow_indirect_imports = true

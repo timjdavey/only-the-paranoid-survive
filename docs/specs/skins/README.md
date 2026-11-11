@@ -66,7 +66,7 @@ The harness takes a `Skin` from `load_skins` and uses it in six places, see [ins
 | System prompt | `render_system_prompt(skin)` |
 | User message | `render_record(skin, record)`, which uses `skin.channels` and the three column words |
 | The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bets_name`, `skin.bets_text`, `skin.bad_call`, `skin.no_call` |
-| The `notes` and `compute` tools | `skin.notes_name`, `skin.notes_text`, `skin.compute_name`, `skin.compute_text`, see [tool text](../../harness/prompts.md#tool-text) |
+| The `notes` and `compute` tools | `skin.notes_name`, `skin.notes_text`, `skin.notes_param`, `skin.compute_name`, `skin.compute_text`, `skin.compute_param`, see [tool text](../../harness/prompts.md#tool-text) |
 | The Jev provider | `skin.question`, with `skin.channels` as the options, see [providers](../../harness/providers.md#jev) |
 | Log metadata | `skin.name`, `prompt_hash(skin)` |
 
@@ -75,7 +75,7 @@ The harness takes a `Skin` from `load_skins` and uses it in six places, see [ins
 ## Conventions
 
 - **Channel names are in channel index order.** Channel `c` is `skin.channels[c]` in every prompt, header and tool call. Which index leads is drawn per seed by the [ladder](../engine/timeline.md#the-ladder), so a skin never knows its leader.
-- **A skin holds words, never numbers from the engine.** No level, trend, onset or history. The number 100 and the count of ten are the frame's, see [skins](../../harness/skins.md#what-a-skin-file-holds).
+- **A skin holds words, never numbers from the engine.** No level, trend, onset or history. The number 100 and the count of ten are the frame's, see [skins](../../harness/skins.md#what-a-skin-file-holds). The lint fails any other number written in digits, see [numbers](lint.md#numbers).
 - **Text is stored stripped, in NFC, with `\n` newlines.** Rendering adds only the joins on the [render](render.md) page, so the same file hashes the same on every machine.
 - **Everything the model reads passes through `lint`.** A skin that fails to lint does not load, and there is no override, see [lint](lint.md).
 - **The skin is private, the layer is public.** The code, the example skin and these pages are published. Held-out skins live in the private repo, see [contamination](../../harness/contamination.md).
