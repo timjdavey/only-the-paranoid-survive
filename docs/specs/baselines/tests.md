@@ -37,13 +37,13 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | Id | Test | Page |
 |---|---|---|
 | BR1 | Hedge rule on a hand-built record: holds through a fall with a tell, scouts for `scout_rounds` rounds after a fall with no tell, then moves to the best scouted channel and never to the hedge | [rules](rules.md#hedge-rule) |
-| BR2 | Hedge rule on named seeds of the Up switch scenarios. On two named Up switch seeds and two named Up switch then down switch seeds it never scouts and ends on `start.leader`. On one named Up switch seed a false alarm after the rise finds the sleeper, and it ends on it | [rules](rules.md#hedge-rule) |
+| BR2 | Hedge rule on named seeds of the Up switch scenarios. On Up switch seeds 0 and 1 and Up switch then down switch seeds 0 and 1 it never scouts and ends on `start.leader`. On Up switch seed 12 a false alarm after the rise finds the sleeper, and it ends on it | [rules](rules.md#hedge-rule) |
 | BR3 | Scout rule on a hand-built record: moves after exactly `n` rounds of a channel beating the pick, not after `n − 1`, and not when the hedge tells | [rules](rules.md#scout-rule) |
 | BR4 | `ScoutRule(s=12)` raises `ValueError` on its first view at the defaults, as `12 × 9 ≥ 100` | [rules](rules.md#scout-rule) |
 | BR5 | `HedgeRule(explore=0)`, `HedgeRule(window=0)`, `HedgeRule(scout_rounds=0)`, `HedgeRule(fall_points=0.0)`, `ScoutRule(s=0)`, `ScoutRule(n=0)` and `ScoutRule(tell_points=float("nan"))` each raise `ValueError` on construction. `HedgeRule(explore=100)` and `HedgeRule(explore=95)` raise `ValueError` on the first view at the defaults, as `100 − 95 < 9` | [rules](rules.md#hedge-rule) |
-| BR6 | Scout rule on three named Up switch then down switch seeds: it ends on `start.leader` having moved at least twice, to the sleeper after the rise and back after the undo | [rules](rules.md#scout-rule) |
+| BR6 | Scout rule on Up switch then down switch seeds 0, 2 and 3: it ends on `start.leader` having moved at least twice, to the sleeper after the rise and back after the undo | [rules](rules.md#scout-rule) |
 | BR7 | Hedge rule and Scout rule played with `play` from a five round `complacent` warm up record on Down switch seeds 0, 1 and 2: every split is valid, the hedge rule does not scout before round `6 + 2 × window`, 12 at the defaults, and the Scout rule does not move before round `6 + n`, 9 at the defaults, as the hedge has no reading until round 6 | [rules](rules.md#behaviour) |
-| BR8 | Hedge rule on three named One shock seeds: it never scouts and ends on `start.leader`, the timeline version of BR1 | [rules](rules.md#hedge-rule) |
+| BR8 | Hedge rule on One shock seeds 4, 5 and 7: it never scouts and ends on `start.leader`, the timeline version of BR1 | [rules](rules.md#hedge-rule) |
 | BR9 | Hedge rule and Scout rule called twice on one view give equal splits, and the split for a record's first `k` rows is the same whether or not a longer record was played through the rule first | [README](README.md#conventions) |
 
 ## Forecast

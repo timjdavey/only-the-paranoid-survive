@@ -16,12 +16,17 @@ from .forecast import (
     top_pick,
 )
 from .policies import complacent, discerning, perfect, uniform
+from .rules import HedgeRule, ScoutRule, hedge_rule, scout_rule
 
 __all__ = [
     "uniform",
     "discerning",
     "complacent",
     "perfect",
+    "HedgeRule",
+    "ScoutRule",
+    "hedge_rule",
+    "scout_rule",
     "ForecastRule",
     "QUANTILE_LEVELS",
     "MEDIAN_INDEX",

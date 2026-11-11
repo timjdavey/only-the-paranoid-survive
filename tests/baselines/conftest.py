@@ -20,10 +20,10 @@ def check_split(split: Bets, channels: int = 10, budget: int = 100) -> None:
     assert sum(split) == budget
 
 
-def row(round: int, bets: Sequence[int], readings: Sequence[float | None]) -> Row:
+def row(number: int, bets: Sequence[int], readings: Sequence[float | None]) -> Row:
     """A hand-written row. Output is the bet-weighted mean of the readings, which no rule reads."""
     output = math.fsum(b * (r or 0.0) for b, r in zip(bets, readings)) / sum(bets)
-    return Row(round=round, bets=tuple(bets), readings=tuple(readings), output=round(output, 1))
+    return Row(round=number, bets=tuple(bets), readings=tuple(readings), output=round(output, 1))
 
 
 def view_of(timeline: Timeline, rows: Sequence[Row] = (), peeks: bool = False) -> View:
