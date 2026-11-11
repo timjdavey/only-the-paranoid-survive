@@ -2,7 +2,7 @@
 
 ## Setup
 
-See [running](docs/harness/running.md). `uv sync`, copy `.env.example` to `.env`, then run the smoke test with `mockllm`.
+See [running](docs/harness/running.md). `uv sync`, link your `.env` in, see [keys](docs/harness/running.md#keys), then run the smoke test with `mockllm`.
 
 ## Before you change anything
 

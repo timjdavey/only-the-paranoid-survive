@@ -1,0 +1,10 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+# Link the keys into each new local workspace. The file lives outside every
+# workspace, so archiving one never deletes it. See docs/harness/running.md#keys.
+setup = """
+if [ "$CONDUCTOR_IS_LOCAL" = "1" ] && [ -f "$HOME/.config/paranoid/.env" ] && [ ! -e .env ]; then
+  ln -s "$HOME/.config/paranoid/.env" .env
+fi
+"""

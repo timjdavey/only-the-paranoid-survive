@@ -4,7 +4,7 @@
 
     uv sync                      # engine, skins, harness, analysis
     uv sync --extra timestral    # adds torch and Timestral
-    cp .env.example .env         # then fill in keys, see models.md
+    cp .env.example .env         # then fill in keys, see models.md, or link it, see Keys below
 
 - **Python 3.12 or later.** `uv` installs the version in `.python-version` for you.
 - **`uv sync` installs the provider SDKs too.** inspect calls Anthropic, Google, OpenAI and OpenRouter through `anthropic`, `google-genai` and `openai`, ships none of them, and raises on the first call without one. All three are default dependencies, so there is nothing more to install.
@@ -13,6 +13,17 @@
 - **Sweeps** play a baseline on a thousand seeds and take about two minutes. CI skips them, so run `uv run pytest -m sweep` by hand after changing a baseline or the engine, see the [baselines tests](../specs/baselines/tests.md#three-sizes).
 - **Timestral's own tests** load the real model, so they run by hand with `uv run pytest -m timestral` once the extra is installed. The first run downloads about 840 MB of weights, see the [forecasters tests](../specs/forecasters/tests.md).
 - **The headline needs Docker.** The `compute` tool runs in a sandbox, see [tools](../design/interface.md#tools), so a running Docker is needed for any run at the default `tools`. inspect drives Docker itself, so there is nothing more to install. Pass `-T tools=none` to run without, as the smoke test does. Any Docker with the Compose plugin will do. The sandbox test was run on Colima, and `uv run pytest -m sandbox` says whether yours works.
+
+## Keys
+
+- **Keep the `.env` outside the workspace.** A Conductor workspace is deleted when it is archived, and its `.env` with it. So the keys live in `~/.config/paranoid/.env`, readable by you alone, and each workspace holds a link to it:
+
+      mkdir -p ~/.config/paranoid && cp .env.example ~/.config/paranoid/.env
+      chmod 600 ~/.config/paranoid/.env
+      ln -s ~/.config/paranoid/.env .env
+
+- **Conductor makes the link for you.** The setup script in `.conductor/settings.toml` runs it in each new local workspace, if the file exists and the workspace has no `.env` yet.
+- **The same file holds the private paths.** Set `PARANOID_SKINS` and `PARANOID_SEEDS` to the private repo's `skins` and `seeds` folders as full paths, as `~` is not expanded there.
 
 ## Commands
 
