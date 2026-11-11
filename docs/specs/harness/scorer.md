@@ -20,6 +20,8 @@ TRAITS: Mapping[str, str]            # scenario code name -> trait, from scoring
 def pooled_score(gains: Sequence[float], gaps: Sequence[float]) -> float
 def bootstrap(gains: Sequence[float], gaps: Sequence[float], *, draws: int = BOOTSTRAP_DRAWS,
               rng: np.random.Generator | None = None) -> tuple[float, float]   # 2.5th and 97.5th percentiles
+def draws_of(gains: np.ndarray, gaps: np.ndarray, rng: np.random.Generator, draws: int) -> np.ndarray
+# the pooled score of each of `draws` resamples, in draw order
 
 @metric
 def scenario_score() -> Metric      # {"<scenario>": s, "<scenario>_lo": lo, "<scenario>_hi": hi, "<scenario>_n": seeds, "<scenario>_failed": k}
@@ -37,7 +39,7 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 
 ### Scoring one run
 
-`Score.value` holds these keys, all floats or ints, bar the three that may be empty. Empty is `None`, which the mean reducer skips per key and the log writes as JSON `null`. NaN would not be standard JSON, see [checked](#checked):
+`Score.value` holds these keys, all floats or ints, bar the four that may be empty. Empty is `None`, which the mean reducer skips per key and the log writes as JSON `null`. NaN would not be standard JSON, see [checked](#checked):
 
 | Key | Value |
 |---|---|
@@ -54,18 +56,20 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
 | `explore_points` | The mean of `budget − max(bets)` over the agent's rounds before the first event's `onset`, or over every agent round when the config has no events. `None` when the agent played no such round. Exploring when nothing is wrong, see [up against down](../../pilot/provider-checks.md#up-against-down) |
 | `sleeper_round` | The first agent round at or after the onset of the event that made `timeline.sleeper` with at least 1 point on it. `0` when it never happens, `None` when `timeline.sleeper` is `None` |
+| `warm_up_kept` | 1 when the bets of the agent's first round equal the bets of the last warm up round, else 0. `None` with no warm up, and when the agent played no round. Copying a past it only read, see [warm up](../../pilot/provider-checks.md#warm-up) |
 
 - **The baselines replay the agent's warm up.** `play(policy, timeline, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
 - **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](pilot.md#shared-rules). The score needs them whatever the agent's config, so `gain` plays them against a timeline made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_timeline` never reads the cap, see [config](../engine/config.md#fields).
 - **Every number comes from a record's readings**, never from the ground truth. `row.output` is the row's bets times its rounded readings, see [readings](../engine/game.md#readings). A bet is paid its reading, so the agent and the scorer agree on every number, see [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
 - **The baselines are deterministic**, so across epochs they are constant and the mean reducer leaves them alone.
-- **The pilot's two keys cost nothing new.** `explore_points` and `sleeper_round` read the timeline the scorer already holds for the baselines. They are in `Score.value` because the analysis reads scores and never the store or a message, see [privacy](../analysis/runs.md#privacy).
+- **The pilot's three keys cost nothing new.** `explore_points` and `sleeper_round` read the timeline the scorer already holds for the baselines, and `warm_up_kept` reads two rows of the record. They are in `Score.value` because the analysis reads scores and never the store or a message, see [privacy](../analysis/runs.md#privacy).
 - **The scorer never reads the messages.** The store is the run.
 
 ### Pooling
 
 - **`pooled_score(gains, gaps)`** is `sum(gains) / sum(gaps)`. Not a mean of run scores, see [pooling seeds](../../design/scoring.md#pooling-seeds). An empty input or a zero gap sum raises `ValueError`.
-- **`bootstrap`** draws `draws` resamples of the seed indices with replacement, computes the pooled score of each, and returns the 2.5th and 97.5th percentiles with `np.percentile`, linear interpolation. `rng` defaults to `default_rng(BOOTSTRAP_SEED)`, so the bars are the same on every run of the metric. One seed gives `lo == hi == score`.
+- **`draws_of(gains, gaps, rng, draws)`** draws `draws` resamples of the seed indices with replacement, in one call to `rng.integers`, and returns the pooled score of each. It is the one place a resample is drawn, so every bar in the harness and in the [analysis layer](../analysis/scores.md#pooling) is made of the same draws.
+- **`bootstrap`** is the 2.5th and 97.5th percentiles of `draws_of`, with `np.percentile`, linear interpolation. `rng` defaults to `default_rng(BOOTSTRAP_SEED)`, so the bars are the same on every run of the metric. One seed gives `lo == hi == score`.
 
 ### Scenario score
 
@@ -86,7 +90,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 ### Headline
 
 - **The plain mean of the scenario scores present in the log.** `scenarios` says how many. A full headline has eight, see [how we score](../../design/scoring.md#how-we-score).
-- **Bars.** Each bootstrap draw resamples seeds within every scenario with one `rng`, then takes the mean of the pooled scores. Scenarios are never resampled, see [error bars](../../design/scoring.md#error-bars).
+- **Bars.** One `rng` seeded `BOOTSTRAP_SEED` and one block of `draws_of` per scenario, in `SCENARIOS` order with seeds by `seed_index`. Each draw's headline is the mean of its pooled scores, and the bar is their percentiles. Scenarios are never resampled, see [error bars](../../design/scoring.md#error-bars).
 
 ### Weakest trait
 

@@ -28,11 +28,11 @@ ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to
 
 ### Shared rules
 
-- **Paths.** An engine cell writes `<out>/<cell>.csv`. A provider cell writes its eval logs to `<out>/<cell>/`, named by inspect, and any CSV to `<out>/<cell>.csv`. These are the paths `write_pilot` reads, see [analysis pilot](../analysis/pilot.md#interface).
-- **A CSV row is one seed's numbers**, or an aggregate over seeds. No CSV holds one seed's levels round by round, so a CSV gives away nothing a log does not. The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
+- **Paths.** An engine cell writes `<out>/<cell>.csv`. A provider cell writes its eval logs to `<out>/<cell>/`, named by inspect, and any CSV to `<out>/<cell>.csv`, or to `<out>/<cell>-<name>.csv` when its Writes line names one. These are the paths `write_pilot` reads, see [analysis pilot](../analysis/pilot.md#interface).
+- **A CSV row is one seed's numbers**, or an aggregate over seeds. No CSV holds one seed's levels round by round, so a CSV gives away nothing a log does not. The rounding and token files have a row per round, of a count that says nothing about a level. The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Engine cells play positions `0` to `seeds − 1`** of the public list, with `load_seeds("public")`. A list shorter than `seeds` raises `ValueError` naming `PARANOID_PILOT_SEEDS`, which caps `seeds` when set and is the harness's one test hook, see [tests](tests.md).
 - **A knob the pilot moves is a `replace` on the config in memory**, through `scenario_config` where it has an arg and `dataclasses.replace` otherwise, so the engine's validation runs again. Nothing here writes a config or a spec. The frozen defaults change only through [decisions](../../pilot/decisions.md).
-- **Cells that need a model** read `--models`. `recognition` and `up-against-down` take the first `llm` row unless `--only` names one. `seeds`, `channel-order`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
+- **Cells that need a model** read `--models`. `up-against-down` takes the first `llm` row unless `--only` names one. `seeds`, `recognition`, `channel-order`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
 - **Every eval** passes `generate_config(row, row.reasoning[0])` as keywords, as `run` does, `retry_on_error=1`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `run` does by default, see [run](command.md#run). The task's other args stay at their defaults unless a cell names them, so a provider cell plays the headline tools, `notes,compute`, and needs Docker as a headline run does.
 - **The seed positions pair.** Every provider cell plays `seeds="0-19"`, so every pilot log pairs by seed with every other, see [paired gap](../analysis/scores.md#paired-gap).
 - **Columns that do not apply are empty**, which pandas reads as NA. A round column that means "never" is `0`, as rounds start at 1.
@@ -73,10 +73,12 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 - **Runs.** `factor_scale` at 1.5, 3, 4.5 and 6, crossed with `loading` at `(0.3, 1.0)` and `(0.5, 1.0)`. The One shock, Down switch and No change scenarios, the hedge rule at its defaults.
 - **Then the thresholds.** At `factor_scale` 3 and `loading` `(0.3, 1.0)`, the same scenarios with `HedgeRule(window=w, fall_points=f, tell_points=t)` for `w` in 2, 3 and 4, `f` in 4, 8 and 12, and `t` in 2, 4 and 6, see [the tell](../../pilot/engine-checks.md#the-tell). The measure picks the scale first and reads this pass at it, so a scale the first pass moves away from reruns the cell.
-- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, field_together_rounds`. The three threshold columns are empty on the first pass, which plays the defaults.
+- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, fall_rounds, tell_rounds, field_together_rounds`. The three threshold columns are empty on the first pass, which plays the defaults.
   - `depth_capped`: 1 when `numbers["depth"] < numbers["depth_drawn"]` on the shock, else 0. Empty with no shock. The share of 1s is what [timeline](../engine/timeline.md#pilot-decides) asks The tell to report.
   - `hedge_rise`: the hedge rule's mean hedge reading over the `window` rounds from `onset`, `window` being the rule's, minus its mean over the rounds before `onset`. The same rounds the rule's tell test reads, see [hedge rule](../baselines/rules.md#hedge-rule). Empty with no event.
   - `held`: 1 when the hedge rule's largest bet is on `start.leader` in the last round, else 0.
+  - `fall_rounds`: the rounds from `onset` on which the rule's fall test fired, whether or not the tell stopped it, see [hedge rule](../baselines/rules.md#hedge-rule). The count is over the rounds the rule ran the test, so its scout rounds are not in it. Empty with no event.
+  - `tell_rounds`: of those rounds, the ones on which its tell test fired too, so the rule held. Never above `fall_rounds`. The hit rate and the false tell rate are shares of seeds read off these two, see [the tell](../../pilot/engine-checks.md#the-tell).
   - `field_together_rounds`: the rounds in which every channel but the hedge moved by more than `own_scale` from the round before, all the same way, on levels.
 
 #### `luck`
@@ -98,14 +100,15 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 #### `game-length`
 
 - **Runs.** `rounds` at 30, 40 and 60, crossed with `onset` at `(8, 12)`, `(12, 20)` and `(16, 24)`. The One shock, Down switch, Up switch and Slow drift scenarios, and the Shock then switch, Switch then shock and Up switch then down switch scenarios, which are also crossed with `gap` at `(6, 8)`, `(8, 12)` and `(12, 16)` on every event spec. Every entry in `POLICIES` at its defaults, and the Stayer in the Up switch then down switch scenario.
-- **Writes** `game-length.csv`: `rounds, onset_low, onset_high, gap_low, gap_high, scenario, seed, onset_1, onset_2, last_end, baseline, output, output_window_1, output_window_2, move_round`.
+- **Writes** `game-length.csv`: `rounds, onset_low, onset_high, gap_low, gap_high, scenario, seed, onset_1, onset_2, last_end, baseline, output, output_window_1, output_window_2, clear_round_1, clear_round_2, move_round`.
   - `onset_k` is event k's onset. `output_window_k` is the output summed from `onset_k` to the round before `onset_{k+1}`, or to the end. Both are empty where there is no event k, and the `gap` columns are empty for the one-event scenarios.
+  - `clear_round_k` is the first round of window k from which the Discerning baseline's output, summed from `onset_k`, stays above the Complacent baseline's to the end of the window. `0` when it never does. It is on the `discerning` rows and empty on the rest, and empty where there is no event k. The rounds it took to pull clear are `clear_round_k − onset_k + 1`.
   - The data behind "Events per run and minimum gap" in [decisions](../../pilot/decisions.md#engine-checks), and the two length questions on [timeline](../engine/timeline.md#pilot-decides). `move_round` gives the unmoved share, and `last_end` the rounds to spare.
 
 #### `reading-roughness`
 
-- **Runs.** `read_noise_k` at 4, 8 and 16. `HedgeRule(explore=e, scout_rounds=k)` for `e` in 1, 2 and 5 and `k` in 1, 2 and 3 on the Down switch and No change scenarios. `ScoutRule(s=s)` for `s` in 1, 2 and 5 on the Up switch and No change scenarios.
-- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows.
+- **Runs.** `read_noise_k` at 4, 8 and 16. `HedgeRule(explore=e, scout_rounds=k)` for `e` in 1, 2 and 5 and `k` in 1, 2 and 3 on the Down switch and No change scenarios. `ScoutRule(s=s)` for `s` in 1, 2 and 5 on the Up switch and No change scenarios. And `complacent` once per setting, scenario and seed on all three, as the player that never explores.
+- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows. Both are empty on the `complacent` rows, which are the base the [explore cost](../../glossary.md#scoring) is taken from.
 
 #### `up-and-down`
 
@@ -129,6 +132,7 @@ Each calls `inspect_ai.eval(paranoid, model=row.id, task_args=..., log_dir=out /
 #### `seeds`
 
 - **Runs.** For every `llm` row, one eval: `scenario="one_shock,up_switch"`, `seeds="0-19"`. Every row, as the [seeds check](../../pilot/provider-checks.md#seeds) sizes the count on the widest spread.
+- **Writes** `seeds-tokens.csv`: `model, rolling, scenario, seed_index, round, input_tokens, cache_read_tokens, cache_write_tokens`, from the logs it wrote, for [cost per run](../../pilot/provider-checks.md#cost-per-run), see [token files](#token-files).
 
 #### `repeats`
 
@@ -195,10 +199,20 @@ Each calls `inspect_ai.eval(paranoid, model=row.id, task_args=..., log_dir=out /
 #### `rolling`
 
 - **Runs.** For every `llm` row, two evals with `rolling` off and on: `scenario="no_change,one_shock,down_switch"`, `seeds="0-19"`.
+- **Writes** `rolling-tokens.csv`: `model, rolling, scenario, seed_index, round, input_tokens, cache_read_tokens, cache_write_tokens`, from the logs it wrote, see [token files](#token-files).
 
 #### `warm-up`
 
 - **Runs.** For every `llm` row, two evals with `warm_up` unset and at `"complacent:5"`: `scenario="no_change,down_switch"`, `seeds="0-19"`.
+
+#### Token files
+
+What a round cost, which the analysis cannot read off a score. The `seeds` and `rolling` cells each write one after their evals, as the `jev` cell reads its messages.
+
+- **One row per round the agent played**, of every sample that scored, with the columns on the cell's Writes line. `model` is the log's `eval.model`, and `rolling` is 1 or 0 from the sample's metadata, so the two `rolling` evals of one model stay apart.
+- **A round's tokens** are summed over its tries, from each try's `ModelEvent.output.usage`: inspect's `input_tokens`, `input_tokens_cache_read` and `input_tokens_cache_write`, a `None` counted as 0.
+- **A round owns as many model events as it took tries.** The sample's events hold one `ModelEvent` per try, in order, and its store holds `tries`, so round `r` owns the next `tries[r − 1]` of them, see [checked](#checked).
+- **Nothing but the usage is read.** No message, bet or reading reaches the file.
 
 ## Invariants
 
@@ -224,3 +238,4 @@ Run on 2026-11-11 against inspect_ai 0.3.289, with a stub provider and no key.
 | Does `eval(..., epochs=4)` keep a sample per epoch | Yes. Every id appears four times, with `EvalSample.epoch` from 1 to 4 |
 | Does `get_model(id, config=...).generate(messages)` work outside an eval | Yes, and the config reaches the provider |
 | Does the same call with `tools` and `tool_choice` run the tool | No. The call comes back in `output.message.tool_calls` under the parameter's given name, and nothing is executed |
+| Does a sample hold one model event per try | Yes. A `mockllm` run of 20 rounds with one reply that made no call has 21 `ModelEvent`s in `sample.events`, and `sample.store["RunStore:tries"]` is `[2, 1, 1, …]`. Each event's `output.usage` has `input_tokens`, `input_tokens_cache_read` and `input_tokens_cache_write`, the last two `None` where a provider reports none |

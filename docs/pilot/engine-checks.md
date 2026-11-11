@@ -32,8 +32,9 @@ Picks the shared-factor scale. The tell is the hedge rising while the field fall
 - **Question.** How often the hedge tells a shock from a switch.
 - **Run.** The hedge rule baseline on One shock and Down switch timelines, plus No change timelines, at a few shared-factor scales.
 - **Measure.**
-  - **Hit rate.** On One shock, how often the hedge rule's reading of the hedge rises above its average before the shock while the shock is on.
-  - **False tell rate.** On Down switch, how often the hedge reading rises anyway after onset, so the hedge rule holds when it should move.
+  - **Hit rate.** On One shock, of the seeds where the hedge rule's fall test fires after onset, the share where the tell stops it every time. The hedge rose while the leader fell, so the rule held through the shock.
+  - **False tell rate.** On Down switch, the same share: the fall was real, the hedge reading rose anyway, and the tell stopped the rule every time, so it holds when it should move.
+  - **Never fired.** The share of seeds where the fall test never fires after onset, on each. A shock too shallow to see is no test of the tell, and a switch the rule never sees is a miss of another kind.
   - **Field moving together.** On No change, how often every channel but the hedge moves more than one weather SD the same way in one round. Too often and calm weeks look like shocks.
 - **Decide.** A scale where the tell is right on about nine shocks in ten and false on under one switch in ten. If no scale does both, the [loading range](../design/mechanics.md#each-round) is wrong, not the weather, and the range is redrawn and this check run again. That is where the loading range is decided.
 - **Then the hedge rule's thresholds.** At the chosen scale, the hedge rule again over a small grid of `window`, `fall_points` and `tell_points`, see [rules](../specs/baselines/rules.md#defaults). Keep the set with the highest hit rate whose false tell rate stays under one in ten.
@@ -71,7 +72,7 @@ Noise is the difficulty knob, and [signal to noise](../design/mechanics.md#diffi
 - **Question.** How many rounds a run lasts, and in which round the shock or switch hits.
 - **Run.** The fixed baselines in the One shock, Down switch and Up switch scenarios, at a few game lengths and switch rounds. Then the Slow drift scenario, whose fall can outlast the run, and the two-event scenarios, Shock then switch, Switch then shock and Up switch then down switch, which need room for both events. The [Stayer](../glossary.md#scoring) plays beside them in Up switch then down switch.
 - **Measure.**
-  - How far the Discerning baseline pulls ahead of the Complacent baseline after the switch, and how many rounds that takes. In the two-event scenarios, the same for each event's window.
+  - How far the Discerning baseline pulls ahead of the Complacent baseline after the switch, and how many rounds that takes: the rounds from onset until its output since onset is ahead and stays ahead. In the two-event scenarios, the same for each event's window.
   - **Unmoved at the end.** The round the hedge rule and the Scout rule first move, and the share of seeds where each never does. The hedge rule is counted where the leader falls, the Scout rule wherever the Discerning baseline moves. A share that does not fall as the run grows means the rule is missing the change, and length is not the cause.
   - **Rounds to spare.** The rounds left after the last event ends: a drift at its end level, a switch's ramp done, and a shock with an eighth of its depth left.
   - **Reachable gain and Bayesian gain percentage**, as [reachable gain](#reachable-gain) measures them, at every length, onset and gap.
@@ -90,7 +91,7 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 
 - **Question.** How fast the read noise shrinks as the bet grows.
 - **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge and 1, 2 and 3 scout rounds, and the Scout rule baseline with 1, 2 and 5 points on every other channel, at a few strengths of read noise.
-- **Measure.** Whether a bigger explore bet buys a better read of the switch, and how much an explore bet costs in output. The Scout rule shows the same for a rise, which is where an explore bet's size bites hardest, see [Up and down](#up-and-down).
+- **Measure.** Whether a bigger explore bet buys a better read of the switch, and how much an explore bet costs in output: the Complacent baseline's output minus the rule's on No change, which is the [explore cost](../glossary.md#scoring) in level points. The Scout rule shows the same for a rise, which is where an explore bet's size bites hardest, see [Up and down](#up-and-down).
 - **Read noise is paid as well as seen.** A larger k adds luck to every output, with an SD of k ÷ 10 a round whatever the split. On a full bet that is well under the weather, so read noise mostly prices explore bets, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 - **Decide.** One strength, where an explore bet is worth its cost but no explore bet tells the whole story. And at that strength the hedge rule's `explore` and `scout_rounds`: the cheapest pair that still moves to the best channel as often as a larger one. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with explore bets.
 - **Then Timeline sanity again**, at the chosen strength. A stronger read noise puts far more readings below 0 than rougher weather does, so the ladder is checked against the strength the study will play, see [Timeline sanity](#timeline-sanity).

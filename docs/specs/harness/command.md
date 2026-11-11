@@ -29,6 +29,7 @@ class ModelRow:
 
 REASONING = ("off", "low", "medium", "high", "max", "on")
 EFFORT_PREFIXES = ("openai/", "anthropic/", "google/", "openrouter/")   # inspect maps an effort for all four
+BUDGETS = {"low": 1024, "medium": 4096, "high": 16384, "max": 32768}    # reasoning_tokens per setting, see Reasoning below
 SKIN_READERS = ("llm", "jev")          # the kinds whose model reads the skin, see run below
 
 def load_models(path: str | Path) -> list[ModelRow]
@@ -71,7 +72,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 - **`off` is sent, never left to a default.** A model that thinks unless told not to would otherwise play its `off` row with thinking on, and the row would equal its `on` row. `reasoning_effort="none"` is inspect's off on every provider in `configs/models/`, see [checked](#checked).
 - **`max` is never `xhigh`.** On Claude 4.7 and later `xhigh` is a level of its own below `max`, so sending it would play the wrong row. The grid skips `xhigh`, see [reasoning](../../harness/models.md#reasoning).
 - **A model that cannot turn thinking off does not list `off`**, see [reasoning](../../harness/models.md#reasoning). The harness cannot tell which models those are, so the file says, and a provider that rejects the off value fails that eval as any bad setting does.
-- **The budget table**: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. It is ours, so a row's budget does not move when inspect's own table does. A budget row is for a model that takes no effort, which today is `claude-haiku-4-5` alone. inspect raises on `reasoning_tokens` for Claude 4.7 and later, see [checked](#checked).
+- **The budget table** is `BUDGETS`: `low` 1024, `medium` 4096, `high` 16384, `max` 32768. The analysis reads a setting back through it, see [reasoning](../analysis/runs.md#reasoning). It is ours, so a row's budget does not move when inspect's own table does. A budget row is for a model that takes no effort, which today is `claude-haiku-4-5` alone. inspect raises on `reasoning_tokens` for Claude 4.7 and later, see [checked](#checked).
 - **`max_tokens`** is set from the row when present, else left to the provider's default, see [sampling](../../harness/models.md#sampling).
 - **Temperature is never set.**
 - **`cache_prompt` is never set**, so inspect's default stands and the provider's prompt cache is on wherever there is one, see [prompt caching](../../harness/models.md#prompt-caching).
