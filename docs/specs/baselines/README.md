@@ -49,7 +49,8 @@ What each layer above takes from this one is listed on that layer's README, so e
 | Layer | Its list |
 |---|---|
 | skins | [Names from the baselines layer](../skins/README.md#names-from-the-baselines-layer): `uniform`, to play records in its tests |
-| harness | [Names from the baselines layer](../harness/README.md#names-from-the-baselines-layer): `POLICIES` for the baseline provider and warm up, the policies, rules and `Bayesian` with `HAZARDS` and `BAYESIAN_RULES` for the pilot cells, and `FORECAST_RULES`, `ForecastRule` and `QUANTILE_LEVELS` for the Timestral provider |
+| forecasters | [Names from the baselines layer](../forecasters/README.md#names-from-the-baselines-layer): `ForecastRule`, `FORECAST_RULES`, `QUANTILE_LEVELS` and `Odds` for the forecast policies, `uniform` for an empty record, and `complacent` in its tests |
+| harness | [Names from the baselines layer](../harness/README.md#names-from-the-baselines-layer): `POLICIES` for the baseline provider and warm up, the policies, rules and `Bayesian` with `HAZARDS` and `BAYESIAN_RULES` for the pilot cells |
 
 ## Modules
 

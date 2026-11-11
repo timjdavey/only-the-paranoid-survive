@@ -89,7 +89,7 @@ Checks before we trust the Jev row, see [providers](../harness/providers.md#jev)
 
 Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).
 
-- **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, Timestral odds cannot explore and is dropped.
+- **Gap test.** Ten readings, then thirty blanks, on both [input shapes](../specs/forecasters/timestral.md#two-shapes). The quantiles should widen as the gap grows. If they do not, Timestral odds cannot explore and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
 - **Determinism.** The same input twice gives the same quantiles. If not, the forecast needs a fixed seed before the cache can key on the inputs alone.
 - **On the grid.** Timestral top pick and Timestral odds at every setting on the [noise grid](engine-checks.md#noise-grid). Each should land between the hedge rule baseline and the Complacent baseline, as in the [baseline order](engine-checks.md#baseline-order).

@@ -45,6 +45,7 @@ Every page has the same sections, in this order. A section with nothing to say i
 | engine | `E` | `EC` config, `ET` timeline, `EG` game, `EV` view, `EH` property |
 | baselines | `B` | `BP` policies, `BR` rules, `BF` forecast, `BB` bayesian, `BH` property |
 | skins | `K` | `KS` skin, `KR` render, `KL` lint, `KH` property |
+| forecasters | `F` | `FP` policy, `FT` timestral |
 | harness | `H` | `HK` task, `HS` solver, `HR` providers, `HO` scorer, `HM` command, `HP` pilot, `HY` property |
 | analysis | `A` | `AR` runs, `AS` scores, `AT` tables, `AP` plots, `AI` pilot, `AM` command, `AY` property |
 
@@ -74,7 +75,7 @@ The secrecy rules, each with the one section that owns it and the tests that pro
 | A held-out skin's text | A failing test names the skin, never its words. A log is as private as its skin | [skins](skins/tests.md) | `KL12` |
 | The canary GUID | In no text the model reads | [skins](skins/lint.md#canary) | `KL9`, `KL12` |
 | The engine's error text | The model reads the skin's `bad_call`, never the engine's message | [harness](harness/solver.md#submit) | `HS7` |
-| A Timestral forecast of a held-out run | The cache stays on the machine, like the log | [harness](harness/providers.md#timestral) | |
+| A Timestral forecast of a held-out run | The cache stays on the machine, like the log | [forecasters](forecasters/policy.md#the-cache) | |
 
 ## Layers
 
@@ -84,6 +85,7 @@ One folder per layer, in the order they are built, see [layout](../harness/layou
 |---|---|---|---|
 | engine | [engine/](engine/) | Built, the suite passes | Nothing |
 | baselines | [baselines/](baselines/) | Built, the suite passes | Nothing |
+| forecasters | [forecasters/](forecasters/) | Written, no code yet | Nothing. The Timestral package was read and run first, see [checked](forecasters/timestral.md#checked) |
 | skins | [skins/](skins/) | Written, no code yet | Nothing |
-| harness | [harness/](harness/) | Written, no code yet | Whether inspect's store is in scope inside `generate`, Timestral's quantile levels and call signature, the `typesafe-sdk` call shape, the reasoning budgets and effort names per provider, which providers refuse a required tool call, `any`, with thinking on, and that cutting the record into content blocks changes the bill and not the prompt. See the [providers](harness/providers.md#verify-before-code), [command](harness/command.md#verify-before-code) and [solver](harness/solver.md#verify-before-code) pages |
+| harness | [harness/](harness/) | Written, no code yet | Whether inspect's store is in scope inside `generate`, the `typesafe-sdk` call shape, the reasoning budgets and effort names per provider, which providers refuse a required tool call, `any`, with thinking on, and that cutting the record into content blocks changes the bill and not the prompt. See the [providers](harness/providers.md#verify-before-code), [command](harness/command.md#verify-before-code) and [solver](harness/solver.md#verify-before-code) pages |
 | analysis | [analysis/](analysis/) | Written, no code yet | inspect's log reader and how its `mean` reducer treats a dict score, matplotlib's SVG determinism, `curve_fit` determinism, and entry point discovery in an editable install. See the [runs](analysis/runs.md#verify-before-code), [plots](analysis/plots.md#verify-before-code), [scores](analysis/scores.md#verify-before-code) and [command](analysis/command.md#verify-before-code) pages |

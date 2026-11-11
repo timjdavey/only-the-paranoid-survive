@@ -36,7 +36,7 @@ Each round the solver:
 - **Each implements `generate`** and returns a `submit` tool call, never text. The solver cannot tell a provider from an LLM.
 - **A provider ignores the messages it is sent** and reads the store instead. The record an LLM sees and the timeline a baseline sees are both on the sample. This leans on inspect's per-sample `store()` being in scope inside `generate`, which is to be confirmed when the harness is built.
 - **Baselines** call the [baselines layer](../specs/baselines/README.md)'s policies. The Perfect and Discerning baselines read the timeline. The Complacent baseline reads round 1. The Uniform baseline reads nothing.
-- **Jev and Timestral** read the record and call out, see [providers](providers.md).
+- **Jev** reads the prompt and calls out. **Timestral** is a policy from the [forecasters layer](../specs/forecasters/README.md), played as a baseline is. See [providers](providers.md).
 
 ## Metrics
 

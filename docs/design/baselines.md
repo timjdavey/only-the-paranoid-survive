@@ -46,7 +46,7 @@ The policy that turns the forecast into bets is ours. One run per row. The bets 
 | Timestral top pick | 100 on the channel it forecasts highest. The other channels go dark, so it only moves when its own channel's forecast falls below its last memory of another | How far forecasting gets you with no exploring |
 | Timestral odds | Splits the 100 by each channel's chance of being the best. The less sure it is, the more it spreads, and so the more it explores | Whether a forecaster's own doubt makes it explore the right amount. Dropped if it fails the [gap test](../pilot/provider-checks.md#timestral-checks) |
 | Timestral top pick with explore bets, 1 / 2 / 5 | 1, 2 or 5 points on each of the other nine channels, the rest on its top pick, which gets 91, 82 or 55 | Whether an explore bet size we choose by hand does better than Timestral's own doubt |
-| Timestral odds, bet aware | As Timestral odds, but its past bets go in alongside the readings | Whether it learns that a small bet gives a rough reading |
+| Timestral odds, bet aware | As Timestral odds, but its past bets go in alongside the readings. It forecasts each channel alone, as that is the only way Timestral can tie a bet to its channel | Whether it learns that a small bet gives a rough reading |
 
 ## Checks
 

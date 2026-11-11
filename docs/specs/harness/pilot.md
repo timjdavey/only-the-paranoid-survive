@@ -173,11 +173,14 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 #### `timestral`
 
-- **Runs.** First two probes on the default `Forecaster`, then for every `timestral` row and every grid setting one eval: `scenario="one_shock,down_switch,up_switch"`, `seeds="0-19"`, `own_scale=s`. A row whose extra is missing is skipped with one line, as `run` does.
-  - **The gap test.** `readings` of shape `(40, channels)`: rows 0 to 9 from `play(uniform, make_timeline(SCENARIOS["one_shock"], seed_0), max_rounds=10)`, rows 10 to 39 `NaN`. The forecaster is called on the first `10 + g` rows for `g` from 1 to 30.
+- **Not an eval.** It plays the [forecasters layer](../forecasters/README.md)'s policies with `play`, as an engine cell plays a baseline, so it needs no task and no Docker. Without the extra it prints one line saying so and writes nothing, as `run` skips the row.
+- **Runs.** First two probes, each on `timestral` and on `Timestral(joint=False)`, the two [input shapes](../forecasters/timestral.md#two-shapes). Then for every `timestral` row and every grid setting, `play(TIMESTRAL_POLICIES[id], timeline)` on the One shock, Down switch and Up switch scenarios, pinned as [`noise-grid`](#noise-grid) plays them, at seed positions 0 to 19.
+  - **The gap test.** `readings` of shape `(40, channels)`: rows 0 to 9 from `play(uniform, make_timeline(SCENARIOS["one_shock"], seed_0), max_rounds=10)`, rows 10 to 39 `NaN`. The forecaster is called on the first `10 + g` rows for `g` from 1 to 30, with `bets` as `None`.
   - **Determinism.** The forecaster is called twice on the ten finite rows.
-- **Writes** `timestral.csv`: `probe, gap, channel, spread, equal`. For `gap` rows, `spread` is the forecast's last quantile minus its first per channel at each `g`. The one `determinism` row has `equal` 1 when the two outputs are equal, else 0.
-- **Also writes** `timestral-rounding.csv` from the logs: `model, scenario, seed_index, round, rounded_out`, as `jev.csv`, see [Timestral](providers.md#timestral).
+- **Writes** `timestral.csv`: `probe, joint, gap, channel, spread, equal`. `joint` is 1 or 0. For `gap` rows, `spread` is the forecast's last quantile minus its first per channel at each `g`. The `determinism` row of each shape has `equal` 1 when the two outputs are equal, else 0.
+- **Writes** `timestral-grid.csv`: `setting, scenario, model, seed, output`, one row per run, `model` the row's id. It joins `noise-grid.csv` on `setting`, `scenario` and `seed`, which holds every fixed baseline's output on the same timeline.
+- **Writes** `timestral-rounding.csv`: `setting, model, scenario, seed_index, round, rounded_out`, one row per round of every run, from `policy.rounded_out(view)`, see [rounded out](../forecasters/policy.md#rounded-out).
+- **The forecast cache makes a second run cheap.** Every forecast is read back from disk, see [the cache](../forecasters/policy.md#the-cache).
 
 #### `bare`
 
