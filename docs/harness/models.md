@@ -56,7 +56,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 - **Anthropic caches by content block.** A record sent as one growing block would only ever hit on the system prompt, and the record would be billed in full every round. So the solver can send the record one block per line to Anthropic models, see the [solver spec](../specs/harness/solver.md#record-blocks). It ships off, with `BLOCK_CACHE_APIS` empty, until two checks with a key show the cut moves the bill and not the prompt. Other providers match the start of the prompt whatever its blocks, so they get one block.
 - **Cached tokens are counted apart.** inspect leaves them out of its input count, so the [cost table](../specs/analysis/tables.md#cost) prices them on their own and the [cost per run](../pilot/provider-checks.md#cost-per-run) check reports each model's cached share.
 - **Batches do not fit.** A batch costs half as much, but each round needs the last round's reply, so a run is forty calls in a row and cannot be queued as one.
-- **To verify:** whether Google caches a repeated start on the models in `configs/models/`.
+- **Google caches a repeated start on its own**, on every Gemini from 2.5 on, and charges nothing to write it. Its docs give a floor of 4,096 tokens for the Flash models and none for Flash-Lite, read on 2026-11-11. **To verify:** that the Gemini row's cached share in the [cost check](../pilot/provider-checks.md#cost-per-run) is above zero, as a round's prompt may sit under the floor.
 
 ## Trend plots
 

@@ -38,7 +38,7 @@ How the code is arranged. The [design](../README.md#design) pages say why the ga
       models/      poc.toml and full.toml. See models.md
       seeds/       public.txt, the one list every scenario plays, once the engine exists. Held-out seeds are private, see contamination.md
       grid.toml    the noise grid and the release name, see docs/specs/harness/task.md
-      prices.toml  token prices for the cost table, not written yet. Without it the table has no cost column, see docs/specs/analysis/tables.md
+      prices.toml  token prices for the cost table and the date they were read, see docs/specs/analysis/tables.md
     docs/
       design/      why. The decisions
       harness/     how. This folder

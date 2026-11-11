@@ -6,19 +6,19 @@
 id = "anthropic/claude-haiku-5-5"
 kind = "llm"
 reasoning = "low"
-notes = "Cheapest Claude. Thinking cannot be switched off on Claude 5.5 models, so low effort is the minimum"
+notes = "Cheapest Claude. Anthropic's docs say thinking can be off at high effort or below, so this row moves to off once the off check passes with a key, see TODO.md. It reads its own earlier thinking when the blocks are sent back as they came, which inspect does"
 
 [[model]]
 id = "anthropic/claude-sonnet-5-5"
 kind = "llm"
 reasoning = "low"
-notes = "The mid Claude"
+notes = "The mid Claude. It refuses a plain off: inspect sends between_tools for it, which the off check has still to confirm. It reads its own earlier thinking when the blocks are sent back as they came, which inspect does"
 
 [[model]]
-id = "google/gemini-2.5-flash"
+id = "google/gemini-3.5-flash-lite"
 kind = "llm"
-reasoning = "off"
-notes = "Cheap non-Claude. Verify the id, a newer Flash may exist. Swap for openrouter/moonshotai/kimi-k2 if Google keys are a bother"
+reasoning = "low"
+notes = "Cheap non-Claude, and the model Google sends gemini-2.5-flash traffic to from 2026-12-01. Google's docs list the thinking levels minimal, low, medium and high and no off, so low is the lowest the grid can send. The off check with a key may still move it to off, see TODO.md. Its thought signatures carry its reasoning to a later turn when sent back, which inspect does"
 
 [[model]]
 id = "jev/jev-latest"
