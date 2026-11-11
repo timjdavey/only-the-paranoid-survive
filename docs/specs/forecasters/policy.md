@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`ForecastPolicy` turns a forecaster and a [forecast rule](../baselines/forecast.md) into an engine `Policy`. It builds the forecaster's input from the record, caches the forecast on disk, and hands the quantiles to the rule. `TIMESTRAL_POLICIES` holds the six the study plays. The Timestral model itself is on the [timestral](timestral.md) page. What each of the six is there to show is in [baselines](../../design/baselines.md#timestral).
+`ForecastPolicy` turns a forecaster and a [forecast rule](../baselines/forecast.md) into an engine `Policy`. It builds the forecaster's input from the record, caches the forecast on disk, and hands the quantiles to the rule. `TIMESTRAL_POLICIES` holds the seven the study plays. The Timestral model itself is on the [timestral](timestral.md) page. What each of the seven is there to show is in [baselines](../../design/baselines.md#timestral).
 
 ## Interface
 
@@ -25,10 +25,10 @@ class ForecastPolicy:                  # peeks: ClassVar[bool] = False
     with_bets: bool = False            # whether the past bets go to the forecaster
     forecaster: Forecaster = timestral
     def forecast(self, view: View) -> Forecast | None     # None on an empty record
-    def rounded_out(self, view: View) -> bool
+    def rounded_out(self, view: View) -> int
     def __call__(self, view: View) -> Bets
 
-TIMESTRAL_POLICIES: Mapping[str, ForecastPolicy]          # read only, the six glossary ids
+TIMESTRAL_POLICIES: Mapping[str, ForecastPolicy]          # read only, the seven glossary ids
 ```
 
 ## Behaviour
@@ -57,21 +57,25 @@ TIMESTRAL_POLICIES: Mapping[str, ForecastPolicy]          # read only, the six g
 
 ### Rounded out
 
-- **`rounded_out(view)`** is true when `rule` is an `Odds` and some channel with a finite quantile row gets a bet of 0 from this view. `Odds` can round a tiny chance to 0, so a channel goes blank that the forecaster had not written off.
-- **It is false** for every other rule, which go dark by design, and on an empty record.
-- **The pilot counts it**, see [Timestral checks](../../pilot/provider-checks.md#timestral-checks).
+- **`rounded_out(view)`** is how many channels with a finite quantile row get a bet of 0 from this view, when `rule` is an `Odds`. `Odds` can round a tiny chance to 0, so a channel goes blank that the forecaster had not written off.
+- **It is 0** for every other rule, which go dark by design, and on an empty record.
+- **It is a count, not a yes or no.** On the first runs some channel was rounded out on every round, 468 of 468, so a yes or no measured nothing. The count says how much of the board went dark.
+- **The pilot takes its mean a round**, see [Timestral checks](../../pilot/provider-checks.md#timestral-checks).
 
-### The six policies
+### The policies
 
 | Id | `rule` | `with_bets` | `forecaster` |
 |---|---|---|---|
 | `top-pick` | `FORECAST_RULES["top-pick"]` | false | `timestral` |
 | `odds` | `FORECAST_RULES["odds"]` | false | `timestral` |
 | `explore-1`, `explore-2`, `explore-5` | `FORECAST_RULES[id]` | false | `timestral` |
+| `odds-alone` | `FORECAST_RULES["odds"]` | false | `Timestral(joint=False)` |
 | `odds-bet-aware` | `FORECAST_RULES["odds"]` | true | `Timestral(joint=False)` |
 
 - **The ids are the Timestral ids** in the [glossary](../../glossary.md#the-study) after `timestral/`.
 - **`odds-bet-aware` forecasts each channel alone.** A joint forecast cannot tie a row of bets to its channel, see [two shapes](timestral.md#two-shapes).
+- **`odds-alone` splits that row's two differences.** `odds` against `odds-alone` is the shape and nothing else. `odds-alone` against `odds-bet-aware` is the bets and nothing else. The other five stay joint, so a channel that has gone dark can lean on the channels still read.
+- **The order is the table's**: the five rule ids as `FORECAST_RULES` has them, then `odds-alone`, then `odds-bet-aware`.
 - **A test swaps the forecaster** with `dataclasses.replace(policy, forecaster=fake)`.
 
 ## Invariants
@@ -79,8 +83,4 @@ TIMESTRAL_POLICIES: Mapping[str, ForecastPolicy]          # read only, the six g
 - The forecaster is never called on an empty record, and never sees a column with no reading.
 - `policy(view)` twice gives equal splits, and the second call never calls the forecaster.
 - `forecast(view).quantiles` has every finite row ascending, so any forecast rule accepts it.
-- `TIMESTRAL_POLICIES[id]` has `peeks` false for all six.
-
-## Not decided
-
-- **Whether every row should forecast each channel alone.** `odds-bet-aware` differs from `odds` in two ways today: it is told its bets, and it forecasts each channel alone. Playing `odds` both ways would split the two. Decide at the [Timestral checks](../../pilot/provider-checks.md#timestral-checks), from the gap test on both shapes.
+- `TIMESTRAL_POLICIES[id]` has `peeks` false for all seven.

@@ -6,7 +6,7 @@ The forecasters layer plays a [forecaster](../../glossary.md#the-study) as a pol
 
 | Page | What it specifies |
 |---|---|
-| [policy](policy.md) | `Forecaster`, `Forecast`, `ForecastPolicy`, the forecast cache and `TIMESTRAL_POLICIES`, the six ids the harness plays |
+| [policy](policy.md) | `Forecaster`, `Forecast`, `ForecastPolicy`, the forecast cache and `TIMESTRAL_POLICIES`, the seven ids the harness plays |
 | [timestral](timestral.md) | `Timestral`, the default forecaster: the pin, the load, the two input shapes, and what was checked on the real model |
 | [tests](tests.md) | Every test the forecasters suite runs, with the page it checks |
 
@@ -19,7 +19,7 @@ The forecasters layer plays a [forecaster](../../glossary.md#the-study) as a pol
 | `Forecaster` | The protocol a forecaster meets, and the seam a test fakes | [policy](policy.md) |
 | `Forecast` | One round's quantiles and the key they are cached under | [policy](policy.md) |
 | `ForecastPolicy` | A frozen dataclass that is an engine `Policy`: a forecaster through a forecast rule | [policy](policy.md) |
-| `TIMESTRAL_POLICIES` | Read only `Mapping[str, ForecastPolicy]`, the six `timestral/<id>` ids to their policies | [policy](policy.md) |
+| `TIMESTRAL_POLICIES` | Read only `Mapping[str, ForecastPolicy]`, the seven `timestral/<id>` ids to their policies | [policy](policy.md) |
 | `Timestral`, `timestral` | The Timestral forecaster's class, and `Timestral()` at the defaults | [timestral](timestral.md) |
 | `TIMESTRAL_MODEL`, `TIMESTRAL_REVISION` | The checkpoint and the weights revision every run loads | [timestral](timestral.md) |
 | `require_timestral` | Raises `ImportError` naming the extra when it is missing | [timestral](timestral.md) |
