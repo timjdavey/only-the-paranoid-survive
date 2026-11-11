@@ -14,9 +14,17 @@ First numbers from the baselines layer at its defaults, on seeds 0 to 49, for th
 - **[Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).** At the defaults it beat the Complacent baseline on 46 of 50 Down switch seeds and ended on the leader on 49 of 50 One shock seeds. A near zero hazard top pick played No change as the Complacent baseline on 47 of 50.
 - **Bayesian run time.** About 90 ms a run, 240 ms with `lookahead`, so the frontier's 240,000 runs take 6 to 16 hours on one core. A cache on the record's rows should about halve it. Add it with the frontier's pilot cell.
 
+First numbers from the forecasters layer, on the real Timestral at its [pins](docs/specs/forecasters/timestral.md#pinned), for the [Timestral checks](docs/pilot/provider-checks.md#timestral-checks):
+- **Gap test.** Ten readings then blanks, on seed 0 of One shock. After thirty blanks the spread is wider on every channel: 2.1 to 3.0 times with the channels joint, 2.0 to 6.9 times with each alone. It does not widen round by round. Joint, the mean spread falls from 44 to 40 points over the first ten blanks, then grows to 107. Alone it grows from 43 to 198. Decide whether that is widening enough for Timestral odds.
+- **Determinism.** The same input twice is equal, on one thread or four, so the cache keys on the inputs alone.
+- **Rounding.** `rounded_out` was true on every round of every Timestral odds run, 468 of 468, so as defined it measures nothing. Odds kept a bet on 3.6 of the ten channels a round, with 79 points on its top one. Count the channels rounded out instead, or drop the measure.
+- **On the grid.** Seeds 0 to 3 only, at the defaults, so a smoke test and not a measure. Mean score over One shock, Down switch and Up switch: top pick 0.85, explore 1 0.84, odds 0.80, bet aware 0.79, explore 2 0.76, explore 5 0.48, beside the hedge rule's 0.88 and the Complacent baseline's 0.84. Top pick never moved on Up switch. Explore 1, 2 and 5 ended where the Discerning baseline did on 12 of 12.
+- **Run time.** About 115 ms a forecast on CPU, so 5 seconds a run and half an hour a grid setting for the `timestral` cell. The thread count makes no difference.
+
 ## Code
+- Decide whether every Timestral row forecasts each channel alone, as Timestral odds, bet aware must, see [not decided](docs/specs/forecasters/policy.md#not-decided).
 - Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
-- Add the console script, entry points, extras and package data to `pyproject.toml` with the harness, see [layout](docs/harness/layout.md#what-pyprojecttoml-holds). The scaffold holds only what the engine needs.
+- Add the console script, entry points, the sandbox extra and package data to `pyproject.toml` with the harness. The `timestral` extra is in, see [layout](docs/harness/layout.md#what-pyprojecttoml-holds). The scaffold holds only what the engine needs.
 - `configs/grid.toml`, the noise grid the `luck`, `timeline-sanity` and `noise-grid` cells read, see the [pilot spec](docs/specs/harness/pilot.md#engine-cells).
 - `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
 - Ask each provider in `configs/models/` for zero data retention before the proof of concept, as it plays held-out skins, see [contamination](docs/harness/contamination.md#who-can-see-them).
