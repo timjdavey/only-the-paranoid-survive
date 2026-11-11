@@ -59,14 +59,14 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 
 | Id | Test | Page |
 |---|---|---|
-| BB1 | On a hand-built record of 20 rounds with `budget` on channel 0 and readings within 1 of 90: `belief(view).mean[0]` is within 1 of 90, and `changed[0]` is below the prior `1 − (1 − hazard)^20`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
-| BB2 | The same record with the readings 20 lower from round 15 on: `changed[0]` is above 0.9 on the view for round 18, and `mean[0]` is within 3 of 70 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
+| BB1 | On a hand-built record of 20 rounds with `budget` on `start.leader` and readings within 1 of 90: `belief(view).mean` on the leader is within 1 of 90, and its `changed` is below the prior `1 − (1 − hazard)^20`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
+| BB2 | The same record with the readings 20 lower from round 15 on: the leader's `changed` is above 0.9 on the view for round 18, and its `mean` is within 3 of 70 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
 | BB3 | A channel with no reading on any round of a 30 round record has `changed` equal to `1 − (1 − hazard)^30` within `1e-9`, and `mean` equal to `(1 − changed) × its role's prior mean + changed × the jump prior's mean` within `1e-6` | [bayesian](bayesian.md#the-belief) |
 | BB4 | `bayesian` called twice on one view gives equal splits and equal quantiles, every quantile row is finite and ascending, and the view's record is unchanged | [bayesian](bayesian.md#invariants) |
-| BB5 | `Bayesian(hazard=1e-9, rule="top-pick")` through `play` gives a record equal to `play(complacent, timeline)` on a No change timeline with its weather, shared factor and read noise set to 0, and on two named No change seeds | [bayesian](bayesian.md#rules) |
+| BB5 | `Bayesian(hazard=1e-9, rule="top-pick")` through `play` gives a record equal to `play(complacent, timeline)` on a No change timeline with its weather, shared factor and read noise set to 0, and on No change seeds 0 and 1. On No change seed 33 it differs, as the weather moves it, see [rules](bayesian.md#rules) | [bayesian](bayesian.md#rules) |
 | BB6 | `Bayesian(hazard=0.0)`, `Bayesian(hazard=1.0)`, `Bayesian(rule="nope")`, `Bayesian(draws=0)` and `Bayesian(lookahead_draws=0)` each raise `ValueError` on construction. `Bayesian(rule="explore-5")` with `budget` 40 and ten channels raises `ValueError` on its first view after round 1 | [bayesian](bayesian.md#rules) |
 | BB7 | `Bayesian(rule="lookahead")` on a hand-built record returns a split equal to one of the five forecast rules' splits on `belief(view).quantiles`, and on a view with `round == dials.rounds` returns the `top-pick` split | [bayesian](bayesian.md#rules) |
-| BB8 | `bayesian` through `play`: on two named Down switch seeds its output is above the Complacent baseline's, and on two named One shock seeds it ends on `start.leader` | [bayesian](bayesian.md#the-family) |
+| BB8 | `bayesian` through `play`: on Down switch seeds 0 and 2 its output is above the Complacent baseline's, and on One shock seeds 0 and 1 it ends on `start.leader` | [bayesian](bayesian.md#the-family) |
 | BB9 | `HAZARDS` has five ascending values in `(0, 1)`, `BAYESIAN_RULES` is the five `FORECAST_RULES` ids then `"lookahead"`, and every `Bayesian(hazard, rule)` over both, 30 players, returns valid splits on every round of Down switch seed 0 and One shock seed 0, with `play` | [bayesian](bayesian.md#interface) |
 
 ## Property tests

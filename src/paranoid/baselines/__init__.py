@@ -1,5 +1,6 @@
 """Every fixed baseline as a pure policy. See docs/specs/baselines/README.md."""
 
+from .bayesian import BAYESIAN_RULES, HAZARDS, LOOKAHEAD_DRAWS, Bayesian, Belief, bayesian
 from .forecast import (
     FORECAST_RULES,
     MEDIAN_INDEX,
@@ -40,4 +41,10 @@ __all__ = [
     "explore_2",
     "explore_5",
     "FORECAST_RULES",
+    "Bayesian",
+    "Belief",
+    "bayesian",
+    "HAZARDS",
+    "BAYESIAN_RULES",
+    "LOOKAHEAD_DRAWS",
 ]
