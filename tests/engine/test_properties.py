@@ -37,6 +37,7 @@ def test_eh1_timeline_invariants(seed, name):
     assert row[t.leader] > row[t.runner_up] > max(row[c] for c in others)
     assert row[t.hedge] == row.min()
     assert len(t.field) == config.channels - 2 and t.hedge in t.field
+    assert all(row[c] <= row[t.runner_up] - config.field_headroom for c in t.field if c != t.hedge)
 
 
 @FAST

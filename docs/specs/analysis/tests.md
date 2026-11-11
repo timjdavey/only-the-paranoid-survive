@@ -133,3 +133,4 @@ With `hypothesis`, kept fast with a small example count.
 ## Not decided
 
 - Whether the fixture logs should be built once and committed under `tests/analysis/logs/`, so the suite needs no inspect run. They are built per session here, as a committed log goes stale with every harness change. Decide when the suite's run time is known.
+- Whether a pilot CSV with a column no section names should raise. AI5 once said so of an `up-against-down-bets.csv`, which no cell writes, and no rule on [pilot](pilot.md#sections) asks for it. Decide when the pilot page is built.

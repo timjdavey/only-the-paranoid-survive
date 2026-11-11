@@ -93,7 +93,7 @@ def engine_hash(config: ScenarioConfig) -> str
 - **`persistence` never moves within a release**, see [difficulty](../../design/mechanics.md#difficulty). The engine does not enforce this, the release process does.
 - **A short rise and an undo** are the two switch moves the [Up switch](../../design/scenarios.md#scenarios-we-test) scenarios need, see [switch](timeline.md#switch). `short_level` is a share, not a size, so it has no sigmas or points pair and [pinning](timeline.md#pinning) leaves it alone.
 - **`hedge_margin_points`** is in level points, so it survives [pinning](timeline.md#pinning). It bounds the shock depth, see [shock](timeline.md#shock).
-- **`inertia_cap`** is off by default. When set, no bet may move more than this many points from the round before, see [game](game.md#bets) and [inertia](../../design/scoring.md#extension-inertia). `make_timeline` never reads it, so a config with the cap cleared draws the same arrays, which the [scorer](../harness/scorer.md) relies on.
+- **`inertia_cap`** is off by default. When set, no bet may move more than this many points from the round before, see [game](game.md#bets) and [inertia](../../design/scoring.md#extension-inertia). `make_timeline` never reads it, so a config with the cap cleared draws the same arrays, which the [scorer](../harness/scorer.md) relies on. It lives on the config and not on the harness task, as it changes what a valid bet is, which is an engine rule. The task's `inertia` arg sets it, see the [task spec](../harness/task.md#scenarios-and-config).
 - **Validation on construction.** `__post_init__` raises `ValueError` if any of these hold:
   - `channels < 4`, `rounds < 1`, `budget < channels`.
   - Any range has low above high.
@@ -125,12 +125,12 @@ def engine_hash(config: ScenarioConfig) -> str
 
 - **`name` equals the key.** `SCENARIOS["one_shock"].name == "one_shock"`.
 - **The first event lands at `onset`**, which every scenario shares. So twin timelines share their onset round, see [timeline](timeline.md#twin-timelines). Later events land `gap` rounds after the previous event's onset.
-- **A hard variant is a new config**, not a flag: more events in the tuple, or a longer `length`. It gets its own key when it exists, see [scenarios](../../design/scenarios.md#scenarios-we-test).
+- **A hard variant is a new config**, not a flag: more events in the tuple, a longer `length`, or a longer `ramp`. It gets its own key when it exists, see [scenarios](../../design/scenarios.md#scenarios-we-test).
 
 ### Engine hash
 
 - **`engine_hash(config)`** is the first 12 hex characters of the SHA-256 of a canonical JSON string, encoded as UTF-8. The string is `dataclasses.asdict(config)` with two additions: each event dict gets a key `"shape"` with `"shock"`, `"switch"` or `"drift"`, and the top level gets `"generator_version": GENERATOR_VERSION`. The `shape` key is there so two spec types that ever share a field set cannot collide.
-- **The recipe is `json.dumps(d, sort_keys=True, separators=(",", ":"), ensure_ascii=True)`.** Floats come out as `repr`, tuples as lists and `None` as `null`. [EC7](tests.md#config) rebuilds the string from this line.
+- **The recipe is `json.dumps(d, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)`.** `allow_nan` changes no string, as validation has already refused a value that is not finite. Floats come out as `repr`, tuples as lists and `None` as `null`. [EC7](tests.md#config) rebuilds the string from this line.
 - **`GENERATOR_VERSION` starts at 1.**
 - **Same config, same hash**, across Python versions and machines. Two configs that differ in any field, including `name`, differ in hash.
 - **`GENERATOR_VERSION` is bumped** whenever `make_timeline` changes what it produces for a config it already accepted. Adding a field with a default that reproduces the old timelines does not bump it, as the hash changes anyway.
@@ -175,5 +175,4 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 
 ## Not decided
 
-- Whether `inertia_cap` belongs here or on the harness task. It is here because it changes what a valid bet is, which is an engine rule. Decide before the harness task is coded, as it is a task arg either way.
 - `hedge_may_overtake` needs a config whose ladder and loadings let the hedge pass the leader within `depth_points`. At the defaults most seeds cannot, so the knob's config is for the pilot, see [shock](timeline.md#shock). Build it when [the tell](../../pilot/engine-checks.md#the-tell) runs.
