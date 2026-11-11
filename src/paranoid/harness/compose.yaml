@@ -1,0 +1,20 @@
+# The sandbox the compute tool runs the model's code in, see docs/specs/harness/solver.md#compute.
+# The code is untrusted: no network, nothing mounted from the host, no environment passed in,
+# a read-only root with a small writable working directory, and caps on memory, processes and CPU.
+services:
+  default:
+    image: python:3.12-slim
+    x-default: true
+    command: tail -f /dev/null
+    init: true
+    network_mode: none
+    read_only: true
+    working_dir: /work
+    tmpfs:
+      - /work:size=16m,mode=1777
+      - /tmp:size=16m,mode=1777
+    mem_limit: 512m
+    pids_limit: 64
+    cpus: 1
+    security_opt:
+      - no-new-privileges:true
