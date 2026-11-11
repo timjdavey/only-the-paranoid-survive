@@ -34,9 +34,8 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 - **Run time.** About 115 ms a forecast on CPU, so 5 seconds a run and half an hour a grid setting for the `timestral` cell. The thread count makes no difference.
 
 ## Code
-- Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
-- `configs/grid.toml`, the noise grid the `luck`, `timeline-sanity` and `noise-grid` cells read, see the [pilot spec](docs/specs/harness/pilot.md#engine-cells).
-- `configs/seeds/` once the engine exists, and the held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets).
+- Write the analysis from its [spec](docs/specs/analysis/README.md), last. The harness writes logs now.
+- The held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets). The public list, 0 to 999, is in `configs/seeds/public.txt`.
 - Ask each provider in `configs/models/` for zero data retention before the proof of concept, as it plays held-out skins, see [contamination](docs/harness/contamination.md#who-can-see-them).
 - Pass the same two held-out skins to `paranoid run --skins` on every proof of concept run, see [running](docs/harness/running.md#commands).
 - Before the proof of concept, run `paranoid run --limit 2` on both skins and read `paranoid analyse cost`, so the budget rests on measured tokens and a cached share, see [cost per run](docs/pilot/provider-checks.md#cost-per-run).
