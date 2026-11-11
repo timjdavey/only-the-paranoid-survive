@@ -27,7 +27,10 @@ scout_rule: Policy     # ScoutRule() at the defaults
 
 - **Both are handed round 1** through `view.start`: they start on the leader and know which channel is the hedge, the same gift the Complacent baseline gets. No model gets either, so their curves are an upper bound on what a player that reads the tell could earn, see [view](../engine/view.md#view) and [the baselines are handed round 1](../../design/baselines.md#fixed-baselines).
 - **State is derived, never kept.** Each call replays the rounds below from round 1 over the record, so the same view gives the same split, see [conventions](README.md#conventions).
-- **The record may not be the rule's own.** The scorer plays every baseline from the agent's warm up record, which another baseline wrote, see [scoring one run](../harness/scorer.md#scoring-one-run). So the replay reads readings, never bets, and a round where a channel a test needs has no reading drops out of that test. The hedge rule's fall and tell tests count only the rounds since `moved_at` where both the pick and the hedge read. A Scout rule channel without a reading in one of the last `n` rounds is no candidate, and a missing hedge reading in those rounds means no move. Once the rule's own bets fund the channels, every round counts.
+- **The record may not be the rule's own.** The scorer plays every baseline from the agent's warm up record, which another baseline wrote, see [scoring one run](../harness/scorer.md#scoring-one-run). So the replay reads readings, never bets, and a round where a channel a test needs has no reading drops out of that test. Once the rule's own bets fund the channels, every round counts.
+  - **The hedge rule's fall and tell tests** count only the rounds since `moved_at`, `moved_at` included, where both the pick and the hedge read.
+  - **The hedge rule's move** takes each channel's mean over the scout rounds it was read in. A channel read in none of them is no candidate. With no candidate at all, the pick stays.
+  - **A Scout rule channel** without a reading in one of the last `n` rounds is no candidate. A pick or a hedge without a reading in one of those rounds means no move.
 
 ## Behaviour
 
@@ -36,13 +39,13 @@ scout_rule: Policy     # ScoutRule() at the defaults
 `explore` on the hedge, the rest on its pick. State: a `pick`, a `phase` of hold or scout, the round the pick was last set `moved_at`, and the round scouting began `scout_start`.
 
 - **Round 1.** `pick = start.leader`, phase hold, `moved_at = 1`. Split: `explore` on the hedge, `budget − explore` on the pick.
-- **Hold.** Each round, run the fall test on the pick's readings since `moved_at`. The recent readings are the last `window` of them. The earlier readings are all the ones before those, and there must be at least `window` of them or the test does not run.
+- **Hold.** Each round `r`, run the fall test on the pick's readings since `moved_at`, from the rounds below `r`. The recent readings are the last `window` of them. The earlier readings are all the ones before those, and there must be at least `window` of them or the test does not run.
   - **Fall** when `mean(recent) < mean(earlier) − fall_points`.
   - **Tell** when the hedge's mean over the same recent rounds is above its mean over the same earlier rounds by more than `tell_points`. The hedge rose while the pick fell, so it is a shock. Hold.
-  - **Fall and no tell**: phase scout, `scout_start = round`.
+  - **Fall and no tell**: phase scout, `scout_start = r`. So `r` is the first scout round.
 - **Scout.** For `scout_rounds` rounds: `explore` on the hedge and `budget − explore` split by `split_budget` evenly over every other channel, the pick included.
-- **Move.** On the round after the last scout round: `pick` becomes the channel, hedge excluded, with the highest mean reading over the scout rounds, lowest index on a tie. The old pick can win, after a false alarm. Phase hold, `moved_at = round`. Bet the hold split with the new pick. The fall test then starts over on the new pick's readings.
-- It has no reason to move in the Up switch or Up switch then down switch scenarios, as the leader never falls. Any scout there is a false alarm on weather, which costs it the scout rounds, so it sits at or a little below the Complacent baseline, see [baseline order](../../pilot/engine-checks.md#baseline-order).
+- **Move.** On round `scout_start + scout_rounds`, the round after the last scout round: `pick` becomes the channel, hedge excluded, with the highest mean reading over the scout rounds, lowest index on a tie. The old pick can win, after a false alarm. Phase hold, `moved_at = round`. Bet the hold split with the new pick. The fall test then starts over on the new pick's readings.
+- **In the Up switch scenarios the leader never falls**, so any scout there starts as a false alarm on weather. A scout before the rise costs the scout rounds and returns to the leader. A scout after the rise may read the sleeper above the leader and move to it, so the rule can end off `start.leader` and earn more than holding. So it sits a little below the Complacent baseline, or above it when a false alarm finds the sleeper, see [baseline order](../../pilot/engine-checks.md#baseline-order).
 - **Construction checks** `explore ≥ 1`, `window ≥ 1`, `scout_rounds ≥ 1`, and `fall_points` and `tell_points` finite and above 0, else `ValueError`. **The first view checks** `explore < budget` and `budget − explore ≥ channels − 1`, so every scouted channel gets a reading, else `ValueError`, as `budget` and `channels` are the view's.
 
 ### Scout rule
@@ -53,7 +56,7 @@ scout_rule: Policy     # ScoutRule() at the defaults
 - **Every round.** `s` on each of the other `channels − 1` channels and `budget − s × (channels − 1)` on the pick.
 - **Construction checks** `s ≥ 1`, `n ≥ 1` and `tell_points` finite and above 0, else `ValueError`. **The first view checks** `s × (channels − 1) < budget`, else `ValueError`, as `channels` is not known on construction.
 - **Move test**, run before splitting once `round − moved_at ≥ n`:
-  - **Candidates** are the channels, pick and hedge excluded, whose reading beat the pick's reading in each of the last `n` rounds.
+  - **Candidates** are the channels, pick and hedge excluded, whose reading was strictly above the pick's reading in each of the last `n` rounds.
   - **Tell** when the hedge's mean over the last `n` rounds is above its mean over every earlier round since `moved_at` by more than `tell_points`. With no earlier round there is no tell.
   - **Candidates and no tell**: `pick` becomes the candidate with the highest mean reading over the last `n` rounds, lowest index on a tie, `moved_at = round`, and this round's split uses the new pick.
 - It keeps scouting after a move, so it can move again. In the Up switch then down switch scenario that is how it goes back to the leader once the sleeper falls.
