@@ -52,11 +52,14 @@ def test_bp4_discerning_moves_at_the_switch(picks):
 
 
 @pytest.mark.parametrize("name", list(SCENARIOS))
-def test_bp5_perfect_beats_discerning_every_round(name):
+def test_bp5_perfect_bets_on_the_highest_levels_every_round(name):
+    def bet_on(row, t):
+        return sum(bet * float(t.levels[row.round - 1, c]) for c, bet in enumerate(row.bets))
+
     for seed in SEEDS:
         t = make_timeline(SCENARIOS[name], seed)
         best, yardstick = play(perfect, t), play(discerning, t)
-        assert all(p.output >= d.output for p, d in zip(best.rows, yardstick.rows))
+        assert all(bet_on(p, t) >= bet_on(d, t) for p, d in zip(best.rows, yardstick.rows))
 
 
 def test_bp10_discerning_never_moves_on_a_short_up_switch(picks):

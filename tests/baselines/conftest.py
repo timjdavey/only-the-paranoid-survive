@@ -4,7 +4,6 @@ Views come from the engine's own Game, so a hand-built view is exactly what `pla
 """
 
 import dataclasses
-import math
 from collections.abc import Sequence
 
 import numpy as np
@@ -21,9 +20,8 @@ def check_split(split: Bets, channels: int = 10, budget: int = 100) -> None:
 
 
 def row(number: int, bets: Sequence[int], readings: Sequence[float | None]) -> Row:
-    """A hand-written row. Output is the bet-weighted mean of the readings, which no rule reads."""
-    output = math.fsum(b * (r or 0.0) for b, r in zip(bets, readings)) / sum(bets)
-    return Row(round=number, bets=tuple(bets), readings=tuple(readings), output=round(output, 1))
+    """A hand-written row. The engine works out its output from the bets and readings."""
+    return Row(round=number, bets=tuple(bets), readings=tuple(readings))
 
 
 def view_of(timeline: Timeline, rows: Sequence[Row] = (), peeks: bool = False) -> View:

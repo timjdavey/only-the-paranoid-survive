@@ -31,13 +31,13 @@ def on_leader(row, t, levels):
 
 
 def flat(rounds: int) -> list[float]:
-    return [60 + WOBBLE[r % len(WOBBLE)] for r in range(rounds)]
+    return [90 + WOBBLE[r % len(WOBBLE)] for r in range(rounds)]
 
 
 def test_bb1_flat_readings_argue_against_a_jump(no_change, row, view_of):
     belief = bayesian.belief(view_of(no_change, on_leader(row, no_change, flat(20))))
     leader = no_change.leader
-    assert abs(belief.mean[leader] - 60) < 1
+    assert abs(belief.mean[leader] - 90) < 1
     assert belief.changed[leader] < 1 - (1 - bayesian.hazard) ** 20
 
 
@@ -45,7 +45,7 @@ def test_bb2_a_drop_reads_as_a_jump(no_change, row, view_of):
     levels = [level - (20 if r >= 15 else 0) for r, level in enumerate(flat(20), start=1)]
     rows, leader = on_leader(row, no_change, levels), no_change.leader
     assert bayesian.belief(view_of(no_change, rows[:17])).changed[leader] > 0.9
-    assert abs(bayesian.belief(view_of(no_change, rows)).mean[leader] - 40) < 3
+    assert abs(bayesian.belief(view_of(no_change, rows)).mean[leader] - 70) < 3
 
 
 def prior_mean(lo_hi) -> float:
