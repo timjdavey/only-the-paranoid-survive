@@ -29,6 +29,9 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
   - The draft is a fruit importer that sells through ten wholesale markets on commission. It writes its own noun in all four places and swaps "fund" for a verb of its own. It keeps "budget", "points" and "spend", and "spend" sits oddly on a story that sends goods.
   - So decide whether `prompts.md` brackets the verb as well as the noun, and whether "spend" may move.
 - Decide [banning numbers](docs/specs/skins/lint.md#not-decided) in the skins spec, due now that held-out skins exist.
+- If [recognition](docs/pilot/provider-checks.md#recognition) replies doubt a skin for its round hundred, decide whether a skin may state another number that the tool turns into 100 points, see [writing a skin](docs/harness/writing-a-skin.md#give-every-fixed-fact-a-reason). Not built.
+  - Whole points only convert cleanly from a number that divides 100, which makes the smallest bet larger, or from a multiple of 100 placed in fixed lots.
+  - It would change the lint's [budget fact](docs/specs/skins/lint.md#frame-facts), the skin spec and the `submit` tool.
 - Decide whether the skin names the notes and compute parameters before the first headline run on held-out skins, see the [solver spec](docs/specs/harness/solver.md#not-decided).
 - Check the off value for reasoning on every provider in `configs/models/` before the first run, see the [command spec](docs/specs/harness/command.md#verify-before-code).
 - Verify the model ids in `configs/models/poc.toml` before the first run.
