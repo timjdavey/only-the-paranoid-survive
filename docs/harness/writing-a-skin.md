@@ -62,12 +62,12 @@ The agent redraws its whole split every round and reads the result at the end of
 | Lead time | Can what is placed arrive and pay back within the period? | It takes weeks | Seed sown on ten plots each week. Nothing can be weighed until the harvest, months later |
 
 - **Pick ten of one kind, because each kind brings its own mechanics.** Different kinds pay back at different speeds and count the return differently. The model then plays what it knows about each kind and ignores the record.
-- **Pick a return that arises at the channel.** If the skin has to explain the tracing, someone who does the job will doubt it. The return need not be counted there to the last unit, because the channel's figure is an estimate, see [the figure](#the-figure).
+- **Pick a return that arises at the channel.** If the skin has to explain the tracing, someone who does the job will doubt it. The channel's figure is what the units placed there made, not an estimate of it, see [the figure](#the-figure).
 - **Pick a channel that stays what it is while its yield moves out of sight.** That gives the agent something to work out. An expert expects a page design or an advert to be edited, or to wear out.
 
 #### The figure
 
-The engine pays each channel's level times its share of the 100, see [readings](../specs/engine/game.md#readings). So output is an average and not a total: all 100 on a channel whose level is 61.2 pays 61.2. A reading is rough even at 100 units, and output is paid at the true level, so the two never quite agree.
+The engine pays each bet its reading times its share of the 100, see [readings](../specs/engine/game.md#readings). So a reading is a rate and not a total: all 100 on a channel that reads 61.2 earns 61.2, and 50 on it earns 30.6. The reading is what was paid, not an estimate of it, and the record shows no total, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 
 | Test | Ask | It fails when | An example that fails |
 |---|---|---|---|
@@ -75,15 +75,16 @@ The engine pays each channel's level times its share of the 100, see [readings](
 | A yield, not a rate | Could the figure pass any ceiling? | It is a percentage or a pass rate, which stops at 100 | Ten tutors scored on the share of pupils who pass. The first level above 100 breaks the skin |
 | The unit | Does a reading in the tens, with one decimal, read true? Can it go below zero? | It is a count per person per day | Cars sold per seller per day. Nobody sells 61.2 cars in a day, and nobody sells fewer than none |
 | Many small draws | Is a unit one of many small things, each with its own luck? | Every unit sent to a channel earns the same | Money split over ten funds. Each pound in a fund earns the same rate, so a small stake reads as true as a large one |
-| The sums | Do an all in row and a split row match `how_points_earn`? | The story promises a total | The skin says units times the figure per unit. All 100 on a channel reading 61.2 would then make about 6,120, and the output shows 60.5 |
-| Estimate and measure | Is the channel's figure an estimate, and the total the thing that is measured? | The story counts both from one tally | A till that counts each stall's takings and the day's total. All in on one stall reads 61.2 and pays 60.5, so the books look wrong |
+| The sums | Do an all in row and a split row match `how_points_earn`? | The story makes the figure a total | The skin calls the figure a stall's takings. A stall reads 61.2 on 5 units and 60.5 on 100, so twenty times the goods took no more |
+| Paid, not estimated | Is the figure what the units really made? | The story holds a truer number somewhere | A market that phones in an early price ahead of the final accounts. The agent would wait for the accounts, and the record never shows them |
 | One rises in a bad spell | Could one of the ten do well while the other nine fall? | One cause moves all ten the same way | Ten ice cream pitches on one beach. A wet week empties every one of them |
 
 - **Know how far the engine's numbers move.** In the default config the best channel pays two or three times the worst. A shock takes a tenth to over a half off a channel, each by a different amount, see [config](../specs/engine/config.md).
 - **Expect a figure below zero now and then.** Levels and readings have no ceiling and are not clipped at zero. Money after costs can go negative. A count of things made cannot.
 - **Keep percent for the split.** The agent's split is already in percentages, so a figure in percent would put two kinds of percent in one record.
 - **To pass "The unit", write an engine reading into the story's sentence.** Then ask whether someone in the job would believe it.
-- **To pass "The sums", use one of two wordings.** Call a channel's figure what the whole lot would make there, so each unit brings in its part. Or call the last column the figure per unit across the whole.
+- **To pass "The sums", make the figure a rate per unit**, such as a price or a yield, so each unit brings in its part.
+- **Never promise a total.** The record shows none. The figures are what was paid, so the agent can add them up itself.
 - **Never say that one channel rises in a shock.** In a shock every channel falls but one, which rises. The story has to allow for it without a word from the skin.
 
 #### Why it is unknown
@@ -148,9 +149,9 @@ The engine and the harness fix the facts below. Every skin states them, and no w
 |---|---|---|---|
 | A split in whole percentages that add up to 100 | The engine's budget of 100 [points](../glossary.md) | Why no fractions? | Nobody asks why percentages make a hundred. For whole ones, a clause in `rules`, or a trade that already talks in whole percent |
 | Exactly ten named channels | The engine's channel count | Why these ten? | [The ten channels](#the-ten-channels) |
-| A straight line payout that never tails off | The engine pays each channel's level times its share of the 100 | Would the next unit not earn less? | [Why more is better](#why-more-is-better) |
+| A straight line payout that never tails off | The engine pays each bet its reading times its share of the 100, and a channel's level does not fall as the bet grows | Would the next unit not earn less? | [Why more is better](#why-more-is-better) |
 | A reading only where units went, and a rough one from few | [What the agent sees](../design/mechanics.md#what-the-agent-sees) | Why not look the figure up? | [Why it is unknown](#why-it-is-unknown) |
-| Readings that do not add up to the output | A reading is rough and the output is exact, see [readings](../specs/engine/game.md#readings) | Why are the books off? | [The figure](#the-figure) |
+| No total in the record | The record holds readings only, see [what the agent sees](../design/mechanics.md#what-the-agent-sees) | What did we make overall? | Nobody asks once the figures are what was paid, as they add up to it, see [the figure](#the-figure) |
 | An empty record on round 1 | Round 1 sends the CSV header alone | Where are the old files? | [Why it is unknown](#why-it-is-unknown) |
 | A tool that takes ten numbers and returns a CSV, beside a notes tool and a compute tool | The harness, see [tools](../design/interface.md#tools) | Why would this job have these? | Names and text in the story's words, see [naming things](#naming-things) |
 
@@ -182,7 +183,7 @@ What a reason must never do:
 | A clean header | Is each channel name short, unique and free of commas and quotes? | It breaks the CSV header | `Marsh, Vane and Sons` |
 | Easy to type in code | Does a name have a space, an apostrophe or a leading article? | The compute tool reads the record as a file, so the model has to quote the column | `The Old King's Yard` |
 | No banned stem | Does any word start with a banned stem? | It does, even as the second word of a compound | `shift` fails and so does "night shift". `exchange` passes, because the stem must start the word |
-| Own column words | Are `round_word`, `bet_word`, `level_word` and `output_word` the story's own? | One is `round`, `bet`, `level` or `output`, which are the example skin's | A record headed `round`, see [render](../specs/skins/render.md#record) |
+| Own column words | Are `round_word`, `bet_word` and `reading_word` the story's own? | One is `round`, `bet` or `reading`, which are the example skin's, or `level` or `output`, which are the engine's | A record headed `round`, see [render](../specs/skins/render.md#record) |
 | Own tool name | Is the tool name a verb and a noun in the story's words? | It uses `submit`, or a verb on the banned list | `submit`, the example skin's name for it and the harness's |
 
 - **Web search every proper noun.** A common word always finds something, so the bar is no notable holder and no exact match in the story's own trade.

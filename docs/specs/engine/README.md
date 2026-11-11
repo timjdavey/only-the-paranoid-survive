@@ -68,7 +68,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 
 - **Rounds are numbered from 1.** Round 1 is the first round the agent plays. Arrays are indexed from 0, so round `r` is row `r - 1`.
 - **Channels are numbered from 0** to `channels - 1`. Which one leads is drawn per seed.
-- **Levels, readings and output are floats in level points**, rounded to one decimal place only where the agent sees them, see [game](game.md).
+- **Levels, readings and output are floats in level points.** A reading is rounded to one decimal place, as the agent sees it, and output is worked out from the rounded readings, see [game](game.md#readings).
 - **Sigma** means the own-weather scale, the weather's SD per round. Every event size drawn "in sigmas" is a multiple of it, see [difficulty](../../design/mechanics.md#difficulty).
 - **The record is the only engine object that leaves the engine.** The skins layer renders it and the harness logs it. A timeline or a view never leaves, see [timeline](timeline.md#interface).
 - **The engine writes no text.** Nothing in it renders a prompt, a CSV or a message for a model. The skins layer renders the record, see [render](../skins/render.md#record).

@@ -90,7 +90,7 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 - **Question.** How fast the read noise shrinks as the bet grows.
 - **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge and 1, 2 and 3 scout rounds, and the Scout rule baseline with 1, 2 and 5 points on every other channel, at a few strengths of read noise.
 - **Measure.** Whether a bigger explore bet buys a better read of the switch, and how much an explore bet costs in output. The Scout rule shows the same for a rise, which is where an explore bet's size bites hardest, see [Up and down](#up-and-down).
-- **Output is exact,** so the agent always knows its own mix's level. Read noise only prices explore bets on single channels, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
+- **Read noise is paid as well as seen.** A larger k adds luck to every output, with an SD of k ÷ 10 a round whatever the split. On a full bet that is well under the weather, so read noise mostly prices explore bets, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 - **Decide.** One strength, where an explore bet is worth its cost but no explore bet tells the whole story. And at that strength the hedge rule's `explore` and `scout_rounds`: the cheapest pair that still moves to the best channel as often as a larger one. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with explore bets.
 
 ## Up and down

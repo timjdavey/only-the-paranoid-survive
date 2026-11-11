@@ -67,7 +67,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
   - The stale handoff task in [future](../design/future.md#whether-it-holds-outside-our-game). A model that scores high here and no better there is the case this benchmark cannot tell apart by itself.
 - **A harder game buys time, not immunity.** The [noise grid](../pilot/engine-checks.md#noise-grid) extends to noisier settings and the hard variants in [scenarios](../design/scenarios.md#scenarios-we-test) close tells, so a trained model shows as a saturated one and a new release reopens the gap.
 - **The public gap does not see it.** It compares two seed sets on one model, so it catches tuning on the public seeds, not training on the engine, see [the public gap](#the-public-gap).
-- **The record's column words.** A header every skin shared would mark the benchmark under any story, so each skin names its own four [column words](../glossary.md#the-world) and the published ones are only the example skin's, see the [skins spec](../specs/skins/render.md#record).
+- **The record's column words.** A header every skin shared would mark the benchmark under any story, so each skin names its own three [column words](../glossary.md#the-world) and the published ones are only the example skin's, see the [skins spec](../specs/skins/render.md#record).
 
 ## Canary
 

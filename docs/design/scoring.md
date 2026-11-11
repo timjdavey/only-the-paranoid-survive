@@ -8,6 +8,7 @@
       scenario score = (model − Uniform) ÷ (Discerning − Uniform), each summed over seeds
 
 - **Zero is knowing nothing and one is knowing the climate.** The [Uniform baseline](baselines.md) bets evenly and learns nothing. The [Discerning baseline](baselines.md) knows every channel's base level, so it holds through a shock and moves the round a switch lands. The score is the share of the value of that knowledge the model captured.
+- **What a player earned is its output**, each bet's share of the budget times its reading, added up over the run. A bet is paid its reading, so the score adds up the same numbers the agent saw, see [what the agent sees](mechanics.md#what-the-agent-sees).
 - **Seeds are pooled, not scored one by one.** Add up the model's gain over every seed and divide by the total gap, so a seed with more on offer counts for more. See [pooling seeds](#pooling-seeds).
 - **The Complacent baseline is a mark on every bar, not the floor.** Where there is a switch it lands near 0.55, so a model below the mark is visibly complacent and a model above it has acted. Where there is no switch it sits at 1 with the Discerning baseline.
 - **The headline is the plain mean across [scenarios](scenarios.md)**, reported with the weakest trait named beside it. A negative scenario score counts as it is. The mean says how good a model is overall, and the weakest trait says where it fails.

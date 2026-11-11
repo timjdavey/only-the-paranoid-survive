@@ -4,9 +4,9 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 ## Payout
 
-- **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
+- **Linear.** Output is the sum over channels of share times [reading](#what-the-agent-sees). A channel's level does not fall as the bet on it grows, so point 70 on a channel pays the same as point 1.
 - **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or an explore bet. See [scoring](scoring.md).
-- **Output and levels are reported to one decimal place.**
+- **Readings are reported to one decimal place.** Output is never shown, see [what the agent sees](#what-the-agent-sees).
 
 ## Generator
 
@@ -74,15 +74,16 @@ Off by default. Each one closes a tell a model could learn.
 ## What the agent sees
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
-- **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
-- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
+- **A bet is paid its reading.** A reading is the channel's level plus read noise. It is what the agent sees and what the agent earns, so the record holds everything it earned. Nothing is paid at the level, which stays hidden.
+- **A small share swings more, a large share less.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. It is real luck, not a measuring error. The skin explains it, so there is no rule to tell the agent.
+- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a small bet on a low channel can pay below 0. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
 - **Why.** An explore bet costs something, so paranoia has a price. You know a market by being in it.
-- **Output is paid at the true levels, on purpose**, while each reading carries read noise. A business knows its revenue to the penny but only roughly which channel drove it.
-  - **It adds little beyond the readings.** Summing the readings the way output is summed already gives output to within an SD of k ÷ 10, whatever the split. So output is worth one clean reading of the agent's own mix, and nothing about any one channel.
-  - **It can't name the shape.** A dip in output says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes an explore bet, see [events](#events).
+- **The record has no output column.** Output is each bet's share times its reading, added up. The agent can work it out from its own record, and the score adds up the same readings, see [scorer](../specs/harness/scorer.md#scoring-one-run). So the agent and the scorer agree on every number.
+  - **No split is safer than another.** The luck in a round's output has an SD of k ÷ 10 whatever the split, so read noise never rewards spreading or going all in.
+  - **Output can't name the shape.** A dip says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes an explore bet, see [events](#events).
   - **It can't see a rise.** A sleeper rising on a channel with a bet of 0 changes nothing the agent sees. The Up switch scenario is invisible without an explore bet.
-  - **It can't sharpen a small explore bet.** With 99 on the leader and 1 on the hedge, output minus the leader's reading gives the hedge with an SD of about 10k, against k for the explore bet itself.
-  - **This is why the weather scale, not read noise, is the grid's dial.**
+  - **This is why the weather scale, not read noise, is the grid's dial.** On a full bet read noise is k ÷ 10, well under the weather. It prices explore bets and little else.
+- **Decided after two other designs**, an exact output column and a score paid at the level. Both are under [rejected](#rejected).
 
 ## Defaults
 
@@ -102,5 +103,6 @@ Off by default. Each one closes a tell a model could learn.
 | Two or three factors, with events on loadings | Most realistic, but scenarios become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. A hard variant once one factor saturates |
 | Shocks that hit one channel only | An explore bet cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |
 | A longer run to tighten the error bars | Once a model has moved, each extra round pays it and the Discerning baseline the same. So the gap between a model that moved in 3 rounds and one that took 8 shrinks with the error bar, and the two are no easier to tell apart. Only a model that never moves falls further behind. Input tokens grow with the square of the run, as every round resends the record. Doubling the seeds narrows every bar for twice the cost, see [spread](scoring.md#spread) |
-| Output summed from the noisy readings | It only adds one noise term with an SD of k ÷ 10, which changes little, see [what the agent sees](#what-the-agent-sees). And it breaks the skin, since no business estimates its own revenue |
+| An exact output column, paid at the level, beside the readings | The first design. The two figures never agree, so a model with the compute tool finds the books off in round 1 and every skin needs a story with two tallies. It told the agent little, as adding up the readings gives the same figure to within an SD of k ÷ 10. Timestral and the Bayesian baseline never read it, so players did not share one record |
+| Paying at the level and showing only readings | The score would rest on a number the agent never sees, and the story would have to hide a firm's own takings. All it saves is read noise in the score: about 0.6% of one run's score at the defaults, with a mean of zero, and the same for every split, see [what the agent sees](#what-the-agent-sees) |
 | A noise setting drawn per seed | It hides one number from a model that can already train across the whole public grid, so it stops nothing, see [learning the game](../harness/contamination.md#what-it-does-not-stop). And it breaks the axis: the [noise threshold](scoring.md#noise-threshold) is read off fixed settings, releases join by sharing two of them, and [luck on offer](../pilot/engine-checks.md#luck-on-offer) is checked per setting |

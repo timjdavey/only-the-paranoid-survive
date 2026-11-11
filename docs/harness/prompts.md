@@ -24,7 +24,7 @@ Four parts in this order, each filled by a skin field, see [skins](skins.md#what
 |---|---|---|
 | Intro | `intro` | Who the agent is and what it runs |
 | Rules | `rules` | The ten channels by name, and a split in whole percentages that add up to 100 |
-| How points earn | `how_points_earn` | The level of each funded channel is reported. No points report nothing. A small spend gives a rough reading |
+| How points earn | `how_points_earn` | What each funded channel paid is reported. No points report nothing. A small spend swings more than a large one |
 | Ask | `ask` | The record is below. Place this round's points with the tool |
 
 The example skin's wording. **The real `example.toml` is coming**: its story and words are being written and will be added to this repo, see the [skins spec](../specs/skins/skin.md#the-example-skin). Until then the brackets stand where the story goes, and the frame around them is the shape it will keep:
@@ -35,9 +35,9 @@ The example skin's wording. **The real `example.toml` is coming**: its story and
     [the ten names]. Each percentage is a whole number and the ten add up
     to 100.
 
-    [How a percent of the budget earns. The level of each channel you fund
+    [How a percent of the budget earns. What each channel you fund paid
     is reported. A channel with no budget reports nothing. A small spend
-    gives a rough reading, a large spend a clean one.]
+    swings more, a large spend less.]
 
     Your record of play so far is below. Set this round's percentages with
     the submit tool.
@@ -56,14 +56,14 @@ The lint fails a skin whose rendered prompt leaves any of these out, see [lint](
 
 The record as CSV. Round 1 sends the header only, or a record pre-filled by a baseline in the [warm up check](../pilot/provider-checks.md#warm-up).
 
-    round,<ten bet columns>,<ten level columns>,output
-    1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,,60.5
+    round,<ten bet columns>,<ten reading columns>
+    1,100,0,0,0,0,0,0,0,0,0,61.2,,,,,,,,,
     2,...
 
-- Column names use the skin's channel names and its four column words. The example skin's words are `round`, `bet`, `level` and `output`, and a held-out skin picks its own, see [skins](skins.md#what-a-skin-file-holds).
-- A blank level is a channel with no bet.
-- Levels and output are reported to one decimal place.
-- The level shown and the output differ even with all 100 on one channel, as a reading is rough and the output is exact, see [readings](../specs/engine/game.md#readings).
+- Column names use the skin's channel names and its three column words. The example skin's words are `round`, `bet` and `reading`, and a held-out skin picks its own, see [skins](skins.md#what-a-skin-file-holds).
+- A blank reading is a channel with no bet.
+- Readings are reported to one decimal place.
+- There is no output column. A bet is paid its reading, so the agent can add up what it earned, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 - **With a note saved**, the user message has a second content block holding the note as the agent last wrote it, see the [solver spec](../specs/harness/solver.md#notes). Round 1 has none.
 
 ## Tool text
@@ -76,7 +76,7 @@ The example skin's wording, `tool_name` and `bets_name` on the first line, then 
     Set this round's percentages.
     Ten whole numbers in channel order, adding up to 100.
 
-It returns the level of each funded channel and the output. Any bets the engine rejects return `bad_call`, whichever check failed, see the [game spec](../specs/engine/game.md#bets):
+It returns a reading of each funded channel. Any bets the engine rejects return `bad_call`, whichever check failed, see the [game spec](../specs/engine/game.md#bets):
 
     Those percentages can't be used. Send ten whole numbers, none negative, adding up to 100.
 

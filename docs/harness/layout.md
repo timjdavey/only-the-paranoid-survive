@@ -21,7 +21,7 @@ How the code is arranged. The [design](../README.md#design) pages say why the ga
 
 ## What each layer does
 
-- **Engine** turns a scenario and a seed into a [timeline](../design/mechanics.md#generator), takes bets and returns readings and output, keeps the [record](../design/interface.md#tools), and says what a policy may see. Deterministic. Every number in [mechanics](../design/mechanics.md) is a field on `ScenarioConfig`, and a hash of the config goes into every log.
+- **Engine** turns a scenario and a seed into a [timeline](../design/mechanics.md#generator), takes bets and returns readings, keeps the [record](../design/interface.md#tools), and says what a policy may see. Deterministic. Every number in [mechanics](../design/mechanics.md) is a field on `ScenarioConfig`, and a hash of the config goes into every log.
 - **Baselines** hold every [baseline](../design/baselines.md) as a pure function from what it may see to bets, plus the rules that turn a forecast into bets. A new baseline is a file here and a key in `POLICIES`, and the harness plays it as `baseline/<name>` with no change of its own.
 - **Skins** dress the engine in a story. A skin is text plus the names of the ten channels. The layer renders the system prompt and the record in the skin's words, and lints both for banned words. Private skins load from a path, see [skins](skins.md).
 - **Harness** is the inspect_ai layer. One task, one solver, one tool, a provider for every model that cannot place bets, a scorer and metrics. See [inspect](inspect.md).

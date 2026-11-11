@@ -28,8 +28,7 @@ class Skin:
     question: str                           # Jev's choice question, see providers
     round_word: str                         # the record's first column header. "round" in the example skin
     bet_word: str                           # the suffix of each bet column. "bet" in the example skin
-    level_word: str                         # the suffix of each level column. "level" in the example skin
-    output_word: str                        # the record's last column header. "output" in the example skin
+    reading_word: str                       # the suffix of each reading column. "reading" in the example skin
 
 class SkinError(ValueError): ...            # a skin file or a Skin that is not well formed. LintError is one too
 
@@ -38,7 +37,7 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 ```
 
 - **Every field is a `str`** except `channels`, which is a tuple of names. There are no numbers on a skin, see [conventions](README.md#conventions).
-- **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them, then the names and text of the three tools, then the four column words of the [record](render.md#record). Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
+- **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them, then the names and text of the three tools, then the three column words of the [record](render.md#record). Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
 
 ## Behaviour
 

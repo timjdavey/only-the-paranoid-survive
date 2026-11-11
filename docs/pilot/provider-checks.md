@@ -66,7 +66,7 @@ A split goes to the tool as ten numbers in [channel order](../glossary.md), see 
 
 ## Up against down
 
-Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the agent's own output and a rise does not, so this check asks whether a model explores before anything tells it to.
+Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the readings of the channels the agent holds and a rise does not, so this check asks whether a model explores before anything tells it to.
 
 - **Question.** Does a model find a rise it was not cued to look for, and does a fall with a riser differ from a fall alone.
 - **Run.** One model on the Down switch seeds from [Seeds](#seeds), split by whether a sleeper rose, plus the Up switch, Up switch then down switch and Switch then shock scenarios on the same seeds. No extra Down switch runs.

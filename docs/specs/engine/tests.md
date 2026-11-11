@@ -66,7 +66,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | EG3 | Inertia: with `inertia_cap = 20`, round 1 accepts any valid split, round 2 rejects a move of 21 with `check` `inertia` and accepts 20 | [game](game.md#bets) |
 | EG4 | Readings: with `read_noise_z` set to all ones on a hand-built timeline, round 1 splits 4, 16 and 80 and reads `level + k/2`, `level + k/4` and `level + k/sqrt(80)`, and round 2 puts 100 on one channel and reads `level + k/10`, each to one decimal | [game](game.md#readings) |
 | EG5 | Unfunded channels read `None`, and the row's readings are `None` exactly where bets are 0 | [game](game.md#readings) |
-| EG6 | Output equals the exact-level weighted sum rounded to one decimal, not the sum of the readings, on a timeline where they differ | [game](game.md#readings) |
+| EG6 | `row.output` equals the row's bets times its rounded readings, added up and divided by the budget, on an all in row and a split row, and differs from the level-weighted sum on a timeline with read noise | [game](game.md#readings) |
 | EG7 | A negative reading is possible: a low level and a large negative `read_noise_z` with a bet of 1 | [game](game.md#readings) |
 | EG8 | Playing a finished game raises `RuntimeError`, and `done` is true after `rounds` valid splits | [game](game.md#bets) |
 | EG9 | Bets passed as a list, a numpy array and a tuple of `np.int64` are all stored as a `tuple` of Python `int`, and `game.play(bets)` is `game.record.rows[-1]` | [game](game.md#bets) |

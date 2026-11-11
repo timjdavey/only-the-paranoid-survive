@@ -46,8 +46,10 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Word | What it means |
 |---|---|
 | Channel | One of the things the agent can put budget on. Each pays out at its own level |
-| Level | A channel's true payout, which its noisy reading sits around. Never called a mean: that word is kept for averaging over runs |
-| Reading | The noisy number the agent sees for a channel it bet on. It sits round the level, and is rougher the smaller the bet. A channel with no bet shows a blank. See [mechanics](design/mechanics.md#what-the-agent-sees) |
+| Level | Where a channel's readings centre in a round: its base level, its weather and its share of the shared factor. Hidden, and nothing is paid at it. Never called a mean: that word is kept for averaging over runs |
+| Reading | The rate a bet on a channel was paid at this round, and the number the agent sees for that channel. A bet earns its share of the budget times its reading. It is the level plus read noise. A channel with no bet shows a blank. See [mechanics](design/mechanics.md#what-the-agent-sees) |
+| Read noise | How far a reading lands from the channel's level. Real luck that the bet is paid, not a measuring error. Smaller the larger the bet, so a small bet gives a rough reading |
+| Output | What a split earned in a round: each bet's share of the budget times its reading, added up. A run's output is the sum over its rounds, and the score is built from it. The agent is never shown it, and can work it out from its record. See [mechanics](design/mechanics.md#what-the-agent-sees) |
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |
 | Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |
@@ -63,8 +65,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Field | The other channels, including the hedge |
 | Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
 | Timeline | One scenario played out on one seed: the ground truth, drawn before play starts. Every run on that seed replays it. Rebuilt from the seed, never saved. See [generator](design/mechanics.md#generator) |
-| Ground truth | Every channel's level in every round, as a timeline holds it. The agent sees readings, never the ground truth |
-| Column words | The four words a skin gives the record's header: the round column, the bet suffix, the level suffix and the output column. `round_word`, `bet_word`, `level_word`, `output_word` in code. See [render](specs/skins/render.md#record) |
+| Ground truth | Every channel's level in every round, as a timeline holds it. The agent sees readings and is paid them, and never sees the ground truth |
+| Column words | The three words a skin gives the record's header: the round column, the bet suffix and the reading suffix. `round_word`, `bet_word`, `reading_word` in code. See [render](specs/skins/render.md#record) |
 
 ## How the world changes
 

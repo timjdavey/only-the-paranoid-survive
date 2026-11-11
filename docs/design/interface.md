@@ -8,20 +8,20 @@
 - **It places all ten bets every round.** Bets the engine rejects, such as ones that do not sum to 100, or a reply with no bets, get a neutral message and a retry. The round ends only on a valid call, so a bad call is never read as a decision, see the [retry rule](../harness/prompts.md#retry-rule). Rounds where the bets match the round before are counted afterwards as rounds it left the plan alone.
 - **Its bets are its belief.** A small bet on a new channel is an explore bet. A large bet is a switch. No cut-off decides which is which.
 - **The budget is the same every round.** Output does not carry over, so an early lucky round cannot snowball. See [scoring](scoring.md).
-- **The agent sees a reading of every channel it bet on**, not just total output, in the record described under [tools](#tools). A bet of 0 shows nothing. See [mechanics](mechanics.md).
+- **The agent sees a reading of every channel it bet on**, which is what that bet was paid, in the record described under [tools](#tools). A bet of 0 shows nothing, and no total is shown. See [mechanics](mechanics.md#what-the-agent-sees).
 - **Nothing tells the agent the world might change.** The prompt asks for bets, not for a view on change.
 
 ## Tools
 
 - **Each round is a fresh call.** The agent gets the rules, the skin and the record, then places its bets with a tool. Nothing carries over between rounds and nothing is compacted, so a run is the same whichever round you replay it from.
-- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets, the level of each channel it bet on and the output. Round 1 has an empty record, so the agent finds the leader itself in the first rounds. The pilot also runs a cell where the record starts pre-filled by a baseline, see [warm up](../pilot/provider-checks.md#warm-up).
+- **The record is in the prompt, not behind a tool.** It is a CSV of the agent's own play so far: the round, its bets and a reading of each channel it bet on. Round 1 has an empty record, so the agent finds the leader itself in the first rounds. The pilot also runs a cell where the record starts pre-filled by a baseline, see [warm up](../pilot/provider-checks.md#warm-up).
 - **This is the same setup Jev and Timestral get.** History in, bets out. See [below](#models-that-cannot-place-bets).
 - **Tool descriptions never say check, change or anomaly.** A lint on the prompt and tool text keeps them out.
 - **A notes file and a compute tool are in the headline.** A deployed agent has a scratchpad and a calculator at the very least, and the trait is reading a change, not reading a CSV. Notes come back next round below the record, never as the agent's own words, see [placement](../harness/prompts.md#placement). What the two tools add to each model's score is its bare gap, reported beside the headline from the [bare harness](../pilot/provider-checks.md#bare-harness) check, and how often it used each sits beside every score.
 
 | Tool | Takes | Returns |
 |---|---|---|
-| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole percentages that sum to 100 | A reading of each channel it bet on this round, and the output. A neutral error and a retry if the bets are not valid |
+| `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole percentages that sum to 100 | A reading of each channel it bet on this round. A neutral error and a retry if the bets are not valid |
 | `notes(text)`, named by the skin | Text to keep for next round. It replaces the last note whole, and its length is capped | The text as stored. Next round it comes back below the record |
 | `compute(code)`, named by the skin | Python to run in a sandbox that sees the record as `record.csv` and nothing else. No network, no engine, no seeds | What the code printed, truncated |
 
@@ -33,7 +33,7 @@ Jev and Timestral are stateless and do not write text, so each gets a provider t
 |---|---|
 | Classic LLM | Reads the record, returns its bets |
 | [Jev](https://docs.typesafe.ai/introduction) | Gets the record as state and one choice question, "which channel should the budget go on". Its probability map over the ten channels is read as its bets, normalised in our code |
-| [Timestral](https://github.com/mistralai/timestral) | Gets each channel's level history as a series and forecasts next round's levels. A named policy turns the forecast into bets, one run per policy. See [baselines](baselines.md) |
+| [Timestral](https://github.com/mistralai/timestral) | Gets each channel's readings as a series and forecasts next round's levels. A named policy turns the forecast into bets, one run per policy. See [baselines](baselines.md) |
 
 ## Rejected
 
@@ -55,7 +55,7 @@ Jev and Timestral are stateless and do not write text, so each gets a provider t
 | Five channels, or twenty | The other counts that split 100 evenly. Five is a leader, a runner-up, the hedge and two others, which is close to three channels. Twenty doubles the record and asks every skin for twenty names of one kind |
 | A floor worked out as the average channel | Exact for any count, as an even spread earns the plain mean of the levels. But the Uniform baseline is also played: it is Timestral's round 1 and it makes the test suite's records. So there would be two things under one name, and a floor no agent can play |
 | A channel count per skin | A different count is a different timeline, so [skin sensitivity](scoring.md#spread) could not pair by seed |
-| Fewer channels to shrink the record | Most of a row is the channels the agent bet on, as a zero bet or a blank level is a character or two. A provider that caches rereads the old rows at its cache price. So the saving is small, and [cost per run](../pilot/provider-checks.md#cost-per-run) measures it |
+| Fewer channels to shrink the record | Most of a row is the channels the agent bet on, as a zero bet or a blank reading is a character or two. A provider that caches rereads the old rows at its cache price. So the saving is small, and [cost per run](../pilot/provider-checks.md#cost-per-run) measures it |
 | A `read_record` tool | Lets a model never explore, and then lazy and confident read the same. A default row count is a hidden choice about how far back it can see, which is the thing the Slow drift scenario tests |
 | A rolling conversation | The agent's own reasoning piles up, and that is the one place a model will not question a claim ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Cost grows with the square of the game length. Out of the headline. What it changes is a [pilot check](../pilot/provider-checks.md#rolling-conversation) on every model, reported per model beside the headline |
 | Notes as the agent's own words | A model will not question a claim in its own voice ([Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role)). Notes come back below the record in the user message, and a tool message would need a call before it, which a fresh call lacks |

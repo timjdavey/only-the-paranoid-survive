@@ -1,6 +1,6 @@
 # Skins spec
 
-The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the four words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Its tests also take `uniform` from the baselines layer below it to play records. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
+The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the three words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Its tests also take `uniform` from the baselines layer below it to play records. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
 
 ## Pages
 
@@ -64,7 +64,7 @@ The harness takes a `Skin` from `load_skins` and uses it in six places, see [ins
 | Harness part | Reads |
 |---|---|
 | System prompt | `render_system_prompt(skin)` |
-| User message | `render_record(skin, record)`, which uses `skin.channels` and the four column words |
+| User message | `render_record(skin, record)`, which uses `skin.channels` and the three column words |
 | The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bets_name`, `skin.bets_text`, `skin.bad_call`, `skin.no_call` |
 | The `notes` and `compute` tools | `skin.notes_name`, `skin.notes_text`, `skin.compute_name`, `skin.compute_text`, see [tool text](../../harness/prompts.md#tool-text) |
 | The Jev provider | `skin.question`, with `skin.channels` as the options, see [providers](../../harness/providers.md#jev) |

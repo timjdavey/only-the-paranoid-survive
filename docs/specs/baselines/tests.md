@@ -10,7 +10,7 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BP2 | `uniform` returns the same split for any view | [policies](policies.md#the-four-fixed-baselines) |
 | BP3 | `complacent` round 1 equals `discerning` round 1 on 50 seeds, and the two are equal on every round of a No change timeline | [policies](policies.md#invariants) |
 | BP4 | `discerning` moves on every Down switch timeline of 50 seeds, in the first round the sleeper's or runner-up's base passes the leader's, and never before onset | [policies](policies.md#the-four-fixed-baselines) |
-| BP5 | `perfect` output is at least `discerning` output on every seed of every scenario | [policies](policies.md#the-four-fixed-baselines) |
+| BP5 | The levels `perfect` bets on sum to at least the levels `discerning` bets on, read from `timeline.levels`, on every seed of every scenario | [policies](policies.md#the-four-fixed-baselines) |
 | BP6 | Non-peeking policies give the same splits with `view.timeline` as the timeline and as `None` | [README](README.md#invariants) |
 | BP7 | Baseline order, **slow**: over 1000 seeds of every scenario, pooled output has `perfect ≥ discerning ≥ complacent`, with `discerning` above `complacent` on Down switch, and `uniform` below every other entry in `POLICIES`. That much holds whatever the knobs. Where the hedge rule and Scout rule land depends on the knobs, so it is the pilot's [baseline order](../../pilot/engine-checks.md#baseline-order) check and not a test | [policies](policies.md#the-four-fixed-baselines) |
 | BP8 | Uniform output, **slow**: over 1000 No change seeds, pooled, equals the mean level over all channels and rounds within 0.1% | [policies](policies.md#the-four-fixed-baselines) |
