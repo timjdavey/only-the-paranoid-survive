@@ -57,7 +57,10 @@ def test_bb3_a_channel_never_read(no_change, row, view_of):
     view = view_of(t, on_leader(row, t, flat(30)))
     belief, dials = bayesian.belief(view), view.dials
     jump = (dials.hedge_base[0] + dials.leader_base[1]) / 2
-    role = {t.runner_up: prior_mean(dials.leader_base) - prior_mean(dials.runner_up_gap_points), t.hedge: prior_mean(dials.hedge_base)}
+    role = {
+        t.runner_up: prior_mean(dials.leader_base) - prior_mean(dials.runner_up_gap_points),
+        t.hedge: prior_mean(dials.hedge_base),
+    }
     changed = 1 - (1 - bayesian.hazard) ** 30
     for c in range(10):
         if c == t.leader:

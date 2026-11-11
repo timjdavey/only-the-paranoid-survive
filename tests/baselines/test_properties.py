@@ -4,13 +4,24 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from paranoid.baselines import FORECAST_RULES, QUANTILE_LEVELS, bayesian
-from paranoid.engine import SCENARIOS, Game, make_timeline
+from paranoid.baselines import FORECAST_RULES, POLICIES, QUANTILE_LEVELS, bayesian
+from paranoid.engine import SCENARIOS, Game, make_timeline, play
 
 FAST = settings(max_examples=40, deadline=None)
 
 seeds = st.integers(min_value=0, max_value=2**64 - 1)
 scenario_names = st.sampled_from(list(SCENARIOS))
+
+
+@FAST
+@given(seed=seeds, name=scenario_names, key=st.sampled_from([key for key in POLICIES if key != "bayesian"]))
+def test_bh1_every_policy_plays_valid_splits(seed, name, key):
+    t = make_timeline(SCENARIOS[name], seed)
+    record = play(POLICIES[key](), t)
+    assert len(record) == t.config.rounds
+    for r in record.rows:
+        assert len(r.bets) == t.config.channels and sum(r.bets) == t.config.budget
+        assert all(type(bet) is int and bet >= 0 for bet in r.bets)
 
 
 @st.composite

@@ -1,4 +1,4 @@
-"""Every fixed baseline as a pure policy. See docs/specs/baselines/README.md."""
+"""Every fixed baseline as a pure policy. See docs/specs/baselines/README.md#exports."""
 
 from .bayesian import BAYESIAN_RULES, HAZARDS, LOOKAHEAD_DRAWS, Bayesian, Belief, bayesian
 from .forecast import (
@@ -16,6 +16,7 @@ from .forecast import (
     odds,
     top_pick,
 )
+from .names import POLICIES
 from .policies import complacent, discerning, perfect, uniform
 from .rules import HedgeRule, ScoutRule, hedge_rule, scout_rule
 
@@ -24,6 +25,7 @@ __all__ = [
     "discerning",
     "complacent",
     "perfect",
+    "POLICIES",
     "HedgeRule",
     "ScoutRule",
     "hedge_rule",

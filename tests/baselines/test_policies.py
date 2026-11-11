@@ -1,4 +1,7 @@
-"""BP1 to BP6, BP9, BP10 and BP13, see docs/specs/baselines/tests.md#policies."""
+"""BP1 to BP5, BP10 and BP13 for the four fixed baselines, see docs/specs/baselines/tests.md#policies.
+
+The rows over every entry in POLICIES are in test_names.py.
+"""
 
 import dataclasses
 
@@ -54,27 +57,6 @@ def test_bp5_perfect_beats_discerning_every_round(name):
         t = make_timeline(SCENARIOS[name], seed)
         best, yardstick = play(perfect, t), play(discerning, t)
         assert all(p.output >= d.output for p, d in zip(best.rows, yardstick.rows))
-
-
-@pytest.mark.parametrize("policy", [uniform, complacent], ids=["uniform", "complacent"])
-def test_bp6_non_peeking_ignore_the_timeline(policy, view_of):
-    t = make_timeline(SCENARIOS["switch_then_shock"], 3)
-    record = play(policy, t)
-    for k in range(len(record)):
-        rows = record.rows[:k]
-        assert policy(view_of(t, rows, peeks=False)) == policy(view_of(t, rows, peeks=True))
-
-
-@pytest.mark.parametrize("policy", list(FIXED.values()), ids=list(FIXED))
-def test_bp9_peeks_is_a_class_var(policy):
-    assert isinstance(policy.peeks, bool)
-    assert "peeks" not in {f.name for f in dataclasses.fields(policy)}
-    assert callable(policy)
-    assert dataclasses.is_dataclass(policy) and type(policy).__dataclass_params__.frozen
-
-
-def test_bp9_only_the_yardstick_peeks():
-    assert {name for name, policy in FIXED.items() if policy.peeks} == {"discerning", "perfect"}
 
 
 def test_bp10_discerning_never_moves_on_a_short_up_switch(picks):
