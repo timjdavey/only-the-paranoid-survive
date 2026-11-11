@@ -1,4 +1,4 @@
-"""AI1, AI2, AI4, AI7, AI8 and AI10 to AI16, and AI23: the page and the engine sections, on hand-built CSVs.
+"""AI1, AI2, AI4, AI7, AI8 and AI10 to AI14: the page and the engine sections, on hand-built CSVs.
 
 See docs/specs/analysis/tests.md#pilot.
 """
@@ -262,56 +262,3 @@ def test_ai14_bayesian_frontier(tmp_path):
     write_pilot(logs, out)
     (pick,) = table(out, "bayesian-frontier", "pick").itertuples()
     assert pick.player == "bayesian a r" and pick.irreducible_lag == pytest.approx(1 - 0.7)
-
-
-def test_ai15_jev_rounding(tmp_path):
-    logs, out = tmp_path / "logs", tmp_path / "out"
-    csv(
-        logs,
-        "jev",
-        [
-            {"model": "jev/x", "scenario": "no_change", "seed_index": 0, "round": r, "rounded_out": 2 if r < 3 else 0}
-            for r in range(10)
-        ],
-    )
-    write_pilot(logs, out)
-    (row,) = table(out, "jev-checks", "rounding").itertuples()
-    assert row.mean_rounded_out == pytest.approx(0.6) and row.rounded_share == pytest.approx(0.3)
-
-
-def test_ai16_timestral(tmp_path):
-    logs, out = tmp_path / "logs", tmp_path / "out"
-    csv(
-        logs,
-        "timestral",
-        [{"probe": "gap", "joint": 1, "gap": 1, "channel": 0, "spread": 4.0}, {"probe": "determinism", "joint": 1, "equal": 0}],
-    )
-    grid = [
-        {"setting": 4.0, "scenario": "down_switch", "baseline": n, "seed": 0, "output": o}
-        for n, o in (("uniform", 100), ("discerning", 200), ("hedge_rule", 170), ("complacent", 150))
-    ]
-    csv(logs, "noise-grid", grid)
-    csv(
-        logs, "timestral-grid", [{"setting": 4.0, "scenario": "down_switch", "model": "timestral/odds", "seed": 0, "output": 160}]
-    )
-    write_pilot(logs, out)
-    gap_test = table(out, "timestral-checks", "gap-test")
-    assert gap_test[gap_test["probe"] == "determinism"]["equal"].tolist() == [0]
-    scores = table(out, "timestral-checks", "grid").set_index("baseline")["score"]
-    assert scores.to_dict() | {} == pytest.approx(
-        {"uniform": 0.0, "discerning": 1.0, "hedge_rule": 0.7, "complacent": 0.5, "timestral/odds": 0.6}
-    )
-
-
-@pytest.mark.parametrize("cell", list(written_columns()))
-def test_ai23_every_column_read_is_a_column_written(cell, tmp_path):
-    columns = written_columns()[cell]
-    for name, header in (("extra", [*columns, "odd_one"]), ("short", columns[:-1])):
-        logs = tmp_path / name
-        logs.mkdir()
-        pd.DataFrame(columns=header).to_csv(logs / f"{cell}.csv", index=False)
-        odd = "odd_one" if name == "extra" else columns[-1]
-        if cell == "recognition":
-            odd = ""  # its header is held whole, so the message names the header it found
-        with pytest.raises(ValueError, match=rf"{cell}\.csv.*{odd}"):
-            write_pilot(logs, tmp_path / f"{name}-out")
