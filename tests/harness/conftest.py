@@ -90,7 +90,12 @@ class Script:
         return self.then
 
     def model(self):
-        return get_model("mockllm/model", custom_outputs=self)
+        return self.model_of(self)
+
+    @staticmethod
+    def model_of(answer):
+        """A mockllm model whose every reply comes from `answer(input, tools, tool_choice, config)`."""
+        return get_model("mockllm/model", custom_outputs=answer)
 
 
 def run(model, *, log_dir: Path | None = None, epochs: int | None = None, sandbox: str | None = None, **task_args):
