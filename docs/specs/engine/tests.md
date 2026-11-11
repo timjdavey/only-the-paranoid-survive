@@ -1,6 +1,6 @@
 # Tests
 
-Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engine, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, and they import `paranoid.engine` alone, see [layout](../../harness/layout.md#six-layers). Where a test needs a policy it builds a stub in the test file, see [stub policies](#stub-policies), and a test that needs a real baseline lives in the [baselines suite](../baselines/tests.md). Tests marked **slow** run a thousand seeds and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
+Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engine, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, and they import `paranoid.engine` alone, see [layout](../../harness/layout.md#six-layers). Where a test needs a policy it uses a stub from `tests/engine/conftest.py` or builds one in the test file, see [stub policies](#stub-policies), and a test that needs a real baseline lives in the [baselines suite](../baselines/tests.md). Tests marked **slow** run a thousand seeds or more and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
 
 ## Config
 
@@ -56,6 +56,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | ET35 | Twin timelines, Up switch then down switch and No change: `levels` equal from the end of the undo's ramp to the last round | [timeline](timeline.md#twin-timelines) |
 | ET36 | No two alike, redraw: a config with two `ShockSpec()` events on 200 seeds. Consecutive shocks always differ in at least two draws, `gap` excluded. Every first event has `numbers["tries"] == 1`, and at least one second event has `tries > 1` | [timeline](timeline.md#no-two-alike) |
 | ET37 | `inertia_cap`: a config with it set has a different hash from one without, and the same arrays and events on 20 seeds | [config](config.md#fields) |
+| ET38 | `climate_leader(1)` is `leader` on a No change timeline, and `climate_leader(0)` and `climate_leader(rounds + 1)` raise `ValueError` | [timeline](timeline.md#interface) |
 
 ## Game
 
@@ -121,4 +122,4 @@ With `hypothesis`, kept fast with a small example count.
 
 ## Not decided
 
-- Tolerances in ET6, ET7 and ET17 are first guesses. Tighten them once the suite runs.
+- Tolerances in ET6, ET7, ET17 and ET30 are first guesses. Tighten them once the suite runs.

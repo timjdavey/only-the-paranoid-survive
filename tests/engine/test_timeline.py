@@ -113,11 +113,12 @@ def test_et28_arrays_are_read_only():
             getattr(t, name)[0, ...] = 0.0
 
 
-def test_et28_climate_leader_rejects_a_round_outside_the_run():
+def test_et38_climate_leader_rejects_a_round_outside_the_run():
     t = make_timeline(SCENARIOS["no_change"], 0)
     assert t.climate_leader(1) == t.leader
-    with pytest.raises(ValueError):
-        t.climate_leader(0)
+    for round in (0, t.config.rounds + 1):
+        with pytest.raises(ValueError):
+            t.climate_leader(round)
 
 
 @pytest.mark.parametrize("name", SCENARIOS)
