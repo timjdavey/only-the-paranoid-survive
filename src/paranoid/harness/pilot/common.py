@@ -67,20 +67,42 @@ def seed_rows(args: CellArgs, work: Work, blocks: Iterable[Any]) -> Iterator[Seq
 
 
 def write_csv(args: CellArgs, name: str, columns: Sequence[str], rows: Callable[[], Iterable[Sequence[Any]]]) -> list[Path]:
-    """`<out>/<name>.csv` with exactly these columns. A dry run prints the path and columns and builds no row."""
+    """`<out>/<name>.csv` with exactly these columns, written whole or not at all. A dry run builds no row.
+
+    Every row is built first, then written to a temp file that replaces the old one, so a cell that raises
+    part way leaves the old file as it was. With --only, the other models' rows already in it are kept.
+    """
     path = args.out / f"{name}.csv"
     if args.dry_run:
         print(f"{path}: {', '.join(columns)}")
         return []
+    built = []
+    for row in rows():
+        if len(row) != len(columns):
+            raise RuntimeError(f"{name}: a row of {len(row)} values for {len(columns)} columns")
+        built.append(["" if value is None else value for value in row])
+    kept = other_models_rows(args, path, columns)
     args.out.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as file:
+    temp = path.with_name(f"{path.name}.tmp")
+    with temp.open("w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(columns)
-        for row in rows():
-            if len(row) != len(columns):
-                raise RuntimeError(f"{name}: a row of {len(row)} values for {len(columns)} columns")
-            writer.writerow(["" if value is None else value for value in row])
+        writer.writerows(kept + built)
+    os.replace(temp, path)
     return [path]
+
+
+def other_models_rows(args: CellArgs, path: Path, columns: Sequence[str]) -> list[list[str]]:
+    """The rows in `path` of every model but `--only`'s, in file order. None without --only or a model column."""
+    if args.only is None or "model" not in columns or not path.exists():
+        return []
+    with path.open(newline="", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        header = next(reader, [])
+        if header != list(columns):
+            raise ValueError(f"{path} has the columns {', '.join(header)}, not {', '.join(columns)}, so --only cannot keep its rows")
+        at = header.index("model")
+        return [row for row in reader if row[at] != args.only]
 
 
 def defaults() -> list[tuple[str, Policy]]:

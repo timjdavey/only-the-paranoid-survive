@@ -35,9 +35,18 @@ def built(execute: Callable[..., Awaitable[str]], name: str, text: str, param: s
     return ToolDef(execute, name=name, description=text, parameters=parameters).as_tool()
 
 
+def record_blocks(text: str) -> list[str]:
+    """The record cut after every \\n and nowhere else: the header, then one piece per row. Nothing added or dropped.
+
+    Not splitlines, which also cuts at \\x0b, U+2028 and other breaks.
+    """
+    pieces = text.split("\n")
+    return [piece + "\n" for piece in pieces[:-1]] + ([pieces[-1]] if pieces[-1] else [])
+
+
 def played_line(skin: Skin, store: RunStore) -> str:
     """The header and the last line of the record: the round just played, in the record's own shape."""
-    lines = render_record(skin, store.record()).splitlines(keepends=True)
+    lines = record_blocks(render_record(skin, store.record()))
     return lines[0] + lines[-1]
 
 

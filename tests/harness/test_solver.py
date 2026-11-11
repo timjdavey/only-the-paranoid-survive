@@ -1,9 +1,12 @@
-"""HS2 to HS6, HS10, HS16 and HS17, see docs/specs/harness/tests.md#solver."""
+"""HS2 to HS6, HS10, HS16, HS17 and HS22 to HS24, see docs/specs/harness/tests.md#solver."""
 
+import tempfile
+
+import inspect_ai
 from inspect_ai.model import ChatMessageSystem, ChatMessageTool, ChatMessageUser, GenerateConfig
 
 from paranoid.engine import Record
-from paranoid.harness import BLOCK_CACHE_APIS, record_blocks, tool_choice_for
+from paranoid.harness import BLOCK_CACHE_APIS, paranoid, record_blocks, tool_choice_for
 from paranoid.skins import render_record, render_system_prompt
 
 EVEN = [10] * 10
@@ -95,3 +98,44 @@ def test_hs17_record_blocks(example, played, helpers, monkeypatch):
     helpers.run(script.model(), tools="notes")
     blocks = script.calls[2][0][1].content
     assert len(blocks) == 4 and blocks[-1].text == "abc"
+
+
+def test_hs22_a_tool_that_raised_errors_the_sample(example, helpers, monkeypatch):
+    compute = (example.compute_name, {example.compute_param: "import sys; sys.stdout.buffer.write(b'ok \\xff')"})
+    script = helpers.Script([helpers.reply(compute)], then=helpers.reply(submit_call(example)))
+    sample = helpers.run(script.model(), tools="compute", sandbox="local").samples[0]
+    assert sample.error is None and helpers.store_of(sample).compute_rounds == 1
+
+    class Refusing:
+        def as_type(self, cls):
+            raise TypeError("not Docker")
+
+        async def write_file(self, file, contents):
+            pass
+
+        async def exec(self, *args, **kwargs):
+            raise PermissionError(13, "Permission denied", "/secret/place")
+
+    monkeypatch.setattr("paranoid.harness.tools.sandbox", lambda: Refusing())
+    script = helpers.Script([helpers.reply(compute)], then=helpers.reply(submit_call(example)))
+    task = paranoid(scenario="no_change", seeds="0", tools="compute")
+    (log,) = inspect_ai.eval(
+        task, model=script.model(), display="none", log_dir=tempfile.mkdtemp(), sandbox="local", log_realtime=False
+    )
+    error = log.samples[0].error
+    assert error is not None and "RuntimeError" in error.traceback
+    assert example.compute_name in error.message and "permission" in error.message
+    assert "/secret/place" not in error.message
+
+
+def test_hs23_the_record_is_cut_at_newlines_alone():
+    text = "a\x0bb\n1\u2028x\n2,3\n"
+    assert record_blocks(text) == ["a\x0bb\n", "1\u2028x\n", "2,3\n"]
+    assert "".join(record_blocks(text)) == text
+    assert record_blocks("a\nb") == ["a\n", "b"] and record_blocks("") == []
+
+
+def test_hs24_a_model_length_reply_is_a_cut_off(example, helpers):
+    script = helpers.Script([helpers.say("long", "model_length")], then=helpers.reply(submit_call(example)))
+    store = helpers.store_of(helpers.run(script.model()).samples[0])
+    assert store.cut_offs == 1 and store.no_calls == 1

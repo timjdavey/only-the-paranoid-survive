@@ -41,7 +41,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 ### Subcommands
 
 - **`main` loads `.env` first**, with `python-dotenv`, never overriding a variable already set. So `run`'s skin check sees `PARANOID_SKINS` from the file, as inspect's own command does.
-- **`main`** parses `argv` with `argparse`, dispatches, and returns 0 on success and 1 on a `ValueError`, whose message it prints. Any other exception propagates with its traceback.
+- **`main`** parses `argv` with `argparse`, dispatches, and returns 0 on success and 1 on a `ValueError`, whose message it prints. Any other exception propagates with its traceback, bar one: `run` catches an eval that fails, prints it and carries on to the next, then returns 1, see [run](#run).
 - **`run` and `pilot`** are built in.
 - **Other subcommands come from the entry point group `paranoid.commands`.** The analysis layer registers `analyse = "paranoid.analysis.cli:analyse"`, see [analysis command](../analysis/command.md#dispatch). `main` discovers them with `importlib.metadata.entry_points` and loads one only when it is named, so the harness never imports the analysis layer and the layer rule holds, see [layout](../../harness/layout.md#six-layers).
 

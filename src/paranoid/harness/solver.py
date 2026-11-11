@@ -25,23 +25,19 @@ from paranoid.skins import Skin, render_record, render_system_prompt
 
 from .config import check_tool_choice, parse_tools
 from .store import RunStore, StoredRow, timeline_for, uncapped
-from .tools import NOTES_CAP, compute, notes, reset_sandbox, submit, write_record
+from .tools import NOTES_CAP, compute, notes, record_blocks, reset_sandbox, submit, write_record
 
 # apis whose prompt cache matches by content block. Empty until the two Anthropic checks pass,
 # see docs/specs/harness/solver.md#verify-before-code. Then ("anthropic",).
 BLOCK_CACHE_APIS: tuple[str, ...] = ()
 STORE_KEYS = ("scenario", "seed_set", "seed_index", "skin", "rounds", "inertia", "own_scale")
+CUT_OFFS = ("max_tokens", "model_length")  # the stop reasons inspect gives a reply the token limit cut
 
 
 def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]:
     """`auto` when the api is anthropic and the config asks for thinking, else `any`."""
     thinking = config.reasoning_effort not in (None, "none") or config.reasoning_tokens is not None
     return "auto" if api == "anthropic" and thinking else "any"
-
-
-def record_blocks(text: str) -> list[str]:
-    """The record cut after every line end: the header, then one piece per row. Nothing added or dropped."""
-    return text.splitlines(keepends=True)
 
 
 def api_name() -> str:
@@ -72,12 +68,17 @@ def fill(store: RunStore, metadata: dict[str, Any]) -> None:
 
 
 def settle(skin: Skin, store: RunStore, messages: list[ChatMessage]) -> set[str]:
-    """Put the skin's words on every refused call of this try, and return the tools that ran."""
+    """Put the skin's words on every refused call of this try, and return the tools that ran.
+
+    A tool that raised is infrastructure, so it raises. Its message can hold a path, so only its type is named.
+    """
     ran: set[str] = set()
     for message in messages:
         if not isinstance(message, ChatMessageTool):
             continue
-        if message.error is not None and message.error.type == "parsing":
+        if message.error is not None and message.error.type != "parsing":
+            raise RuntimeError(f"the {message.function} tool raised an error of type {message.error.type}")
+        if message.error is not None:
             if message.function == skin.tool_name:
                 store.bad_calls += 1
                 message.content = skin.bad_call
@@ -150,7 +151,7 @@ async def play_round(state: TaskState, generate: Generate, skin: Skin, store: Ru
         calls = reply.tool_calls if reply is not None and reply.tool_calls else []
         if not any(call.function == skin.tool_name for call in calls):
             store.no_calls += 1
-            if state.output.stop_reason == "max_tokens":
+            if state.output.stop_reason in CUT_OFFS:
                 store.cut_offs += 1
             state.messages.append(ChatMessageUser(content=skin.no_call))
     else:

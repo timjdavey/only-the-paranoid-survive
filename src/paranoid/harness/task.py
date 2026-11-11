@@ -3,6 +3,7 @@
 One sample is one run: one scenario, one seed, one skin. A held-out seed's value never reaches the log.
 """
 
+import os
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from .solver import round_loop
 from .version import harness_version
 
 COMPOSE = Path(__file__).parent / "compose.yaml"
+TRACEBACK_LOCALS = "INSPECT_TRACEBACK_LOCALS"  # inspect prints every local in a traceback when it is 1
 
 
 @task
@@ -37,6 +39,8 @@ def paranoid(
 ) -> Task:
     """One sample per scenario per seed. See docs/specs/harness/task.md#interface."""
     names = parse_scenarios(scenario)
+    if seed_set_of(seeds) == "held-out" and os.environ.get(TRACEBACK_LOCALS) == "1":
+        raise ValueError(f"{TRACEBACK_LOCALS}=1 would print held-out seeds into a traceback. Unset it to play them")
     pilot_tools = parse_tools(tools)
     check_tool_choice(tool_choice)
     the_skin = skin_named(skin)

@@ -20,7 +20,7 @@ def round_loop(
 def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]   # api as ModelName(model).api
 
 BLOCK_CACHE_APIS: tuple[str, ...] = ()   # apis whose prompt cache matches by content block. Off until checked
-def record_blocks(text: str) -> list[str]   # the record cut after every line end
+def record_blocks(text: str) -> list[str]   # the record cut after every \n
 
 def submit(skin: Skin) -> Tool                     # one parameter, named skin.bets_name, a list of ints. Returns str
 def notes(skin: Skin, cap: int = 2000) -> Tool     # one parameter, named skin.notes_param, a str. Returns str
@@ -43,7 +43,7 @@ def compute(skin: Skin) -> Tool                    # one parameter, named skin.c
 
 How the record is cut into content blocks, and nothing else. The text is the same either way, so this moves the bill and never the prompt, see [prompt caching](../../harness/models.md#prompt-caching).
 
-- **`record_blocks(text)`** cuts the record after every line end and returns the pieces in order: the header line, then one piece per row. Nothing is added, dropped or stripped.
+- **`record_blocks(text)`** cuts the record after every `\n`, and nowhere else, and returns the pieces in order: the header line, then one piece per row. Nothing is added, dropped or stripped. Python's `splitlines` would also cut at `\x0b`, U+2028 and other breaks, so it is never used on a record. The submit tool's [result](#submit) takes the header and last line from the same cut.
 - **Used when `ModelName(get_model()).api` is in `BLOCK_CACHE_APIS`.** Each piece is one text block of the user message. Any other api gets the record as one block.
 - **`BLOCK_CACHE_APIS` ships empty**, so every api gets one block until both Anthropic checks in [verify before code](#verify-before-code) pass. Then it becomes `("anthropic",)`, and nothing else changes.
 - **Why.** Anthropic's cache matches by content block, and a record sent as one growing block never matches, see [prompt caching](../../harness/models.md#prompt-caching).
@@ -57,7 +57,7 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 
 - **Before the try** the solver sets `store.awaiting_submit = True`. A valid submit sets it back to false, so the solver knows the round was played by the store, not by parsing the reply.
 - **A valid call** ends the round. The try count for the round is appended to `store.tries`.
-- **A reply with no call to the skin's tool**, whatever else it called or said, is a no call: `store.no_calls += 1` and a user message of `skin.no_call` is appended. A reply whose `stop_reason` is `"max_tokens"` also adds one to `store.cut_offs`, see [sampling](../../harness/models.md#sampling).
+- **A reply with no call to the skin's tool**, whatever else it called or said, is a no call: `store.no_calls += 1` and a user message of `skin.no_call` is appended. A reply whose `stop_reason` is `"max_tokens"` or `"model_length"` also adds one to `store.cut_offs`, see [sampling](../../harness/models.md#sampling).
 - **A call the engine rejected** already carries `skin.bad_call` in its tool message, and the tool counted it, see [submit](#submit). The solver appends nothing more.
 - **A call inspect refused** never ran the tool. The solver puts the skin's words on its tool message and counts it, see [refused calls](#refused-calls).
 - **Within a round the messages grow** with each reply and its retry message, so the model sees what it got wrong. Across rounds nothing survives, see step 2.
@@ -83,6 +83,7 @@ inspect checks every tool call against its tool's schema before the tool runs, s
 - **After each try the solver rewrites every refused call of that try.** It sets the tool message's `content` and clears its `error`, so the next call reads a plain result.
 - **A refused call to the skin's tool** gets `skin.bad_call` and adds one to `store.bad_calls`, as a call the engine rejected does.
 - **Any other refused call** gets `skin.no_call`. The reply is then a no call like any other with no call to the skin's tool, see [tries](#tries).
+- **A tool error that is not `parsing`** means a tool raised and inspect caught it, such as a `PermissionError` from the sandbox. The solver raises `RuntimeError` naming the tool and the error type, never the message, which can hold a path. The sample errors as infrastructure, and the model never reads inspect's words.
 - **So the model reads the skin's words and nobody else's**, the same on every provider.
 
 ### Notes
@@ -134,7 +135,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - `store.notes_rounds ≤ len(store.tries)` and `store.compute_rounds ≤ len(store.tries)`.
 - With `rolling` on, round `n` starts with the two messages a fresh call would send, then every reply, tool message and retry message of rounds 1 to `n − 1` in order, then the user message a fresh call would send for round `n`. So the last user message is the same with `rolling` on or off.
 - `store.awaiting_submit` is false whenever the solver is between rounds, and after a give up.
-- The solver raises nothing of its own bar a failed [sandbox reset](#compute). An exception in a run comes from inspect, a provider, the network or the sandbox, so it always means infrastructure.
+- The solver raises nothing of its own bar a failed [sandbox reset](#compute) and a [tool that raised](#refused-calls). An exception in a run comes from inspect, a provider, the network or the sandbox, so it always means infrastructure.
 - When a call is made, no tool message from an earlier try holds an `error`. Every one holds a row of the record, a skin's words, the saved note or compute's output.
 
 ## Pilot decides
@@ -171,6 +172,7 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 | What Docker needs from Python | Nothing beyond inspect_ai. Its Docker sandbox drives the `docker` command line |
 | Does `compose.yaml` run, read-only root and all | Yes. HS12 passes on Docker 29.5 under Colima, run on 2026-11-11. inspect writes `record.csv` to the `tmpfs` working directory, the code reads it, the network is unreachable and no key is in the environment |
 | Does a restart clear the sandbox | Yes. HS21 passes on Docker 29.5 under Colima, run on 2026-11-11. A file in `/work`, `/tmp` and `/dev/shm`, a SysV segment and a listening process all survive a second call in the round and are gone the next round. One `docker compose restart --timeout 0` took 0.13 seconds |
+| Can the model's code make a tool error that is not `parsing` | Not by its output. Bytes that are not UTF-8 come back with replacement characters, on the `local` sandbox and on Docker, run on 2026-11-11. A null byte in the code is refused as `parsing` |
 | What a memory bomb returns under `mem_limit` alone | Nothing. The kernel kills Python with exit code 137 and no output. With `ulimits` `data` below `mem_limit` it returns a `MemoryError` traceback |
 
 - **So the rule above stands for Claude**, for a wider reason than a refused call: `auto` is the only choice that leaves thinking on.

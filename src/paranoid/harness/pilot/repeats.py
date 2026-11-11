@@ -16,19 +16,38 @@ PICKS = 10
 EPOCHS = 4
 
 
-def widest(args: CellArgs) -> tuple[ModelRow, str, list[int]] | None:
-    """The row and scenario with the widest SD of run_score in the seeds logs, and the ten positions picked."""
-    folder = args.out / "seeds"
+def newest_whole_logs(folder: Path) -> list[str]:
+    """The seeds logs whose status is success, the newest per model and reasoning, in file order."""
     logs = sorted(info.name for info in list_eval_logs(str(folder))) if folder.is_dir() else []
-    best: tuple[float, str, str, list] | None = None
+    newest: dict[tuple, tuple[str, str]] = {}
     for location in logs:
+        header = read_eval_log(location, header_only=True)
+        if header.status != "success":
+            continue
+        key = (header.eval.model, (header.eval.metadata or {}).get("reasoning"))
+        if key not in newest or header.eval.created > newest[key][0]:
+            newest[key] = (header.eval.created, location)
+    kept = {location for _, location in newest.values()}
+    return [location for location in logs if location in kept]
+
+
+def widest(args: CellArgs) -> tuple[ModelRow, str, list[int]] | None:
+    """The row and scenario with the widest SD of run_score in the seeds logs, and the ten positions picked.
+
+    Only logs that ran whole and are the newest of their model and reasoning count, and only scenarios of ten or
+    more scored samples, so the ten picks are ten different seeds.
+    """
+    best: tuple[float, str, str, list] | None = None
+    for location in newest_whole_logs(args.out / "seeds"):
         log = read_eval_log(location)
         by_scenario: dict[str, list] = {}
         for sample in log.samples or []:
             if sample.scores and sample.scores["gain"].value["run_score"] is not None:  # type: ignore[index]
                 by_scenario.setdefault(sample.metadata["scenario"], []).append(sample)
         for scenario, samples in by_scenario.items():
-            spread = float(np.std([s.scores["gain"].value["run_score"] for s in samples], ddof=1)) if len(samples) > 1 else 0.0
+            if len(samples) < PICKS:
+                continue
+            spread = float(np.std([s.scores["gain"].value["run_score"] for s in samples], ddof=1))
             if best is None or spread > best[0]:
                 best = (spread, location, scenario, samples)
     if best is None:
