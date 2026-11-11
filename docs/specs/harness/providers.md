@@ -34,7 +34,7 @@ class JevClient(Protocol):
 ### Registration
 
 - **`providers/__init__.py`** registers `baseline`, `jev` and `timestral` with `@modelapi(name=...)`, each returning its class. `pyproject.toml` lists the module under the `inspect_ai` entry point, so `--model baseline/complacent` resolves with no import by the caller, see [naming](../../harness/layout.md#naming).
-- **The model name after the slash** picks the policy, the Jev model or the Timestral policy. An unknown one raises `ValueError` on construction, naming the known ones.
+- **The model name after the slash** picks the policy, the Jev model or the Timestral policy. inspect builds the provider with that bare name, so `--model timestral/top-pick` builds `TimestralAPI("top-pick")`. An unknown one raises `ValueError` on construction, naming the known ones.
 - **No key is read** by the baseline and Timestral providers. Jev reads `TYPESAFE_API_KEY`, see [keys](../../harness/models.md#keys).
 
 ### Shared behaviour
@@ -57,7 +57,7 @@ class JevClient(Protocol):
 
 ### Jev
 
-- **`JevAPI`** takes a `client: JevClient`. The default is `TypesafeClient`, a thin wrapper over `typesafe-sdk` that is imported lazily, so the default install needs the package only when Jev runs. Tests pass a fake.
+- **`JevAPI`** takes a `client: JevClient`. The default is `TypesafeClient`, a thin wrapper over `typesafe-sdk`. The package is a default dependency and is imported lazily, inside `TypesafeClient`, so nothing but a Jev run loads it. Its module is `typesafe_sdk`. Tests pass a fake.
 - **`TypesafeClient.ask`** holds one `AsyncTypeSafeClient(model=<the name after the slash>)`, which reads `TYPESAFE_API_KEY` itself, and awaits `client.system_one(state=state, questions={"channel": Choice(instructions=question, criteria={option: None for option in options})})`. The answer is `response.choices["channel"]`. Its `probabilities` is a dict keyed by option, so `JevAnswer.probabilities` reads it in option order, and an option the reply leaves out raises `ValueError`. `confidence` is the answer's own, and `raw` is `response.model_dump()`. The shape is in [checked](#checked).
 - **State** is the text of the system message and the text of the user message in `input`, joined by two newlines. That is exactly what an LLM sees this round, notes included when the pilot turns them on.
 - **Question and options** are the skin's `question` and `channels`, in channel index order. The provider loads the skin by `store.skin` from `load_skins()`, called once per process and kept.

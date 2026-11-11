@@ -13,7 +13,7 @@ How the design maps onto [inspect_ai](https://inspect.aisi.org.uk). One run of t
 | `submit(bets)` | A tool that returns the skin's `bad_call` when the engine rejects the bets | That text is the neutral retry. A text reply with no call gets a retry too |
 | Game state: the scenario, the seed, the record, the retry counts | A `StoreModel` on the sample, see the [task spec](../specs/harness/task.md#store) | Written to the log, so a run can be replayed from any round. The timeline is rebuilt from the seed, never stored, see [timeline](../specs/engine/timeline.md#interface) |
 | A run's output beside its baselines | A custom `@scorer` that records the run's output and the Uniform and Discerning baselines' on the same timeline | The run score is the gain over the gap, see [pooling seeds](../design/scoring.md#pooling-seeds) |
-| A run that gives up, see the [retry rule](prompts.md#retry-rule) | The solver returns with `gave_up` in the store and the scorer gives a gain of 0 | Never an error, so an error in a log is infrastructure. `retry_on_error=1` and `fail_on_error=0.1` on the `@task` handle those, set in the task so nobody can forget them |
+| A run that gives up, see the [retry rule](prompts.md#retry-rule) | The solver returns with `gave_up` in the store and the scorer gives a gain of 0 | Never an error, so an error in a log is infrastructure. `fail_on_error=0.1` on the `@task` and `retry_on_error=1` on every eval `paranoid run` makes handle those. `Task` takes no `retry_on_error`, so a hand-typed `inspect eval` passes `--retry-on-error 1`, see [task settings](../specs/harness/task.md#task-settings) |
 | Scenario score, error bars, headline, weakest trait | Custom `@metric`s grouped by the `scenario` field, see [metrics](#metrics) | Bootstrap seeds within a scenario, never across |
 | Baselines, Jev, Timestral | Custom `ModelAPI` providers | Same solver, same seeds, same logs as an LLM |
 | `notes` and `compute`, see [tools](../design/interface.md#tools) | `StoreModel` for notes, an inspect sandbox for compute | The sandbox needs Docker, see [running](running.md#setup) |
@@ -34,7 +34,7 @@ Each round the solver:
 
 - **Registered** under the `inspect_ai` entry point in `pyproject.toml`, so `--model baseline/complacent` resolves.
 - **Each implements `generate`** and returns a `submit` tool call, never text. The solver cannot tell a provider from an LLM.
-- **A provider ignores the messages it is sent** and reads the store instead. The record an LLM sees and the timeline a baseline sees are both on the sample. This leans on inspect's per-sample `store()` being in scope inside `generate`, which is to be confirmed when the harness is built.
+- **A provider ignores the messages it is sent** and reads the store instead. The record an LLM sees and the timeline a baseline sees are both on the sample. This leans on inspect's per-sample `store()` being in scope inside `generate`, which it is, see [providers checked](../specs/harness/providers.md#checked).
 - **Baselines** call the [baselines layer](../specs/baselines/README.md)'s policies. The Perfect and Discerning baselines read the timeline. The Complacent baseline reads round 1. The Uniform baseline reads nothing.
 - **Jev** reads the prompt and calls out. **Timestral** is a policy from the [forecasters layer](../specs/forecasters/README.md), played as a baseline is. See [providers](providers.md).
 

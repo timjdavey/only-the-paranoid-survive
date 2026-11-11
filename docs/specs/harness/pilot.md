@@ -33,7 +33,7 @@ ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to
 - **Engine cells play positions `0` to `seeds − 1`** of the public list, with `load_seeds("public")`. A list shorter than `seeds` raises `ValueError` naming `PARANOID_PILOT_SEEDS`, which caps `seeds` when set and is the harness's one test hook, see [tests](tests.md).
 - **A knob the pilot moves is a `replace` on the config in memory**, through `scenario_config` where it has an arg and `dataclasses.replace` otherwise, so the engine's validation runs again. Nothing here writes a config or a spec. The frozen defaults change only through [decisions](../../pilot/decisions.md).
 - **Cells that need a model** read `--models`. `recognition` and `up-against-down` take the first `llm` row unless `--only` names one. `seeds`, `channel-order`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
-- **Every eval** passes `config=generate_config(row, row.reasoning[0])`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `run` does by default, see [run](command.md#run). The task's other args stay at their defaults unless a cell names them, so a provider cell plays the headline tools, `notes,compute`, and needs Docker as a headline run does.
+- **Every eval** passes `generate_config(row, row.reasoning[0])` as keywords, as `run` does, `retry_on_error=1`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `run` does by default, see [run](command.md#run). The task's other args stay at their defaults unless a cell names them, so a provider cell plays the headline tools, `notes,compute`, and needs Docker as a headline run does.
 - **The seed positions pair.** Every provider cell plays `seeds="0-19"`, so every pilot log pairs by seed with every other, see [paired gap](../analysis/scores.md#paired-gap).
 - **Columns that do not apply are empty**, which pandas reads as NA. A round column that means "never" is `0`, as rounds start at 1.
 - **`--dry-run`** prints each eval call or each CSV's path and columns, and writes nothing.
@@ -124,7 +124,7 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 ### Provider cells
 
-Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out / <cell>, ...)` with the shared arguments above. The task args below are the ones that differ from the task's defaults, see [task](task.md#interface).
+Each calls `inspect_ai.eval(paranoid, model=row.id, task_args=..., log_dir=out / <cell>, ...)`, the `paranoid` task function itself, with the shared arguments above. The task args below are the ones that differ from the task's defaults, see [task](task.md#interface).
 
 #### `seeds`
 
@@ -132,7 +132,7 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 #### `repeats`
 
-- **Runs.** Reads every log in `<out>/seeds/` and takes the row and scenario with the widest SD of `run_score` over its twenty samples, first in file order on a tie. The row is the log's `eval.model` and `eval.metadata["reasoning"]`, found in `--models`. It ranks that scenario's samples by `run_score` and takes the ten at ranks `round(1 + 19 × i / 9)` for `i` from 0 to 9, lowest position on a tie, so the picks span the range. One eval: that `scenario`, `seeds` as the ten positions joined by commas, `epochs=4`, see [seeds](task.md#seeds). No `seeds` log raises `ValueError` naming the cell to run first.
+- **Runs.** Reads every log in `<out>/seeds/` and takes the row and scenario with the widest SD of `run_score` over its twenty samples, first in file order on a tie. The row is the log's `eval.model` and `eval.metadata["reasoning"]`, found in `--models`. It ranks that scenario's samples by `run_score` and takes the ten at ranks `round(1 + 19 × i / 9)` for `i` from 0 to 9, lowest position on a tie, so the picks span the range. One eval: that `scenario`, `seeds` as the ten positions joined by commas, `epochs=4`, see [seeds](task.md#seeds). No `seeds` log raises `ValueError` naming the cell to run first. With `--dry-run` and no `seeds` log it prints one line saying so, as the eval it would run is not known yet.
 - The row, the scenario and the ten positions are printed, so the decisions row can name them.
 
 #### `recognition`
@@ -190,7 +190,7 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 #### `tool-choice`
 
-- **Runs.** For every `llm` row for which `tool_choice_for(get_model(row.id).api, generate_config(row, row.reasoning[0]))` gives `"any"`, two evals with `tool_choice` at `"any"` and `"auto"`: `scenario="one_shock,down_switch"`, `seeds="0-19"`, see [each round](solver.md#each-round). A row that resolves to `"auto"` is skipped with one line, as it cannot be asked for `any`.
+- **Runs.** For every `llm` row for which `tool_choice_for(api, generate_config(row, row.reasoning[0]))` gives `"any"`, `api` being the part of `row.id` before the first slash, so the cell needs no key to decide, two evals with `tool_choice` at `"any"` and `"auto"`: `scenario="one_shock,down_switch"`, `seeds="0-19"`, see [each round](solver.md#each-round). A row that resolves to `"auto"` is skipped with one line, as it cannot be asked for `any`.
 
 #### `rolling`
 

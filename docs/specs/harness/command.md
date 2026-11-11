@@ -39,6 +39,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 ### Subcommands
 
+- **`main` loads `.env` first**, with `python-dotenv`, never overriding a variable already set. So `run`'s skin check sees `PARANOID_SKINS` from the file, as inspect's own command does.
 - **`main`** parses `argv` with `argparse`, dispatches, and returns 0 on success and 1 on a `ValueError`, whose message it prints. Any other exception propagates with its traceback.
 - **`run` and `pilot`** are built in.
 - **Other subcommands come from the entry point group `paranoid.commands`.** The analysis layer registers `analyse = "paranoid.analysis.cli:analyse"`, see [analysis command](../analysis/command.md#dispatch). `main` discovers them with `importlib.metadata.entry_points` and loads one only when it is named, so the harness never imports the analysis layer and the layer rule holds, see [layout](../../harness/layout.md#six-layers).
@@ -79,7 +80,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 
 - **`--skins` is a comma list of skin names**, `example` by default. The proof of concept passes its two held-out skins, see [running](../../harness/running.md#commands). Every name is checked against `load_skins()` before any eval runs. A name that is not loaded, or one given twice, raises `ValueError` listing the loaded names and naming `PARANOID_SKINS`, so `main` returns 1 and nothing is spent.
 - **Only a row that reads the skin plays every skin.** A row whose `kind` is in `SKIN_READERS` plays each skin in the order given. Any other row plays the first skin only, as it never reads the story, see [two lists](../../harness/models.md#two-lists).
-- **For every row, every `reasoning` value and every skin the row plays** it calls `inspect_ai.eval("paranoid", model=row.id, task_args={"skin": ..., "seeds": ...}, metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=..., **generate_config(row, r).model_dump(exclude_none=True))`, with `max_connections=4` on LLM rows and the provider's own cap on the rest. `eval` has no `config` argument, so the generate config goes in as keywords, see [checked](#checked). Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
+- **For every row, every `reasoning` value and every skin the row plays** it calls `inspect_ai.eval(paranoid, model=row.id, task_args={"skin": ..., "seeds": ...}, metadata={"reasoning": r, "kind": row.kind}, log_dir=..., limit=..., retry_on_error=1, **generate_config(row, r).model_dump(exclude_none=True))`, passing the `paranoid` task function itself, see [modules](README.md#modules), with `max_connections=4` on LLM rows and the provider's own cap on the rest. `eval` has no `config` argument, so the generate config goes in as keywords, see [checked](#checked). Provider rows pass `model_args` as the provider needs, none by default. The tool choice is the solver's to pick, see [each round](solver.md#each-round).
 - **Order.** Provider rows first, then LLM rows in file order. Jev and Timestral rows are what the study compares against, so they run before anything that costs tokens. Within a row and setting the skins run in the order given, so a model has both sides of its [skin sensitivity](../analysis/tables.md#the-results-page) gap before the next model starts.
 - **No baseline rows are needed.** Every sample's score already holds all six baselines' outputs on its own timeline, see [scoring one run](scorer.md#scoring-one-run), so the analysis reads the Complacent baseline's bar from any log. A `baseline/` row still runs if listed, which is how the provider invariant is checked, see [tests](tests.md#providers).
 - **`--own-scale`** takes one value or the word `grid`, and is passed to the task as its `own_scale` arg, see [scenarios and config](task.md#scenarios-and-config). Unset, the task plays the frozen default and no events are pinned. `grid` plays every setting in `load_grid().own_scale` in file order, one eval per setting, inside each row, reasoning value and skin. A value that is not a positive number raises `ValueError` before any eval runs.
@@ -112,6 +113,7 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 |---|---|
 | Does `eval(metadata=...)` land in `EvalLog.eval.metadata` | Yes, as given |
 | Does `eval` take a `config` | No. It raises on one. Generate config fields are keyword arguments, and they land in `EvalLog.eval.model_generate_config` |
+| Does `eval` take `retry_on_error` | Yes, and `Task` does not, see [task settings](task.md#task-settings) |
 | The values `reasoning_effort` takes | `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max` |
 | Do all four of `EFFORT_PREFIXES` take an effort | Yes. inspect maps `reasoning_effort` for each, so the default kind is right |
 

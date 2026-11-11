@@ -17,9 +17,9 @@ def round_loop(
     rolling: bool = False,           # keep the conversation across rounds, pilot only
 ) -> Solver
 
-def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]
+def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]   # api as ModelName(model).api
 
-BLOCK_CACHE_APIS = ("anthropic",)    # apis whose prompt cache matches by content block
+BLOCK_CACHE_APIS: tuple[str, ...] = ()   # apis whose prompt cache matches by content block. Off until checked
 def record_blocks(text: str) -> list[str]   # the record cut after every line end
 
 @tool
@@ -37,7 +37,7 @@ def compute(skin: Skin) -> Tool      # one parameter, named skin.compute_param, 
 1. **Fill the store** if `store.scenario == ""`: copy the metadata in and play the warm up, see [store](task.md#store).
 2. **Reset the messages.** `state.messages` becomes exactly: a system message of `render_system_prompt(skin)`, then a user message of `render_record(skin, store.record())`, as one content block or cut by [record blocks](#record-blocks). With `notes` on and `store.notes` non-empty, the user message has one more content block after the record, holding the notes, see [notes](#notes). With `rolling` on the messages are not reset, see [rolling](#rolling).
 3. **Set the tools.** `state.tools` is `[submit(skin)]`, which carries the skin's `tool_name`, `tool_text`, `bets_name` and `bets_text`, see [submit](#submit), then `notes(skin)` as `skin.notes_name` with `skin.notes_text` and one parameter named `skin.notes_param`, and `compute(skin)` as `skin.compute_name` with `skin.compute_text` and one parameter named `skin.compute_param`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
-4. **Set the tool choice.** `"any"` for `"any"`, so the reply must call some tool, and `"auto"` otherwise. A `ToolFunction` naming the skin's tool is never used: it would stop the model calling notes or compute first. With `tool_choice=None` the solver calls `tool_choice_for(get_model().api, get_model().config)` on round 1 and writes the answer to `store.tool_choice` and to `state.metadata["tool_choice"]`, so the log says which it was and the analysis reads it without the store, see [result key](../analysis/runs.md#result-key). The rule: `"auto"` when the api is `"anthropic"` and the config asks for thinking, which is a `reasoning_effort` other than `"none"` or any `reasoning_tokens`, else `"any"`. With thinking on, `any` never reaches Claude as asked: inspect drops it, turns it into `auto`, or sends it and the model skips its thinking, see [checked](#checked) and [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid --model anthropic/<model>` works as typed.
+4. **Set the tool choice.** `"any"` for `"any"`, so the reply must call some tool, and `"auto"` otherwise. A `ToolFunction` naming the skin's tool is never used: it would stop the model calling notes or compute first. With `tool_choice=None` the solver calls `tool_choice_for(ModelName(get_model()).api, get_model().config)` on round 1. `Model.api` is the provider object, not its name, so the name comes from `ModelName`, see [checked](#checked) and writes the answer to `store.tool_choice` and to `state.metadata["tool_choice"]`, so the log says which it was and the analysis reads it without the store, see [result key](../analysis/runs.md#result-key). The rule: `"auto"` when the api is `"anthropic"` and the config asks for thinking, which is a `reasoning_effort` other than `"none"` or any `reasoning_tokens`, else `"any"`. With thinking on, `any` never reaches Claude as asked: inspect drops it, turns it into `auto`, or sends it and the model skips its thinking, see [checked](#checked) and [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid/paranoid --model anthropic/<model>` works as typed.
 5. **Try until the round is played**, see [tries](#tries).
 6. **Repeat** until `store.round() > store.config().rounds`, or the run gave up. Then return the state.
 
@@ -46,7 +46,8 @@ def compute(skin: Skin) -> Tool      # one parameter, named skin.compute_param, 
 How the record is cut into content blocks, and nothing else. The text is the same either way, so this moves the bill and never the prompt, see [prompt caching](../../harness/models.md#prompt-caching).
 
 - **`record_blocks(text)`** cuts the record after every line end and returns the pieces in order: the header line, then one piece per row. Nothing is added, dropped or stripped.
-- **Used when `get_model().api` is in `BLOCK_CACHE_APIS`.** Each piece is one text block of the user message. Any other api gets the record as one block.
+- **Used when `ModelName(get_model()).api` is in `BLOCK_CACHE_APIS`.** Each piece is one text block of the user message. Any other api gets the record as one block.
+- **`BLOCK_CACHE_APIS` ships empty**, so every api gets one block until both Anthropic checks in [verify before code](#verify-before-code) pass. Then it becomes `("anthropic",)`, and nothing else changes.
 - **Why.** Anthropic's cache matches by content block, and a record sent as one growing block never matches, see [prompt caching](../../harness/models.md#prompt-caching).
 - **The notes block stays last**, after every record block, so a changed note leaves the rows above it cached.
 - **inspect places the cache marks.** The solver sets none, and `cache_prompt` stays at inspect's default, see [reasoning](command.md#reasoning). Where the marks fall is in [checked](#checked).
@@ -99,10 +100,10 @@ In the headline, see [tools](../../design/interface.md#tools). What it costs or 
 
 ### Compute
 
-In the headline, so a default run needs `uv sync --extra sandbox` and Docker, see [running](../../harness/running.md#setup).
+In the headline, so a default run needs Docker, see [running](../../harness/running.md#setup). inspect's Docker sandbox needs no Python package beyond inspect itself, so there is no extra to install.
 
-- **Before each round** the solver writes `render_record(skin, store.record())` to `record.csv` in the sandbox's working directory, so the code sees the record and nothing else.
-- **The compute tool takes one string**, under the skin's `compute_param`, and runs `python3 -I -c <string>` in the sandbox with a 30 second timeout, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`.
+- **Before each round**, and only when `compute` is on, the solver writes `render_record(skin, store.record())` to `record.csv` in the sandbox's working directory, so the code sees the record and nothing else. With `compute` off there is no sandbox to write to.
+- **The compute tool takes one string**, under the skin's `compute_param`, and runs `python3 -I -c <string>` in the sandbox with a 30 second timeout and `timeout_retry=False`, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`. inspect retries a timed out command twice by default, which would run the model's code three times.
 - **The sandbox is locked down.** The code is the model's and is untrusted. `compose.yaml` sets `network_mode: none`, mounts nothing from the host, passes no environment, runs the root filesystem read only with a small writable working directory, and caps memory, processes and CPU with `mem_limit`, `pids_limit`, `cpus` and `no-new-privileges`. So the code can reach neither the engine nor a seed, and a memory or fork bomb ends inside the container, not on the machine.
 - **The first `compute` call in a round adds one to `store.compute_rounds`**, as for notes.
 - **The compose file is found from the module**, `Path(__file__).parent / "compose.yaml"`, never from the working directory, and `pyproject.toml` ships it as package data.
@@ -159,6 +160,9 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 | `any` on Fable 5.1, Opus 5.5 and Sonnet 5.5 | These refuse a required call at any setting. inspect sends `auto`, warns once, and writes `tool_choice_degraded` on the reply's metadata |
 | `any` on DeepSeek and Kimi, through inspect's own providers | Both refuse it while thinking, and inspect sends `auto`. Through OpenRouter inspect changes nothing |
 | Does inspect send a model its earlier reasoning | Yes by default. `GenerateConfig.reasoning_history` is `auto`, which replays reasoning blocks. What the model reads of them is the provider's |
+| What `get_model().api` is | The `ModelAPI` object, not a string. `ModelName(model).api` is the provider's name, such as `anthropic`, with the package prefix stripped |
+| What `sandbox.exec(timeout=...)` does on a timeout | Raises `TimeoutError`, after two retries unless `timeout_retry=False` |
+| What Docker needs from Python | Nothing beyond inspect_ai. Its Docker sandbox drives the `docker` command line |
 
 - **So the rule above stands for Claude**, for a wider reason than a refused call: `auto` is the only choice that leaves thinking on.
 - **A Claude that thinks with nothing set** still gets `any`, as the rule reads the config and not the model. Every Anthropic row in `configs/models/` sets its reasoning, so no row of the study plays that way.
@@ -169,7 +173,7 @@ Each needs a key, so none was run.
 
 - **Which OpenRouter models refuse `any` while thinking.** For every `openrouter/` row in `configs/models/` at a setting above `off`, one `generate` with the [`submit`](#submit) tool and `tool_choice="any"`. A 400, or a reply with no reasoning, means `tool_choice_for` returns `auto` for that model, and it then takes the model name as well as the api. DeepSeek and Kimi are the likely ones, see [checked](#checked). The same call on one OpenAI and one Google row. `tool_choice_for` waits on it.
 - **That `any` with adaptive thinking skips the thinking.** One call on `claude-haiku-5-5` at `low` with `any` and one with `auto`. If the `any` reply thinks as much, the rule could send `any` there. Nothing waits on it.
-- **That cutting the record changes the bill and nothing else.** Two checks left of three, on one Anthropic model. `record_blocks` is used only once both pass. If one fails, `BLOCK_CACHE_APIS` is empty and the record stays one block.
+- **That cutting the record changes the bill and nothing else.** Two checks left of three, on one Anthropic model. `BLOCK_CACHE_APIS` ships empty, so `record_blocks` is used only once both pass and the constant becomes `("anthropic",)`. If one fails, it stays empty and the record stays one block.
   - Anthropic's token count for the prompt is the same cut or whole, so no separator reaches the model. `count_tokens` on a forty row record both ways.
   - In a three round run the log's cache read tokens grow each round, and by round 3 cover the system prompt and the first rows. A prompt under the model's cache minimum reads nothing, so use a record long enough to clear it.
 - **Which models read their own earlier reasoning on a later turn**, and which get it summarised or empty. From each provider's docs, noted in the row's `notes`. The per-model reading of the rolling cell waits on it, see [rolling](#rolling).
