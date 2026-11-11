@@ -10,6 +10,7 @@ The lint is the one gate every word the model reads passes through. `lint_text` 
 BANNED_WORDS: tuple[str, ...]               # lowercase word starts, the table below
 PREFIXES: tuple[str, ...] = ("un", "in", "de", "re", "non")   # removed once before a second match
 WHOLE_NUMBER_PHRASES: tuple[str, ...] = ("whole number", "integer")
+PERCENT_PHRASES: tuple[str, ...] = ("percent", "per cent", "%")
 
 class LintError(SkinError):
     skin: str                               # the skin's name
@@ -64,7 +65,7 @@ CANARY: str                                 # in paranoid.skins.canary
 
 ### Fields
 
-`lint(skin)` first runs `lint_text` over every `str` field the model reads and every channel name. Each hit is a problem `"<field>: <entry>"`, with `channels[<i>]` as the field for a channel name. The four column words head every record the model reads, so they are linted too: a `bet_word` of `shift` fails.
+`lint(skin)` first runs `lint_text` over every `str` field the model reads and every channel name. Each hit is a problem `"<field>: <entry>"`, with `channels[<i>]` as the field for a channel name. The three column words head every record the model reads, so they are linted too: a `bet_word` of `shift` fails.
 
 - **The three tool names and `bets_name` are linted**, so a tool called `switch_bets` fails, and so does a parameter called `regime`.
 - **`name` is not.** The model never reads it. It goes in log metadata only, see [skin](skin.md#load_skins).
@@ -75,6 +76,7 @@ Then it renders `render_system_prompt(skin)` and checks the facts in [what every
 
 | Fact | Passes when | Problem string |
 |---|---|---|
+| Percentages | any entry of `PERCENT_PHRASES` is in the prompt, ignoring case. `percent` covers `percentage` and `percentages` | `missing: percent` |
 | The budget | `"100"` is in the prompt | `missing: 100` |
 | Every channel | each name in `skin.channels` is in the prompt, case sensitive | `missing: channel <name>` |
 | Whole numbers | any entry of `WHOLE_NUMBER_PHRASES` is in the prompt, ignoring case. `whole number` covers `whole numbers`, `integer` covers `integers` | `missing: whole numbers` |
@@ -89,7 +91,7 @@ Then it renders `render_system_prompt(skin)` and checks the facts in [what every
 Then it checks that nothing the model reads carries the canary GUID.
 
 - **The GUID** is the part of `CANARY` after `canary GUID `. The line's first half fails the [word lint](#words) on its own, as `benchmark` and `canary` are banned, so this check needs only the GUID.
-- **Checked in** the rendered system prompt, and in `tool_text`, `bets_name`, `bets_text`, `bad_call`, `no_call`, `notes_name`, `notes_text`, `compute_name`, `compute_text`, `question` and the four column words. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
+- **Checked in** the rendered system prompt, and in `tool_text`, `bets_name`, `bets_text`, `bad_call`, `no_call`, `notes_name`, `notes_text`, `compute_name`, `compute_text`, `question` and the three column words. The problem string is `canary in prompt` for the first and `canary in <field>` for the others.
 - **`CANARY`** is the line in [contamination](../../harness/contamination.md#canary), exactly, with no trailing newline. It lives in `paranoid.skins.canary` and is exported from `paranoid.skins`.
 - **Every published file that holds prompt text carries it.** In this repo that is `example.toml`, as its first comment line, and `docs/harness/prompts.md`. The test suite checks both, see [tests](tests.md#lint).
 - **A model that can finish the line has seen our data.** The [recognition check](../../pilot/provider-checks.md#recognition) asks it to.
@@ -112,4 +114,5 @@ Then it checks that nothing the model reads carries the canary GUID.
 
 - **Whether to ban numbers.** A skin should hold no number but 100 and ten, see [skins](../../harness/skins.md#what-a-skin-file-holds). A lint that fails any other digit run would enforce it, but blocks a story with a year or a size in it. Decide after the first held-out skin is written.
 - **The whole-numbers phrases.** `whole number` and `integer` are a first pass. A held-out skin that words the fact another way adds its phrase to `WHOLE_NUMBER_PHRASES`, and the test suite pins the list. Decide skin by skin.
+- **The percent phrases.** `percent`, `per cent` and `%` are a first pass, as every skin calls its split percentages, see [interface](../../design/interface.md#how-the-agent-plays). A held-out skin that says it another way adds its phrase to `PERCENT_PHRASES`, and the test suite pins the list. Decide skin by skin.
 - **The prefixes.** `un`, `in`, `de`, `re`, `non` are a first pass too. A word that slips through adds its prefix, and the test suite pins the list. Decide skin by skin.

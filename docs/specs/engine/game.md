@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`Game` plays one run against a timeline: it takes a split each round, checks it, appends a row of readings and output to the record, and returns that row. `Record` is the agent's own play so far, the thing the skins layer renders into the prompt, see [render](../skins/render.md#record). `play` runs a policy to the end with no model in the loop. The design is in [interface](../../design/interface.md) and [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
+`Game` plays one run against a timeline: it takes a split each round, checks it, appends a row of readings to the record, and returns that row. `Record` is the agent's own play so far, the thing the skins layer renders into the prompt, see [render](../skins/render.md#record). `play` runs a policy to the end with no model in the loop. The design is in [interface](../../design/interface.md) and [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
 
 ## Interface
 
@@ -17,7 +17,8 @@ class Row:
     round: int
     bets: Bets
     readings: tuple[float | None, ...]      # one per channel, None where the bet was 0, one decimal
-    output: float                           # one decimal
+    @property
+    def output(self) -> float               # what the row's bets earned, from its readings
 
 class Record:
     def __init__(self, rows: Iterable[Row] = ())
@@ -67,10 +68,10 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 - **A funded channel reads** `levels[r−1, c] + read_noise_k / sqrt(b) × read_noise_z[r−1, c]`, rounded to one decimal place with Python's `round`. So a bet of 4 is twice as rough as a bet of 16, and a bet of 100 reads with SD `k / 10`.
 - **An unfunded channel reads `None`.** Never 0, never blank-as-zero.
-- **Readings are not clipped.** A rough reading of a low channel can be negative.
-- **Output** is `sum(b_c / budget × levels[r−1, c])` over every channel, from the ground truth with no read noise, rounded to one decimal place. See [why output is exact](../../design/mechanics.md#what-the-agent-sees).
-- **The row the record keeps holds the rounded values**, the ones the agent saw. The timeline keeps the ground truth.
-- **The score sums the rounded outputs in the record.** The rounding error is at most `0.05 × rounds` points a run, 2 points at the defaults against a gap of hundreds, and the agent and the scorer then agree on every number. The scorer never recomputes from the timeline.
+- **Readings are not clipped.** Clipping at 0 would pay a small bet on a low channel more than its level, so a point in a small bet would earn more than a point in a large one, see [rejected](../../design/mechanics.md#rejected). The ladder is lifted instead, so at the defaults no reading realistically falls below 0, see [defaults](config.md#defaults). On a lower ladder a rough reading of a low channel can be negative.
+- **The row the record keeps holds the rounded readings**, the ones the agent saw. The timeline keeps the ground truth.
+- **`row.output`** is `sum(b_c × reading_c) / sum(b)` over the funded channels, in channel index order, from the row's rounded readings. It is not rounded again and not stored, so a row holds nothing the agent did not see. A bet is paid its reading, never the level, see [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
+- **The score sums `row.output` over the record.** The agent can rebuild every output from the readings it was shown, so the agent and the scorer agree on every number. The scorer never reads the timeline for the agent's own output.
 
 ### Record
 
@@ -106,7 +107,7 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 - Same timeline, same sequence of splits, same record, on every call within one environment.
 - `len(game.record)` equals the number of valid splits played plus the rows it started with.
 - Every row's readings are `None` exactly where its bets are 0.
-- Every row's output equals the exact-level sum rounded to one decimal, never the sum of the readings.
+- Every row's output equals its bets times its rounded readings, added up and divided by the budget. It is never worked out from the levels.
 - A record passed to `Game` or `play` has the same rows afterwards.
 - The engine never imports anything outside numpy and the standard library.
 

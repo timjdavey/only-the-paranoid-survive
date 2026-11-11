@@ -11,7 +11,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | [providers](providers.md) | `StoreAPI` and the three providers, `baseline/`, `jev/` and `timestral/` |
 | [scorer](scorer.md) | `gain`, the pooled scenario score, error bars, headline, weakest trait, retry share, tool use share |
 | [command](command.md) | `paranoid run` and `paranoid pilot`, the models config, reasoning settings |
-| [pilot](pilot.md) | The twenty pilot cells: what each runs and writes, and the paths the analysis reads |
+| [pilot](pilot.md) | The twenty-one pilot cells: what each runs and writes, and the paths the analysis reads |
 | [tests](tests.md) | Every test the harness suite runs, with the page it checks |
 
 ## Exports
@@ -35,7 +35,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `load_models`, `ModelRow`, `generate_config` | The models config and the reasoning mapping | [command](command.md) |
 | `REASONING`, `EFFORT_PREFIXES` | The reasoning grid, and the providers that take an effort rather than a budget | [command](command.md) |
 | `main` | The `paranoid` console script | [command](command.md) |
-| `CellArgs`, `CELLS`, `run_cell`, `RECOGNITION_QUESTION` | The pilot cells and how the command runs one | [pilot](pilot.md) |
+| `CellArgs`, `CELLS`, `run_cell`, `RECOGNITION_QUESTION`, `CHANNEL_ORDER_REQUEST`, `ALL_BETS` | The pilot cells, how the command runs one, and the words and bets of the two probes | [pilot](pilot.md) |
 
 ## Modules
 
@@ -70,7 +70,7 @@ The harness imports these from `paranoid.engine`. Their behaviour is in the [eng
 |---|---|
 | `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION` | The config a sample plays, and the hash and version in its metadata, see [scenarios and config](task.md#scenarios-and-config) |
 | `make_timeline`, `Timeline`, `Event` | The timeline the store rebuilds from config and seed, see [store](task.md#store), and the events the scorer and the pilot cells read for an onset, a sleeper and a draw, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#words-the-columns-use) |
-| `Game`, `Record`, `Row`, `Bets`, `BetError` | The round the `submit` tool plays, the rows the store keeps and the split a provider returns, see [submit](solver.md#submit) |
+| `Game`, `Record`, `Row`, `Bets`, `BetError` | The round the `submit` tool plays, the rows the store keeps and the split a provider returns, see [submit](solver.md#submit). The `channel-order` cell reuses the same check on a split, see [pilot](pilot.md#channel-order) |
 | `play` | Warm up rows, and every baseline's output in the score, see [warm up](task.md#warm-up) and [scoring one run](scorer.md#scoring-one-run) |
 | `Policy` | The type the baseline provider holds, see [baseline](providers.md#baseline) |
 | `split_budget` | Jev's probabilities into bets, see [Jev](providers.md#jev) |

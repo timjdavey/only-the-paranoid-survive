@@ -1,6 +1,6 @@
 # Skins spec
 
-The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the four words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Its tests also take `uniform` from the baselines layer below it to play records. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
+The skins layer dresses the engine in a story. A skin is one TOML file: the channel names, the text that words the [frame](../../glossary.md) for the agent, and the three words that head the record. The layer loads skins, renders the system prompt and the record in a skin's words, hashes the result, and lints everything the model will read. It imports the engine and the standard library only, and knows nothing about inspect_ai or any model. Its tests also take `uniform` from the baselines layer below it to play records. Why skins exist is in the [README](../../../README.md#design), how they are written is in [skins](../../harness/skins.md), and what every prompt must say is in [prompts](../../harness/prompts.md).
 
 ## Pages
 
@@ -8,7 +8,7 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the chan
 |---|---|
 | [skin](skin.md) | `Skin`, its fields and validation, the TOML file, `load_skin`, `load_skins`, where the example skin lives |
 | [render](render.md) | `render_system_prompt`, `render_record`, `prompt_hash`, `RENDER_VERSION` |
-| [lint](lint.md) | `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES`, `lint_text`, `lint`, `LintError`, the frame facts, `CANARY` |
+| [lint](lint.md) | `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES`, `PERCENT_PHRASES`, `lint_text`, `lint`, `LintError`, the frame facts, `CANARY` |
 | [tests](tests.md) | Every test the skins suite runs, with the page it checks |
 
 ## Exports
@@ -22,7 +22,7 @@ The skins layer dresses the engine in a story. A skin is one TOML file: the chan
 | `render_system_prompt`, `render_record` | `(Skin) -> str` and `(Skin, Record) -> str` | [render](render.md) |
 | `prompt_hash`, `RENDER_VERSION` | `(Skin) -> str`, the hash a log carries, and the layout version it covers | [render](render.md) |
 | `lint`, `lint_text`, `LintError` | The lint and its error, a `SkinError` | [lint](lint.md) |
-| `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES` | The lint's word lists, pinned by the test suite | [lint](lint.md) |
+| `BANNED_WORDS`, `PREFIXES`, `WHOLE_NUMBER_PHRASES`, `PERCENT_PHRASES` | The lint's word lists, pinned by the test suite | [lint](lint.md) |
 | `CANARY` | The canary line, as a string | [lint](lint.md#canary) |
 
 ## Names from the engine
@@ -49,7 +49,7 @@ The skins code imports nothing from `paranoid.baselines`. Its tests import one n
       skin.py        Skin, SkinError
       load.py        load_skin, load_skins
       render.py      RENDER_VERSION, render_system_prompt, render_record, prompt_hash
-      lint.py        BANNED_WORDS, PREFIXES, WHOLE_NUMBER_PHRASES, LintError, lint_text, lint
+      lint.py        BANNED_WORDS, PREFIXES, WHOLE_NUMBER_PHRASES, PERCENT_PHRASES, LintError, lint_text, lint
       canary.py      CANARY
       example.toml   the example skin, shipped as package data
 
@@ -64,7 +64,7 @@ The harness takes a `Skin` from `load_skins` and uses it in six places, see [ins
 | Harness part | Reads |
 |---|---|
 | System prompt | `render_system_prompt(skin)` |
-| User message | `render_record(skin, record)`, which uses `skin.channels` and the four column words |
+| User message | `render_record(skin, record)`, which uses `skin.channels` and the three column words |
 | The `submit` tool | `skin.tool_name`, `skin.tool_text`, `skin.bets_name`, `skin.bets_text`, `skin.bad_call`, `skin.no_call` |
 | The `notes` and `compute` tools | `skin.notes_name`, `skin.notes_text`, `skin.compute_name`, `skin.compute_text`, see [tool text](../../harness/prompts.md#tool-text) |
 | The Jev provider | `skin.question`, with `skin.channels` as the options, see [providers](../../harness/providers.md#jev) |

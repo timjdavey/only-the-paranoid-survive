@@ -44,9 +44,29 @@ Prices the risk that a model knows it is in this benchmark. Each skin words the 
   - Any reply that finishes the canary.
 - **Decide.** The share that marks a bar, as the retry share does. A model that finishes the canary has its scores flagged wherever they are shown. Probe logs from held-out skins stay private, like any held-out log.
 
+## Channel order
+
+A split goes to the tool as ten numbers in [channel order](../glossary.md), see [tool text](../harness/prompts.md#tool-text). Nothing in the call names a channel, so the model has to count to the right place. This check asks whether it counts right.
+
+- **Question.** When a model means a bet for one channel, does the number land on that channel. A [slip](../glossary.md) still sums to 100, so it gets no retry and is read as a belief.
+- **Run.** Every LLM row in the [proof of concept list](../harness/models.md#two-lists), at the reasoning setting it plays there, on the example skin and each held-out skin. A fresh call, never inside a scored run. Show the round 1 prompt, then tell the model the exact split to send, by channel name, and read the one call it makes. Thirty splits a skin, in three shapes:
+  - **One.** 100 on one channel, each of the ten in turn.
+  - **Pair.** 55 on one channel and 45 on another, each of the ten taking the 55 once. Three of the ten name the later channel first.
+  - **All.** Ten different bets, one per channel, named out of channel order, so any swap shows.
+- **Measure.**
+  - The slip share: of the valid calls, the share that hold the numbers asked for on the wrong channels. Per model, skin and shape.
+  - The share of valid calls that hold other numbers than the ones asked for. That is the model choosing its own split, not a slip, so it is counted apart.
+  - The share of probes with no call or a bad call, which a real round would retry.
+  - Where the slips land, counted by channel position, to see whether later channels slip more.
+- **Decide.** Whether `submit` keeps its list. It does if no row's slip share, pooled over skins and shapes, is above 1 in 50, which is under one silent round in a forty round run. If any row is above, `submit` takes one number per channel by name instead, so no number can sit on the wrong channel.
+  - **The 1 in 50 is fixed here, before any model plays.**
+  - **Thirty probes a skin is a coarse read.** On one skin a single slip is already over the line, and on three skins two are.
+- **Run it before the other provider checks.** Its answer can change the tool every other cell plays, and the prompt structure freezes after the pilot, see [CONTRIBUTING](../../CONTRIBUTING.md#what-never-changes-without-a-new-pilot).
+- **The CSV holds no skin text.** Channels are written by position, so it is publishable whichever skins ran.
+
 ## Up against down
 
-Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the agent's own output and a rise does not, so this check asks whether a model explores before anything tells it to.
+Splits the three kinds of switch, see [Up and down](engine-checks.md#up-and-down). A fall shows in the readings of the channels the agent holds and a rise does not, so this check asks whether a model explores before anything tells it to.
 
 - **Question.** Does a model find a rise it was not cued to look for, and does a fall with a riser differ from a fall alone.
 - **Run.** One model on the Down switch seeds from [Seeds](#seeds), split by whether a sleeper rose, plus the Up switch, Up switch then down switch and Switch then shock scenarios on the same seeds. No extra Down switch runs.

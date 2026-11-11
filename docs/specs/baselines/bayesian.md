@@ -113,7 +113,6 @@ Every number is **pilot to confirm** by the [Bayesian frontier](../../pilot/engi
 
 ## Not decided
 
-- **Output as an observation.** Output is exact and a linear sum of levels, so it is a noiseless reading of the agent's own mix. It couples the channels, so the belief leaves it out. Decide once the frontier shows how far the best player sits below the Discerning baseline.
 - **Modelling the tell.** A belief with the shared factor and the hedge's loading would tell a shock from a switch. It needs a loading per channel, which is drawn per seed. Decide once the frontier's One shock scores are read.
 - **The jump prior's centre.** The ladder prior, as here, or a Normal round the old base. Decide when the first frontier runs.
 - **Pruning run lengths** for runs longer than 40 rounds, if a hard variant needs them.

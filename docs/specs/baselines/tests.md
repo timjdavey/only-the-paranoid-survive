@@ -10,10 +10,10 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BP2 | `uniform` returns the same split for any view | [policies](policies.md#the-four-fixed-baselines) |
 | BP3 | `complacent` round 1 equals `discerning` round 1 on 50 seeds, and the two are equal on every round of a No change timeline | [policies](policies.md#invariants) |
 | BP4 | `discerning` moves on every Down switch timeline of 50 seeds, in the first round the sleeper's or runner-up's base passes the leader's, and never before onset | [policies](policies.md#the-four-fixed-baselines) |
-| BP5 | `perfect` output is at least `discerning` output on every seed of every scenario | [policies](policies.md#the-four-fixed-baselines) |
+| BP5 | The levels `perfect` bets on sum to at least the levels `discerning` bets on, read from `timeline.levels`, on every seed of every scenario | [policies](policies.md#the-four-fixed-baselines) |
 | BP6 | Non-peeking policies give the same splits with `view.timeline` as the timeline and as `None` | [README](README.md#invariants) |
 | BP7 | Baseline order, **slow**: over 1000 seeds of every scenario, pooled output has `perfect ≥ discerning ≥ complacent`, with `discerning` above `complacent` on Down switch, and `uniform` below every other entry in `POLICIES`. That much holds whatever the knobs. Where the hedge rule and Scout rule land depends on the knobs, so it is the pilot's [baseline order](../../pilot/engine-checks.md#baseline-order) check and not a test | [policies](policies.md#the-four-fixed-baselines) |
-| BP8 | Uniform output, **slow**: over 1000 No change seeds, pooled, equals the mean level over all channels and rounds within 0.1% | [policies](policies.md#the-four-fixed-baselines) |
+| BP8 | Uniform output, **slow**: over 1000 No change seeds, pooled, equals the mean level over all channels and rounds within 0.1%, as read noise averages out over 400,000 readings | [policies](policies.md#the-four-fixed-baselines) |
 | BP9 | Every exported policy has a `peeks` bool that is not in `dataclasses.fields`, and is callable | [README](README.md#conventions) |
 | BP10 | `discerning` never moves on 50 short Up switch seeds. On 50 Up switch then down switch seeds it moves to the sleeper once and back to `start.leader` once, and ends on `start.leader` | [policies](policies.md#the-four-fixed-baselines) |
 | BP11 | `POLICIES` has exactly the seven glossary keys, assigning to it raises `TypeError`, `POLICIES[name]()` equals the exported instance of the same name for all seven, and `POLICIES["hedge_rule"](nope=1)` and `POLICIES["uniform"](explore=1)` raise `TypeError` | [policies](policies.md#policies) |
@@ -48,8 +48,8 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 
 | Id | Test | Page |
 |---|---|---|
-| BB1 | On a hand-built record of 20 rounds with `budget` on channel 0 and readings within 1 of 60: `belief(view).mean[0]` is within 1 of 60, and `changed[0]` is below the prior `1 − (1 − hazard)^19`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
-| BB2 | The same record with the readings 20 lower from round 15 on: `changed[0]` is above 0.9 on the view for round 18, and `mean[0]` is within 3 of 40 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
+| BB1 | On a hand-built record of 20 rounds with `budget` on channel 0 and readings within 1 of 90: `belief(view).mean[0]` is within 1 of 90, and `changed[0]` is below the prior `1 − (1 − hazard)^19`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
+| BB2 | The same record with the readings 20 lower from round 15 on: `changed[0]` is above 0.9 on the view for round 18, and `mean[0]` is within 3 of 70 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
 | BB3 | A channel with no reading on any round of a 30 round record has `changed` equal to `1 − (1 − hazard)^29` within `1e-9`, and `mean` equal to its role's prior mean within `1e-6` | [bayesian](bayesian.md#the-belief) |
 | BB4 | `bayesian` called twice on one view gives equal splits and equal quantiles, every quantile row is finite and ascending, and the view's record is unchanged | [bayesian](bayesian.md#invariants) |
 | BB5 | `Bayesian(hazard=1e-9, rule="top-pick")` through `play` on 50 No change seeds gives a record equal to `play(complacent, timeline)` on every seed | [bayesian](bayesian.md#invariants) |

@@ -52,6 +52,6 @@ POLICIES: Mapping[str, Callable[..., Policy]]
 - Every entry in `POLICIES`, built at its defaults, returns a valid split for every view: `channels` ints, none negative, summing to `budget`.
 - `complacent` on round 1 equals `discerning` on round 1, on every timeline.
 - `discerning` and `complacent` are equal on every round of a No change timeline.
-- `perfect`'s output is at least `discerning`'s on every seed of every scenario.
+- The levels `perfect` bets on sum to at least the levels `discerning` bets on, on every seed of every scenario. Its output is at least `discerning`'s once pooled, not on every seed, as read noise is paid and can flip a near tie, see [readings](../engine/game.md#readings).
 - `uniform` returns the same split for any view.
 - Every key in `POLICIES` is a glossary name and every glossary `baseline/<name>` is a key.

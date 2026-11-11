@@ -10,13 +10,13 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Game engine | The simple cybernetics game at the core of the study: the rules and numbers, with no story |
 | Narrative skin | A story dressed over the game engine, so the model treats it as a real situation. It also lets us publish the engine while hiding which skin it wears |
-| Frame | The facts every prompt states whatever the skin: a budget of 100 points, ten channels, whole numbers, the record below, a tool to place points, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
+| Frame | The facts every prompt states whatever the skin: a budget split in whole percentages that add up to 100, ten channels, the record below, a tool to place the split, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
 | Baseline | A fixed strategy run through the same game and score as the models. A fixed baseline's name always ends in "baseline", so it never reads as a plain adjective. See [baselines](design/baselines.md) |
 | Provider | The harness code that plays one model through the same solver as an LLM. inspect_ai's own for chat LLMs, ours for baselines, Jev and Timestral. `baseline/<name>`, `jev/<model>` and `timestral/<policy>` in code. See [inspect](harness/inspect.md#providers) |
-| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer. It divides nothing. `baseline/perfect` in code |
+| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer, read from the pool. It divides nothing. `baseline/perfect` in code |
 | Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. The ceiling: a scenario score of 1. `baseline/discerning` in code |
 | Complacent baseline | The baseline that holds the Discerning baseline's round 1 bets to the end. A mark on every scenario's bar, near 0.55 where there is a switch. `baseline/complacent` in code |
 | Uniform baseline | The baseline that bets 10 on every channel, every round. The floor: a scenario score of 0. `baseline/uniform` in code |
@@ -45,9 +45,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 
 | Word | What it means |
 |---|---|
-| Channel | One of the things the agent can put budget on. Each pays out at its own level |
-| Level | A channel's true payout, which its noisy reading sits around. Never called a mean: that word is kept for averaging over runs |
-| Reading | The noisy number the agent sees for a channel it bet on. It sits round the level, and is rougher the smaller the bet. A channel with no bet shows a blank. See [mechanics](design/mechanics.md#what-the-agent-sees) |
+| Channel | One of the things the agent can put budget on. Each has its own hidden level, which its readings centre on |
+| Level | Where a channel's readings centre in a round: its base level, its weather and its share of the shared factor. Hidden, and nothing is paid at it. Never called a mean: that word is kept for averaging over runs |
+| Reading | The rate a bet on a channel was paid at this round, and the number the agent sees for that channel. A bet earns its share of the budget times its reading. It is the level plus read noise. A channel with no bet shows a blank. See [mechanics](design/mechanics.md#what-the-agent-sees) |
+| Read noise | How far a reading lands from the channel's level. Real luck that the bet is paid, not a measuring error. Smaller the larger the bet, so a small bet gives a rough reading |
+| Output | What a split earned in a round: each bet's share of the budget times its reading, added up. A run's output is the sum over its rounds, and the score is built from it. The agent is never shown it, and can work it out from its record. See [mechanics](design/mechanics.md#what-the-agent-sees) |
 | Base level | A channel's mean when nothing is happening |
 | Weather | The round-to-round wobble round a base level |
 | Climate | Every channel's base level, round by round, taken together. A switch or drift changes it and a shock does not. The Discerning baseline knows the climate but not the weather |
@@ -63,8 +65,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Field | The other channels, including the hedge |
 | Sleeper | A field channel whose base level rises in a switch. It rises past the leader's on most seeds, and stops short on some Up switch seeds |
 | Timeline | One scenario played out on one seed: the ground truth, drawn before play starts. Every run on that seed replays it. Rebuilt from the seed, never saved. See [generator](design/mechanics.md#generator) |
-| Ground truth | Every channel's level in every round, as a timeline holds it. The agent sees readings, never the ground truth |
-| Column words | The four words a skin gives the record's header: the round column, the bet suffix, the level suffix and the output column. `round_word`, `bet_word`, `level_word`, `output_word` in code. See [render](specs/skins/render.md#record) |
+| Ground truth | Every channel's level in every round, as a timeline holds it. The agent sees readings and is paid them, and never sees the ground truth |
+| Column words | The three words a skin gives the record's header: the round column, the bet suffix and the reading suffix. `round_word`, `bet_word`, `reading_word` in code. See [render](specs/skins/render.md#record) |
 
 ## How the world changes
 
@@ -96,8 +98,11 @@ Use these words in prose and in code. Add a word here before using it on any oth
 
 | Word | What it means |
 |---|---|
-| Bet | The whole number of budget points the agent puts on one channel in a round. Its ten bets each round sum to 100 |
+| Point | One percent of the budget, so the budget is 100 points. The engine's unit for a bet. Every skin calls it a percentage in its own words, see [interface](design/interface.md#how-the-agent-plays). Not a level point, which is a unit of a channel's level |
+| Bet | The whole number of points the agent puts on one channel in a round, so a percentage of the budget. Its ten bets each round sum to 100 |
 | Split | The agent's ten bets in one round, taken together. Payout is linear, so points on more than one channel only ever mean doubt or an explore bet |
+| Channel order | The order of a skin's `channels` list. A split's ten numbers and the record's columns both follow it |
+| Slip | A valid split that holds the numbers the agent meant on the wrong channels. It still sums to 100, so nothing retries it. Measured by the [channel order check](pilot/provider-checks.md#channel-order). `slipped` in code |
 | Exploit | Betting on the channel the agent believes is best. Payout is linear, so exploiting alone means all 100 points on one channel. The opposite of an explore bet |
 | Explore bet | A small bet on a channel the agent isn't backing, to read its level. To explore is to place one. A small bet gives a rough reading, see [mechanics](design/mechanics.md#what-the-agent-sees). `explore` in code |
 | Warm up | Rounds a baseline plays before the agent's first round, so the record starts pre-filled. A pilot check, see [warm up](pilot/provider-checks.md#warm-up) and the [task spec](specs/harness/task.md#warm-up). `warm_up` in code |

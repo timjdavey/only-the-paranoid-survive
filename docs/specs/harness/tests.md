@@ -40,7 +40,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS11 | `tools="notes"`: a `notes("abc")` call then a valid submit. Round 2's user message has two content blocks, the second `"abc"`. A 3000 character note is stored as 2000. A round that called only `notes` counts a no call. Two `notes` calls in round 1 and one in round 2 give `notes_rounds == 2` | [solver](solver.md#notes) |
 | HS12 | **sandbox** `tools="compute"`: `compute("print(open('record.csv').read())")` returns the record CSV. `compute("import socket; socket.create_connection(('1.1.1.1', 80))")` returns an error, not a connection. A sleep of 60 seconds returns `timeout`. A loop that appends to a list forever ends with an error inside the timeout, and `os.environ` holds no key. Two `compute` calls in one round give `compute_rounds == 1` | [solver](solver.md#compute) |
 | HS13 | `rolling=True`: at round 3 the messages hold every earlier assistant and tool message in order, the first two messages equal a fresh call's, and the last user message equals `render_record` of the two-row record, as HS2's would | [solver](solver.md#rolling) |
-| HS14 | Replaying `store.rows` as bets with `Game` on `store.timeline()` gives equal readings and outputs | [solver](solver.md#invariants) |
+| HS14 | Replaying `store.rows` as bets with `Game` on `store.timeline()` gives equal readings, and so an equal `row.output` on every row | [solver](solver.md#invariants) |
 | HS15 | A lint over every message a `mockllm` run produced finds no banned word, with the example skin | [prompts](../../harness/prompts.md#banned-words) |
 | HS16 | `tool_choice_for("anthropic", GenerateConfig(reasoning_effort="low"))` is `"auto"`. `("anthropic", GenerateConfig())` and `("openai", GenerateConfig(reasoning_effort="high"))` are `"any"` | [solver](solver.md#each-round) |
 | HS17 | `record_blocks` on `render_record` of a three-row record returns four pieces, the header line then one per row, that join back to the same string. A `mockllm` run sends the record as one content block. With the model's api patched to `"anthropic"`, the round 3 user message has three record blocks, and four content blocks once a note is saved, the note last | [solver](solver.md#record-blocks) |
@@ -51,7 +51,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | Id | Test | Page |
 |---|---|---|
 | HR1 | `get_model("baseline/<name>")` resolves for all seven names. `baseline/nope` raises `ValueError` naming the seven | [providers](providers.md#registration) |
-| HR2 | Every provider's `generate` returns one tool call to `tools[0].name` with a `bets` list and `content == ""`, its `id` is `<model name>-<round>`, and its usage is zero tokens. With `tools == []` it raises `RuntimeError` | [providers](providers.md#shared-behaviour) |
+| HR2 | Every provider's `generate` returns one tool call to `tools[0].name` whose one argument is a list of bets under the skin's `bets_name`, and `content == ""`, its `id` is `<model name>-<round>`, and its usage is zero tokens. With `tools == []` it raises `RuntimeError` | [providers](providers.md#shared-behaviour) |
 | HR3 | A full eval of `baseline/<name>` on 5 seeds of Down switch, for each of the seven, has rows equal to `play(policy, timeline)` | [providers](providers.md#baseline) |
 | HR4 | `baseline/hedge_rule` with `model_args={"explore": "1", "window": "4"}` builds `HedgeRule(explore=1, window=4)`, the strings cast. `{"nope": "1"}` and `baseline/uniform` with `{"explore": "1"}` raise `ValueError` | [providers](providers.md#baseline) |
 | HR5 | A fake async `JevClient` recording its calls: the state equals the system text, two newlines, the user text. The question and options are the skin's. Probabilities `[0.5, 0.5, 0, …]` give bets `[50, 50, 0, …]`, and `[0.004, 0.996, 0, …]` give `[0, 100, 0, …]`. Nine probabilities raise `ValueError` | [providers](providers.md#jev) |
@@ -92,7 +92,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HM5 | `main(["run", "--dry-run"])` returns 0, prints one line per row and setting with provider rows first, and calls `eval` zero times | [command](command.md#run) |
 | HM6 | `main(["run", "--models", <a temp file with one baseline/uniform row>, "--limit", "2"])` runs one eval into a temp log dir whose log has two samples and the metadata keys | [command](command.md#run) |
 | HM7 | `main(["nope"])` returns 1 and prints the known subcommands. A fake entry point in `paranoid.commands` is listed and called | [command](command.md#subcommands) |
-| HM8 | `main(["pilot", "baseline-order", "--out", tmp, "--seeds", "5"])` calls `run_cell` with a `CellArgs` holding those values and returns 0. `main(["pilot", "nope"])` returns 1 and prints the twenty names | [command](command.md#pilot) |
+| HM8 | `main(["pilot", "baseline-order", "--out", tmp, "--seeds", "5"])` calls `run_cell` with a `CellArgs` holding those values and returns 0. `main(["pilot", "nope"])` returns 1 and prints the twenty-one names | [command](command.md#pilot) |
 | HM10 | `main(["run", "--only", "baseline/uniform", "--dry-run"])` on a two-row file prints that row's line only | [command](command.md#run) |
 | HM11 | Without the timestral extra, a models file with a `timestral/top-pick` row then a `baseline/uniform` row: `run` prints one line saying the Timestral row is skipped, runs the baseline eval, and returns 0 | [command](command.md#run) |
 | HM12 | A models file with an `llm` row whose `id` names a provider inspect cannot resolve, then a `baseline/uniform` row: `run` runs the baseline eval anyway and returns 1 | [command](command.md#run) |
@@ -108,7 +108,7 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 | Id | Test | Page |
 |---|---|---|
 | HP1 | Each engine cell writes its CSV with exactly the columns in its Writes line, in order, and one row per seed per setting per scenario per baseline as its Runs line says. `timeline-sanity` also writes the sparklines file with one row per scenario and round. The network is blocked by a socket monkeypatch throughout | [pilot](pilot.md#engine-cells) |
-| HP2 | `CELLS` has the twenty names in page order. `run_cell("nope", args)` raises `ValueError` listing them | [pilot](pilot.md#invariants) |
+| HP2 | `CELLS` has the twenty-one names in page order. `run_cell("nope", args)` raises `ValueError` listing them | [pilot](pilot.md#invariants) |
 | HP3 | `seeds=20` against a public seed file of ten raises `ValueError` naming `PARANOID_PILOT_SEEDS` | [pilot](pilot.md#shared-rules) |
 | HP4 | In `baseline-order.csv`, `kind` on every Down switch row equals the word `make_timeline` gives by hand, `discerning`'s `move_round` equals the switch's onset on every Down switch seed and is `0` on every No change seed, and `complacent`'s `move_round` is `0` everywhere | [pilot](pilot.md#words-the-columns-use) |
 | HP5 | `seeds` with a models file whose one `llm` row is `mockllm/model` writes one log under `out/seeds/` with twenty `one_shock` and twenty `up_switch` samples and `reasoning` and `kind` in the eval metadata. `repeats` then writes a log under `out/repeats/` with ten sample ids of one scenario at four epochs each and prints the row, the scenario and the ten positions. `repeats` with no `seeds` log raises `ValueError` naming `seeds` | [pilot](pilot.md#provider-cells) |
@@ -116,6 +116,7 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 | HP7 | `jev` with a fake client that answers `[0.004, 0.996, 0, …]` on round 3 writes a log and a `jev.csv` whose round 3 rows have `rounded_out` 1 and every other row 0 | [pilot](pilot.md#jev) |
 | HP8 | `timestral` with a fake forecaster writes `timestral.csv` with thirty `gap` rows per channel, `spread` non-decreasing in `gap` when the fake widens with the gap, and one `determinism` row with `equal` 1 | [pilot](pilot.md#timestral) |
 | HP9 | `dry_run=True` on every cell writes nothing under `out` and prints one line per eval call or CSV | [pilot](pilot.md#shared-rules) |
+| HP10 | `channel-order` with `mockllm/model` scripted to send the split asked for on every probe but three, one `one` probe with its 100 a place late, one split summing to 90 and one reply with no call, writes a CSV with the ten columns and thirty rows per model and skin. `matched` is 1 on twenty-seven rows, `slipped` is 1 on the late row only, the split of 90 has `called` 1 and `valid` 0, the reply with no call has `called` 0, and `matched`, `slipped` and `sent` are empty on both. Each request the fake received names its channels in the order the shape's table gives, and no channel name is in the file | [pilot](pilot.md#channel-order) |
 
 ## Property tests
 

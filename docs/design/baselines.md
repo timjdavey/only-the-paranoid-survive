@@ -11,7 +11,7 @@ These are calculated scores based on fixed strategies.
 | Discerning baseline | 100 on the channel with the highest base level. Holds through a shock, moves the round a switch lands | The ceiling. A scenario score of 1, see [scoring](scoring.md). Its one edge over an ideal reader is zero lag, which is the thing we price |
 | Uniform baseline | 10 on every channel, every round | The floor. A scenario score of 0. What knowing nothing earns. It sees every channel at the roughest reading, so it is the fully paranoid floor too |
 | Complacent baseline | The Discerning baseline's round 1 bets, held to the end | A mark on every bar. Near 0.55 where there is a switch, so it says whether a model acted at all. Equals the Discerning baseline where nothing changes |
-| Perfect baseline | 100 on the channel with the highest level this round | A mark for how much weather luck was on offer. It divides nothing: it chases weather no reader can see, so nobody could reach it |
+| Perfect baseline | 100 on the channel with the highest level this round | A mark for how much weather luck was on offer. It divides nothing: it chases weather no reader can see, so no reader could reach it. Read noise can put one run above it on one seed, never in the pool |
 | Hedge rule baseline | A few points on the hedge, the rest on the leader. When the leader falls and the hedge does not rise, it spreads an explore bet over the field for a round or two, then moves to the best reading | The simplest player that reads the tell. A mark on every bar, and a reference curve on the [noise grid](../pilot/engine-checks.md#noise-grid). It has no reason to move in the Up switch scenario, as the leader never falls |
 | Scout rule baseline | `s` points on each of the nine other channels, the rest on its pick. It moves to a channel whose reading beat the pick's in each of the last `n` rounds, unless the hedge's mean over those rounds is above its earlier average. If more than one channel did, it takes the one with the highest mean over those rounds. It keeps scouting after a move | The hedge rule that explores everywhere, all the time, so it reads a rise as well as a fall. The reference curve for the Up switch scenario. `s` and `n` come from the [pilot](../pilot/engine-checks.md#up-and-down) |
 | Bayesian baseline | Keeps a belief over each channel's base level in the engine's own family of jumps, weather and read noise. Each round it turns the belief into bets through a [forecast rule](../specs/baselines/forecast.md), as Timestral's forecasts are | The best a reader who knows how the world works could do with one prior on how often it changes, so its gap to the Discerning baseline is the lag no reader can avoid. A mark on every bar once the [Bayesian frontier](#the-bayesian-frontier) sets its prior and rule |
@@ -35,7 +35,7 @@ The Bayesian baseline's belief is exact, given its prior. Its score is not, beca
 [Timestral](https://github.com/mistralai/timestral) is a forecaster. It guesses each channel's level next round, and a policy we wrote turns that guess into bets. It only learns about a channel by betting on it.
 
 - **What it sees:** each channel's past readings, but only for the rounds it bet on that channel. Every other round is a blank, which Timestral handles.
-- **Why readings and not output:** a bet of 0 pays 0. Timestral would read that as a channel that pays nothing, put 0 on it and never return.
+- **Why a blank and not a 0:** a reading is what each point on a channel was paid, so a channel with no bet has no reading. Timestral would read a 0 as a channel that pays nothing, put 0 on it and never return. It reads the same record every other player does.
 - **What it gives back:** a range of guesses, low to high, for each channel's level next round. That is 21 quantiles per channel.
 - **What it never sees:** the skin. So it shows how much reading the story helps.
 
@@ -46,7 +46,7 @@ The policy that turns the forecast into bets is ours. One run per row. The bets 
 | Timestral top pick | 100 on the channel it forecasts highest. The other channels go dark, so it only moves when its own channel's forecast falls below its last memory of another | How far forecasting gets you with no exploring |
 | Timestral odds | Splits the 100 by each channel's chance of being the best. The less sure it is, the more it spreads, and so the more it explores | Whether a forecaster's own doubt makes it explore the right amount. Dropped if it fails the [gap test](../pilot/provider-checks.md#timestral-checks) |
 | Timestral top pick with explore bets, 1 / 2 / 5 | 1, 2 or 5 points on each of the other nine channels, the rest on its top pick, which gets 91, 82 or 55 | Whether an explore bet size we choose by hand does better than Timestral's own doubt |
-| Timestral odds, bet aware | As Timestral odds, but its past bets go in alongside the levels | Whether it learns that a small bet gives a rough reading |
+| Timestral odds, bet aware | As Timestral odds, but its past bets go in alongside the readings | Whether it learns that a small bet gives a rough reading |
 
 ## Checks
 

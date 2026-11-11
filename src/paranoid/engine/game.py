@@ -112,8 +112,7 @@ class Game:
             None if bet == 0 else round(levels[c] + config.read_noise_k / math.sqrt(bet) * float(t.read_noise_z[row, c]), 1)
             for c, bet in enumerate(split)
         )
-        output = round(math.fsum(bet * level for bet, level in zip(split, levels)) / config.budget, 1)
-        played = Row(round=self.round, bets=split, readings=readings, output=output)
+        played = Row(round=self.round, bets=split, readings=readings)
         self.record.append(played)
         return played
 

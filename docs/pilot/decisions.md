@@ -29,6 +29,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Seeds](provider-checks.md#seeds), the count, and the row and scenario with the widest spread that set it | | | |
 | [Repeats](provider-checks.md#repeats) | | | |
 | [Recognition](provider-checks.md#recognition), share that marks a bar | | | |
+| [Channel order](provider-checks.md#channel-order), whether `submit` keeps its list | | | |
 | [Up against down](provider-checks.md#up-against-down) | | | |
 | [Jev checks](provider-checks.md#jev-checks) | | | |
 | [Timestral checks](provider-checks.md#timestral-checks) | | | |

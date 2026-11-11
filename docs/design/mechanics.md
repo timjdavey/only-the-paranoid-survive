@@ -4,13 +4,13 @@ How the game engine pays out, where each channel's level comes from, and what th
 
 ## Payout
 
-- **Linear.** Output is the sum over channels of share times level. Point 70 on a channel pays the same as point 1.
+- **Linear.** Output is the sum over channels of share times [reading](#what-the-agent-sees). A channel's level does not fall as the bet on it grows, so point 70 on a channel pays the same as point 1.
 - **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or an explore bet. See [scoring](scoring.md).
-- **Output and levels are reported to one decimal place.**
+- **Readings are reported to one decimal place.** Output is never shown, see [what the agent sees](#what-the-agent-sees).
 
 ## Generator
 
-The generator turns a scenario and a seed into a **timeline**: the ground truth of the run, every channel's level in every round. Levels are not clipped, so one can go below 0 in a deep shock. Every run on a seed replays the same timeline, and anyone can regenerate a public seed's timeline from the engine. A timeline is never written down: a held-out seed's timeline is as secret as the seed, see [contamination](../harness/contamination.md#two-seed-sets).
+The generator turns a scenario and a seed into a **timeline**: the ground truth of the run, every channel's level in every round. Levels are not clipped, and the default ladder sits high enough that none realistically falls below 0, see [each round](#each-round). Every run on a seed replays the same timeline, and anyone can regenerate a public seed's timeline from the engine. A timeline is never written down: a held-out seed's timeline is as secret as the seed, see [contamination](../harness/contamination.md#two-seed-sets).
 
 ### Each round
 
@@ -24,8 +24,8 @@ The generator turns a scenario and a seed into a **timeline**: the ground truth 
 | Loading | How much the channel moves with the shared factor. Uneven, drawn per seed from about 0.3 to 1. One channel draws a negative loading and is the **hedge** | Range per release |
 
 - **Persistence is why a bad month proves little.** At 0.8 a bad stretch is half gone after three rounds, so three poor rounds in a row are ordinary. With no persistence, three poor rounds are strong evidence and the only hard part is the scale.
-- **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that it never pays more than the leader, even mid-shock. It is a clue, not a destination.
-- **Base levels sit mid-range**, so a level rarely goes below 0. Nothing breaks when it does: the score is a share of a gap and the headline a plain mean, so a negative round is just a bad round. Clipping was only there for the geometric mean, which is gone, see [scoring](scoring.md#why-a-pool-within-and-a-plain-mean-across).
+- **The hedge rises when everything else falls**, like gold in a downturn. Its base level is low enough that its level never passes the leader's, even mid-shock. It is a clue, not a destination.
+- **The ladder sits high enough that no figure realistically falls below 0**, neither a level nor a reading, even in a deep shock. A bet is paid its reading, so a reading below 0 would be a real loss every skin would have to explain. [Timeline sanity](../pilot/engine-checks.md#timeline-sanity) confirms it, and moves the ladder up if not. The engine still never clips, see [rejected](#rejected).
 - **One seed, twin timelines.** The ladder, the weather, the loadings and the onset round are drawn from the seed before the scenario's events are applied. So seed *i* gives every scenario the same world, and the One shock and Down switch timelines match until the event begins, see [seeds](scoring.md#seeds).
 
 ### The ladder
@@ -68,21 +68,22 @@ Off by default. Each one closes a tell a model could learn.
 
 | Knob | What it does |
 |---|---|
-| Hedge may overtake | In a deep shock the hedge pays more than the leader for a few rounds, so holding costs real output |
+| Hedge may overtake | In a deep shock the hedge's level passes the leader's for a few rounds, so holding costs real output |
 | One-channel shock | A shock that hits the leader only, as an impulse on its level that leaves its base level alone, so the climate does not move and an explore bet on the field says nothing about scope |
 
 ## What the agent sees
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
-- **A small share gives a rough reading, a large share a clean one.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. The skin explains it, so there is no rule to tell the agent.
-- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either, so a rough reading of a low channel can be negative. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
+- **A bet is paid its reading.** A reading is the channel's level plus read noise. It is what the agent sees and what the agent earns, so the record holds everything it earned. Nothing is paid at the level, which stays hidden.
+- **A small share swings more, a large share less.** Read noise shrinks as spend rises, the way customers from a small spend are a small count. It is real luck, not a measuring error. The skin explains it, so there is no rule to tell the agent.
+- **Read noise is normal with SD k ÷ √bet**, so a bet of 4 is twice as rough as a bet of 16. Readings are not clipped either. On the default ladder even a bet of 1 on the lowest channel realistically pays above 0. The pilot sets k, see [reading roughness](../pilot/engine-checks.md#reading-roughness).
 - **Why.** An explore bet costs something, so paranoia has a price. You know a market by being in it.
-- **Output is paid at the true levels, on purpose**, while each reading carries read noise. A business knows its revenue to the penny but only roughly which channel drove it.
-  - **It adds little beyond the readings.** Summing the readings the way output is summed already gives output to within an SD of k ÷ 10, whatever the split. So output is worth one clean reading of the agent's own mix, and nothing about any one channel.
-  - **It can't name the shape.** A dip in output says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes an explore bet, see [events](#events).
+- **The record has no output column.** Output is each bet's share times its reading, added up. The agent can work it out from its own record, and the score adds up the same readings, see [scorer](../specs/harness/scorer.md#scoring-one-run). So the agent and the scorer agree on every number.
+  - **No split is safer than another.** The luck in a round's output has an SD of k ÷ 10 whatever the split, so read noise never rewards spreading or going all in.
+  - **Output can't name the shape.** A dip says the mix fell, not why. Uneven hidden loadings, the hedge and sleepers mean a dip's size varies per seed, so telling a shock from a switch still takes an explore bet, see [events](#events).
   - **It can't see a rise.** A sleeper rising on a channel with a bet of 0 changes nothing the agent sees. The Up switch scenario is invisible without an explore bet.
-  - **It can't sharpen a small explore bet.** With 99 on the leader and 1 on the hedge, output minus the leader's reading gives the hedge with an SD of about 10k, against k for the explore bet itself.
-  - **This is why the weather scale, not read noise, is the grid's dial.**
+  - **This is why the weather scale, not read noise, is the grid's dial.** On a full bet read noise is k ÷ 10, well under the weather. It prices explore bets and little else.
+- **Decided after two other designs**, an exact output column and a score paid at the level. Both are under [rejected](#rejected).
 
 ## Defaults
 
@@ -102,5 +103,8 @@ Off by default. Each one closes a tell a model could learn.
 | Two or three factors, with events on loadings | Most realistic, but scenarios become emergent and hard to match to the sparkline, baselines need a factor filter, and it is easy to build a world no model can read. A hard variant once one factor saturates |
 | Shocks that hit one channel only | An explore bet cannot tell a shock from a switch, so paying to see loses its point. Kept as a hard-variant knob |
 | A longer run to tighten the error bars | Once a model has moved, each extra round pays it and the Discerning baseline the same. So the gap between a model that moved in 3 rounds and one that took 8 shrinks with the error bar, and the two are no easier to tell apart. Only a model that never moves falls further behind. Input tokens grow with the square of the run, as every round resends the record. Doubling the seeds narrows every bar for twice the cost, see [spread](scoring.md#spread) |
-| Output summed from the noisy readings | It only adds one noise term with an SD of k ÷ 10, which changes little, see [what the agent sees](#what-the-agent-sees). And it breaks the skin, since no business estimates its own revenue |
+| An exact output column, paid at the level, beside the readings | The first design. The two figures never agree, so a model with the compute tool finds the books off in round 1 and every skin needs a story with two tallies. It told the agent little, as adding up the readings gives the same figure to within an SD of k ÷ 10. Timestral and the Bayesian baseline never read it, so players did not share one record |
+| A lower ladder, with the leader at 60 to 70 | A player with a bet of 1 on each of the nine other channels reads a figure below 0 in about one run in five. A bet is paid its reading, so that is a real loss, and few stories can explain one. Lifting every range by 30 keeps every difference between channels, so each baseline places the same bets and every gap and score is unchanged |
+| Clipping levels or readings at 0 | A clipped reading pays a small bet on a low channel more than its level, so a point in a small bet would earn more than a point in a large one. That breaks "no split is safer than another", see [what the agent sees](#what-the-agent-sees). The ladder is lifted instead |
+| Paying at the level and showing only readings | The score would rest on a number the agent never sees, and the story would have to hide a firm's own takings. All it saves is read noise in the score: about 0.6% of one run's score at the defaults, with a mean of zero, and the same for every split, see [what the agent sees](#what-the-agent-sees) |
 | A noise setting drawn per seed | It hides one number from a model that can already train across the whole public grid, so it stops nothing, see [learning the game](../harness/contamination.md#what-it-does-not-stop). And it breaks the axis: the [noise threshold](scoring.md#noise-threshold) is read off fixed settings, releases join by sharing two of them, and [luck on offer](../pilot/engine-checks.md#luck-on-offer) is checked per setting |

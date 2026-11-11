@@ -11,7 +11,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | EC3 | `engine_hash(SCENARIOS["no_change"])` is 12 lowercase hex characters and equals a pinned string. Changing the pinned string is a reviewed change | [config](config.md#engine-hash) |
 | EC4 | `dataclasses.replace` on each field with a different valid value changes the hash. Replacing a field with its own value does not | [config](config.md#engine-hash) |
 | EC5 | Each `*_points` default equals its `*_sigmas` default times `own_scale` at the default config | [config](config.md#defaults) |
-| EC6 | `leader_base=(60, 70)` and `(60.0, 70.0)` give equal configs, equal hashes and equal timelines on seed 0 | [config](config.md#fields) |
+| EC6 | `leader_base=(90, 100)` and `(90.0, 100.0)` give equal configs, equal hashes and equal timelines on seed 0 | [config](config.md#fields) |
 | EC7 | The test rebuilds the canonical JSON of `one_shock` from the recipe on the config page, and its SHA-256 starts with `engine_hash`. It contains `"shape":"shock"` inside its one event, and `shock_then_switch`'s has one `shock` and one `switch` | [config](config.md#engine-hash) |
 | EC8 | `replace(SCENARIOS[name], own_scale=8.0, pin_in_level_points=True)` builds for every scenario. The same with `pin_in_level_points=False` raises `ValueError`, as does a pinned config with `runner_up_gap_points=(8.0, 30.0)` | [config](config.md#fields) |
 | EC9 | A `Range` entry that is not a real number, an `IntRange` entry or `int` field that is not a whole number, and a `bool` in either, raise `TypeError`. `own_scale=4` and `own_scale=4.0` give equal configs and equal hashes | [config](config.md#fields) |
@@ -66,7 +66,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | EG3 | Inertia: with `inertia_cap = 20`, round 1 accepts any valid split, round 2 rejects a move of 21 with `check` `inertia` and accepts 20 | [game](game.md#bets) |
 | EG4 | Readings: with `read_noise_z` set to all ones on a hand-built timeline, round 1 splits 4, 16 and 80 and reads `level + k/2`, `level + k/4` and `level + k/sqrt(80)`, and round 2 puts 100 on one channel and reads `level + k/10`, each to one decimal | [game](game.md#readings) |
 | EG5 | Unfunded channels read `None`, and the row's readings are `None` exactly where bets are 0 | [game](game.md#readings) |
-| EG6 | Output equals the exact-level weighted sum rounded to one decimal, not the sum of the readings, on a timeline where they differ | [game](game.md#readings) |
+| EG6 | `row.output` equals the row's bets times its rounded readings, added up and divided by the budget, on an all in row and a split row, and differs from the level-weighted sum on a timeline with read noise | [game](game.md#readings) |
 | EG7 | A negative reading is possible: a low level and a large negative `read_noise_z` with a bet of 1 | [game](game.md#readings) |
 | EG8 | Playing a finished game raises `RuntimeError`, and `done` is true after `rounds` valid splits | [game](game.md#bets) |
 | EG9 | Bets passed as a list, a numpy array and a tuple of `np.int64` are all stored as a `tuple` of Python `int`, and `game.play(bets)` is `game.record.rows[-1]` | [game](game.md#bets) |

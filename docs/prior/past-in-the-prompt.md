@@ -4,7 +4,7 @@ Each round our agent gets a fresh call with its own record of play as a CSV in t
 
 - **Whose choice it was changes how hard a model holds on.** The same past pulls harder when the model thinks it made the choices. Our record is framed as the agent's own.
 - **Notes a model writes itself can make things worse.** They lose detail when rewritten and can lock in a wrong lesson. That is why a note comes back as user content, never as the agent's own words, and why the bare harness check prices what it did.
-- **A clear new fact mostly wins.** Where the change is stated plainly, models usually act on it. In our game it never is. It shows only as noisy levels.
+- **A clear new fact mostly wins.** Where the change is stated plainly, models usually act on it. In our game it never is. It shows only as noisy readings.
 
 ## Mazaheri and Mazaheri 2026: one past audit makes verifiers lenient
 
@@ -118,7 +118,7 @@ Jingyu Liu et al. "When History Fails to Become Experience: Action Calibration i
 
 **Why it matters here.**
 - Notes scoring below the full history is why the headline keeps the full record in the prompt beside the note, and why the [bare harness](../pilot/provider-checks.md#bare-harness) check prices what the note adds.
-- Labelled outcomes helped, and our record labels every level with its channel and its bet ([user message](../harness/prompts.md#user-message)).
+- Labelled outcomes helped, and our record labels every reading with its channel and its bet ([user message](../harness/prompts.md#user-message)).
 - The last 3 steps alone did worst. That backs giving the whole record rather than a `read_record` tool with a default window, which [interface](../design/interface.md#rejected) rejects.
 
 ## Barkett et al. 2025: escalation of commitment
@@ -174,7 +174,7 @@ Evan Chen, Shiqiang Wang and Christopher G. Brinton. "Fresh Memory, Stale Plans:
 **Watch out for.** The 15 of 25 uses a measure "defined after inspecting these runs" (Appendix C.4), so the authors treat it as motivation only. The 0 of 30 is built in, and the jump to 30 of 30 is a software check, not the model getting better at noticing.
 
 **Why it matters here.**
-- A stale plan pulls, but a clear current fact mostly wins. Our game never gives a clear fact, only noisy levels, so the pull should be stronger here.
+- A stale plan pulls, but a clear current fact mostly wins. Our game never gives a clear fact, only noisy readings, so the pull should be stronger here.
 - No plan is handed to our agent. A written plan beside the record is not in the current design.
 
 ## STALE 2026: knowing a memory is stale and acting on it
@@ -202,7 +202,7 @@ Hanxiang Chao, Yihan Bai, Rui Sheng, Tianle Li and Yushi Sun. "STALE: Can LLM Ag
 **Why it matters here.**
 - Asking whether a belief still holds would get a better answer than the bets show, and it tells the agent that change is the question. So we score what it does and don't ask, see [interface](../design/interface.md#rejected).
 - Models went along with premises they could tell were stale. A skin that calls the leader settled ("this has served us for years") is a premise. The [banned words](../harness/prompts.md#banned-words) lint catches words, not tone, so skins need a read for this too.
-- Their new evidence is one plain sentence. Ours is a fall in noisy levels, so the gap should be wider here.
+- Their new evidence is one plain sentence. Ours is a fall in noisy readings, so the gap should be wider here.
 
 ## The Self-Correction Illusion 2026: the same claim under a different role
 

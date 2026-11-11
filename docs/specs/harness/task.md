@@ -24,8 +24,7 @@ def paranoid(
 class StoredRow(BaseModel):
     round: int
     bets: list[int]
-    readings: list[float | None]
-    output: float
+    readings: list[float | None]      # the three fields of an engine Row. Output is never stored, see game.md
 
 class RunStore(StoreModel):
     scenario: str = ""

@@ -32,7 +32,7 @@ SCENARIO_ORDER = [
 ]
 
 # Pinned. Changing it is a reviewed change, see EC3.
-NO_CHANGE_HASH = "7c2ff670a104"
+NO_CHANGE_HASH = "63fe6cf8d3d0"
 
 
 def config(**fields) -> ScenarioConfig:
@@ -51,7 +51,7 @@ BAD_CONFIGS = {
     "channels below 4": dict(channels=3),
     "rounds below 1": dict(rounds=0, onset=(2, 2)),
     "budget below channels": dict(budget=9),
-    "range low above high": dict(leader_base=(70.0, 60.0)),
+    "range low above high": dict(leader_base=(100.0, 90.0)),
     "int range low above high": dict(onset=(20, 12)),
     "persistence of 1": dict(persistence=1.0),
     "persistence below 0": dict(persistence=-0.1),
@@ -61,7 +61,7 @@ BAD_CONFIGS = {
     "field_headroom of 0": dict(field_headroom=0.0),
     "hedge_margin_points of 0": dict(hedge_margin_points=0.0),
     "infinite own_scale": dict(own_scale=math.inf),
-    "nan in a range": dict(leader_base=(math.nan, 70.0)),
+    "nan in a range": dict(leader_base=(math.nan, 100.0)),
     "loading low of 0": dict(loading=(0.0, 1.0)),
     "hedge_loading high of 0": dict(hedge_loading=(-0.6, 0.0)),
     "runner_up_gap_sigmas low of 0": dict(runner_up_gap_sigmas=(0.0, 4.0)),
@@ -70,8 +70,8 @@ BAD_CONFIGS = {
     "onset low of 1": dict(onset=(1, 5)),
     "onset high above rounds": dict(onset=(12, 41)),
     "negative inertia_cap": dict(inertia_cap=-1),
-    "hedge_base not below field_base": dict(hedge_base=(20.0, 30.0)),
-    "field_base too high for the ladder": dict(field_base=(45.0, 55.0)),
+    "hedge_base not below field_base": dict(hedge_base=(50.0, 60.0)),
+    "field_base too high for the ladder": dict(field_base=(75.0, 85.0)),
     "riser_share above 1": lambda: dict(events=(SwitchSpec(riser_share=1.5),)),
     "short_share below 0": lambda: dict(events=(SwitchSpec(kind="rise", short_share=-0.1),)),
     "gap low of 0": lambda: dict(events=(ShockSpec(gap=(0, 4)),)),
@@ -114,12 +114,12 @@ OTHER_VALUES = {
     "channels": 11,
     "rounds": 39,
     "budget": 101,
-    "leader_base": (61.0, 70.0),
+    "leader_base": (91.0, 100.0),
     "runner_up_gap_sigmas": (2.0, 3.5),
     "runner_up_gap_points": (8.0, 15.0),
-    "field_base": (31.0, 55.0),
+    "field_base": (61.0, 85.0),
     "field_headroom": 5.0,
-    "hedge_base": (21.0, 28.0),
+    "hedge_base": (51.0, 58.0),
     "own_scale": 3.0,
     "persistence": 0.7,
     "factor_scale": 2.0,
@@ -180,8 +180,8 @@ def test_ec5_points_defaults_agree_with_sigmas():
 
 
 def test_ec6_int_and_float_ranges_are_one_config():
-    as_ints = config(leader_base=(60, 70))
-    as_floats = config(leader_base=(60.0, 70.0))
+    as_ints = config(leader_base=(90, 100))
+    as_floats = config(leader_base=(90.0, 100.0))
     assert as_ints == as_floats
     assert engine_hash(as_ints) == engine_hash(as_floats)
     a, b = make_timeline(as_ints, 0), make_timeline(as_floats, 0)
@@ -220,15 +220,15 @@ def test_ec8_noise_grid_settings(name):
 
 
 BAD_TYPES = {
-    "string in a range": dict(leader_base=("60", 70.0)),
-    "bool in a range": dict(leader_base=(True, 70.0)),
+    "string in a range": dict(leader_base=("90", 100.0)),
+    "bool in a range": dict(leader_base=(True, 100.0)),
     "float in an int range": dict(onset=(12.5, 20)),
     "float whole number in an int range": dict(onset=(12.0, 20)),
     "float int field": dict(channels=10.0),
     "bool int field": dict(rounds=True),
     "string float field": dict(own_scale="4"),
     "int for a bool field": dict(pin_in_level_points=1),
-    "a range of three": dict(leader_base=(60.0, 65.0, 70.0)),
+    "a range of three": dict(leader_base=(90.0, 95.0, 100.0)),
     "not an event spec": lambda: dict(events=("shock",)),
     "float in an event int range": lambda: dict(events=(ShockSpec(gap=(8.5, 12)),)),
 }
