@@ -9,7 +9,20 @@ dependencies = [
     # One minor version only: a timeline is bit-equal within one numpy version,
     # see docs/specs/engine/config.md#engine-hash.
     "numpy~=2.5.0",
+    # The version every "Checked" section in docs/specs/harness/ was run on.
+    "inspect_ai==0.3.289",
+    "pydantic>=2",
+    "python-dotenv>=1",
+    # Jev's SDK. Imported lazily, inside paranoid.harness.providers.jev only.
+    "typesafe-sdk~=0.7.5",
 ]
+
+[project.scripts]
+paranoid = "paranoid.harness.cli:main"
+
+# Registers the @task and the baseline, jev and timestral providers, see docs/specs/harness/providers.md#registration.
+[project.entry-points.inspect_ai]
+paranoid = "paranoid.harness"
 
 [project.optional-dependencies]
 # torch and Timestral, which only paranoid.forecasters imports. Pinned to one commit as a direct
@@ -24,6 +37,7 @@ dev = [
     "pytest>=9.2",
     "hypothesis>=6.170",
     "import-linter>=2.16",
+    "pytest-xdist>=3.8.0",
 ]
 
 [build-system]
@@ -38,13 +52,16 @@ packages = ["src/paranoid"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Slow tests, sweeps and tests on the real Timestral are skipped by default.
-# Run them with `uv run pytest -m slow`, `-m sweep` or `-m timestral`.
-addopts = "-m 'not slow and not sweep and not timestral' --strict-markers --import-mode=importlib"
+# Slow tests, sweeps, tests on the real Timestral and tests that need Docker are skipped by default.
+# Run them with `uv run pytest -m slow`, `-m sweep`, `-m timestral` or `-m sandbox`.
+# Tests run on one worker per core. Add `-n 0` to run them in one process. Idle workers take
+# tests from busy ones (`--dist worksteal`), as the slow tests sit together in a few files.
+addopts = "-m 'not slow and not sweep and not timestral and not sandbox' --strict-markers --import-mode=importlib -n auto --dist worksteal"
 markers = [
-    "slow: runs a thousand seeds or more, see the tests page of each layer's spec. CI runs them",
+    "slow: runs a thousand seeds or more, or takes minutes, see the tests page of each layer's spec. Run by hand, CI skips them",
     "sweep: plays a thousand seeds of a baseline, see docs/specs/baselines/tests.md. Run by hand, CI skips them",
     "timestral: loads the real Timestral, so it needs the timestral extra, see docs/specs/forecasters/tests.md. Run by hand, CI skips them",
+    "sandbox: runs the compute tool in Docker, see docs/specs/harness/tests.md. Run by hand, CI skips them",
 ]
 
 # The layer rule, see docs/harness/layout.md#six-layers. CI runs `lint-imports`.
@@ -74,6 +91,9 @@ name = "Only the forecasters layer imports torch or Timestral"
 type = "forbidden"
 source_modules = ["paranoid.engine", "paranoid.baselines", "paranoid.skins", "paranoid.harness", "paranoid.analysis"]
 forbidden_modules = ["torch", "timestral", "huggingface_hub"]
+# The harness imports paranoid.forecasters, whose lazy torch import would otherwise count against it.
+# A direct import of torch from the harness still fails.
+allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
 # The layers contract would let skins import baselines and numpy. See docs/specs/skins/README.md#modules.

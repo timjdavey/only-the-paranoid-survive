@@ -5,9 +5,17 @@ on:
   push:
     branches: [main]
 
+# A new push to a PR cancels that PR's older run. Every push to main runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    # A run takes about 2 minutes, most of it the tests on the runner's 2 cores. Slow tests run by hand,
+    # see docs/harness/running.md.
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
@@ -15,7 +23,5 @@ jobs:
         run: uv sync --locked
       - name: Tests
         run: uv run pytest
-      - name: Slow tests
-        run: uv run pytest -m slow
       - name: Layer rule
         run: uv run lint-imports

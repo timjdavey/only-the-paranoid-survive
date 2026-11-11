@@ -1,6 +1,6 @@
 # Tests
 
-Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engine, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, and they import `paranoid.engine` alone, see [layout](../../harness/layout.md#six-layers). Where a test needs a policy it builds a stub in the test file, see [stub policies](#stub-policies), and a test that needs a real baseline lives in the [baselines suite](../baselines/tests.md). Tests marked **slow** run a thousand seeds and are skipped by default, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
+Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engine, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, and they import `paranoid.engine` alone, see [layout](../../harness/layout.md#six-layers). Where a test needs a policy it builds a stub in the test file, see [stub policies](#stub-policies), and a test that needs a real baseline lives in the [baselines suite](../baselines/tests.md). Tests marked **slow** run a thousand seeds and are skipped by default and by CI, run with `-m slow`. Where a check uses a tolerance it is given, so the test can be written from this page alone.
 
 ## Config
 

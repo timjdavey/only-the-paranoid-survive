@@ -24,15 +24,15 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `RunStore`, `StoredRow` | The `StoreModel` on every sample, and its row type | [task](task.md) |
 | `load_seeds`, `parse_seeds`, `scenario_config` | Seed files, the `seeds` arg, the config a sample plays | [task](task.md) |
 | `load_grid`, `Grid` | The noise grid and the release it belongs to, from `configs/grid.toml` | [task](task.md) |
-| `round_loop`, `tool_choice_for`, `record_blocks` | The round loop solver, the `any` or `auto` rule, and the cut of the record into content blocks for the prompt cache | [solver](solver.md) |
+| `round_loop`, `tool_choice_for`, `record_blocks`, `BLOCK_CACHE_APIS` | The round loop solver, the `any` or `auto` rule, the cut of the record into content blocks for the prompt cache, and the apis that get it | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools, each built from the skin | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
 | `JevAnswer`, `JevClient` | Jev's reply, and the seam a test fakes | [providers](providers.md) |
 | `gain` | The `@scorer` | [scorer](scorer.md) |
-| `scenario_score`, `headline`, `weakest_trait`, `retry_share` | The `@metric`s | [scorer](scorer.md) |
+| `scenario_score`, `headline`, `weakest_trait`, `retry_share`, `tool_use_share` | The `@metric`s | [scorer](scorer.md) |
 | `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED`, `TRAITS` | The maths the metrics share, its two constants, and scenario to trait | [scorer](scorer.md) |
 | `load_models`, `ModelRow`, `generate_config` | The models config and the reasoning mapping | [command](command.md) |
-| `REASONING`, `EFFORT_PREFIXES` | The reasoning grid, and the providers that take an effort rather than a budget | [command](command.md) |
+| `REASONING`, `EFFORT_PREFIXES`, `SKIN_READERS` | The reasoning grid, the providers that take an effort rather than a budget, and the kinds that play every skin | [command](command.md) |
 | `main` | The `paranoid` console script | [command](command.md) |
 | `CellArgs`, `CELLS`, `run_cell`, `RECOGNITION_QUESTION`, `CHANNEL_ORDER_REQUEST`, `ALL_BETS` | The pilot cells, how the command runs one, and the words and bets of the two probes | [pilot](pilot.md) |
 
@@ -40,26 +40,32 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 
     src/paranoid/harness/
       __init__.py      the exports above, nothing else
-      task.py          paranoid, scenario_config, the dataset
+      config.py        scenario_config, and the checks on the task args
+      task.py          paranoid, the dataset
       seeds.py         load_seeds, parse_seeds, load_grid, Grid
       store.py         RunStore, StoredRow
-      solver.py        round_loop, tool_choice_for, record_blocks
+      version.py       harness_version, private
+      solver.py        round_loop, tool_choice_for, record_blocks, BLOCK_CACHE_APIS
       tools.py         submit, notes, compute
       compose.yaml     the sandbox for compute, network off
       scorer.py        gain
-      metrics.py       the four metrics, pooled_score, bootstrap, TRAITS
+      metrics.py       the five metrics, pooled_score, bootstrap, TRAITS
       providers/
         __init__.py    the @modelapi registrations, StoreAPI
         baseline.py    BaselineAPI, over the baselines layer's POLICIES
         jev.py         JevAPI, JevClient
         timestral.py   TimestralAPI, over the forecasters layer's TIMESTRAL_POLICIES
       models.py        load_models, ModelRow, generate_config
+      evals.py         the one eval call run and the pilot cells share, private
       cli.py           main, run, pilot
-      pilot.py         CellArgs, CELLS, run_cell, one function per cell
+      pilot/           CellArgs, CELLS, run_cell, one function per cell, a file per kind of cell
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.harness` only.
-- Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py`, imported lazily so the default install runs without it. torch and Timestral are the forecasters layer's alone. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#six-layers).
-- `pyproject.toml` registers the providers under the `inspect_ai` entry point and `main` as the `paranoid` console script, and ships `compose.yaml` as package data.
+- **`scenario_config` lives in `config.py`, not `task.py`.** The store needs it and the task needs the store, so in `task.py` it would make an import cycle.
+- **`pilot/` is a package**, as twenty-one cells do not fit one file of 300 lines.
+- Third-party imports are inspect_ai, numpy, pydantic, python-dotenv and tomllib, plus `typesafe-sdk` inside `jev.py`. `typesafe-sdk` is a default dependency, see [providers](../../harness/providers.md#jev), and is still imported lazily, so nothing but a Jev run loads it. torch and Timestral are the forecasters layer's alone. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#six-layers).
+- `pyproject.toml` registers `paranoid = "paranoid.harness"` under the `inspect_ai` entry point, so loading the package registers the task and the providers. It names `main` as the `paranoid` console script, and ships `compose.yaml` as package data.
+- **The task's inspect name is `paranoid/paranoid`.** inspect puts the package name before a task from an installed package, and a bare `paranoid` loads no entry point. So the command line types `inspect eval paranoid/paranoid`, and `run` and the pilot cells pass the `paranoid` function itself, see [checked](#checked).
 
 ## Names from the engine
 
@@ -127,3 +133,13 @@ The analysis is the layer above. What it takes from the harness is listed on its
 - **Warm up rows are not the agent's.** A record pre-filled by a baseline counts toward the record the agent sees, never toward its score, see [scorer](scorer.md#scoring-one-run).
 - **A held-out seed's value is never in a log**, see [dataset](task.md#dataset).
 - **Tests need no network and no key.** They play `mockllm/model` and the baseline provider, and fake Jev and Timestral, see [tests](tests.md).
+
+## Checked
+
+Run on 2026-11-11 against inspect_ai 0.3.289, read from its source.
+
+| Question | Answer |
+|---|---|
+| The name of a task from an installed package | `<package>/<task>`, so `paranoid/paranoid`. A bare `paranoid` is looked for as a file or a task already registered, and loads no entry point |
+| Is a provider's name prefixed the same way | No. A `@modelapi` matches on its unqualified name, so `baseline/complacent` resolves once the entry point is loaded. The provider is built with the name after the slash, `complacent` |
+| Do `-T` values with commas reach the task as one string | No. inspect splits `-T scenario=a,b` into a list. So `scenario`, `seeds` and `tools` take a list too and join it with commas |

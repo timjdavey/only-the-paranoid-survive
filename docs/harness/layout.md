@@ -18,7 +18,7 @@ How the code is arranged. The [design](../README.md#design) pages say why the ga
 | baselines | `paranoid.baselines` | engine | the fixed policies, `HedgeRule`, `ScoutRule`, `POLICIES`, the forecast rules and `FORECAST_RULES`, see the [baselines spec](../specs/baselines/README.md#exports) |
 | skins | `paranoid.skins` | engine | `Skin`, `SkinError`, `load_skin`, `load_skins`, `render_system_prompt`, `render_record`, `prompt_hash`, `lint`, `lint_text`, `LintError`, `CANARY` and the lint's word lists, see the [skins spec](../specs/skins/README.md#exports) |
 | forecasters | `paranoid.forecasters` | baselines, engine, and torch and Timestral through the `timestral` extra | `Forecaster`, `Forecast`, `ForecastPolicy`, `TIMESTRAL_POLICIES`, see the [forecasters spec](../specs/forecasters/README.md#exports) |
-| harness | `paranoid.harness` | skins, forecasters, inspect_ai | the `paranoid` task, the round loop solver, the `submit` tool, providers, scorer, metrics, the `paranoid` command |
+| harness | `paranoid.harness` | skins, forecasters, baselines, engine, inspect_ai | the `paranoid` task, `RunStore`, the round loop solver, the three tools, the providers, the scorer and its five metrics, the models config, the `paranoid` command and the pilot cells, see the [harness spec](../specs/harness/README.md#exports) |
 | analysis | `paranoid.analysis` | harness, engine, pandas, matplotlib, scipy | `load_runs`, `ResultKey`, `scenario_scores`, `headlines`, the gaps, `spread`, `switch_kinds`, `noise_threshold`, the writers and plots, `analyse`, see the [analysis spec](../specs/analysis/README.md#exports) |
 
 ## What each layer does
@@ -63,7 +63,7 @@ One file carries a duty for every layer. Each row links to the spec that owns th
 | Console script | `paranoid`, pointing at the harness's `main` | [command spec](../specs/harness/command.md#subcommands) |
 | `inspect_ai` entry point | The module that registers the `baseline`, `jev` and `timestral` providers | [providers spec](../specs/harness/providers.md) |
 | `paranoid.commands` entry point | `analyse`, which the harness finds without importing the analysis layer | [analysis command](../specs/analysis/command.md#dispatch) |
-| Extras | `timestral` for torch and Timestral, which only the forecasters layer imports, `sandbox` for the Docker sandbox | [running](running.md#setup) |
+| Extras | `timestral` for torch and Timestral, which only the forecasters layer imports. The Docker sandbox needs no extra, as inspect drives the `docker` command | [running](running.md#setup) |
 | Package data | `skins/example.toml` and the harness's `compose.yaml` | [skin spec](../specs/skins/skin.md#the-example-skin), [solver spec](../specs/harness/solver.md#compute) |
 | Pins | numpy to one minor version, and the Timestral package to one git commit | [engine hash](../specs/engine/config.md#engine-hash), [forecasters spec](../specs/forecasters/timestral.md#pinned) |
 

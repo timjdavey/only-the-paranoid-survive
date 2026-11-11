@@ -26,7 +26,7 @@ def scenario_score() -> Metric      # {"<scenario>": s, "<scenario>_lo": lo, "<s
 @metric
 def headline() -> Metric            # {"headline": h, "lo": lo, "hi": hi, "scenarios": n}
 @metric
-def weakest_trait() -> Metric       # {"scenario": name, "trait": TRAITS[name], "score": s}
+def weakest_trait() -> Metric       # {"<trait>": s}, one key, the weakest scenario's trait
 @metric
 def retry_share() -> Metric         # {"<scenario>": share, "all": share, "cut_off_share": share}
 @metric
@@ -37,7 +37,7 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 
 ### Scoring one run
 
-`Score.value` holds these keys, all floats or ints:
+`Score.value` holds these keys, all floats or ints, bar the three that may be empty. Empty is `None`, which the mean reducer skips per key and the log writes as JSON `null`. NaN would not be standard JSON, see [checked](#checked):
 
 | Key | Value |
 |---|---|
@@ -45,15 +45,15 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 | `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, timeline)` with the run's warm up record as its start, each policy at its defaults from the [baselines layer](../baselines/README.md#exports), see [play](../engine/game.md#play) |
 | `gain` | `output − uniform`, or 0 when the run gave up, see [giving up](#giving-up) |
 | `gap` | `discerning − uniform` |
-| `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread) |
+| `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread). `None` on the rare seed whose gap is 0 |
 | `rounds`, `warm_up_rounds` | `len(tries)`: the rounds the agent played, plus the one it gave up on if it did. And the rounds a baseline played first |
 | `retries` | `sum(tries) − len(tries)`, the generate calls beyond the first per round |
 | `retry_rounds` | Rounds with `tries > 1` |
 | `gave_up` | 1 when the run gave up, else 0 |
 | `bad_calls`, `no_calls`, `cut_offs`, `notes_rounds`, `compute_rounds` | From the store |
 | `unchanged_rounds` | `len(record.unchanged_rounds())` over the agent's rounds only |
-| `explore_points` | The mean of `budget − max(bets)` over the agent's rounds before the first event's `onset`, or over every agent round when the config has no events. Empty when the agent played no such round. Exploring when nothing is wrong, see [up against down](../../pilot/provider-checks.md#up-against-down) |
-| `sleeper_round` | The first agent round at or after the onset of the event that made `timeline.sleeper` with at least 1 point on it. `0` when it never happens, empty when `timeline.sleeper` is `None` |
+| `explore_points` | The mean of `budget − max(bets)` over the agent's rounds before the first event's `onset`, or over every agent round when the config has no events. `None` when the agent played no such round. Exploring when nothing is wrong, see [up against down](../../pilot/provider-checks.md#up-against-down) |
+| `sleeper_round` | The first agent round at or after the onset of the event that made `timeline.sleeper` with at least 1 point on it. `0` when it never happens, `None` when `timeline.sleeper` is `None` |
 
 - **The baselines replay the agent's warm up.** `play(policy, timeline, record=warm_up_record)` starts each baseline where the agent started, so with an empty warm up it is the plain full run. Their outputs are summed over every round after the warm up, to the end of the run, whether or not the agent got there.
 - **The baselines play with `inertia_cap` cleared.** They move whole budgets, so under a cap `play` would raise at the first move, see [pilot cells](pilot.md#shared-rules). The score needs them whatever the agent's config, so `gain` plays them against a timeline made from the run's config with `inertia_cap` set to `None`, which draws the same arrays because `make_timeline` never reads the cap, see [config](../engine/config.md#fields).
@@ -90,7 +90,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 
 ### Weakest trait
 
-- The scenario with the lowest score, its trait from `TRAITS`, and the score. Ties go to `SCENARIOS` order.
+- **One key, the trait, holding the score**, such as `{"doubt": 0.41}`. The lowest scenario score, ties to `SCENARIOS` order. inspect casts every value of a metric's dict to `float`, so the scenario and trait cannot be values. The trait names its scenario through `TRAITS`, see [checked](#checked).
 - `TRAITS` holds the eight pairs in [traits](../../design/scoring.md#traits): `no_change` to `"composure"`, `one_shock` to `"patience"`, `down_switch` to `"doubt"`, `up_switch` to `"curiosity"`, `shock_then_switch` to `"unlearning"`, `slow_drift` to `"vigilance"`, `switch_then_shock` to `"conviction"`, `up_switch_then_down_switch` to `"recall"`.
 
 ### Retry share
@@ -121,3 +121,12 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 
 - Whether `bayesian` joins the marks in `Score.value`, beside `hedge_rule` and `scout_rule`, once the [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier) has set its defaults. Until then the six baselines above are the marks, and the frontier's own CSV holds the Bayesian baseline's outputs.
 - `BOOTSTRAP_DRAWS` at 1000 is a convention, not a pilot knob. Raise it if the bars wobble between runs of the analysis at the seed counts the pilot picks. Decide once the pilot has set its seed count.
+
+## Checked
+
+Run on 2026-11-11 against inspect_ai 0.3.289, read from its source.
+
+| Question | Answer |
+|---|---|
+| Can a metric return a string in its dict | No. Every value goes through `float()`, so a string raises when the metric runs |
+| What the mean reducer does with a `None` in a dict value | Skips it for that key. A key that is `None` in every epoch stays `None`, written as JSON `null` |

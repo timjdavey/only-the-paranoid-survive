@@ -1,0 +1,7 @@
+# The noise grid and the release it belongs to, see docs/specs/harness/task.md#release.
+# The release is `dev` until the first one is frozen.
+release = "dev"
+
+# Own-weather scale settings, in level points. Pilot to confirm by the noise grid check,
+# see docs/pilot/engine-checks.md#noise-grid. Every setting must build for every scenario.
+own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]

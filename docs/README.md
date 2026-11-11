@@ -26,7 +26,7 @@ How it is built. Layers, tools and commands.
 
 | Page | What's in it |
 |---|---|
-| [Layout](harness/layout.md) | The five layers of the code and the rule for what imports what |
+| [Layout](harness/layout.md) | The six layers of the code and the rule for what imports what |
 | [Inspect](harness/inspect.md) | How the design maps onto inspect_ai |
 | [Running](harness/running.md) | Setup, commands, logs and the cost guard |
 | [Models](harness/models.md) | Which models run and with what settings |

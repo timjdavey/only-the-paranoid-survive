@@ -9,11 +9,11 @@
 ```python
 @task
 def paranoid(
-    scenario: str = "all",            # a code name, a comma list of them, or "all"
-    seeds: str = "public",            # "public", "held-out", or positions such as "0-4" or "0-4,7,9"
+    scenario: str | list[str] = "all",          # a code name, a comma list of them, or "all"
+    seeds: str | list[str] = "public",          # "public", "held-out", or positions such as "0-4" or "0-4,7,9"
     skin: str = "example",
-    rounds: int | None = None,        # overrides ScenarioConfig.rounds
-    tools: str = "notes,compute",     # the headline setting, or "none", "notes", "compute"
+    rounds: int | None = None,                  # overrides ScenarioConfig.rounds
+    tools: str | list[str] = "notes,compute",   # the headline setting, or "none", "notes", "compute"
     tool_choice: str | None = None,   # "any", "auto", or None to decide from the model, see solver.md
     inertia: int | None = None,       # sets ScenarioConfig.inertia_cap
     warm_up: str | None = None,       # "<baseline>:<rounds>", such as "complacent:5"
@@ -70,12 +70,14 @@ def load_grid() -> Grid               # configs/grid.toml
 
 ### Scenarios and config
 
+- **`scenario`, `seeds` and `tools` take a list too**, joined with commas first. inspect splits `-T scenario=a,b` into a list before the task sees it, see [checked](#checked).
 - **`scenario`** is `"all"`, one code name from `SCENARIOS`, or a comma list such as `"one_shock,down_switch"`. `"all"` is the eight in `SCENARIOS` order. An unknown name raises `ValueError` naming it, before any file is read or path is built.
-- **`scenario_config`** starts from `SCENARIOS[name]` and applies the knobs with `dataclasses.replace`, so the engine's validation runs again:
+- **`scenario_config`**, in `config.py`, starts from `SCENARIOS[name]` and applies the knobs with `dataclasses.replace`, so the engine's validation runs again:
   - `rounds` replaces `rounds`.
   - `inertia` replaces `inertia_cap`.
   - `own_scale` replaces `own_scale` and sets `pin_in_level_points` to true, so the reachable gain holds while the noise moves, see [noise threshold](../../design/scoring.md#noise-threshold).
 - **The `engine_hash` in the log is of the replaced config**, so a run at `rounds=20` never shares a hash with the frozen study setting.
+- **`configs/` is read from the working directory**, as `--models` is, so commands run from the repo root. Tests move the working directory with `monkeypatch.chdir`, and `PARANOID_PILOT_SEEDS` stays the one test hook, see [tests](tests.md).
 - **The noise grid lives in `configs/grid.toml`** as `own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]`, **pilot to confirm** by the [noise grid](../../pilot/engine-checks.md#noise-grid) check. `load_grid()` reads it. The task plays one setting per eval. `paranoid run --own-scale grid` plays the list with a model, see [command](command.md#run), and `paranoid pilot noise-grid` plays it with the baselines, see [pilot](pilot.md#noise-grid).
 - **Every grid setting must build.** `load_grid()` calls `scenario_config(name, own_scale=s)` for every scenario and setting and lets the engine's `ValueError` through, so a setting the ladder cannot hold fails when the file is read, not half way through a study.
 
@@ -120,7 +122,7 @@ A [release](../../glossary.md#seeds-and-secrecy) is one frozen set of generator 
 ### Task settings
 
 - **`solver`** is `round_loop(skin, tools, tool_choice=tool_choice, rolling=rolling)`. **`scorer`** is `gain()`. With `tool_choice` unset the solver picks it from the model, see [each round](solver.md#each-round).
-- **`retry_on_error=1`** and **`fail_on_error=0.1`**, set here and never on the command line. A model that cannot call the tool never raises, it gives up and is scored, see [giving up](scorer.md#giving-up). So an error is infrastructure: a timeout, a rate limit, a provider down. inspect plays the sample again once, and if more than a tenth of samples still error the eval fails, so a half-empty log cannot pass as a result.
+- **`fail_on_error=0.1`** on the task, and **`retry_on_error=1`** on every eval `run` and the pilot cells call. `Task` takes no `retry_on_error`, it is an `eval()` argument, see [checked](#checked). Typed by hand, `inspect eval` needs `--retry-on-error 1`. A model that cannot call the tool never raises, it gives up and is scored, see [giving up](scorer.md#giving-up). So an error is infrastructure: a timeout, a rate limit, a provider down. inspect plays the sample again once, and if more than a tenth of samples still error the eval fails, so a half-empty log cannot pass as a result.
 - **Epochs** reduce by `"mean"`. Repeats of a seed are averaged before any metric sees them, see [error bars](../../design/scoring.md#error-bars).
 - **`sandbox`** is `("docker", <path>)` whenever `tools` includes `compute`, so at the default, else none. The path is the module's own `compose.yaml`, see [compute](solver.md#compute). A headline run therefore needs Docker, see [running](../../harness/running.md#setup).
 - **Skins** load with `load_skins()`, which reads `PARANOID_SKINS` when set. A `skin` that is not loaded raises `ValueError` listing the loaded names.
@@ -137,6 +139,7 @@ A [release](../../glossary.md#seeds-and-secrecy) is one frozen set of generator 
 ### Warm up
 
 - **`warm_up="<baseline>:<k>"`** plays `k` rounds of the named baseline before the agent's first round: `play(POLICIES[name](), timeline, max_rounds=k)`, see [play](../engine/game.md#play). Its rows go into `rows` and `warm_up_rounds = k`. `name` is a key of the baselines layer's [`POLICIES`](../baselines/policies.md#policies). Every entry is a class, so it is called with no arguments to build the policy at its defaults. `k` must be at least 1 and below the config's `rounds`, else `ValueError`.
+- **Under an `inertia` cap the warm up plays with the cap cleared**, on a timeline made from the config with `inertia_cap` set to `None`, as the scorer's baselines do, see [scoring one run](scorer.md#scoring-one-run). The baselines move whole budgets, so under a cap they would raise on their first move. The agent's own rounds keep the cap.
 - **The agent then plays rounds `k + 1` to `rounds`.** Its round 1 user message shows `k` rows it did not place, see [user message](../../harness/prompts.md#user-message).
 - **Warm up rows score nothing** for the agent, and the baselines it is scored against are summed over the same rounds it played, see [scoring one run](scorer.md#scoring-one-run).
 - The warm up check is in [provider checks](../../pilot/provider-checks.md#warm-up).
@@ -161,3 +164,5 @@ Run on 2026-11-11 against inspect_ai 0.3.289, with a stub provider and no key.
 | Question | Answer |
 |---|---|
 | Does a solver's write to `state.metadata` land in the log's `sample.metadata` | Yes, beside the keys the dataset set. So the solver writes `tool_choice` there and the task resolves nothing |
+| Does `Task` take `retry_on_error` | No. It is an argument of `eval()`, and `Task` drops it with no error. `fail_on_error` is a `Task` argument |
+| What `-T scenario=a,b` passes | A list, `["a", "b"]`. inspect splits a comma value before the task sees it |
