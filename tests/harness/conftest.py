@@ -195,3 +195,32 @@ class FakeJev:
 @pytest.fixture(name="FakeJev", scope="session")
 def fake_jev_fixture():
     return FakeJev
+
+
+@pytest.fixture
+def evals(monkeypatch):
+    """Wraps inspect_ai.eval for the evals `run` and the cells make: the local sandbox, no display, and a record.
+
+    Those evals play the headline tools, so without this they would need Docker.
+    """
+    real = inspect_ai.eval
+    calls: list[dict] = []
+
+    def wrapped(*args, **kwargs):
+        calls.append(kwargs)
+        return real(*args, **(kwargs | {"sandbox": "local", "display": "none"}))
+
+    monkeypatch.setattr(inspect_ai, "eval", wrapped)
+    return calls
+
+
+def models_file(folder: Path, *rows: tuple[str, str, str]) -> Path:
+    """A models file of (id, kind, reasoning) rows."""
+    path = folder / "models.toml"
+    path.write_text("".join(f'[[model]]\nid = "{i}"\nkind = "{k}"\nreasoning = "{r}"\n' for i, k, r in rows))
+    return path
+
+
+@pytest.fixture(name="models_file", scope="session")
+def models_file_fixture():
+    return models_file

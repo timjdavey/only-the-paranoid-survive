@@ -1,5 +1,6 @@
 """The inspect_ai layer. See docs/specs/harness/README.md#exports."""
 
+from .cli import main
 from .config import scenario_config
 from .metrics import (
     BOOTSTRAP_DRAWS,
@@ -64,4 +65,5 @@ __all__ = [
     "TimestralAPI",
     "JevAnswer",
     "JevClient",
+    "main",
 ]
