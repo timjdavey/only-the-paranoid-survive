@@ -16,14 +16,14 @@ First numbers from the baselines layer at its defaults, on seeds 0 to 49, for th
 
   | Scenario | Reachable gain | Bayesian gain | Bayesian gain percentage | Passes |
   |---|---|---|---|---|
-  | Down switch | 0.37 | 0.29 | 78% | Yes |
-  | Up switch | 0.14 | 0.09 | 64% | No |
-  | Shock then switch | 0.20 | 0.11 | 55% | No |
-  | Slow drift | 0.12 | 0.05 | 42% | No |
-  | Switch then shock | 0.38 | 0.29 | 76% | Yes |
-  | Up switch then down switch | 0.37 | 0.29 | 78% | Yes |
+  | Down switch | 0.38 | 0.29 | 76% | Yes |
+  | Up switch | 0.14 | 0.08 | 62% | No |
+  | Shock then switch | 0.20 | 0.10 | 53% | No |
+  | Slow drift | 0.12 | 0.05 | 40% | No |
+  | Switch then shock | 0.39 | 0.29 | 74% | Yes |
+  | Up switch then down switch | 0.36 | 0.29 | 80% | Yes |
 
-  The Bayesian baseline moved off the leader on 191 of 200 Up switch then down switch seeds, so that line holds. A rough sweep: an onset of 8 to 12 with switch sizes of 2 to 4 sigmas clears every scenario but Up switch, which needed a rise of 3 to 5 sigmas.
+  Never moving scored 0.84 on the headline and the Bayesian baseline 0.93. The explore cost was 0.05 for the Bayesian baseline, 0.05 for the hedge rule and 0.11 for the Scout rule. The Bayesian baseline moved off the leader on 191 of 200 Up switch then down switch seeds, so that line holds. A rough sweep: an onset of 8 to 12 with switch sizes of 2 to 4 sigmas clears every scenario but Up switch, which needed a rise of 3 to 5 sigmas.
 - **Bayesian run time.** About 90 ms a run, 240 ms with `lookahead`, so the frontier's 240,000 runs take 6 to 16 hours on one core. A cache on the record's rows should about halve it. Add it with the frontier's pilot cell.
 
 First numbers from the forecasters layer, on the real Timestral at its [pins](docs/specs/forecasters/timestral.md#pinned), for the [Timestral checks](docs/pilot/provider-checks.md#timestral-checks):

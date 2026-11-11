@@ -139,7 +139,7 @@ Picks the Bayesian baseline's prior and rule, and says how much of the gap to th
 Says whether moving is worth enough for a score to tell a player that reads a change from one that never moves. At the first defaults it is not: never moving scored 0.84 on the headline and the Bayesian baseline 0.93, see [TODO](../../TODO.md). The words are in the [glossary](../glossary.md#scoring).
 
 - **Question.** In every scenario with a switch or drift, is moving worth enough points, and can a [blind baseline](../glossary.md#the-study) earn most of them.
-- **Run.** Nothing of its own. It reads the [baseline order](#baseline-order) run, which plays every fixed baseline and the Stayer in every scenario.
+- **Run.** Nothing of its own. It reads the [baseline order](#baseline-order) run, which plays every fixed baseline in every scenario, and the Stayer in Up switch then down switch.
 - **Measure.** Pooled over seeds, in the six scenarios with a switch or drift:
   - **Reachable gain.** The Discerning baseline's score minus the Complacent baseline's.
   - **Bayesian gain.** The Bayesian baseline's score minus the Complacent baseline's.
