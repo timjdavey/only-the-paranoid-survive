@@ -21,6 +21,7 @@ One row per check in [engine checks](engine-checks.md) and [provider checks](pro
 | [Up and down](engine-checks.md#up-and-down), sleeper share, rise size in level points and the Scout rule's `n` | | | |
 | [Up and down](engine-checks.md#up-and-down), short share of Up switch seeds and the sleeper's end level on them as a share of the gap between runner-up and leader | | | |
 | [The tell](engine-checks.md#the-tell), loading range, and [Timeline sanity](engine-checks.md#timeline-sanity), ladder ranges | | | |
+| [Reachable gain](engine-checks.md#reachable-gain), reachable gain and Bayesian gain percentage per scenario at the chosen knobs, and the knob that moved to clear them | | | |
 
 ## Provider checks
 

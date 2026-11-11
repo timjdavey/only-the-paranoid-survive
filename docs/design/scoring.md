@@ -10,7 +10,7 @@
 - **Zero is knowing nothing and one is knowing the climate.** The [Uniform baseline](baselines.md) bets evenly and learns nothing. The [Discerning baseline](baselines.md) knows every channel's base level, so it holds through a shock and moves the round a switch lands. The score is the share of the value of that knowledge the model captured.
 - **What a player earned is its output**, each bet's share of the budget times its reading, added up over the run. A bet is paid its reading, so the score adds up the same numbers the agent saw, see [what the agent sees](mechanics.md#what-the-agent-sees).
 - **Seeds are pooled, not scored one by one.** Add up the model's gain over every seed and divide by the total gap, so a seed with more on offer counts for more. See [pooling seeds](#pooling-seeds).
-- **The Complacent baseline is a mark on every bar, not the floor.** Where there is a switch it lands near 0.55, so a model below the mark is visibly complacent and a model above it has acted. Where there is no switch it sits at 1 with the Discerning baseline.
+- **The Complacent baseline is a mark on every bar, not the floor.** Wherever a change lasts, the [reachable gain](../pilot/engine-checks.md#reachable-gain) check holds it at or below 0.7, so a model below the mark is visibly complacent and a model above it has acted. Where there is no switch it sits at 1 with the Discerning baseline, and in the Up switch then down switch scenario near 1, as the change undoes itself.
 - **The headline is the plain mean across [scenarios](scenarios.md)**, reported with the weakest trait named beside it. A negative scenario score counts as it is. The mean says how good a model is overall, and the weakest trait says where it fails.
 
 A worked Down switch run, output over 40 rounds:
@@ -128,7 +128,7 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 
 The full study headline. The proof of concept reports the headline at one noise setting. The full study plays a [noise grid](../pilot/engine-checks.md#noise-grid) and reports where the model gives out, the way a hearing test raises the babble behind the words until you stop catching them.
 
-- **Keep the prize loud, raise the noise.** On the grid every event is pinned in level points, so the gain the Discerning baseline makes over the Complacent baseline is the same at every setting. Only the weather scale moves, see [difficulty](mechanics.md#difficulty). A fainter change would be a smaller prize, and a model that ignores a change not worth catching is right to.
+- **Keep the change loud, raise the noise.** On the grid every event is pinned in level points, so the [reachable gain](../glossary.md#scoring) is the same at every setting. Only the weather scale moves, see [difficulty](mechanics.md#difficulty). A fainter change would be a smaller reachable gain, and a model that ignores a change not worth catching is right to.
 - **The axis is signal to noise**: the switch size in level points over the weather's SD per round. It means the same thing in every release, so a harder release extends the grid to lower settings instead of starting a new chart.
 - **At each setting, compute the headline.** The No change and One shock scenarios get harder with noise too, as rougher readings tempt more false alarms, so false alarms cost inside the sweep too.
 - **In the Up switch scenario an explore bet fights two noises**, the weather and the read noise at the explore bet's size. The [reading roughness](../pilot/engine-checks.md#reading-roughness) setting matters most there.
@@ -141,5 +141,5 @@ The full study headline. The proof of concept reports the headline at one noise 
 
 ## Extension: inertia
 
-- **A fixed budget is forgiving.** A model that never moves still earns most of the output. The scenario score prices that: the Complacent baseline sits near 0.55 where there is a switch, so never moving forfeits nearly half the range on its own.
+- **A fixed budget is forgiving.** A model that never moves still earns most of the output. The scenario score prices that: wherever a change lasts, the [reachable gain](../pilot/engine-checks.md#reachable-gain) check holds the Complacent baseline at or below 0.7, so never moving forfeits at least 0.3 of the range on its own.
 - **A cap on how far bets can move each round** would amplify the lateness signal further. It is switched on only if the [pilot](../pilot/provider-checks.md#inertia) still finds the gaps between models too small to read.

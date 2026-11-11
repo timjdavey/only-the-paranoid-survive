@@ -150,7 +150,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
-- **Question.** Are the gaps between models too small to read, even with the Complacent baseline sitting near 0.55.
+- **Question.** Are the gaps between models too small to read, even with the Complacent baseline held at or below 0.7 by the [reachable gain](engine-checks.md#reachable-gain) check.
 - **Measure.** The gaps between models in the Down switch and Slow drift scenarios, from the main pilot runs.
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 

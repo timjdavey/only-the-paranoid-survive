@@ -74,7 +74,7 @@ def load_grid() -> Grid               # configs/grid.toml
 - **`scenario_config`** starts from `SCENARIOS[name]` and applies the knobs with `dataclasses.replace`, so the engine's validation runs again:
   - `rounds` replaces `rounds`.
   - `inertia` replaces `inertia_cap`.
-  - `own_scale` replaces `own_scale` and sets `pin_in_level_points` to true, so the prize holds while the noise moves, see [noise threshold](../../design/scoring.md#noise-threshold).
+  - `own_scale` replaces `own_scale` and sets `pin_in_level_points` to true, so the reachable gain holds while the noise moves, see [noise threshold](../../design/scoring.md#noise-threshold).
 - **The `engine_hash` in the log is of the replaced config**, so a run at `rounds=20` never shares a hash with the frozen study setting.
 - **The noise grid lives in `configs/grid.toml`** as `own_scale = [2.0, 3.0, 4.0, 6.0, 8.0]`, **pilot to confirm** by the [noise grid](../../pilot/engine-checks.md#noise-grid) check. `load_grid()` reads it. The task plays one setting per eval. `paranoid run --own-scale grid` plays the list with a model, see [command](command.md#run), and `paranoid pilot noise-grid` plays it with the baselines, see [pilot](pilot.md#noise-grid).
 - **Every grid setting must build.** `load_grid()` calls `scenario_config(name, own_scale=s)` for every scenario and setting and lets the engine's `ValueError` through, so a setting the ladder cannot hold fails when the file is read, not half way through a study.

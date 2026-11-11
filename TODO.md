@@ -12,6 +12,18 @@ First numbers from the baselines layer at its defaults, on seeds 0 to 49, for th
 - **[The tell](docs/pilot/engine-checks.md#the-tell).** The hedge rule false alarms a lot. Weather alone made it scout on 14 of 50 No change seeds. On One shock it never scouted on only 16 of 50, though it ended on the leader on 43. The fall test fired in 87 hold rounds there and the tell stopped 52. Look at `fall_points`, `window` and `tell_points`.
 - **[Up and down](docs/pilot/engine-checks.md#up-and-down).** The hedge rule ended off the leader on 6 of 50 Up switch seeds, 5 of them on the sleeper. The Scout rule went to the sleeper and back on 41 of 50 Up switch then down switch seeds.
 - **[Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).** At the defaults it beat the Complacent baseline on 46 of 50 Down switch seeds and ended on the leader on 49 of 50 One shock seeds. A near zero hazard top pick played No change as the Complacent baseline on 47 of 50.
+- **[Reachable gain](docs/pilot/engine-checks.md#reachable-gain).** On 200 seeds per scenario at the defaults, three of six scenarios fail. Against the Stayer in Up switch then down switch, against the Complacent baseline elsewhere:
+
+  | Scenario | Reachable gain | Bayesian gain | Bayesian gain percentage | Passes |
+  |---|---|---|---|---|
+  | Down switch | 0.37 | 0.29 | 78% | Yes |
+  | Up switch | 0.14 | 0.09 | 64% | No |
+  | Shock then switch | 0.20 | 0.11 | 55% | No |
+  | Slow drift | 0.12 | 0.05 | 42% | No |
+  | Switch then shock | 0.38 | 0.29 | 76% | Yes |
+  | Up switch then down switch | 0.37 | 0.29 | 78% | Yes |
+
+  The Bayesian baseline moved off the leader on 191 of 200 Up switch then down switch seeds, so that line holds. A rough sweep: an onset of 8 to 12 with switch sizes of 2 to 4 sigmas clears every scenario but Up switch, which needed a rise of 3 to 5 sigmas.
 - **Bayesian run time.** About 90 ms a run, 240 ms with `lookahead`, so the frontier's 240,000 runs take 6 to 16 hours on one core. A cache on the record's rows should about halve it. Add it with the frontier's pilot cell.
 
 First numbers from the forecasters layer, on the real Timestral at its [pins](docs/specs/forecasters/timestral.md#pinned), for the [Timestral checks](docs/pilot/provider-checks.md#timestral-checks):

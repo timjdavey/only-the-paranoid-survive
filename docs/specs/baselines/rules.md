@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The two baselines with parameters: the hedge rule, the simplest player that reads the [tell](../../glossary.md#the-world), and the Scout rule, the hedge rule that explores everywhere all the time. Both read only their own record, so they are players with a mark on every bar, never the yardstick, see [fixed baselines](../../design/baselines.md#fixed-baselines). Their parameters are what the pilot sweeps, see [pilot decides](#pilot-decides).
+The two baselines with parameters: the hedge rule, the simplest player that reads the [tell](../../glossary.md#the-world), and the Scout rule, the hedge rule that explores everywhere all the time. Both are [blind baselines](../../glossary.md#the-study), reading only their own record, so they are players with a mark on every bar, never the yardstick, see [fixed baselines](../../design/baselines.md#fixed-baselines). Their parameters are what the pilot sweeps, see [pilot decides](#pilot-decides).
 
 ## Interface
 
