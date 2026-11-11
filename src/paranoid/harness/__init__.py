@@ -14,10 +14,15 @@ from .metrics import (
     weakest_trait,
 )
 from .models import EFFORT_PREFIXES, REASONING, SKIN_READERS, ModelRow, generate_config, load_models
+from .scorer import gain
 from .seeds import Grid, load_grid, load_seeds, parse_seeds
+from .solver import BLOCK_CACHE_APIS, record_blocks, round_loop, tool_choice_for
 from .store import RunStore, StoredRow
+from .task import paranoid
+from .tools import compute, notes, submit
 
 __all__ = [
+    "paranoid",
     "RunStore",
     "StoredRow",
     "load_seeds",
@@ -25,12 +30,14 @@ __all__ = [
     "scenario_config",
     "load_grid",
     "Grid",
-    "load_models",
-    "ModelRow",
-    "generate_config",
-    "REASONING",
-    "EFFORT_PREFIXES",
-    "SKIN_READERS",
+    "round_loop",
+    "tool_choice_for",
+    "record_blocks",
+    "BLOCK_CACHE_APIS",
+    "submit",
+    "notes",
+    "compute",
+    "gain",
     "scenario_score",
     "headline",
     "weakest_trait",
@@ -41,4 +48,10 @@ __all__ = [
     "BOOTSTRAP_DRAWS",
     "BOOTSTRAP_SEED",
     "TRAITS",
+    "load_models",
+    "ModelRow",
+    "generate_config",
+    "REASONING",
+    "EFFORT_PREFIXES",
+    "SKIN_READERS",
 ]

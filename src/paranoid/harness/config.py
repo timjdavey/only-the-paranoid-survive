@@ -3,11 +3,14 @@
 Its own module, as the store needs it and the task needs the store.
 """
 
-from collections.abc import Sequence
+import os
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
+from pathlib import Path
 
 from paranoid.baselines import POLICIES
 from paranoid.engine import SCENARIOS, ScenarioConfig
+from paranoid.skins import Skin, load_skins
 
 TOOLS = ("notes", "compute")
 TOOL_CHOICES = ("any", "auto")
@@ -80,3 +83,32 @@ def parse_warm_up(arg: str | None, rounds: int) -> tuple[str, int] | None:
     if not 1 <= k < rounds:
         raise ValueError(f"warm_up rounds must be at least 1 and below {rounds}, got {k}")
     return name, k
+
+
+# Skin files are read again only when PARANOID_SKINS or a file in it changes, as the scorer and Jev look one up a run.
+_skins: dict[tuple, Mapping[str, Skin]] = {}
+
+
+def skins_stamp() -> tuple:
+    folder = os.environ.get("PARANOID_SKINS") or None
+    if folder is None or not Path(folder).is_dir():
+        return (folder,)
+    files = sorted(Path(folder).glob("*.toml"))
+    return (folder, *((f.name, f.stat().st_mtime_ns, f.stat().st_size) for f in files))
+
+
+def loaded_skins() -> Mapping[str, Skin]:
+    """load_skins(), cached by the folder's files."""
+    stamp = skins_stamp()
+    if stamp not in _skins:
+        _skins.clear()
+        _skins[stamp] = load_skins()
+    return _skins[stamp]
+
+
+def skin_named(name: str) -> Skin:
+    """The loaded skin of that name, else ValueError listing the loaded names and PARANOID_SKINS."""
+    skins = loaded_skins()
+    if name not in skins:
+        raise ValueError(f"skin {name!r} is not loaded. Loaded: {', '.join(skins)}. Held-out skins load from PARANOID_SKINS")
+    return skins[name]

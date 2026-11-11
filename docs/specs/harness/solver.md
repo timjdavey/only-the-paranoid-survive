@@ -22,12 +22,9 @@ def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"] 
 BLOCK_CACHE_APIS: tuple[str, ...] = ()   # apis whose prompt cache matches by content block. Off until checked
 def record_blocks(text: str) -> list[str]   # the record cut after every line end
 
-@tool
-def submit(skin: Skin) -> Tool       # one parameter, named skin.bets_name, a list of ints. Returns str
-@tool
-def notes(skin: Skin) -> Tool        # one parameter, named skin.notes_param, a str. Returns str
-@tool
-def compute(skin: Skin) -> Tool      # one parameter, named skin.compute_param, a str. Returns str
+def submit(skin: Skin) -> Tool                     # one parameter, named skin.bets_name, a list of ints. Returns str
+def notes(skin: Skin, cap: int = 2000) -> Tool     # one parameter, named skin.notes_param, a str. Returns str
+def compute(skin: Skin) -> Tool                    # one parameter, named skin.compute_param, a str. Returns str
 ```
 
 ## Behaviour
@@ -69,7 +66,7 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 
 `submit(skin)` is the engine's `Game.play` behind a tool. The model sees it under the skin's name and text, see [tool text](../../harness/prompts.md#tool-text).
 
-- **The tool is built from the skin.** Its name is `skin.tool_name`, its description `skin.tool_text`, and it has one required parameter named `skin.bets_name`, an array of integers, described by `skin.bets_text`. So no word on the tool is the harness's, and no two skins need share one, see [contamination](../../harness/contamination.md#why).
+- **The tool is built from the skin**, as a `ToolDef` with explicit `ToolParams`, never with `@tool`, which would rename it after its factory, see [checked](#checked). Its name is `skin.tool_name`, its description `skin.tool_text`, and it has one required parameter named `skin.bets_name`, an array of integers, described by `skin.bets_text`. So no word on the tool is the harness's, and no two skins need share one, see [contamination](../../harness/contamination.md#why).
 - **`execute`** takes that one argument by the skin's name, reads `store_as(RunStore)`, builds `store.game()`, and calls `game.play(bets)`. A call with any other argument name, or with more than one, never reaches it, see [refused calls](#refused-calls).
 - **The bets go through untouched.** The harness does no coercion. A list of JSON whole numbers passes. `10.0` reaches the engine as a float and fails its `shape` check, see [bets](../engine/game.md#bets). `"10"`, `true` and `10.5` are [refused](#refused-calls) before the tool runs.
 - **On `BetError`** the tool adds one to `store.bad_calls` and returns `skin.bad_call` as its result. The engine's own message never reaches the model. The round, the record and `store.awaiting_submit` are unchanged.
@@ -94,7 +91,7 @@ In the headline, see [tools](../../design/interface.md#tools). What it costs or 
 - **The notes tool takes one string**, under the skin's `notes_param`, built as [`submit`](#submit) is. It replaces `store.notes` with the first `notes_cap` characters of the string and returns the text as stored. Nothing is appended, nothing is kept from an earlier call.
 - **Next round** the stored text comes back as a second content block on the user message, after the record, never as an assistant message. A tool message with no tool call before it is rejected by the Anthropic API, and an assistant message would read as the agent's own words.
 - **Length is logged** by the store itself, as `len(store.notes)`.
-- **The first `notes` call in a round adds one to `store.notes_rounds`.** Later calls in the same round add nothing, so the count is rounds, not calls.
+- **The first `notes` call in a round adds one to `store.notes_rounds`.** Later calls in the same round add nothing, so the count is rounds, not calls. The solver counts it at the end of the round, from the tool messages of calls that ran, so a refused call saves nothing and counts nothing.
 - **A reply that calls `notes` and not the skin's tool is a no call**, see [tries](#tries).
 - **Each parameter is described by its tool's own text**, `skin.notes_text` and `skin.compute_text`. inspect will not build a tool whose parameter has no description, and the harness writes no words of its own, see [not decided](#not-decided).
 
@@ -162,6 +159,7 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 | Does inspect send a model its earlier reasoning | Yes by default. `GenerateConfig.reasoning_history` is `auto`, which replays reasoning blocks. What the model reads of them is the provider's |
 | What `get_model().api` is | The `ModelAPI` object, not a string. `ModelName(model).api` is the provider's name, such as `anthropic`, with the package prefix stripped |
 | What `sandbox.exec(timeout=...)` does on a timeout | Raises `TimeoutError`, after two retries unless `timeout_retry=False` |
+| Does `@tool` keep a `ToolDef`'s name | No. It tags the tool it returns with its factory's name, so the tools are plain functions returning `ToolDef(...).as_tool()` |
 | What Docker needs from Python | Nothing beyond inspect_ai. Its Docker sandbox drives the `docker` command line |
 
 - **So the rule above stands for Claude**, for a wider reason than a refused call: `auto` is the only choice that leaves thinking on.

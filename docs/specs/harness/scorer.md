@@ -37,7 +37,7 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 
 ### Scoring one run
 
-`Score.value` holds these keys, all floats or ints, bar the two that may be empty. Empty is `None`, which the mean reducer skips per key and the log writes as JSON `null`. NaN would not be standard JSON, see [checked](#checked):
+`Score.value` holds these keys, all floats or ints, bar the three that may be empty. Empty is `None`, which the mean reducer skips per key and the log writes as JSON `null`. NaN would not be standard JSON, see [checked](#checked):
 
 | Key | Value |
 |---|---|
@@ -45,7 +45,7 @@ def tool_use_share() -> Metric      # {"notes": share, "compute": share}
 | `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule` | Each baseline's output over the agent's rounds, `warm_up_rounds + 1` to the config's `rounds`, from `play(policy, timeline)` with the run's warm up record as its start, each policy at its defaults from the [baselines layer](../baselines/README.md#exports), see [play](../engine/game.md#play) |
 | `gain` | `output − uniform`, or 0 when the run gave up, see [giving up](#giving-up) |
 | `gap` | `discerning − uniform` |
-| `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread) |
+| `run_score` | `gain / gap`. The dot on the strip, see [spread](../../design/scoring.md#spread). `None` on the rare seed whose gap is 0 |
 | `rounds`, `warm_up_rounds` | `len(tries)`: the rounds the agent played, plus the one it gave up on if it did. And the rounds a baseline played first |
 | `retries` | `sum(tries) − len(tries)`, the generate calls beyond the first per round |
 | `retry_rounds` | Rounds with `tries > 1` |
