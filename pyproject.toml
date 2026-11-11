@@ -55,7 +55,7 @@ testpaths = ["tests"]
 # Run them with `uv run pytest -m slow`, `-m sweep`, `-m timestral` or `-m sandbox`.
 addopts = "-m 'not slow and not sweep and not timestral and not sandbox' --strict-markers --import-mode=importlib"
 markers = [
-    "slow: runs a thousand seeds or more, see the tests page of each layer's spec. CI runs them",
+    "slow: runs a thousand seeds or more, or takes minutes, see the tests page of each layer's spec. Run by hand, CI skips them",
     "sweep: plays a thousand seeds of a baseline, see docs/specs/baselines/tests.md. Run by hand, CI skips them",
     "timestral: loads the real Timestral, so it needs the timestral extra, see docs/specs/forecasters/tests.md. Run by hand, CI skips them",
     "sandbox: runs the compute tool in Docker, see docs/specs/harness/tests.md. Run by hand, CI skips them",
