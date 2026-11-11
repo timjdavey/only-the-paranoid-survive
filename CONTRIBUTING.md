@@ -18,7 +18,7 @@ This matters most.
 
 - Every file must be skimmable, clear and concise. Use bullets where you can.
 - Name things so they explain themselves.
-- Keep files under 300 lines. Use links over re-explaining.
+- Keep files under 300 lines. Use links over re-explaining. The pages `paranoid analyse` writes, `docs/pilot/results.md` and `docs/results/*.md`, are exempt.
 - Talk to the reader, not to yourself. Assume they've never seen the study, and be friendly and clear.
 
 ## Adding things

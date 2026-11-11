@@ -11,6 +11,7 @@ SECTIONS: tuple[str, ...]             # the page's headings, in page order, see 
 REACHABLE_GAIN_FLOOR = 0.3            # the reachable gain check's three pass lines
 BAYESIAN_GAIN_PERCENTAGE_FLOOR = 50
 BAYESIAN_MOVE_SHARE_FLOOR = 0.5
+PAGE_ROWS = 15                        # rows a table shows on the page; its CSV keeps every row
 
 def write_pilot(logs: Path, out: Path, *, main: Path | None = None, dry_run: bool = False) -> list[Path]
 # logs is the folder the cells wrote to: it reads logs/<cell>.csv and logs/<cell>/*.eval.
@@ -67,6 +68,7 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 
 - **A section whose input is missing** writes `_Not run yet._` under its heading, as the page has now, and the page stays valid. A section with some of its inputs writes the tables it can.
 - **Each table is a `###` heading of its name, the table, and a link to its CSV.** A whole number shows as it is and any other number to three significant places. The CSV holds every digit.
+- **A table shows its first `PAGE_ROWS` rows.** When it has more, its link line says how many, such as `[game-length-length.csv](results/game-length-length.csv), 15 of 117 rows shown`. The CSV keeps every row. 15 shows the 13 reachable gain pass lines and the 6 order lines whole.
 - **Each table also goes to `out/results/<section>-<table>.csv`** and each plot to `out/results/<section>-<plot>.svg`, so the page can link them and a reader can check. `<section>` is the heading's [slug](tables.md#headings-and-file-names), such as `seeds-and-repeats`, and the table and plot names are the ones above.
 - **Headings are `SECTIONS`.** `write_pilot` writes every heading in order and replaces the body under each. When `out/results.md` exists, its `##` headings must equal `SECTIONS`, else `ValueError` naming the odd one, so a new section is a change to the page, this table and `SECTIONS` together.
 - **`dry_run` writes nothing** and returns the paths a real run would write.

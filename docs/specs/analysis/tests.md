@@ -114,6 +114,7 @@ Engine sections read hand-built CSVs with their cell's columns. Provider section
 | AI24 | Timestral checks: a `noise-grid.csv` of 30 seeds and a `timestral-grid.csv` of 20 of them give a `grid` table whose `hedge_rule` and `complacent` rows have `seeds` 20, and scores pooled on those 20 alone | [pilot](pilot.md#sections) |
 | AI25 | Up against down: the `up-against-down` folder holding logs of two models gives `kinds` and `sleeper` tables with a `model` column and each model's own rows, each equal to that model's log read alone | [pilot](pilot.md#sections) |
 | AI26 | Up and down: a player whose `move_round` is 0, 4 and 8 on three seeds has a `median_move_round` of 6, and one that never moved has none | [pilot](pilot.md#sections) |
+| AI27 | A `baseline-order.csv` of 20 output rows shows the first 15 on the page, says `15 of 20 rows shown` on the link line, and writes all 20 to the CSV | [pilot](pilot.md#writing-the-page) |
 
 ## Command
 

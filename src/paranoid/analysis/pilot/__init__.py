@@ -54,6 +54,7 @@ INTRO = (
     "The decisions taken from these tables are in [decisions](decisions.md)."
 )
 NOT_RUN = "_Not run yet._"
+PAGE_ROWS = 15
 
 
 def write_pilot(logs: Path, out: Path, *, main: Path | None = None, dry_run: bool = False) -> list[Path]:
@@ -86,7 +87,10 @@ def write_pilot(logs: Path, out: Path, *, main: Path | None = None, dry_run: boo
 
 
 def body(heading: str, section: Section, files: list[tuple[Path, object]], folder: Path) -> list[str]:
-    """A section's tables, plot links and notes, queuing each file. `_Not run yet._` when it has none."""
+    """A section's tables, plot links and notes, queuing each file. `_Not run yet._` when it has none.
+
+    A table shows its first PAGE_ROWS rows on the page; its CSV keeps every row.
+    """
     if section.empty:
         return [NOT_RUN]
     base = slug(heading)
@@ -97,9 +101,9 @@ def body(heading: str, section: Section, files: list[tuple[Path, object]], folde
         lines += [
             f"### {name}",
             "",
-            *markdown_table(list(map(str, table.columns)), cells(table)),
+            *markdown_table(list(map(str, table.columns)), cells(table.head(PAGE_ROWS))),
             "",
-            f"[{file}](results/{file})",
+            f"[{file}](results/{file})" + (f", {PAGE_ROWS} of {len(table)} rows shown" if len(table) > PAGE_ROWS else ""),
             "",
         ]
     if section.plots:
@@ -145,4 +149,4 @@ def csv_text(table: pd.DataFrame) -> str:
     return out.getvalue()
 
 
-__all__ = ["write_pilot", "SECTIONS", "REACHABLE_GAIN_FLOOR", "BAYESIAN_GAIN_PERCENTAGE_FLOOR", "BAYESIAN_MOVE_SHARE_FLOOR"]
+__all__ = ["write_pilot", "SECTIONS", "PAGE_ROWS", "REACHABLE_GAIN_FLOOR", "BAYESIAN_GAIN_PERCENTAGE_FLOOR", "BAYESIAN_MOVE_SHARE_FLOOR"]

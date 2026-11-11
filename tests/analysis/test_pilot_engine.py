@@ -1,4 +1,4 @@
-"""AI1, AI2, AI4, AI7, AI8 and AI10 to AI14: the page and the engine sections, on hand-built CSVs.
+"""AI1, AI2, AI4, AI27, AI7, AI8 and AI10 to AI14: the page and the engine sections, on hand-built CSVs.
 
 See docs/specs/analysis/tests.md#pilot.
 """
@@ -10,6 +10,7 @@ import pandas as pd
 import pytest
 
 from paranoid.analysis import SECTIONS, signal_points, write_pilot
+from paranoid.analysis.pilot import PAGE_ROWS
 from paranoid.harness import scenario_config
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -99,6 +100,19 @@ def test_ai4_a_renamed_heading(tmp_path):
     with pytest.raises(ValueError, match="Noisy"):
         write_pilot(tmp_path / "logs", out)
     assert (out / "results.md").read_text() == page
+
+
+def test_ai27_a_long_table_is_capped_on_the_page(tmp_path):
+    logs, out = tmp_path / "logs", tmp_path / "out"
+    players = {"perfect": 1.2, "hedge_rule": 0.8, "complacent": 0.5}
+    scenarios = ("up_switch", "down_switch", "slow_drift", "no_change")
+    csv(logs, "baseline-order", order_rows({s: players for s in scenarios}))
+    write_pilot(logs, out)
+    assert len(table(out, "baseline-order", "outputs")) == 4 * 5
+    outputs = section_of((out / "results.md").read_text(), "Baseline order").split("### outputs\n", 1)[1]
+    rows = [line for line in outputs.split("\n\n", 1)[0].splitlines() if line.startswith("|")]
+    assert len(rows) == 2 + PAGE_ROWS  # the header and its rule, then the capped rows
+    assert f"(results/baseline-order-outputs.csv), {PAGE_ROWS} of 20 rows shown" in outputs
 
 
 def test_ai7_reachable_gain(tmp_path):
