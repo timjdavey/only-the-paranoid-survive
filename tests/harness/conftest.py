@@ -103,7 +103,8 @@ def run(model, *, log_dir: Path | None = None, epochs: int | None = None, sandbo
     args = {"scenario": "no_change", "seeds": "0", "tools": "none"} | task_args
     log_dir = log_dir or Path(tempfile.mkdtemp(prefix="paranoid-logs-"))
     logs = inspect_ai.eval(
-        paranoid(**args), model=model, display="none", log_dir=str(log_dir), epochs=epochs, sandbox=sandbox
+        paranoid(**args), model=model, display="none", log_dir=str(log_dir), epochs=epochs, sandbox=sandbox,
+        log_realtime=False,
     )
     assert logs[0].status == "success", logs[0].error
     return logs[0]
@@ -204,7 +205,9 @@ def fake_jev_fixture():
 
 @pytest.fixture
 def evals(monkeypatch):
-    """Wraps inspect_ai.eval for the evals `run` and the cells make: the local sandbox, no display, and a record.
+    """Wraps inspect_ai.eval for the evals `run` and the cells make.
+
+    It forces the local sandbox, no display and no live log, and keeps a record of each call's own keywords.
 
     Those evals play the headline tools, so without this they would need Docker.
     """
@@ -213,7 +216,7 @@ def evals(monkeypatch):
 
     def wrapped(*args, **kwargs):
         calls.append(kwargs)
-        return real(*args, **(kwargs | {"sandbox": "local", "display": "none"}))
+        return real(*args, **(kwargs | {"sandbox": "local", "display": "none", "log_realtime": False}))
 
     monkeypatch.setattr(inspect_ai, "eval", wrapped)
     return calls

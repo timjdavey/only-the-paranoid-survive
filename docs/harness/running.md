@@ -8,6 +8,7 @@
 
 - **Python 3.12 or later.** `uv` installs the version in `.python-version` for you.
 - **Check a change** with `uv run pytest` and `uv run lint-imports`, the two things CI runs. Slow tests are skipped unless you add `-m slow`, see the [engine tests](../specs/engine/tests.md).
+- **Tests run in parallel**, one worker per core, through `pytest-xdist`. Add `-n 0` to run them in one process, for example to read a test's output in order.
 - **Sweeps** play a baseline on a thousand seeds and take about two minutes. CI skips them, so run `uv run pytest -m sweep` by hand after changing a baseline or the engine, see the [baselines tests](../specs/baselines/tests.md#three-sizes).
 - **Timestral's own tests** load the real model, so they run by hand with `uv run pytest -m timestral` once the extra is installed. The first run downloads about 840 MB of weights, see the [forecasters tests](../specs/forecasters/tests.md).
 - **The headline needs Docker.** The `compute` tool runs in a sandbox, see [tools](../design/interface.md#tools), so a running Docker is needed for any run at the default `tools`. inspect drives Docker itself, so there is nothing more to install. Pass `-T tools=none` to run without, as the smoke test does.
