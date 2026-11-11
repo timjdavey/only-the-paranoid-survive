@@ -1,13 +1,16 @@
-"""HS11 to HS13, HS15 and HS19: the notes and compute tools, rolling, and the lint. See docs/specs/harness/tests.md#solver.
+"""HS11 to HS13, HS15 and HS19 to HS21: the notes and compute tools, rolling, and the lint. See docs/specs/harness/tests.md#solver.
 
-HS12 needs Docker: `uv run pytest -m sandbox`. HS19 runs compute on inspect's local sandbox, so it needs none.
+HS12 and HS21 need Docker: `uv run pytest -m sandbox`. HS19 and HS20 run compute on inspect's local sandbox, so they need none.
 """
 
 import ast
+import asyncio
 
 import pytest
 from inspect_ai.event import ToolEvent
 from inspect_ai.model import ChatMessageAssistant, ChatMessageTool
+
+from inspect_ai.util import ExecResult
 
 from paranoid.engine import Record
 from paranoid.skins import lint_text, render_record
@@ -84,7 +87,39 @@ def test_hs19_compute_on_the_local_sandbox(example, helpers, monkeypatch):
     assert store.compute_rounds == 2 and store.no_calls == 2
 
 
-# What python:3.12-slim sets itself. GPG_KEY is the public fingerprint its build verified Python with.
+LIST_FILES = "import os; print(sorted(os.path.relpath(os.path.join(r, f)) for r, _, fs in os.walk('.') for f in fs))"
+
+
+def test_hs20_nothing_crosses_a_round_on_the_local_sandbox(example, helpers, monkeypatch):
+    plant = "import os; os.mkdir('d'); [open(p, 'w').write('x') for p in ('mem.txt', '.mem', 'd/f')]"
+    script = helpers.Script(
+        [
+            helpers.reply(compute_call(example, plant)),
+            helpers.reply(compute_call(example, LIST_FILES), submit_call(example)),
+            helpers.reply(compute_call(example, LIST_FILES), submit_call(example)),
+        ],
+        then=helpers.reply(submit_call(example)),
+    )
+    sample = helpers.run(script.model(), tools="compute", rounds=20, sandbox="local").samples[0]
+    results = [e.result for e in sample.events if isinstance(e, ToolEvent) and e.function == example.compute_name]
+    assert ast.literal_eval(results[1]) == [".mem", "d/f", "mem.txt", "record.csv"]
+    assert ast.literal_eval(results[2]) == ["record.csv"]
+
+    class Failing:
+        def as_type(self, cls):
+            raise TypeError("not Docker")
+
+        async def exec(self, *args, **kwargs):
+            return ExecResult(success=False, returncode=1, stdout="", stderr="no")
+
+    from paranoid.harness.tools import reset_sandbox
+
+    monkeypatch.setattr("paranoid.harness.tools.sandbox", lambda: Failing())
+    with pytest.raises(RuntimeError):
+        asyncio.run(reset_sandbox())
+
+
+# What python:3.12-slim-bookworm sets itself. GPG_KEY is the public fingerprint its build verified Python with.
 IMAGE_ENVIRONMENT = {"GPG_KEY", "HOME", "HOSTNAME", "LANG", "PATH", "PYTHON_SHA256", "PYTHON_VERSION"}
 
 
@@ -106,3 +141,54 @@ def test_hs12_compute_in_docker(example, helpers):
     assert set(ast.literal_eval(results[3])) <= IMAGE_ENVIRONMENT  # nothing from the host, so no key
     assert results[4] == render_record(example, Record())
     assert helpers.store_of(sample).compute_rounds == 1
+
+
+# Run from compute as one script each. SysV shared memory is reached through libc, as Python has no module for it.
+PLANT = """
+import ctypes, subprocess, sys, time
+for path in ('/work/planted', '/tmp/planted', '/dev/shm/planted'):
+    open(path, 'w').write('x')
+assert ctypes.CDLL(None).shmget(0x5EED, 4096, 0o1600) >= 0
+listen = "import socket, time; s = socket.socket(); s.bind(('127.0.0.1', 8765)); s.listen(); time.sleep(3600)"
+subprocess.Popen([sys.executable, '-I', '-c', listen], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                 stderr=subprocess.DEVNULL, start_new_session=True)
+time.sleep(1)
+"""
+PROBE = """
+import ctypes, os, socket
+found = {path: os.path.exists(path) for path in ('/work/planted', '/tmp/planted', '/dev/shm/planted')}
+found['shm'] = ctypes.CDLL(None).shmget(0x5EED, 0, 0) >= 0
+try:
+    socket.create_connection(('127.0.0.1', 8765), timeout=2).close()
+    found['listener'] = True
+except OSError:
+    found['listener'] = False
+try:
+    open('record.csv', 'r+').close()
+    found['record_writable'] = True
+except OSError:
+    found['record_writable'] = False
+found['uid'] = os.getuid()
+print(found)
+"""
+
+
+@pytest.mark.sandbox
+def test_hs21_nothing_crosses_a_round_in_docker(example, helpers):
+    script = helpers.Script(
+        [
+            helpers.reply(compute_call(example, PLANT)),
+            helpers.reply(compute_call(example, PROBE)),
+            helpers.reply(submit_call(example)),
+            helpers.reply(compute_call(example, PROBE)),
+        ],
+        then=helpers.reply(submit_call(example)),
+    )
+    sample = helpers.run(script.model(), tools="compute", rounds=20).samples[0]
+    results = [e.result for e in sample.events if isinstance(e, ToolEvent) and e.function == example.compute_name]
+    assert results[0] == "", results[0]
+    planted, after = ast.literal_eval(results[1]), ast.literal_eval(results[2])
+    assert all(planted[key] for key in ("/work/planted", "/tmp/planted", "/dev/shm/planted", "shm", "listener"))
+    assert not any(after[key] for key in ("/work/planted", "/tmp/planted", "/dev/shm/planted", "shm", "listener"))
+    assert after["uid"] == planted["uid"] == 65534
+    assert not after["record_writable"] and not planted["record_writable"]

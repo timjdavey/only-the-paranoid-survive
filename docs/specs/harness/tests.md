@@ -46,6 +46,8 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS17 | `record_blocks` on `render_record` of a three-row record returns four pieces, the header line then one per row, that join back to the same string. `BLOCK_CACHE_APIS` is empty, and a `mockllm` run sends the record as one content block. With `BLOCK_CACHE_APIS` patched to `("mockllm",)`, the round 3 user message has three record blocks, and four content blocks once a note is saved, the note last | [solver](solver.md#record-blocks) |
 | HS18 | With a copy of the example skin whose `bets_name` is `amounts`, the tool the model is offered has one required parameter named `amounts`, an array of integers, described by `bets_text`. A call of `{"amounts": [10] × 10}` plays the round. A call of `{"bets": [10] × 10}` gets `bad_call` and plays nothing. With `notes_param` of `memo` and `compute_param` of `script`, the other two tools each offer one required string parameter of that name, described by `notes_param_text` and `compute_param_text`, and the tool itself by `notes_text` and `compute_text` | [solver](solver.md#submit) |
 | HS19 | `compute(skin)` on inspect's `local` sandbox, so it runs without Docker: `print(1 + 1)` returns `2`, code that raises returns its traceback, a sleep past a patched one second timeout returns `timeout`, and output past 4000 characters is cut to 4000. Two calls in one round give `compute_rounds == 1`, and the round's `record.csv` holds `render_record` of the record | [solver](solver.md#compute) |
+| HS20 | Compute on the `local` sandbox, so it runs without Docker. Round 1's first call writes `mem.txt`, `.mem` and `d/f`, and a second call in round 1 still lists them. Round 2 lists only `record.csv`. A reset whose sandbox command fails raises `RuntimeError` | [solver](solver.md#compute) |
+| HS21 | **sandbox** Round 1 plants a file in `/work`, `/tmp` and `/dev/shm`, a SysV shared memory segment and a detached process listening on `127.0.0.1`. A second call in round 1 finds all five, so the plants worked. Round 2 finds none of them, `os.getuid()` is 65534, and opening `record.csv` to write raises | [solver](solver.md#compute) |
 
 ## Providers
 
@@ -134,4 +136,4 @@ With `hypothesis`, kept fast with a small example count.
 
 ## Not decided
 
-- HS12 needs Docker on CI. Until CI has it, the sandbox tests run locally only. Decide when CI is set up.
+- HS12 and HS21 need Docker on CI. Until CI has it, the sandbox tests run locally only. Decide when CI is set up.

@@ -102,7 +102,14 @@ In the headline, so a default run needs Docker, see [running](../../harness/runn
 
 - **Before each round**, and only when `compute` is on, the solver writes `render_record(skin, store.record())` to `record.csv` in the sandbox's working directory, so the code sees the record and nothing else. With `compute` off there is no sandbox to write to.
 - **The compute tool takes one string**, under the skin's `compute_param`, and runs `python3 -I -c <string>` in the sandbox with a 30 second timeout and `timeout_retry=False`, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`. inspect retries a timed out command twice by default, which would run the model's code three times.
-- **The sandbox is locked down.** The code is the model's and is untrusted. `compose.yaml` sets `network_mode: none`, mounts nothing from the host, passes no environment, runs the root filesystem read only with a small writable working directory, and caps memory, processes and CPU with `mem_limit`, `pids_limit`, `cpus` and `no-new-privileges`. So the code can reach neither the engine nor a seed, and a memory or fork bomb ends inside the container, not on the machine.
+- **The code runs as `nobody`** on Docker, and `record.csv` is written as root. So the code can read the record and cannot change it. Any other sandbox runs it as the sandbox's own user.
+- **The sandbox is locked down.** The code is the model's and is untrusted. `compose.yaml` sets `network_mode: none`, mounts nothing from the host, passes no environment, runs the root filesystem read only with small `tmpfs` mounts as the only writable places, and caps memory, processes and CPU with `mem_limit`, `memswap_limit`, `pids_limit`, `cpus`, `shm_size`, `ipc: private`, `cap_drop: [ALL]` and `no-new-privileges`. The image tag is pinned to one Debian release. So the code can reach neither the engine nor a seed, and a memory or fork bomb ends inside the container, not on the machine.
+- **Nothing crosses a round.** Before writing `record.csv`, the solver resets the sandbox when the round before ran a `compute` call, which is when `store.compute_rounds` went up. A round with no `compute` call left nothing to clear, so it costs nothing. So the model cannot leave itself a note in the sandbox, and the [notes tool](#notes) stays the only memory across rounds.
+  - **On Docker the reset restarts the container**, with `docker compose restart --timeout 0`. The root is read only and every writable mount is `tmpfs`, so a restart clears files, `/dev/shm`, left running processes and SysV shared memory at once. Wiping in place would have to list every place state can hide, and would miss some.
+  - **On any other sandbox** it empties the working directory, by relative paths only, so it is safe on the host's temp folder the tests use.
+  - **A failed reset raises `RuntimeError`**, so the sample errors as infrastructure and is never played on a dirty sandbox.
+  - **Known limits.** State persists within a round, so a second `compute` call reads what the first left. Host wide `/proc` counters, such as uptime and load, stay readable.
+  - **The restart uses inspect internals**, `compose_command`, `DockerSandboxEnvironment` and its `_project` and `_service`. `pyproject.toml` pins inspect, and HS21 fails loudly if they move.
 - **Code that eats memory reads Python's own `MemoryError`.** `ulimits` sets `data` to 384 MB, below the 512 MB `mem_limit`, so Python fails to grow and raises. Past `mem_limit` the kernel kills the process with no output, and the model would read an empty result and no reason, see [checked](#checked).
 - **The first `compute` call in a round adds one to `store.compute_rounds`**, as for notes.
 - **The compose file is found from the module**, `Path(__file__).parent / "compose.yaml"`, never from the working directory, and `pyproject.toml` ships it as package data.
@@ -127,7 +134,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - `store.notes_rounds ≤ len(store.tries)` and `store.compute_rounds ≤ len(store.tries)`.
 - With `rolling` on, round `n` starts with the two messages a fresh call would send, then every reply, tool message and retry message of rounds 1 to `n − 1` in order, then the user message a fresh call would send for round `n`. So the last user message is the same with `rolling` on or off.
 - `store.awaiting_submit` is false whenever the solver is between rounds, and after a give up.
-- The solver raises nothing of its own. An exception in a run comes from inspect, a provider or the network.
+- The solver raises nothing of its own bar a failed [sandbox reset](#compute). An exception in a run comes from inspect, a provider, the network or the sandbox, so it always means infrastructure.
 - When a call is made, no tool message from an earlier try holds an `error`. Every one holds a row of the record, a skin's words, the saved note or compute's output.
 
 ## Pilot decides
@@ -163,6 +170,7 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 | Does `@tool` keep a `ToolDef`'s name | No. It tags the tool it returns with its factory's name, so the tools are plain functions returning `ToolDef(...).as_tool()` |
 | What Docker needs from Python | Nothing beyond inspect_ai. Its Docker sandbox drives the `docker` command line |
 | Does `compose.yaml` run, read-only root and all | Yes. HS12 passes on Docker 29.5 under Colima, run on 2026-11-11. inspect writes `record.csv` to the `tmpfs` working directory, the code reads it, the network is unreachable and no key is in the environment |
+| Does a restart clear the sandbox | Yes. HS21 passes on Docker 29.5 under Colima, run on 2026-11-11. A file in `/work`, `/tmp` and `/dev/shm`, a SysV segment and a listening process all survive a second call in the round and are gone the next round. One `docker compose restart --timeout 0` took 0.13 seconds |
 | What a memory bomb returns under `mem_limit` alone | Nothing. The kernel kills Python with exit code 137 and no output. With `ulimits` `data` below `mem_limit` it returns a `MemoryError` traceback |
 
 - **So the rule above stands for Claude**, for a wider reason than a refused call: `auto` is the only choice that leaves thinking on.

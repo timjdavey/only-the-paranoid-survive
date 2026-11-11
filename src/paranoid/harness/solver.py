@@ -25,7 +25,7 @@ from paranoid.skins import Skin, render_record, render_system_prompt
 
 from .config import check_tool_choice, parse_tools
 from .store import RunStore, StoredRow, timeline_for, uncapped
-from .tools import NOTES_CAP, compute, notes, submit, write_record
+from .tools import NOTES_CAP, compute, notes, reset_sandbox, submit, write_record
 
 # apis whose prompt cache matches by content block. Empty until the two Anthropic checks pass,
 # see docs/specs/harness/solver.md#verify-before-code. Then ("anthropic",).
@@ -114,6 +114,7 @@ def round_loop(
         offered += [notes(skin, notes_cap)] if "notes" in pilot_tools else []
         offered += [compute(skin)] if "compute" in pilot_tools else []
         rounds = store.config().rounds
+        computed = store.compute_rounds  # what the sandbox has seen since it was last clean
         while not store.gave_up and store.round() <= rounds:
             message = user_message(skin, store, "notes" in pilot_tools)
             if rolling and state.messages and store.round() > store.warm_up_rounds + 1:
@@ -123,6 +124,9 @@ def round_loop(
             state.tools = list(offered)
             state.tool_choice = store.tool_choice  # type: ignore[assignment]
             if "compute" in pilot_tools:
+                if store.compute_rounds > computed:  # the round before ran compute, see solver.md#compute
+                    await reset_sandbox()
+                    computed = store.compute_rounds
                 await write_record(skin, store)
             state = await play_round(state, generate, skin, store, max_tries)
         return state

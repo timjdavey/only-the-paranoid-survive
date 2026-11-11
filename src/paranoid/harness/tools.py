@@ -2,6 +2,9 @@
 
 Every word on a tool is the skin's: its name, its text, and its one parameter's name and text.
 Built with ToolDef rather than @tool, which would rename each tool after its factory.
+
+The sandbox reset reaches into inspect's Docker internals, pinned with inspect_ai in pyproject.toml.
+HS21 fails loudly if they move.
 """
 
 from collections.abc import Awaitable, Callable
@@ -9,6 +12,8 @@ from typing import Any
 
 from inspect_ai.tool import Tool, ToolDef, ToolParams
 from inspect_ai.util import OutputLimitExceededError, sandbox, store_as
+from inspect_ai.util._sandbox.docker.compose import compose_command
+from inspect_ai.util._sandbox.docker.docker import DockerSandboxEnvironment
 
 from paranoid.engine import BetError
 from paranoid.skins import Skin, render_record
@@ -19,6 +24,9 @@ NOTES_CAP = 2000  # characters, pilot to confirm
 COMPUTE_TIMEOUT = 30  # seconds
 COMPUTE_OUTPUT = 4000  # characters returned
 RECORD_FILE = "record.csv"
+COMPUTE_USER = "nobody"  # on Docker, so the code can read record.csv and not change it
+RESET_TIMEOUT = 60  # seconds
+EMPTY_HERE = ["find", ".", "-mindepth", "1", "-delete"]  # relative paths only, so it never leaves the working directory
 
 
 def built(execute: Callable[..., Awaitable[str]], name: str, text: str, param: str, schema: dict[str, Any]) -> Tool:
@@ -71,9 +79,10 @@ def compute(skin: Skin) -> Tool:
 
     async def execute(**kwargs: Any) -> str:
         code = str(kwargs[skin.compute_param])
+        user = COMPUTE_USER if docker_sandbox() is not None else None
         try:
             result = await sandbox().exec(
-                ["python3", "-I", "-c", code], timeout=COMPUTE_TIMEOUT, timeout_retry=False
+                ["python3", "-I", "-c", code], user=user, timeout=COMPUTE_TIMEOUT, timeout_retry=False
             )
         except TimeoutError:
             return "timeout"
@@ -88,3 +97,27 @@ def compute(skin: Skin) -> Tool:
 async def write_record(skin: Skin, store: RunStore) -> None:
     """record.csv in the sandbox's working directory, so the code sees the record and nothing else."""
     await sandbox().write_file(RECORD_FILE, render_record(skin, store.record()))
+
+
+def docker_sandbox() -> DockerSandboxEnvironment | None:
+    """The sample's sandbox when it is Docker's, else None. sandbox() returns a proxy, so it is unwrapped by as_type."""
+    try:
+        return sandbox().as_type(DockerSandboxEnvironment)
+    except TypeError:
+        return None
+
+
+async def reset_sandbox() -> None:
+    """Clears everything compute left behind, so nothing crosses a round. Raises RuntimeError if it fails.
+
+    Docker restarts the container: the root is read only and every writable mount is tmpfs, so a restart
+    clears files, /dev/shm, processes and SysV memory at once. Any other sandbox empties its working directory.
+    """
+    docker = docker_sandbox()
+    if docker is not None:
+        command = ["restart", "--timeout", "0", docker._service]
+        result = await compose_command(command, project=docker._project, timeout=RESET_TIMEOUT)
+    else:
+        result = await sandbox().exec(EMPTY_HERE, timeout=RESET_TIMEOUT)
+    if not result.success:
+        raise RuntimeError(f"the sandbox reset failed with exit code {result.returncode}")

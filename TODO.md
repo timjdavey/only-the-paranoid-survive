@@ -50,6 +50,7 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 - Every skin calls its split percentages, which is the first answer to the round hundred. If [recognition](docs/pilot/provider-checks.md#recognition) replies still doubt a skin for it, decide whether a skin may state another number that the tool turns into 100 points, see [writing a skin](docs/harness/writing-a-skin.md#give-every-fixed-fact-a-reason). Not built.
   - Whole points only convert cleanly from a number that divides 100, which makes the smallest bet larger, or from a multiple of 100 placed in fixed lots.
   - It would change the lint's [budget fact](docs/specs/skins/lint.md#frame-facts), the skin spec and the `submit` tool.
+- Pin the sandbox image in `compose.yaml` by digest as well as by tag, so a rebuilt `python:3.12-slim-bookworm` cannot change what compute runs on, see [compute](docs/specs/harness/solver.md#compute).
 - Run the full study's retiring rows first, or swap them before they go: `claude-haiku-4-5-20251001` (any time now), `gpt-4o-2024-11-20` (2027-01-14), `gpt-5.1` (2027-04-01).
 
 ## Needs a key

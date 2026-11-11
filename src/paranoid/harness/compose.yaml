@@ -1,24 +1,31 @@
 # The sandbox the compute tool runs the model's code in, see docs/specs/harness/solver.md#compute.
 # The code is untrusted: no network, nothing mounted from the host, no environment passed in,
-# a read-only root with a small writable working directory, and caps on memory, processes and CPU.
+# a read-only root with small tmpfs mounts as the only writable places, and caps on memory, processes and CPU.
+# Nothing crosses a round: the solver restarts the container after a round that ran compute, which clears
+# every tmpfs, /dev/shm, the IPC namespace and every process.
 services:
   default:
-    image: python:3.12-slim
+    image: python:3.12-slim-bookworm
     x-default: true
     command: tail -f /dev/null
     init: true
     network_mode: none
+    ipc: private
     read_only: true
     working_dir: /work
     tmpfs:
       - /work:size=16m,mode=1777
       - /tmp:size=16m,mode=1777
+    shm_size: 16m
     mem_limit: 512m
+    memswap_limit: 512m  # equal to mem_limit, so no swap
     # Below mem_limit, so code that eats memory reads Python's own MemoryError. Past mem_limit the kernel
     # kills it with no output at all.
     ulimits:
       data: 402653184
     pids_limit: 64
     cpus: 1
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
