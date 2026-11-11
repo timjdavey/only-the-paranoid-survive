@@ -8,8 +8,13 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Whether any reading falls below 0 on the default ladder, from [timeline sanity](docs/pilot/engine-checks.md#timeline-sanity). A bet is paid its reading, so that would be a real loss, and it moves the ladder up.
 - The Bayesian baseline's `hazard` and `rule`, from the [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
 
+First numbers from the baselines layer at its defaults, on seeds 0 to 49, for the checks that set them:
+- **[The tell](docs/pilot/engine-checks.md#the-tell).** The hedge rule false alarms a lot. Weather alone made it scout on 14 of 50 No change seeds. On One shock it never scouted on only 16 of 50, though it ended on the leader on 43. The fall test fired in 87 hold rounds there and the tell stopped 52. Look at `fall_points`, `window` and `tell_points`.
+- **[Up and down](docs/pilot/engine-checks.md#up-and-down).** The hedge rule ended off the leader on 6 of 50 Up switch seeds, 5 of them on the sleeper. The Scout rule went to the sleeper and back on 41 of 50 Up switch then down switch seeds.
+- **[Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).** At the defaults it beat the Complacent baseline on 46 of 50 Down switch seeds and ended on the leader on 49 of 50 One shock seeds. A near zero hazard top pick played No change as the Complacent baseline on 47 of 50.
+- **Bayesian run time.** About 90 ms a run, 240 ms with `lookahead`, so the frontier's 240,000 runs take 6 to 16 hours on one core. A cache on the record's rows should about halve it. Add it with the frontier's pilot cell.
+
 ## Code
-- Write the baselines from their [spec](docs/specs/baselines/README.md), tests first.
 - Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
 - Add the console script, entry points, extras and package data to `pyproject.toml` with the harness, see [layout](docs/harness/layout.md#what-pyprojecttoml-holds). The scaffold holds only what the engine needs.
 - `configs/grid.toml`, the noise grid the `luck`, `timeline-sanity` and `noise-grid` cells read, see the [pilot spec](docs/specs/harness/pilot.md#engine-cells).

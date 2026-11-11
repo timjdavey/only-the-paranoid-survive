@@ -9,6 +9,7 @@
 
 - **Python 3.12 or later.** `uv` installs the version in `.python-version` for you.
 - **Check a change** with `uv run pytest` and `uv run lint-imports`, the two things CI runs. Slow tests are skipped unless you add `-m slow`, see the [engine tests](../specs/engine/tests.md).
+- **Sweeps** play a baseline on a thousand seeds and take about two minutes. CI skips them, so run `uv run pytest -m sweep` by hand after changing a baseline or the engine, see the [baselines tests](../specs/baselines/tests.md#three-sizes).
 - **The headline needs Docker.** The `compute` tool runs in a sandbox, see [tools](../design/interface.md#tools), so the sandbox extra and a running Docker are needed for any run at the default `tools`. Pass `-T tools=none` to run without, as the smoke test does.
 
 ## Commands

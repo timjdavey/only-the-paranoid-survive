@@ -27,10 +27,11 @@ packages = ["src/paranoid"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Slow tests are skipped by default. Run them with `uv run pytest -m slow`.
-addopts = "-m 'not slow' --strict-markers --import-mode=importlib"
+# Slow tests and sweeps are skipped by default. Run them with `uv run pytest -m slow` or `-m sweep`.
+addopts = "-m 'not slow and not sweep' --strict-markers --import-mode=importlib"
 markers = [
-    "slow: runs a thousand seeds or more, see the tests page of each layer's spec",
+    "slow: runs a thousand seeds or more, see the tests page of each layer's spec. CI runs them",
+    "sweep: plays a thousand seeds of a baseline, see docs/specs/baselines/tests.md. Run by hand, CI skips them",
 ]
 
 # The layer rule, see docs/harness/layout.md#five-layers. CI runs `lint-imports`.
@@ -50,7 +51,7 @@ layers = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "The engine's only third-party import is numpy"
+name = "The engine's and the baselines' only third-party import is numpy"
 type = "forbidden"
-source_modules = ["paranoid.engine"]
+source_modules = ["paranoid.engine", "paranoid.baselines"]
 forbidden_modules = ["inspect_ai", "pandas", "matplotlib", "scipy", "torch", "hypothesis", "pytest"]
