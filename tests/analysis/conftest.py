@@ -125,8 +125,13 @@ def held_out(built, monkeypatch) -> Path:
 
 
 def edit(source: Path, target: Path, change: Callable[[EvalLog], None] | None = None, *, results: bool = False) -> Path:
-    """A copy of `source` at `target`, changed in memory, with `results` set to None unless kept, see tests.md."""
+    """A copy of `source` at `target`, changed in memory, with `results` set to None unless kept, see tests.md.
+
+    Events, messages and attachments are dropped, as the layer never reads them, so the copy writes ten times faster.
+    """
     log = read_eval_log(str(source))
+    for sample in log.samples or []:
+        sample.events, sample.messages, sample.attachments = [], [], {}
     if change is not None:
         change(log)
     if not results:
@@ -149,10 +154,35 @@ def set_score(log: EvalLog, pick: Callable[[object], bool] = lambda s: True, **v
             sample.scores["gain"].value |= values
 
 
+SWAY = (1, -1, 1, -1, 0)  # per seed_index, summing to 0, so a scenario's pooled score is unmoved
+
+
+def on_curve(headline: float, complacent: float, own_scale: float, sway: float = 0.0) -> Callable[[EvalLog], None]:
+    """Every scenario scores `headline` and the Complacent mark `complacent`, at this own_scale.
+
+    With `sway`, each seed's gain moves by sway times the scenario's mean gap, alternately up and down, so the
+    pooled score stays put and the draws scatter around it.
+    """
+
+    def change(log: EvalLog) -> None:
+        mean_gap: dict[str, list[float]] = {}
+        for sample in log.samples or []:
+            mean_gap.setdefault(sample.metadata["scenario"], []).append(sample.scores["gain"].value["gap"])
+        for sample in log.samples or []:
+            value, metadata = sample.scores["gain"].value, sample.metadata
+            gap = value["gap"]
+            nudge = SWAY[metadata["seed_index"] % 5] * sway * sum(mean_gap[metadata["scenario"]]) / len(mean_gap[metadata["scenario"]])
+            value |= {"gain": headline * gap + nudge, "complacent": value["uniform"] + complacent * gap}
+            value["run_score"] = value["gain"] / gap
+            metadata["own_scale"] = own_scale
+
+    return change
+
+
 @pytest.fixture(scope="session")
 def helpers():
-    """edit, set_metadata, set_score, run and Script, as the suite runs with --import-mode=importlib."""
-    return SimpleNamespace(edit=edit, set_metadata=set_metadata, set_score=set_score, run=run, Script=Script)
+    """edit, set_metadata, set_score, on_curve, run and Script, as the suite runs with --import-mode=importlib."""
+    return SimpleNamespace(edit=edit, set_metadata=set_metadata, set_score=set_score, on_curve=on_curve, run=run, Script=Script)
 
 
 def models_file(folder: Path, *rows: dict) -> Path:

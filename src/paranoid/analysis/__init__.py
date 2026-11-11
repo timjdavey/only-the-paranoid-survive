@@ -2,9 +2,11 @@
 
 from .gaps import GAP_COLUMNS, paired_gap, public_gap, scenario_gap
 from .keys import ResultKey, Setting, result_key
+from .kinds import switch_kinds
 from .runs import RUN_COLUMNS, load_runs, mean_over_epochs
 from .scores import RECOGNITION_FLAG, RETRY_FLAG, headlines, load_recognition, scenario_scores
 from .spread import sampling_share, spread
+from .threshold import Threshold, noise_threshold, signal_points
 
 __all__ = [
     "load_runs",
@@ -24,4 +26,8 @@ __all__ = [
     "GAP_COLUMNS",
     "spread",
     "sampling_share",
+    "switch_kinds",
+    "noise_threshold",
+    "Threshold",
+    "signal_points",
 ]
