@@ -1,8 +1,10 @@
 """Logs into tables and plots. See docs/specs/analysis/README.md#exports."""
 
+from .cost import write_cost
 from .gaps import GAP_COLUMNS, paired_gap, public_gap, scenario_gap
 from .keys import ResultKey, Setting, result_key
 from .kinds import switch_kinds
+from .run_csv import CSV_COLUMNS, write_run_csv
 from .runs import RUN_COLUMNS, load_runs, mean_over_epochs
 from .scores import RECOGNITION_FLAG, RETRY_FLAG, headlines, load_recognition, scenario_scores
 from .spread import sampling_share, spread
@@ -30,4 +32,7 @@ __all__ = [
     "noise_threshold",
     "Threshold",
     "signal_points",
+    "write_run_csv",
+    "write_cost",
+    "CSV_COLUMNS",
 ]
