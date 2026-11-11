@@ -121,12 +121,12 @@ The same pairing across two scenarios of one result row, for the twin timelines 
 
 - **`public_gap(runs, key)`** pairs `key` with the one result row of its model and reasoning whose setting differs from `key.setting` in `seed_set` and nothing else, see [comparing settings](runs.md#comparing-settings). It reports public minus held-out per scenario and for the headline, whichever side `key` is, see [the public gap](../../harness/contamination.md#the-public-gap).
 - **No such row raises `ValueError`.** It names the seed set that is missing, or the fields in which the nearest row on the other set also differs. Two such rows raise too, naming both.
-- **There is no pairing.** The two seed sets are different worlds, so each is resampled on its own from one rng, the public block first. `n_shared` is the smaller seed count.
+- **There is no pairing.** The two seed sets are different worlds, so each is resampled on its own from one rng, the public block first. A scenario row starts its rng afresh. The `headline` row walks one rng over every public block in `SCENARIOS` order, then every held-out block. `n_shared` is the smaller seed count.
 
 ### Spread and sampling share
 
 - **`spread`** is the SD of `run_score` over seeds, `ddof=1`, and its 10th percentile with linear interpolation, per result row and scenario, see [spread](../../design/scoring.md#spread). `n` is the seeds. One seed gives NA.
-- **`sampling_share`** takes the table with one row per epoch. Per result row and scenario, `within_sd` is the root of the mean over seeds of the variance over epochs, `total_sd` is the SD of all rows, and `share` is `within_sd² / total_sd²`, see [repeats](../../pilot/provider-checks.md#repeats). A seed with one epoch is left out of `within_sd` and `seeds` says how many were used.
+- **`sampling_share`** takes the table with one row per epoch. Per result row and scenario, `within_sd` is the root of the mean over seeds of the variance over epochs, `total_sd` is the SD of all rows, and `share` is `within_sd² / total_sd²`, see [repeats](../../pilot/provider-checks.md#repeats). Both are taken with `ddof=0`, so with equal epochs per seed the part within seeds and the part between them add up to the whole, and the share runs from 0 to 1. A `total_sd` of 0 gives NA, as there is no spread to share. A seed with one epoch is left out of `within_sd` and `seeds` says how many were used.
 
 ### Switch kinds
 
