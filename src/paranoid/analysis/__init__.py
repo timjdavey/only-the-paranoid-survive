@@ -4,6 +4,7 @@ from .cost import write_cost
 from .gaps import GAP_COLUMNS, paired_gap, public_gap, scenario_gap
 from .keys import ResultKey, Setting, result_key
 from .kinds import switch_kinds
+from .plots import noise_plot, profile_plot, strip_plot, trend_plot
 from .run_csv import CSV_COLUMNS, write_run_csv
 from .runs import RUN_COLUMNS, load_runs, mean_over_epochs
 from .scores import RECOGNITION_FLAG, RETRY_FLAG, headlines, load_recognition, scenario_scores
@@ -35,4 +36,8 @@ __all__ = [
     "write_run_csv",
     "write_cost",
     "CSV_COLUMNS",
+    "strip_plot",
+    "profile_plot",
+    "trend_plot",
+    "noise_plot",
 ]
