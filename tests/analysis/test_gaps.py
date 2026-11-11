@@ -4,8 +4,18 @@ import numpy as np
 import pytest
 from inspect_ai.log import read_eval_log
 
-from paranoid.analysis import GAP_COLUMNS, load_runs, mean_over_epochs, paired_gap, public_gap, result_key
-from paranoid.analysis import sampling_share, scenario_gap, scenario_scores, spread
+from paranoid.analysis import (
+    GAP_COLUMNS,
+    load_runs,
+    mean_over_epochs,
+    paired_gap,
+    public_gap,
+    result_key,
+    sampling_share,
+    scenario_gap,
+    scenario_scores,
+    spread,
+)
 
 
 def key(path):

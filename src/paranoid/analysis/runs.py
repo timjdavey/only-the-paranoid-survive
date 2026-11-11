@@ -14,9 +14,21 @@ from .keys import KEY_COLUMNS, ResultKey
 from .read import SCORE_COLUMNS, USAGE_COLUMNS, LogRows, read_log, rows_of_log
 
 RUN_COLUMNS: tuple[str, ...] = (
-    "log", "started", *KEY_COLUMNS, "kind", "scenario", "seed_index", "seed", "engine_hash", "numpy_version",
-    "epoch", "epochs", *SCORE_COLUMNS, *USAGE_COLUMNS, "errored",
-)  # fmt: skip
+    "log",
+    "started",
+    *KEY_COLUMNS,
+    "kind",
+    "scenario",
+    "seed_index",
+    "seed",
+    "engine_hash",
+    "numpy_version",
+    "epoch",
+    "epochs",
+    *SCORE_COLUMNS,
+    *USAGE_COLUMNS,
+    "errored",
+)
 STR = ("log", "model", "reasoning", "skin", "seed_set", "tools", "warm_up", "tool_choice", "prompt_hash", "harness_version")
 STR += ("release", "kind", "scenario", "engine_hash", "numpy_version")
 COUNTS = ("rounds", "warm_up_rounds", "retries", "retry_rounds", "bad_calls", "no_calls", "cut_offs", "notes_rounds")
@@ -163,4 +175,3 @@ def report_lines(report: dict[str, Any]) -> list[str]:
     lines += [f"{count} samples errored in {name}" for name, count in report["errored"]]
     lines += [f"{row} holds numpy {', '.join(versions)}, so its timelines may differ" for row, versions in report["numpy"]]
     return lines
-

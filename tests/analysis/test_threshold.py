@@ -29,8 +29,14 @@ def expected_kind(scenario: str, seed: int) -> str:
 
 
 def test_as5_switch_kinds(logs, held_out, tmp_path, helpers, monkeypatch):
-    capped = helpers.run("baseline/complacent", tmp_path / "capped", metadata={"reasoning": "n/a", "kind": "baseline"},
-                         scenario="down_switch", seeds="0-1", inertia=10)  # fmt: skip
+    capped = helpers.run(
+        "baseline/complacent",
+        tmp_path / "capped",
+        metadata={"reasoning": "n/a", "kind": "baseline"},
+        scenario="down_switch",
+        seeds="0-1",
+        inertia=10,
+    )
     assert len(switch_kinds(mean_over_epochs(load_runs([capped])))) == 2
     kinds = switch_kinds(mean_over_epochs(load_runs([logs.complacent])))
     assert "kind" not in kinds and len(kinds) == 40
@@ -66,8 +72,11 @@ def test_as6_the_noise_threshold(logs, tmp_path, helpers):
     with pytest.raises(ValueError, match="2 noise settings"):
         noise_threshold(runs, key)
     runs, key = curve_logs(logs.complacent, tmp_path / "twice", helpers, [0.9, 0.8, 0.6], scales=SCALES[:3])
-    helpers.edit(tmp_path / "twice" / "1.0.eval", tmp_path / "twice" / "again.eval",
-                 lambda log: helpers.set_metadata(log, harness_version="other"))  # fmt: skip
+    helpers.edit(
+        tmp_path / "twice" / "1.0.eval",
+        tmp_path / "twice" / "again.eval",
+        lambda log: helpers.set_metadata(log, harness_version="other"),
+    )
     with pytest.raises(ValueError, match="own_scale"):
         noise_threshold(mean_over_epochs(load_runs([tmp_path / "twice"])), key)
 

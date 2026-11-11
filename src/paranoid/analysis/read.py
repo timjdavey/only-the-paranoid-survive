@@ -21,14 +21,45 @@ from .keys import ResultKey, kind_of, result_key
 
 TASK = "paranoid/paranoid"  # what inspect names the task however it was run, see #checked
 SCORE_COLUMNS = (
-    "output", "uniform", "discerning", "complacent", "perfect", "hedge_rule", "scout_rule", "gain", "gap", "run_score",
-    "rounds", "warm_up_rounds", "retries", "retry_rounds", "gave_up", "bad_calls", "no_calls", "cut_offs",
-    "notes_rounds", "compute_rounds", "unchanged_rounds", "explore_points", "sleeper_round", "warm_up_kept",
-)  # fmt: skip
+    "output",
+    "uniform",
+    "discerning",
+    "complacent",
+    "perfect",
+    "hedge_rule",
+    "scout_rule",
+    "gain",
+    "gap",
+    "run_score",
+    "rounds",
+    "warm_up_rounds",
+    "retries",
+    "retry_rounds",
+    "gave_up",
+    "bad_calls",
+    "no_calls",
+    "cut_offs",
+    "notes_rounds",
+    "compute_rounds",
+    "unchanged_rounds",
+    "explore_points",
+    "sleeper_round",
+    "warm_up_kept",
+)
 USAGE_COLUMNS = ("input_tokens", "cache_read_tokens", "cache_write_tokens", "output_tokens", "reasoning_tokens", "total_tokens")
-USAGE_FIELDS = dict(zip(USAGE_COLUMNS, (
-    "input_tokens", "input_tokens_cache_read", "input_tokens_cache_write", "output_tokens", "reasoning_tokens", "total_tokens",
-)))  # fmt: skip
+USAGE_FIELDS = dict(
+    zip(
+        USAGE_COLUMNS,
+        (
+            "input_tokens",
+            "input_tokens_cache_read",
+            "input_tokens_cache_write",
+            "output_tokens",
+            "reasoning_tokens",
+            "total_tokens",
+        ),
+    )
+)
 METRIC_KEYS = (("score", ""), ("lo", "_lo"), ("hi", "_hi"), ("n", "_n"), ("failed", "_failed"))
 TOLERANCE = 1e-9
 
@@ -90,11 +121,16 @@ def sample_row(sample, key: ResultKey, kind: str, where: str, epochs: int) -> di
     value = score.value if score is not None else None
     errored = not isinstance(value, dict)
     row: dict[str, Any] = {
-        "kind": kind, "scenario": scenario, "seed_index": index,
+        "kind": kind,
+        "scenario": scenario,
+        "seed_index": index,
         "seed": metadata.get("seed") if key.setting.seed_set == "public" else None,
-        "engine_hash": metadata.get("engine_hash"), "numpy_version": metadata.get("numpy_version"),
-        "epoch": sample.epoch, "epochs": epochs, "sample_id": str(sample.id),
-    }  # fmt: skip
+        "engine_hash": metadata.get("engine_hash"),
+        "numpy_version": metadata.get("numpy_version"),
+        "epoch": sample.epoch,
+        "epochs": epochs,
+        "sample_id": str(sample.id),
+    }
     for column in SCORE_COLUMNS:
         row[column] = None if errored else value.get(column)  # type: ignore[union-attr]
     usage = list((sample.model_usage or {}).values())

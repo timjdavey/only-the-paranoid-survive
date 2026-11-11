@@ -14,9 +14,14 @@ from .keys import ResultKey, Setting, label
 
 GAME_ROUNDS = SCENARIOS["no_change"].rounds  # every scenario's default length
 DEFAULTS: dict[str, Any] = {
-    "own_scale": None, "game_rounds": GAME_ROUNDS, "tools": "notes,compute", "warm_up": None, "rolling": False,
-    "tool_choice": "any", "inertia": None,
-}  # fmt: skip
+    "own_scale": None,
+    "game_rounds": GAME_ROUNDS,
+    "tools": "notes,compute",
+    "warm_up": None,
+    "rolling": False,
+    "tool_choice": "any",
+    "inertia": None,
+}
 VERSIONS = ("prompt_hash", "generator_version", "release")  # named only where two settings on the page differ
 SLUG_RUN = re.compile(r"[^a-z0-9._]+")
 

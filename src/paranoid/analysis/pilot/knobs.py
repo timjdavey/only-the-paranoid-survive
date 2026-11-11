@@ -43,8 +43,18 @@ def gaps_against(runs: pd.DataFrame, knob: str, base: object) -> pd.DataFrame:
             continue
         gap = paired_gap(runs, key, bases[0]).set_index("pair").loc["headline"]
         clears = bool(gap["lo"] > 0 or gap["hi"] < 0)
-        rows.append({"model": label(key), knob: getattr(key.setting, knob), "against": base, "diff": gap["diff"],
-                     "lo": gap["lo"], "hi": gap["hi"], "n_shared": gap["n_shared"], "clears_zero": clears})  # fmt: skip
+        rows.append(
+            {
+                "model": label(key),
+                knob: getattr(key.setting, knob),
+                "against": base,
+                "diff": gap["diff"],
+                "lo": gap["lo"],
+                "hi": gap["hi"],
+                "n_shared": gap["n_shared"],
+                "clears_zero": clears,
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -81,7 +91,9 @@ def rolling(logs: Path, main: Path | None) -> Section | None:
         tokens = tokens.assign(read=tokens["input_tokens"] + tokens["cache_read_tokens"] + tokens["cache_write_tokens"])
         per_round = tokens.groupby(["model", "rolling"], sort=True)["read"].mean().rename("input_per_round")
         curve = tokens.groupby(["rolling", "round"], sort=True)["read"].mean().reset_index()
-        section.plot("tokens", lambda out: lines(curve, "round", "read", "rolling", "Input tokens a round, fresh and rolling", out))
+        section.plot(
+            "tokens", lambda out: lines(curve, "round", "read", "rolling", "Input tokens a round, fresh and rolling", out)
+        )
     if runs is not None or per_round is not None:
         section.table("tokens", token_table(runs, per_round))
     return section
@@ -110,7 +122,9 @@ def warm_up(logs: Path, main: Path | None) -> Section | None:
     for key in keys_in(scored(runs)):
         if key.setting.warm_up is None:
             continue
-        cold = [k for k in keys_in(scored(runs)) if (k.model, k.reasoning) == (key.model, key.reasoning) and k.setting.warm_up is None]
+        cold = [
+            k for k in keys_in(scored(runs)) if (k.model, k.reasoning) == (key.model, key.reasoning) and k.setting.warm_up is None
+        ]
         if len(cold) == 1:
             rows.append({"model": label(key), "warm_up": key.setting.warm_up} | headline_gap(runs, key, cold[0]))
     section.table("gaps", pd.DataFrame(rows))
@@ -139,7 +153,9 @@ def cost_per_run(logs: Path, main: Path | None) -> Section | None:
         section.table("cost", pd.concat(tables, ignore_index=True))
     if tokens is not None:
         per_model = tokens.groupby("model", sort=True)[["input_tokens", "cache_read_tokens"]].mean().reset_index()
-        section.table("tokens", per_model.rename(columns={"input_tokens": "uncached_per_round", "cache_read_tokens": "cached_per_round"}))
+        section.table(
+            "tokens", per_model.rename(columns={"input_tokens": "uncached_per_round", "cache_read_tokens": "cached_per_round"})
+        )
         curve = tokens.melt(id_vars=["round"], value_vars=["input_tokens", "cache_read_tokens"], var_name="kind")
         curve = curve.groupby(["kind", "round"], sort=True)["value"].mean().reset_index()
         section.plot("tokens", lambda out: lines(curve, "round", "value", "kind", "Input tokens a round, cached and not", out))

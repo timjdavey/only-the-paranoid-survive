@@ -38,7 +38,9 @@ def paired(a: pd.DataFrame, b: pd.DataFrame, pair: str) -> dict:
 def paired_gap(runs: pd.DataFrame, a: ResultKey, b: ResultKey) -> pd.DataFrame:
     """a minus b per scenario both scored, plus "headline", on the seeds both scored."""
     if a.setting.seed_set != b.setting.seed_set:
-        raise ValueError(f"a paired gap needs one seed set, {label(a)} played {a.setting.seed_set} and {label(b)} {b.setting.seed_set}")
+        raise ValueError(
+            f"a paired gap needs one seed set, {label(a)} played {a.setting.seed_set} and {label(b)} {b.setting.seed_set}"
+        )
     left, right = by_scenario(rows_of(runs, a)), by_scenario(rows_of(runs, b))
     pairs: dict[str, tuple[pd.DataFrame, pd.DataFrame]] = {}
     for scenario in SCENARIOS:
@@ -75,7 +77,9 @@ def scenario_gap(runs: pd.DataFrame, key: ResultKey, a: str, b: str, seeds: Sequ
 def partner(runs: pd.DataFrame, key: ResultKey) -> ResultKey:
     """The one result row of key's model and reasoning on the other seed set, equal in every other field."""
     other = "held-out" if key.setting.seed_set == "public" else "public"
-    candidates = [k for k in keys_in(runs) if (k.model, k.reasoning) == (key.model, key.reasoning) and k.setting.seed_set == other]
+    candidates = [
+        k for k in keys_in(runs) if (k.model, k.reasoning) == (key.model, key.reasoning) and k.setting.seed_set == other
+    ]
     found = [k for k in candidates if differing(key.setting, k.setting) == ["seed_set"]]
     if len(found) > 1:
         versions = " and ".join(k.setting.harness_version for k in found)

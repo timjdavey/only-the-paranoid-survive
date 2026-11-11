@@ -32,7 +32,9 @@ def weather(logs: Path, main: Path | None) -> Section | None:
             rows.append(row | {f"field_beats_{n}_share": share(calm["field_beats_leader_streak"] >= n) for n in range(2, 6)})
         section.table("streaks", pd.DataFrame(rows))
         calm = streaks[streaks["scenario"] == "no_change"]
-        section.plot("streaks", lambda out: histogram(calm, "leader_below_streak", "setting", "Leader below runner-up, No change", out))
+        section.plot(
+            "streaks", lambda out: histogram(calm, "leader_below_streak", "setting", "Leader below runner-up, No change", out)
+        )
     if tell is not None:
         table = tell_table(tell)
         section.table("tell", table)
@@ -46,7 +48,9 @@ def weather(logs: Path, main: Path | None) -> Section | None:
     if sanity is not None:
         section.table("sanity", sanity_table(sanity))
     if sparklines is not None:
-        section.plot("sparklines", lambda out: lines(sparklines, "round", "median", None, "Leader's median level", out, panels="scenario"))
+        section.plot(
+            "sparklines", lambda out: lines(sparklines, "round", "median", None, "Leader's median level", out, panels="scenario")
+        )
     return section
 
 
@@ -73,11 +77,15 @@ def sanity_table(sanity: pd.DataFrame) -> pd.DataFrame:
     for (setting, scenario), group in sanity.groupby(["setting", "scenario"], sort=False):
         config = SCENARIOS[scenario]
         cells = len(group) * config.rounds * config.channels
-        rows.append({
-            "setting": setting, "scenario": scenario, "below_zero_share": group["below_zero_rounds"].sum() / cells,
-            "reading_below_zero_share": share(group["below_zero_readings"] > 0),
-            "discerning_minus_complacent": float((group["discerning"] - group["complacent"]).mean()),
-        })  # fmt: skip
+        rows.append(
+            {
+                "setting": setting,
+                "scenario": scenario,
+                "below_zero_share": group["below_zero_rounds"].sum() / cells,
+                "reading_below_zero_share": share(group["below_zero_readings"] > 0),
+                "discerning_minus_complacent": float((group["discerning"] - group["complacent"]).mean()),
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -93,7 +101,9 @@ def noise(logs: Path, main: Path | None) -> Section | None:
     scores.insert(1, "snr", signal / scores["setting"])
     section = Section()
     section.table("scores", scores)
-    section.plot("curves", lambda out: lines(scores, "snr", "score", "baseline", "Scenario score", out, panels="scenario", logx=True))
+    section.plot(
+        "curves", lambda out: lines(scores, "snr", "score", "baseline", "Scenario score", out, panels="scenario", logx=True)
+    )
     return section
 
 
@@ -132,7 +142,9 @@ def game_length(logs: Path, main: Path | None) -> Section | None:
     section = Section()
     table = pd.DataFrame(rows)
     section.table("length", table)
-    section.plot("gap", lambda out: lines(table, "rounds", "window_1_points", "scenario", "Discerning − Complacent, window 1", out))
+    section.plot(
+        "gap", lambda out: lines(table, "rounds", "window_1_points", "scenario", "Discerning − Complacent, window 1", out)
+    )
     return section
 
 
@@ -160,15 +172,20 @@ def reading_roughness(logs: Path, main: Path | None) -> Section | None:
     for group, block in frame[frame["baseline"] != "complacent"].groupby(keys, dropna=False, sort=True):
         quiet = block[block["scenario"] == "no_change"].set_index(["setting", "seed"])["output"]
         shared = base.index.intersection(quiet.index)
-        rows.append(dict(zip(keys, group)) | {
-            "output": float(block[block["scenario"] != "no_change"]["output"].sum()),
-            "moved_share": share(block[block["scenario"] != "no_change"]["move_round"] > 0),
-            "explore_cost": float(base[shared].sum() - quiet[shared].sum()) if len(shared) else None,
-        })  # fmt: skip
+        rows.append(
+            dict(zip(keys, group))
+            | {
+                "output": float(block[block["scenario"] != "no_change"]["output"].sum()),
+                "moved_share": share(block[block["scenario"] != "no_change"]["move_round"] > 0),
+                "explore_cost": float(base[shared].sum() - quiet[shared].sum()) if len(shared) else None,
+            }
+        )
     table = pd.DataFrame(rows)
     section = Section()
     section.table("roughness", table)
-    section.plot("output", lambda out: lines(table, "setting", "output", "parameter", "Output against read noise", out, panels="baseline"))
+    section.plot(
+        "output", lambda out: lines(table, "setting", "output", "parameter", "Output against read noise", out, panels="baseline")
+    )
     return section
 
 
@@ -186,11 +203,17 @@ def up_and_down(logs: Path, main: Path | None) -> Section | None:
         complacent = mine.set_index("player")["score"].get("complacent")
         points = float((by["discerning"]["output"] - by["complacent"]["output"]).mean())
         for player, score_row in mine.set_index("player").iterrows():
-            rows.append(dict(zip(keys, group)) | {
-                "player": player, "seeds": int(score_row["seeds"]), "score": score_row["score"],
-                "median_move_round": median(by[player]["move_round"]), "reachable_points": points,
-                "reachable_score": None if complacent is None else 1 - complacent,
-            })  # fmt: skip
+            rows.append(
+                dict(zip(keys, group))
+                | {
+                    "player": player,
+                    "seeds": int(score_row["seeds"]),
+                    "score": score_row["score"],
+                    "median_move_round": median(by[player]["move_round"]),
+                    "reachable_points": points,
+                    "reachable_score": None if complacent is None else 1 - complacent,
+                }
+            )
     table = pd.DataFrame(rows)
     section = Section()
     section.table("kinds", table)

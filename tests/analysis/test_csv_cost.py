@@ -10,8 +10,17 @@ from hypothesis import strategies as st
 from inspect_ai.log import read_eval_log
 from inspect_ai.model import ModelUsage
 
-from paranoid.analysis import CSV_COLUMNS, RUN_COLUMNS, load_runs, mean_over_epochs, paired_gap, result_key
-from paranoid.analysis import scenario_scores, write_cost, write_run_csv
+from paranoid.analysis import (
+    CSV_COLUMNS,
+    RUN_COLUMNS,
+    load_runs,
+    mean_over_epochs,
+    paired_gap,
+    result_key,
+    scenario_scores,
+    write_cost,
+    write_run_csv,
+)
 from paranoid.harness import pooled_score
 
 COST = ["model", "reasoning", "kind", "skin", "runs", "input", "cache_read", "cache_write", "output", "reasoning_tokens"]
@@ -33,8 +42,11 @@ def test_at2_the_run_csv(logs, held_out, tmp_path):
 def usage(input_tokens, read, write):
     def change(log):
         for sample in log.samples:
-            sample.model_usage = {"m": ModelUsage(input_tokens=input_tokens, input_tokens_cache_read=read,
-                                                  input_tokens_cache_write=write, output_tokens=10)}  # fmt: skip
+            sample.model_usage = {
+                "m": ModelUsage(
+                    input_tokens=input_tokens, input_tokens_cache_read=read, input_tokens_cache_write=write, output_tokens=10
+                )
+            }
 
     return change
 
@@ -48,7 +60,8 @@ def test_at6_cost(logs, epochs_log, tmp_path, helpers, models_file, capsys):
     models = models_file(tmp_path, {"id": "mockllm/model", "kind": "llm", "reasoning": ["off", "low"]})
     projected = write_cost(runs, models=models, seeds=10).set_index("model")
     assert projected.loc["mockllm/model", "projected"] == pytest.approx(
-        sum(projected.loc["mockllm/model", k] for k in ("input", "cache_read", "cache_write", "output")) * 10 * 8 * 2)
+        sum(projected.loc["mockllm/model", k] for k in ("input", "cache_read", "cache_write", "output")) * 10 * 8 * 2
+    )
     assert projected["projected"].isna().sum() == 3
     cached = load_runs([helpers.edit(logs.mockllm, tmp_path / "a" / "cached.eval", usage(100, 300, 0))])
     prices = tmp_path / "prices.toml"

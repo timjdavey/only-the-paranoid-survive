@@ -14,9 +14,17 @@ from ..plots import PALETTE, RC, figure, save
 
 
 def lines(
-    frame: pd.DataFrame, x: str, y: str, group: str | None, title: str, out: Path, *,
-    panels: str | None = None, logx: bool = False, marks: Sequence[float] = (),
-) -> Path:  # fmt: skip
+    frame: pd.DataFrame,
+    x: str,
+    y: str,
+    group: str | None,
+    title: str,
+    out: Path,
+    *,
+    panels: str | None = None,
+    logx: bool = False,
+    marks: Sequence[float] = (),
+) -> Path:
     """One line per `group` value of y against x, one panel per `panels` value, horizontal lines at `marks`."""
     names = list(dict.fromkeys(frame[panels])) if panels else [None]
     with matplotlib.rc_context(RC):

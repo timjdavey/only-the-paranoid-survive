@@ -48,16 +48,22 @@ def write_cost(
         rounds = float(group["rounds"].sum())
         runs_of_model = seeds * len(SCENARIOS) * settings[key.model] if seeds and key.model in settings else None
         row = {
-            "model": key.model, "reasoning": key.reasoning, "kind": str(group["kind"].iloc[0]), "skin": key.setting.skin,
-            "runs": len(group), **means, "reasoning_tokens": float(group["reasoning_tokens"].mean()),
+            "model": key.model,
+            "reasoning": key.reasoning,
+            "kind": str(group["kind"].iloc[0]),
+            "skin": key.setting.skin,
+            "runs": len(group),
+            **means,
+            "reasoning_tokens": float(group["reasoning_tokens"].mean()),
             "cached_share": float(group["cache_read_tokens"].sum()) / read if read else 0.0,
             "cut_off_share": float(group["cut_offs"].sum()) / rounds if rounds else 0.0,
             "projected": None if runs_of_model is None else sum(means.values()) * runs_of_model,
-        }  # fmt: skip
+        }
         if prices is not None:
             price = priced.get(key.model)
             known = price is not None and runs_of_model is not None
-            row["cost"] = sum(means[k] * price[k] for k in KINDS) * runs_of_model / 1e6 if known else None  # type: ignore[index, operator]
+            per_run = sum(means[k] * price[k] for k in KINDS) if known else 0.0  # type: ignore[index]
+            row["cost"] = per_run * runs_of_model / 1e6 if known else None  # type: ignore[operator]
         rows.append(row)
     table = pd.DataFrame(rows, columns=list(COLUMNS) + (["cost"] if prices is not None else []))
     if read_on is not None:

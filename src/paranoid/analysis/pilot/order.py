@@ -15,14 +15,24 @@ REACHABLE_GAIN_FLOOR = 0.3  # the reachable gain check's three pass lines, see d
 BAYESIAN_GAIN_PERCENTAGE_FLOOR = 50
 BAYESIAN_MOVE_SHARE_FLOOR = 0.5
 APPROX = 0.02  # how close two scores are for ≈, and how far below ≥ may sit
-NAMES = {"perfect": "Perfect", "discerning": "Discerning", "hedge_rule": "hedge rule", "complacent": "Complacent",
-         "uniform": "Uniform", "scout_rule": "Scout rule"}  # fmt: skip
+NAMES = {
+    "perfect": "Perfect",
+    "discerning": "Discerning",
+    "hedge_rule": "hedge rule",
+    "complacent": "Complacent",
+    "uniform": "Uniform",
+    "scout_rule": "Scout rule",
+}
 DOWN = ["perfect", ">", "discerning", ">", "hedge_rule", ">", "complacent", ">", "uniform"]
 UP = ["perfect", ">", "discerning", ">", "scout_rule", ">", "complacent", "≥", "hedge_rule", ">", "uniform"]
 ORDERS = [  # (scenario, order), from the Baseline order check's Measure
-    ("down_switch", DOWN), ("up_switch", UP), ("up_switch (rise_short)", ["complacent", "≈", "discerning", "≈", "hedge_rule", "≥", "scout_rule"]),
-    ("no_change", ["complacent", "≈", "discerning", "≈", "hedge_rule"]), ("switch_then_shock", DOWN), (BOTH_WAYS, UP),
-]  # fmt: skip
+    ("down_switch", DOWN),
+    ("up_switch", UP),
+    ("up_switch (rise_short)", ["complacent", "≈", "discerning", "≈", "hedge_rule", "≥", "scout_rule"]),
+    ("no_change", ["complacent", "≈", "discerning", "≈", "hedge_rule"]),
+    ("switch_then_shock", DOWN),
+    (BOTH_WAYS, UP),
+]
 SPLIT = 500  # the frontier picks on seeds below this and reports on the rest
 
 
@@ -30,9 +40,14 @@ def bayesian_frontier(logs: Path, main: Path | None) -> Section | None:
     frame = read_csv(logs, "bayesian-frontier")
     if frame is None:
         return None
-    frame = frame.assign(player=[b if pd.isna(h) else f"bayesian {h} {r}" for b, h, r in zip(frame["baseline"], frame["hazard"], frame["rule"])])
+    frame = frame.assign(
+        player=[b if pd.isna(h) else f"bayesian {h} {r}" for b, h, r in zip(frame["baseline"], frame["hazard"], frame["rule"])]
+    )
     players = with_headline(engine_scores(frame, ["scenario"], player="player"))
-    early, late = (with_headline(engine_scores(part, ["scenario"], player="player")) for part in (frame[frame["seed"] < SPLIT], frame[frame["seed"] >= SPLIT]))
+    early, late = (
+        with_headline(engine_scores(part, ["scenario"], player="player"))
+        for part in (frame[frame["seed"] < SPLIT], frame[frame["seed"] >= SPLIT])
+    )
     section = Section()
     section.table("players", players)
     heads = early[(early["scenario"] == "headline") & early["player"].str.startswith("bayesian ")]
@@ -40,11 +55,22 @@ def bayesian_frontier(logs: Path, main: Path | None) -> Section | None:
         best = heads.sort_values(["score", "player"], ascending=[False, True]).iloc[0]["player"]
         later = late[late["player"] == best].set_index("scenario")["score"]
         down = later.get("down_switch")
-        pick = {"player": best, "headline_early": heads.set_index("player").loc[best, "score"], "headline_late": later.get("headline")}
-        section.table("pick", pd.DataFrame([pick | {"down_switch_late": down, "irreducible_lag": None if down is None else 1 - down}]))
+        pick = {
+            "player": best,
+            "headline_early": heads.set_index("player").loc[best, "score"],
+            "headline_late": later.get("headline"),
+        }
+        section.table(
+            "pick", pd.DataFrame([pick | {"down_switch_late": down, "irreducible_lag": None if down is None else 1 - down}])
+        )
     planes = players.pivot_table(index="player", columns="scenario", values="score").reset_index()
     if {"down_switch", "no_change"} <= set(planes.columns):
-        section.plot("planes", lambda out: lines(planes.sort_values("no_change"), "no_change", "down_switch", None, "Down switch against No change", out))
+        section.plot(
+            "planes",
+            lambda out: lines(
+                planes.sort_values("no_change"), "no_change", "down_switch", None, "Down switch against No change", out
+            ),
+        )
     return section
 
 
@@ -110,20 +136,45 @@ def reachable_gain(logs: Path, main: Path | None) -> Section | None:
         reachable = by[(scenario, "discerning")] - by[(scenario, base)]
         bayesian = by.get((scenario, "bayesian"), np.nan) - by[(scenario, base)]
         percentage = 100 * bayesian / reachable if reachable else np.nan
-        row = {"scenario": scenario, "against": base, "reachable_gain": reachable, "bayesian_gain": bayesian,
-               "bayesian_gain_percentage": percentage}  # fmt: skip
+        row = {
+            "scenario": scenario,
+            "against": base,
+            "reachable_gain": reachable,
+            "bayesian_gain": bayesian,
+            "bayesian_gain_percentage": percentage,
+        }
         name = design_name(scenario)
-        lines_.append({"line": holds(f"{name}: reachable gain {number(reachable)} against a floor of {REACHABLE_GAIN_FLOOR}",
-                                     reachable >= REACHABLE_GAIN_FLOOR)})  # fmt: skip
-        lines_.append({"line": holds(f"{name}: Bayesian gain percentage {number(percentage, 0)}% against a floor of "
-                                     f"{BAYESIAN_GAIN_PERCENTAGE_FLOOR}%", percentage >= BAYESIAN_GAIN_PERCENTAGE_FLOOR)})  # fmt: skip
+        lines_.append(
+            {
+                "line": holds(
+                    f"{name}: reachable gain {number(reachable)} against a floor of {REACHABLE_GAIN_FLOOR}",
+                    reachable >= REACHABLE_GAIN_FLOOR,
+                )
+            }
+        )
+        lines_.append(
+            {
+                "line": holds(
+                    f"{name}: Bayesian gain percentage {number(percentage, 0)}% against a floor of "
+                    f"{BAYESIAN_GAIN_PERCENTAGE_FLOOR}%",
+                    percentage >= BAYESIAN_GAIN_PERCENTAGE_FLOOR,
+                )
+            }
+        )
         if scenario == BOTH_WAYS:
             bayes = frame[(frame["scenario"] == scenario) & (frame["baseline"] == "bayesian")]
             moved = share(bayes["move_round"] > 0)
             row["bayesian_move_share"] = moved
             if moved is not None:
-                lines_.append({"line": holds(f"{name}: the Bayesian baseline moves on {number(moved)} of seeds against a floor of "
-                                             f"{BAYESIAN_MOVE_SHARE_FLOOR}", moved >= BAYESIAN_MOVE_SHARE_FLOOR)})  # fmt: skip
+                lines_.append(
+                    {
+                        "line": holds(
+                            f"{name}: the Bayesian baseline moves on {number(moved)} of seeds against a floor of "
+                            f"{BAYESIAN_MOVE_SHARE_FLOOR}",
+                            moved >= BAYESIAN_MOVE_SHARE_FLOOR,
+                        )
+                    }
+                )
         rows.append(row)
     section = Section()
     table = pd.DataFrame(rows)
@@ -132,8 +183,18 @@ def reachable_gain(logs: Path, main: Path | None) -> Section | None:
     section.table("explore-cost", pd.DataFrame(calm))
     section.table("lines", pd.DataFrame(lines_))
     if len(table):
-        section.plot("gains", lambda out: lines(table, "reachable_gain", "bayesian_gain", None, "Bayesian gain against reachable gain", out,
-                                                marks=[REACHABLE_GAIN_FLOOR]))  # fmt: skip
+        section.plot(
+            "gains",
+            lambda out: lines(
+                table,
+                "reachable_gain",
+                "bayesian_gain",
+                None,
+                "Bayesian gain against reachable gain",
+                out,
+                marks=[REACHABLE_GAIN_FLOOR],
+            ),
+        )
     return section
 
 
@@ -145,15 +206,21 @@ def timestral_checks(logs: Path, main: Path | None) -> Section | None:
     if probe is not None:
         gaps = probe[probe["probe"] == "gap"].groupby(["joint", "gap"], sort=True)["spread"].mean().reset_index()
         same = probe[probe["probe"] == "determinism"][["joint", "equal"]]
-        section.table("gap-test", pd.concat([gaps.assign(probe="gap"), same.assign(probe="determinism")], ignore_index=True)[
-            ["probe", "joint", "gap", "spread", "equal"]])  # fmt: skip
+        section.table(
+            "gap-test",
+            pd.concat([gaps.assign(probe="gap"), same.assign(probe="determinism")], ignore_index=True)[
+                ["probe", "joint", "gap", "spread", "equal"]
+            ],
+        )
         section.plot("gap-test", lambda out: lines(gaps, "gap", "spread", "joint", "Spread against blanks", out))
     if rounding is not None:
         section.table("rounding", rounded(rounding))
     noise = read_csv(logs, "noise-grid")
     if grid is not None and noise is not None:
         keys = ["setting", "scenario", "seed"]
-        marks = noise[noise["baseline"].isin(["uniform", "discerning", "hedge_rule", "complacent"])][[*keys, "baseline", "output"]]
+        marks = noise[noise["baseline"].isin(["uniform", "discerning", "hedge_rule", "complacent"])][
+            [*keys, "baseline", "output"]
+        ]
         played = grid.rename(columns={"model": "baseline"})[[*keys, "baseline", "output"]]
         section.table("grid", engine_scores(pd.concat([marks, played], ignore_index=True), ["setting", "scenario"]))
     return section
@@ -161,6 +228,8 @@ def timestral_checks(logs: Path, main: Path | None) -> Section | None:
 
 def rounded(frame: pd.DataFrame) -> pd.DataFrame:
     """The mean rounded_out a round and the share of rounds where it is above 0, per model."""
-    return frame.groupby("model", sort=True)["rounded_out"].agg(
-        mean_rounded_out="mean", rounded_share=lambda v: float((v > 0).mean())).reset_index()  # fmt: skip
-
+    return (
+        frame.groupby("model", sort=True)["rounded_out"]
+        .agg(mean_rounded_out="mean", rounded_share=lambda v: float((v > 0).mean()))
+        .reset_index()
+    )

@@ -61,9 +61,15 @@ def run(model, log_dir: Path, *, metadata: dict, epochs: int | None = None, **ta
     """One eval of the task into `log_dir`, as `run` makes it: reasoning and kind in the eval metadata."""
     args = {"scenario": "all", "seeds": SEEDS, "rounds": 20, "tools": "none"} | task_args
     logs = inspect_ai.eval(
-        paranoid(**args), model=model, display="none", log_dir=str(log_dir), metadata=metadata,
-        log_realtime=False, max_connections=32, epochs=epochs,
-    )  # fmt: skip
+        paranoid(**args),
+        model=model,
+        display="none",
+        log_dir=str(log_dir),
+        metadata=metadata,
+        log_realtime=False,
+        max_connections=32,
+        epochs=epochs,
+    )
     assert logs[0].status == "success", logs[0].error
     return Path(logs[0].location)
 
@@ -80,8 +86,13 @@ def build(folder: Path) -> None:
     (held / "held-out.txt").write_text("".join(f"{s}\n" for s in HELD_OUT))
     with pytest.MonkeyPatch.context() as patch:
         patch.setenv("PARANOID_SEEDS", str(held))
-        run("baseline/complacent", folder / "held-out-logs", metadata={"reasoning": "n/a", "kind": "baseline"},
-            scenario="no_change,down_switch,up_switch", seeds="held-out")  # fmt: skip
+        run(
+            "baseline/complacent",
+            folder / "held-out-logs",
+            metadata={"reasoning": "n/a", "kind": "baseline"},
+            scenario="no_change,down_switch,up_switch",
+            seeds="held-out",
+        )
     (folder / "done").write_text("")
 
 
@@ -171,7 +182,12 @@ def on_curve(headline: float, complacent: float, own_scale: float, sway: float =
         for sample in log.samples or []:
             value, metadata = sample.scores["gain"].value, sample.metadata
             gap = value["gap"]
-            nudge = SWAY[metadata["seed_index"] % 5] * sway * sum(mean_gap[metadata["scenario"]]) / len(mean_gap[metadata["scenario"]])
+            nudge = (
+                SWAY[metadata["seed_index"] % 5]
+                * sway
+                * sum(mean_gap[metadata["scenario"]])
+                / len(mean_gap[metadata["scenario"]])
+            )
             value |= {"gain": headline * gap + nudge, "complacent": value["uniform"] + complacent * gap}
             value["run_score"] = value["gain"] / gap
             metadata["own_scale"] = own_scale

@@ -87,9 +87,15 @@ def run_results(args: argparse.Namespace) -> int:
     runs = loaded(args.logs)
     recognition = load_recognition(args.recognition) if args.recognition.exists() else None
     paths = write_results(
-        runs, args.out, args.name, models=models_of(args.models), recognition=recognition, plots=args.plots,
-        eci_read_on=args.eci_read_on, dry_run=args.dry_run,
-    )  # fmt: skip
+        runs,
+        args.out,
+        args.name,
+        models=models_of(args.models),
+        recognition=recognition,
+        plots=args.plots,
+        eci_read_on=args.eci_read_on,
+        dry_run=args.dry_run,
+    )
     print(("Would write:" if args.dry_run else "Wrote:") + "".join(f"\n  {path}" for path in paths))
     return 0
 
@@ -120,7 +126,9 @@ def run_gap(args: argparse.Namespace) -> int:
     for path in (args.a, args.b):
         found = keys_in(load_runs([path]))
         if len(found) != 1:
-            raise ValueError(f"{path} holds {len(found)} result rows, {', '.join(map(label, found)) or 'none'}, and a gap needs one")
+            raise ValueError(
+                f"{path} holds {len(found)} result rows, {', '.join(map(label, found)) or 'none'}, and a gap needs one"
+            )
         keys.append(found[0])
     if keys[0] == keys[1]:
         raise ValueError(f"both logs are {label(keys[0])} on one setting, so the gap would be a row against itself")

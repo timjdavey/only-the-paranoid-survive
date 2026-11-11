@@ -1,13 +1,11 @@
-"""AM1 to AM8: the command and the exports. See docs/specs/analysis/tests.md#command."""
+"""AM1 to AM7: the command. AM8, the exports, is in test_exports.py. See docs/specs/analysis/tests.md#command."""
 
-import re
 import socket
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-import paranoid.analysis as analysis
 from paranoid.analysis import analyse
 from paranoid.harness import main
 
@@ -49,7 +47,11 @@ def test_am2_results_is_the_default(logs, tmp_path, offline):
 def test_am3_gap(logs, tmp_path, capsys, offline, helpers):
     assert analyse(["gap", str(logs.discerning), str(logs.uniform)]) == 0
     printed = capsys.readouterr().out
-    rows = [line.split() for line in printed.splitlines() if line.split()[:1] and line.split()[0] in ("no_change", "one_shock", "headline")]
+    rows = [
+        line.split()
+        for line in printed.splitlines()
+        if line.split()[:1] and line.split()[0] in ("no_change", "one_shock", "headline")
+    ]
     assert rows and all(float(row[1]) == 1 for row in rows)
     both = tmp_path / "both"
     helpers.edit(logs.uniform, both / "a.eval")
@@ -91,8 +93,11 @@ def test_am6_bad_names_and_the_eci_date(logs, tmp_path, offline, models_file):
 def test_am7_pilot(tmp_path, capsys, offline):
     logs, out = tmp_path / "logs", tmp_path / "out"
     logs.mkdir()
-    rows = [{"scenario": "down_switch", "kind": "fall", "baseline": b, "seed": s, "output": o, "move_round": 0}
-            for s in (0, 1) for b, o in (("uniform", 100), ("discerning", 200), ("complacent", 150))]  # fmt: skip
+    rows = [
+        {"scenario": "down_switch", "kind": "fall", "baseline": b, "seed": s, "output": o, "move_round": 0}
+        for s in (0, 1)
+        for b, o in (("uniform", 100), ("discerning", 200), ("complacent", 150))
+    ]
     pd.DataFrame(rows).to_csv(logs / "baseline-order.csv", index=False)
     assert analyse(["pilot", "--logs", str(logs), "--out", str(out), "--dry-run"]) == 0
     would = capsys.readouterr().out
@@ -102,10 +107,3 @@ def test_am7_pilot(tmp_path, capsys, offline):
     assert would.replace("Would write:", "Wrote:") == wrote
     names = [p.name for p in files_under(out)]
     assert "results.md" in names and "baseline-order-outputs.csv" in names and "reachable-gain-gains.csv" in names
-
-
-def test_am8_the_exports_are_the_spec_table():
-    page = (ROOT / "docs" / "specs" / "analysis" / "README.md").read_text()
-    table = page.split("## Exports")[1].split("## ")[0]
-    names = {name for row in re.findall(r"^\| ([^|]+) \|", table, re.M) for name in re.findall(r"`(\w+)`", row)}
-    assert set(analysis.__all__) == names and len(analysis.__all__) == len(names)

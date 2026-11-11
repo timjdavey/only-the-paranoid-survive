@@ -36,9 +36,16 @@ Plot = tuple[str, str, Callable[[Path], Path]]  # file name, the row it is for, 
 
 
 def write_results(
-    runs: pd.DataFrame, out: Path, name: str, *, models: Path | None = None, recognition: pd.DataFrame | None = None,
-    plots: bool = False, eci_read_on: date | None = None, dry_run: bool = False,
-) -> list[Path]:  # fmt: skip
+    runs: pd.DataFrame,
+    out: Path,
+    name: str,
+    *,
+    models: Path | None = None,
+    recognition: pd.DataFrame | None = None,
+    plots: bool = False,
+    eci_read_on: date | None = None,
+    dry_run: bool = False,
+) -> list[Path]:
     """out/<name>.md, out/<name>.csv and with plots out/<name>/*.svg. Returns what it wrote, or would write."""
     if not name or "/" in name or "\\" in name or ".." in name:
         raise ValueError(f"--name must be a bare file stem, got {name!r}")
@@ -69,13 +76,21 @@ def check_names(out: Path, name: str, jobs: list[Plot]) -> list[Path]:
     return [out / name / file for file, _, _ in jobs]
 
 
+LATER = ("game_rounds", "tools", "warm_up", "rolling", "tool_choice", "inertia", "prompt_hash", "generator_version", "release")
+
+
 def section_order(setting: Setting) -> tuple:
-    """Skin, public first, own_scale unset first then rising, then each later field, a default before any other."""
+    """Skin, public first, own_scale unset first then rising, then each later field, a default before any other.
+
+    A field with no default, such as release, sorts by its value, so two settings never tie.
+    """
     later = []
-    for field in ("game_rounds", "tools", "warm_up", "rolling", "tool_choice", "inertia", "prompt_hash", "generator_version", "release"):
+    for field in LATER:
         value = getattr(setting, field)
-        default = DEFAULTS.get(field, value)
-        later.append((0, "") if value is None or value == default else (1, value))
+        if value is None or (field in DEFAULTS and value == DEFAULTS[field]):
+            later.append((0, ""))
+        else:
+            later.append((1, str(value) if isinstance(value, str) else value))
     scale = setting.own_scale
     return (setting.skin, setting.seed_set != "public", scale is not None, scale or 0.0, *later)
 
@@ -106,7 +121,11 @@ def page_text(runs, averaged, name, models, recognition, plots, eci_read_on) -> 
     every = [k.setting for k in keys]
     heading_of = {s: heading(next(k.setting for k in keys if compared(k.setting) == s), every) for s in settings}
     ordered = [k for s in settings for k in row_order([k for k in keys if compared(k.setting) == s], heads, models)]
-    twins = {k for k in keys if sum(compared(o.setting) == compared(k.setting) and o.model == k.model and o.reasoning == k.reasoning for o in keys) > 1}
+    twins = {
+        k
+        for k in keys
+        if sum(compared(o.setting) == compared(k.setting) and o.model == k.model and o.reasoning == k.reasoning for o in keys) > 1
+    }
     label_of = lambda key: row_label(key, key in twins)  # noqa: E731
     lines = [f"# Results: {name}", "", *HEADER, "", stamp(runs, averaged, name), ""]
     jobs: list[Plot] = []
@@ -115,7 +134,9 @@ def page_text(runs, averaged, name, models, recognition, plots, eci_read_on) -> 
         section_keys = [k for k in ordered if compared(k.setting) == setting]
         lines += setting_section(heading_of[setting], section_keys, averaged, runs, scores, heads, label_of)
         if plots:
-            lines += plot_section(heading_of[setting], section_keys, averaged, scores, heads, models, eci_read_on, label_of, jobs, name)
+            lines += plot_section(
+                heading_of[setting], section_keys, averaged, scores, heads, models, eci_read_on, label_of, jobs, name
+            )
     page = Page(ordered, lambda s: heading_of[compared(s)], label_of)
     lines += sensitivity(averaged, page) + public_gaps(averaged, page) + skin_sensitivity(averaged, page)
     noise, curves = noise_tables(averaged, page, link)
@@ -140,8 +161,11 @@ def setting_section(title, keys, averaged, runs, scores, heads, label_of) -> lis
     first = keys[0].setting
     versions = sorted({k.setting.harness_version for k in keys})
     lines = [f"## {title}", ""]
-    lines += [f"Prompt hash {first.prompt_hash}, generator version {first.generator_version}, release {first.release}, "
-              f"harness version {', '.join(versions)}.", ""]  # fmt: skip
+    lines += [
+        f"Prompt hash {first.prompt_hash}, generator version {first.generator_version}, release {first.release}, "
+        f"harness version {', '.join(versions)}.",
+        "",
+    ]
     rows = [score_row(k, rows_of(scores, k), rows_of(heads, k).iloc[0], rows_of(averaged, k), label_of) for k in keys]
     lines += markdown_table(SCORE_COLUMNS, rows) + [""]
     legend = legend_of(pd.concat([rows_of(scores, k) for k in keys]))
@@ -152,8 +176,11 @@ def setting_section(title, keys, averaged, runs, scores, heads, label_of) -> lis
 
 def score_row(key, scores, head, rows, label_of) -> list[str]:
     by = scores.set_index("scenario")
-    cells = [(bar(r["score"], r["lo"], r["hi"]) + (f" {r['flags']}" if r["flags"] else "")) if s in by.index else ""
-             for s in SCENARIOS for r in [by.loc[s] if s in by.index else None]]  # fmt: skip
+    cells = [
+        (bar(r["score"], r["lo"], r["hi"]) + (f" {r['flags']}" if r["flags"] else "")) if s in by.index else ""
+        for s in SCENARIOS
+        for r in [by.loc[s] if s in by.index else None]
+    ]
     headline = bar(head["headline"], head["lo"], head["hi"])
     headline += f" of {head['scenarios']}" if head["scenarios"] < len(SCENARIOS) else ""
     headline += f" {head['flags']}" if head["flags"] else ""
@@ -161,8 +188,11 @@ def score_row(key, scores, head, rows, label_of) -> list[str]:
     weakest = f"{head['weakest_trait'].capitalize()} {bar(weak['score'], weak['lo'], weak['hi'])}"
     played = scored(rows)
     provider = (played["kind"] != "llm").all()
-    tools = "" if provider or key.setting.tools == "none" else (
-        f"notes {number(share(played, 'notes_rounds'))}, compute {number(share(played, 'compute_rounds'))}")  # fmt: skip
+    tools = (
+        ""
+        if provider or key.setting.tools == "none"
+        else (f"notes {number(share(played, 'notes_rounds'))}, compute {number(share(played, 'compute_rounds'))}")
+    )
     return [label_of(key), *cells, headline, weakest, tools]
 
 
@@ -220,6 +250,7 @@ def plot_section(title, keys, averaged, scores, heads, models, eci_read_on, labe
         for x in ("released", "eci"):
             if any(getattr(row, x) is not None for row in models if row.id in {k.model for k in keys}):
                 file = f"{base}-trend-{x}.svg"
-                jobs.append((file, title, lambda path, x=x: trend_plot(heads_here, models, x, path, eci_read_on=eci_read_on)))  # type: ignore[arg-type]
+                draw = lambda path, x=x: trend_plot(heads_here, models, x, path, eci_read_on=eci_read_on)  # noqa: E731
+                jobs.append((file, title, draw))
                 files.append(file)
     return ["Plots: " + ", ".join(f"[{f}]({name}/{f})" for f in files), ""]

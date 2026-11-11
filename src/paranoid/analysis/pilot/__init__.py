@@ -16,8 +16,15 @@ from ..run_csv import text
 from .common import Builder, Section
 from .engine import game_length, noise, reading_roughness, up_and_down, weather
 from .knobs import bare_harness, cost_per_run, rolling, tool_choice, warm_up
-from .order import BAYESIAN_GAIN_PERCENTAGE_FLOOR, BAYESIAN_MOVE_SHARE_FLOOR, REACHABLE_GAIN_FLOOR
-from .order import baseline_order, bayesian_frontier, reachable_gain, timestral_checks
+from .order import (
+    BAYESIAN_GAIN_PERCENTAGE_FLOOR,
+    BAYESIAN_MOVE_SHARE_FLOOR,
+    REACHABLE_GAIN_FLOOR,
+    baseline_order,
+    bayesian_frontier,
+    reachable_gain,
+    timestral_checks,
+)
 from .provider import channel_order, jev_checks, recognition, seeds_and_repeats, up_against_down
 
 BUILDERS: dict[str, Builder] = {
@@ -87,7 +94,14 @@ def body(heading: str, section: Section, files: list[tuple[Path, object]], folde
     for name, table in section.tables:
         file = f"{base}-{name}.csv"
         files.append((folder / file, csv_text(table)))
-        lines += [f"### {name}", "", *markdown_table(list(map(str, table.columns)), cells(table)), "", f"[{file}](results/{file})", ""]
+        lines += [
+            f"### {name}",
+            "",
+            *markdown_table(list(map(str, table.columns)), cells(table)),
+            "",
+            f"[{file}](results/{file})",
+            "",
+        ]
     if section.plots:
         links = []
         for name, draw in section.plots:
@@ -112,7 +126,13 @@ def shown(value: object) -> str:
     if isinstance(value, bool):
         return "yes" if value else "no"
     if isinstance(value, float):
-        return str(int(value)) if value.is_integer() and abs(value) < 1e15 else f"{value:.3g}" if abs(value) < 1000 else f"{value:.0f}"
+        return (
+            str(int(value))
+            if value.is_integer() and abs(value) < 1e15
+            else f"{value:.3g}"
+            if abs(value) < 1000
+            else f"{value:.0f}"
+        )
     return str(value)
 
 

@@ -30,7 +30,12 @@ PALETTE = ("#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#F
 GREYS = {"complacent": "#7f7f7f", "hedge_rule": "#a6a6a6", "scout_rule": "#bfbfbf", "perfect": "#404040"}
 MARK_NAMES = {"complacent": "Complacent", "hedge_rule": "Hedge rule", "scout_rule": "Scout rule", "perfect": "Perfect"}
 RC = {"svg.hashsalt": "paranoid", "font.family": "DejaVu Sans", "svg.fonttype": "path", "font.size": 8}
-FLAG_WORDS = {"†": "† a run gave up", "‡": "‡ retries ran high", "§": "§ recognised the prompt", "¶": "¶ finished the canary"}
+FLAG_WORDS = {
+    "†": "† a run gave up",
+    "‡": "‡ retries ran high",
+    "§": "§ recognised the prompt",
+    "¶": "¶ finished the canary",
+}
 
 
 def save(figure: Figure, out: Path) -> Path:
@@ -75,7 +80,9 @@ def strip_plot(runs: pd.DataFrame, key: ResultKey, out: Path) -> Path:
             error = [[row["score"] - row["lo"]], [row["hi"] - row["score"]]]
             axis.errorbar([0], [row["score"]], yerr=error, fmt="o", color=PALETTE[1], capsize=3)
             for mark, grey in GREYS.items():
-                axis.hlines(row[mark], -0.45, 0.45, colors=grey, linestyles="--", linewidth=0.9, label=MARK_NAMES[mark] if first else None)
+                axis.hlines(
+                    row[mark], -0.45, 0.45, colors=grey, linestyles="--", linewidth=0.9, label=MARK_NAMES[mark] if first else None
+                )
         made.suptitle(f"{heading(key.setting)}: {label(key)}", fontsize=9)
         made.legend(loc="lower center", ncol=6, frameon=False, fontsize=7)
         used = "".join(scores["flags"])
@@ -96,8 +103,16 @@ def profile_plot(scores: pd.DataFrame, out: Path) -> Path:
         for i, key in enumerate(keys):
             mine = rows_of(scores, key).set_index("scenario").reindex(names)
             x = np.arange(len(names))
-            axis.errorbar(x, mine["score"], yerr=[mine["score"] - mine["lo"], mine["hi"] - mine["score"]],
-                          color=PALETTE[i % len(PALETTE)], marker="o", markersize=3, capsize=2, label=label(key))  # fmt: skip
+            axis.errorbar(
+                x,
+                mine["score"],
+                yerr=[mine["score"] - mine["lo"], mine["hi"] - mine["score"]],
+                color=PALETTE[i % len(PALETTE)],
+                marker="o",
+                markersize=3,
+                capsize=2,
+                label=label(key),
+            )
         if keys:
             first = rows_of(scores, keys[0]).set_index("scenario").reindex(names)
             axis.plot(range(len(names)), first["complacent"], color=GREYS["complacent"], linestyle="--", label="Complacent")
@@ -108,9 +123,13 @@ def profile_plot(scores: pd.DataFrame, out: Path) -> Path:
 
 
 def trend_plot(
-    headlines: pd.DataFrame, models: Sequence[ModelRow], x: Literal["released", "eci"], out: Path, *,
+    headlines: pd.DataFrame,
+    models: Sequence[ModelRow],
+    x: Literal["released", "eci"],
+    out: Path,
+    *,
     eci_read_on: date | None = None,
-) -> Path:  # fmt: skip
+) -> Path:
     """Headline against release date or ECI, settings of one model joined, provider rows as lines across."""
     if x == "eci" and eci_read_on is None:
         raise ValueError("the ECI plot needs eci_read_on, the date the values were read, for Epoch AI's credit")
@@ -193,4 +212,3 @@ def noise_plot(runs: pd.DataFrame, thresholds: Sequence[Threshold], out: Path) -
             made.suptitle(curve_heading(thresholds[0].key.setting, keys), fontsize=9)
         axis.legend(fontsize=6, frameon=False)
         return save(made, out)
-

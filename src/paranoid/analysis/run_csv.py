@@ -14,11 +14,37 @@ from .keys import KEY_COLUMNS
 from .pool import scored
 
 CSV_COLUMNS: tuple[str, ...] = (
-    "model", "reasoning", "skin", "scenario", "seed_set", "seed_index", "seed", "run_score", "gain", "gap", "epochs",
-    "gave_up", "retry_rounds", "rounds", "cut_offs", "notes_rounds", "compute_rounds",
-    "own_scale", "game_rounds", "tools", "warm_up", "rolling", "tool_choice", "inertia",
-    "engine_hash", "prompt_hash", "generator_version", "harness_version", "release", "log",
-)  # fmt: skip
+    "model",
+    "reasoning",
+    "skin",
+    "scenario",
+    "seed_set",
+    "seed_index",
+    "seed",
+    "run_score",
+    "gain",
+    "gap",
+    "epochs",
+    "gave_up",
+    "retry_rounds",
+    "rounds",
+    "cut_offs",
+    "notes_rounds",
+    "compute_rounds",
+    "own_scale",
+    "game_rounds",
+    "tools",
+    "warm_up",
+    "rolling",
+    "tool_choice",
+    "inertia",
+    "engine_hash",
+    "prompt_hash",
+    "generator_version",
+    "harness_version",
+    "release",
+    "log",
+)
 SORT = (*KEY_COLUMNS, "scenario", "seed_index")
 
 
@@ -47,4 +73,3 @@ def run_csv_text(runs: pd.DataFrame) -> str:
 def write_run_csv(runs: pd.DataFrame, path: Path) -> None:
     """`path`, one row per run in CSV_COLUMNS order."""
     path.write_text(run_csv_text(runs), encoding="utf-8")
-

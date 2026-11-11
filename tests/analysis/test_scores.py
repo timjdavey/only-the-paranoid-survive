@@ -54,8 +54,11 @@ def probes(model, hits, canary=None):
 
 def test_as10_flags(logs, tmp_path, helpers):
     first = read_eval_log(str(logs.mockllm)).samples[0]
-    gave_up = helpers.edit(logs.mockllm, tmp_path / "a" / "gave-up.eval", lambda log: helpers.set_score(
-        log, lambda s: s.id == first.id, gave_up=1, gain=0.0, run_score=0.0))  # fmt: skip
+    gave_up = helpers.edit(
+        logs.mockllm,
+        tmp_path / "a" / "gave-up.eval",
+        lambda log: helpers.set_score(log, lambda s: s.id == first.id, gave_up=1, gain=0.0, run_score=0.0),
+    )
     scores = scenario_scores(table(gave_up))
     assert "†" in scores.set_index("scenario").loc[first.metadata["scenario"], "flags"]
     assert set(scores["flags"]) == {"", "†"} and headlines(table(gave_up))["flags"].iloc[0] == "†"

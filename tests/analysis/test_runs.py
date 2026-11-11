@@ -12,16 +12,66 @@ from paranoid.analysis import RUN_COLUMNS, headlines, load_runs, mean_over_epoch
 from paranoid.harness import BUDGETS
 
 DTYPES = {
-    "str": ["log", "model", "reasoning", "skin", "seed_set", "tools", "warm_up", "tool_choice", "prompt_hash",
-            "harness_version", "release", "kind", "scenario", "engine_hash", "numpy_version"],
-    "Int64": ["game_rounds", "inertia", "generator_version", "seed_index", "seed", "epoch", "epochs", "input_tokens",
-              "cache_read_tokens", "cache_write_tokens", "output_tokens", "reasoning_tokens", "total_tokens", "rounds",
-              "warm_up_rounds", "retries", "retry_rounds", "bad_calls", "no_calls", "cut_offs", "notes_rounds",
-              "compute_rounds", "unchanged_rounds", "sleeper_round"],
-    "float64": ["own_scale", "output", "uniform", "discerning", "complacent", "perfect", "hedge_rule", "scout_rule",
-                "gain", "gap", "run_score", "explore_points", "warm_up_kept"],
+    "str": [
+        "log",
+        "model",
+        "reasoning",
+        "skin",
+        "seed_set",
+        "tools",
+        "warm_up",
+        "tool_choice",
+        "prompt_hash",
+        "harness_version",
+        "release",
+        "kind",
+        "scenario",
+        "engine_hash",
+        "numpy_version",
+    ],
+    "Int64": [
+        "game_rounds",
+        "inertia",
+        "generator_version",
+        "seed_index",
+        "seed",
+        "epoch",
+        "epochs",
+        "input_tokens",
+        "cache_read_tokens",
+        "cache_write_tokens",
+        "output_tokens",
+        "reasoning_tokens",
+        "total_tokens",
+        "rounds",
+        "warm_up_rounds",
+        "retries",
+        "retry_rounds",
+        "bad_calls",
+        "no_calls",
+        "cut_offs",
+        "notes_rounds",
+        "compute_rounds",
+        "unchanged_rounds",
+        "sleeper_round",
+    ],
+    "float64": [
+        "own_scale",
+        "output",
+        "uniform",
+        "discerning",
+        "complacent",
+        "perfect",
+        "hedge_rule",
+        "scout_rule",
+        "gain",
+        "gap",
+        "run_score",
+        "explore_points",
+        "warm_up_kept",
+    ],
     "boolean": ["rolling", "gave_up", "errored"],
-}  # fmt: skip
+}
 SCORES = ["output", "gain", "gap", "run_score", "rounds", "input_tokens"]
 
 
@@ -253,8 +303,11 @@ def test_ar10_cached_tokens(logs, tmp_path, helpers):
 
 
 def test_ar11_game_rounds_and_rounds(logs, tmp_path, helpers):
-    path = helpers.edit(logs.mockllm, tmp_path / "gave-up.eval", lambda log: helpers.set_score(
-        log, lambda s: s.id == log.samples[0].id, gave_up=1, rounds=3, gain=0.0, run_score=0.0))  # fmt: skip
+    path = helpers.edit(
+        logs.mockllm,
+        tmp_path / "gave-up.eval",
+        lambda log: helpers.set_score(log, lambda s: s.id == log.samples[0].id, gave_up=1, rounds=3, gain=0.0, run_score=0.0),
+    )
     runs = load_runs([path])
     row = runs[runs["gave_up"]].iloc[0]
     assert row["game_rounds"] == 20 and row["rounds"] == 3

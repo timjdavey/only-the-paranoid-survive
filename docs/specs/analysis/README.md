@@ -65,7 +65,9 @@ The analysis imports these from `paranoid.engine`. The engine's side of this bou
     src/paranoid/analysis/
       __init__.py    the exports above, nothing else
       keys.py        Setting, ResultKey, result_key, the reasoning read back, how two settings are compared
-      runs.py        load_runs, mean_over_epochs, RUN_COLUMNS, the guards, the metric check
+      read.py        one log into rows: the sample guards, the privacy rules, the metric check
+      runs.py        load_runs, mean_over_epochs, RUN_COLUMNS, duplicates, dtypes, the report
+      pool.py        a result row's rows per scenario, and the draws behind every bar
       scores.py      scenario_scores, headlines, load_recognition, the flags
       gaps.py        paired_gap, scenario_gap, public_gap
       spread.py      spread, sampling_share
@@ -73,10 +75,18 @@ The analysis imports these from `paranoid.engine`. The engine's side of this bou
       threshold.py   noise_threshold, Threshold, signal_points
       run_csv.py     write_run_csv, CSV_COLUMNS
       cost.py        write_cost
-      tables.py      write_results, the outline, headings and the scores table
+      names.py       headings, slugs, labels and cells, shared by the page and the plots
+      tables.py      write_results, the outline and the scores table
       gap_tables.py  the cross setting tables and the noise threshold table
       plots.py       the four plots
-      pilot/         write_pilot, SECTIONS and the floors, the engine sections and the provider sections apart
+      pilot/
+        __init__.py  write_pilot, SECTIONS, the page
+        common.py    each cell's columns, reading a cell, pooling an engine CSV
+        engine.py    Weather, Noise, Game length, Reading roughness, Up and down
+        order.py     Bayesian frontier, Baseline order, Reachable gain, Timestral checks, the floors
+        provider.py  Seeds and repeats, Recognition, Channel order, Up against down, Jev checks
+        knobs.py     Bare harness, Tool choice, Rolling conversation, Warm up, Cost per run
+        charts.py    the sections' plots
       cli.py         analyse
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.analysis` only, plus `paranoid.harness` to make logs.

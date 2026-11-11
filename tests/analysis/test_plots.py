@@ -6,8 +6,18 @@ from datetime import date
 import pytest
 from inspect_ai.log import read_eval_log
 
-from paranoid.analysis import headlines, load_runs, mean_over_epochs, noise_plot, noise_threshold, profile_plot
-from paranoid.analysis import result_key, scenario_scores, strip_plot, trend_plot
+from paranoid.analysis import (
+    headlines,
+    load_runs,
+    mean_over_epochs,
+    noise_plot,
+    noise_threshold,
+    profile_plot,
+    result_key,
+    scenario_scores,
+    strip_plot,
+    trend_plot,
+)
 from paranoid.harness import load_models
 
 SCALES = (1.0, 2.0, 4.0, 8.0)

@@ -14,8 +14,17 @@ from paranoid.analysis import load_runs, paired_gap, result_key, write_cost, wri
 COLUMNS = {
     "recognition": ["model", "skin", "probe", "reply", "lint_hits", "canary_finished"],
     "channel-order": ["model", "skin", "shape", "probe", "called", "valid", "matched", "slipped", "wanted", "sent"],
-    "rolling-tokens": ["model", "rolling", "scenario", "seed_index", "round", "input_tokens", "cache_read_tokens", "cache_write_tokens"],
-}  # fmt: skip
+    "rolling-tokens": [
+        "model",
+        "rolling",
+        "scenario",
+        "seed_index",
+        "round",
+        "input_tokens",
+        "cache_read_tokens",
+        "cache_write_tokens",
+    ],
+}
 
 
 def table(out: Path, section: str, name: str) -> pd.DataFrame:
@@ -32,8 +41,10 @@ def keep(*scenarios, seeds=range(5)):
 def test_ai3_recognition(tmp_path):
     logs, out = tmp_path / "logs", tmp_path / "out"
     logs.mkdir()
-    rows = [("m", "example", probe, "A PLANTED REPLY", hits, finished)
-            for probe, hits, finished in (("round_1", 1, None), ("round_20", 0, None), ("canary", 0, 1))]  # fmt: skip
+    rows = [
+        ("m", "example", probe, "A PLANTED REPLY", hits, finished)
+        for probe, hits, finished in (("round_1", 1, None), ("round_20", 0, None), ("canary", 0, 1))
+    ]
     pd.DataFrame(rows, columns=COLUMNS["recognition"]).to_csv(logs / "recognition.csv", index=False)
     write_pilot(logs, out)
     (row,) = table(out, "recognition", "hits").itertuples()
@@ -70,8 +81,20 @@ def test_ai6_channel_order(tmp_path):
         slipped = probe in (0, 1)
         matched = valid and not slipped and probe != 2
         sent = "0 100 0 0 0 0 0 0 0 0" if slipped else "100 0 0 0 0 0 0 0 0 0"
-        rows.append(("m", "example", "one", probe, 1, int(valid), int(matched) if valid else None, int(slipped) if valid else None,
-                     "100 0 0 0 0 0 0 0 0 0", sent if valid else None))  # fmt: skip
+        rows.append(
+            (
+                "m",
+                "example",
+                "one",
+                probe,
+                1,
+                int(valid),
+                int(matched) if valid else None,
+                int(slipped) if valid else None,
+                "100 0 0 0 0 0 0 0 0 0",
+                sent if valid else None,
+            )
+        )
     pd.DataFrame(rows, columns=COLUMNS["channel-order"]).to_csv(logs / "channel-order.csv", index=False)
     write_pilot(logs, out)
     shares = table(out, "channel-order", "shares")
@@ -102,7 +125,9 @@ def knob_logs(source, folder, helpers, cell, field, values):
     paths = {}
     for value in values:
         name = str(value).replace(",", "-")
-        paths[value] = helpers.edit(source, folder / cell / f"{name}.eval", lambda log, v=value: helpers.set_metadata(log, **{field: v}))
+        paths[value] = helpers.edit(
+            source, folder / cell / f"{name}.eval", lambda log, v=value: helpers.set_metadata(log, **{field: v})
+        )
     return paths
 
 
@@ -122,8 +147,11 @@ def test_ai17_bare_harness(logs, tmp_path, helpers):
 def test_ai18_tool_choice(logs, tmp_path, helpers):
     folder, out = tmp_path / "logs", tmp_path / "out"
     knob_logs(logs.mockllm, folder, helpers, "tool-choice", "tool_choice", ["any"])
-    helpers.edit(logs.mockllm, folder / "tool-choice" / "auto.eval", lambda log: (
-        helpers.set_metadata(log, tool_choice="auto"), helpers.set_score(log, no_calls=4, rounds=40)))  # fmt: skip
+    helpers.edit(
+        logs.mockllm,
+        folder / "tool-choice" / "auto.eval",
+        lambda log: (helpers.set_metadata(log, tool_choice="auto"), helpers.set_score(log, no_calls=4, rounds=40)),
+    )
     write_pilot(folder, out)
     scores = table(out, "tool-choice", "scores")
     assert (scores[scores["tool_choice"] == "auto"]["no_call_share"] == 0.1).all()
@@ -134,7 +162,11 @@ def test_ai18_tool_choice(logs, tmp_path, helpers):
 def test_ai19_rolling(logs, tmp_path, helpers):
     folder, out = tmp_path / "logs", tmp_path / "out"
     knob_logs(logs.mockllm, folder, helpers, "rolling", "rolling", [False, True])
-    rows = [("mockllm/model", rolling, "no_change", 0, r, 100 * r if rolling else 100, 0, 0) for rolling in (0, 1) for r in range(1, 5)]
+    rows = [
+        ("mockllm/model", rolling, "no_change", 0, r, 100 * r if rolling else 100, 0, 0)
+        for rolling in (0, 1)
+        for r in range(1, 5)
+    ]
     pd.DataFrame(rows, columns=COLUMNS["rolling-tokens"]).to_csv(folder / "rolling-tokens.csv", index=False)
     write_pilot(folder, out)
     tokens = table(out, "rolling-conversation", "tokens").set_index("rolling")

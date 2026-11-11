@@ -71,10 +71,18 @@ def scenario_row(scenario: str, group: pd.DataFrame, recognised: str) -> dict:
     retry = share(group, "retry_rounds")
     flags = ("†" if failed else "") + ("‡" if retry > RETRY_FLAG else "") + recognised
     row = {
-        "scenario": scenario, "trait": TRAITS[scenario], "score": pooled(group), "lo": lo, "hi": hi,
-        "n": len(group), "failed": failed, "retry_share": retry, "cut_off_share": share(group, "cut_offs"),
-        "notes_share": share(group, "notes_rounds"), "compute_share": share(group, "compute_rounds"),
-    }  # fmt: skip
+        "scenario": scenario,
+        "trait": TRAITS[scenario],
+        "score": pooled(group),
+        "lo": lo,
+        "hi": hi,
+        "n": len(group),
+        "failed": failed,
+        "retry_share": retry,
+        "cut_off_share": share(group, "cut_offs"),
+        "notes_share": share(group, "notes_rounds"),
+        "compute_share": share(group, "compute_rounds"),
+    }
     return row | {mark: pooled(group, mark) for mark in MARKS} | {"flags": ordered(flags)}
 
 
@@ -96,7 +104,12 @@ def headline_row(key, groups: dict[str, pd.DataFrame], scores: pd.DataFrame) -> 
     weakest = min(pooled_scores, key=lambda s: pooled_scores[s])  # min keeps the first of a tie
     mine = rows_of(scores, key)
     return {
-        "headline": float(np.mean(list(pooled_scores.values()))), "lo": lo, "hi": hi, "scenarios": len(groups),
-        "weakest_scenario": weakest, "weakest_trait": TRAITS[weakest], "weakest_score": pooled_scores[weakest],
+        "headline": float(np.mean(list(pooled_scores.values()))),
+        "lo": lo,
+        "hi": hi,
+        "scenarios": len(groups),
+        "weakest_scenario": weakest,
+        "weakest_trait": TRAITS[weakest],
+        "weakest_score": pooled_scores[weakest],
         "flags": ordered("".join(mine["flags"])),
-    }  # fmt: skip
+    }

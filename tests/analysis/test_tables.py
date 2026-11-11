@@ -14,8 +14,19 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from inspect_ai.log import read_eval_log
 
-from paranoid.analysis import CSV_COLUMNS, load_recognition, load_runs, mean_over_epochs, noise_threshold, paired_gap
-from paranoid.analysis import public_gap, result_key, scenario_scores, spread, write_results
+from paranoid.analysis import (
+    CSV_COLUMNS,
+    load_recognition,
+    load_runs,
+    mean_over_epochs,
+    noise_threshold,
+    paired_gap,
+    public_gap,
+    result_key,
+    scenario_scores,
+    spread,
+    write_results,
+)
 from paranoid.engine import SCENARIOS
 from paranoid.harness import pooled_score
 
@@ -72,8 +83,11 @@ def cell(text: str) -> tuple[float, float, float]:
 
 
 def test_at1_the_scores_table(logs, tmp_path, helpers, models_file):
-    models = models_file(tmp_path, {"id": "mockllm/model", "kind": "llm", "reasoning": "off"},
-                         *({"id": f"baseline/{n}", "kind": "baseline", "reasoning": "n/a"} for n in ("uniform", "discerning", "complacent")))  # fmt: skip
+    models = models_file(
+        tmp_path,
+        {"id": "mockllm/model", "kind": "llm", "reasoning": "off"},
+        *({"id": f"baseline/{n}", "kind": "baseline", "reasoning": "n/a"} for n in ("uniform", "discerning", "complacent")),
+    )
     text = page(load_runs([logs.folder]), tmp_path / "out", models=models)
     assert text.startswith("# Results: t\n")
     version = read_eval_log(str(logs.uniform)).samples[0].metadata["harness_version"]
@@ -82,8 +96,11 @@ def test_at1_the_scores_table(logs, tmp_path, helpers, models_file):
     assert list(rows[0]) == HEADER
     assert [r["Model"] for r in rows] == ["baseline/uniform", "baseline/discerning", "baseline/complacent", "mockllm/model (off)"]
     first = read_eval_log(str(logs.mockllm)).samples[0]
-    gave_up = helpers.edit(logs.mockllm, tmp_path / "gave-up.eval", lambda log: helpers.set_score(
-        log, lambda s: s.id == first.id, gave_up=1, gain=0.0, run_score=0.0))  # fmt: skip
+    gave_up = helpers.edit(
+        logs.mockllm,
+        tmp_path / "gave-up.eval",
+        lambda log: helpers.set_score(log, lambda s: s.id == first.id, gave_up=1, gain=0.0, run_score=0.0),
+    )
     text = page(load_runs([gave_up]), tmp_path / "two")
     assert "† 1 run gave up and scored as the Uniform baseline." in text and "‡" not in text
 
@@ -102,8 +119,10 @@ def test_at3_the_same_bytes(logs, tmp_path):
 def test_at4_nothing_secret_is_written(held_out, tmp_path):
     reply = "THE PLANTED REPLY about Merridew"
     csv = tmp_path / "recognition.csv"
-    pd.DataFrame([("baseline/complacent", "example", "round_1", reply, 1, None)],
-                 columns=["model", "skin", "probe", "reply", "lint_hits", "canary_finished"]).to_csv(csv, index=False)  # fmt: skip
+    pd.DataFrame(
+        [("baseline/complacent", "example", "round_1", reply, 1, None)],
+        columns=["model", "skin", "probe", "reply", "lint_hits", "canary_finished"],
+    ).to_csv(csv, index=False)
     out = tmp_path / "out"
     write_results(load_runs([held_out]), out, "t", recognition=load_recognition(csv), plots=True)
     words = EXAMPLE["intro"].split()
@@ -150,7 +169,10 @@ def test_at7_headings(logs, tmp_path, helpers):
     assert headings(text) == ["example, public, rounds 20", "example, public, rounds 20, tools none"]
     released = helpers.edit(logs.mockllm, tmp_path / "b" / "r1.eval", lambda log: helpers.set_metadata(log, release="r1"))
     text = page(load_runs([logs.mockllm, released]), tmp_path / "two")
-    assert headings(text) == ["example, public, rounds 20, tools none, release dev", "example, public, rounds 20, tools none, release r1"]
+    assert headings(text) == [
+        "example, public, rounds 20, tools none, release dev",
+        "example, public, rounds 20, tools none, release r1",
+    ]
     with pytest.raises(ValueError, match="bare file stem"):
         write_results(load_runs([logs.mockllm]), tmp_path / "three", "../x")
     assert not (tmp_path / "three").exists() and not (tmp_path / "x.md").exists()
@@ -184,8 +206,11 @@ def test_at9_the_skin_sensitivity_table(logs, tmp_path, helpers, monkeypatch):
     (row,) = rows
     assert row["Skins"] == "b − example"
     assert all(cell(row[c])[0] == 0 for c in HEADER[1:10])
-    moved = helpers.edit(b, tmp_path / "moved" / "b.eval", lambda log: helpers.set_score(
-        log, lambda s: s.metadata["seed_index"] == 0, gain=0.0, run_score=0.0))  # fmt: skip
+    moved = helpers.edit(
+        b,
+        tmp_path / "moved" / "b.eval",
+        lambda log: helpers.set_score(log, lambda s: s.metadata["seed_index"] == 0, gain=0.0, run_score=0.0),
+    )
     runs = load_runs([logs.complacent, moved])
     (row,) = tables(page(runs, tmp_path / "moved-out"), "## Skin sensitivity")[0]
     gap = paired_gap(mean_over_epochs(runs), key_of(moved), key_of(logs.complacent)).set_index("pair")
@@ -213,7 +238,9 @@ def test_at10_the_noise_threshold_table(logs, tmp_path, helpers):
     assert cell(row["Threshold"]) == pytest.approx((found.snr, found.lo, found.hi), abs=0.05)
     assert row["Settings"] == "4"
     assert (tmp_path / "out" / "t" / "example-public-rounds-20-tools-none-noise.svg").exists()
-    curve_logs(logs.mockllm, folder, helpers, scales=[1.0, 2.0], prefix="mock-")  # a second model with two settings beside the first's four
+    curve_logs(
+        logs.mockllm, folder, helpers, scales=[1.0, 2.0], prefix="mock-"
+    )  # a second model with two settings beside the first's four
     text = page(load_runs([folder]), tmp_path / "two")
     rows = tables(text, f"## {title}")[0]
     assert [r["Model"] for r in rows] == ["baseline/complacent"]
@@ -225,8 +252,23 @@ def test_at11_the_csv_groups_to_the_sections(logs, tmp_path, helpers):
     out = tmp_path / "out"
     text = page(load_runs([logs.mockllm, tooled]), out)
     csv = pd.read_csv(out / "t.csv", keep_default_na=False, dtype=str)
-    setting = ["model", "reasoning", "skin", "seed_set", "own_scale", "game_rounds", "tools", "warm_up", "rolling",
-               "tool_choice", "inertia", "prompt_hash", "generator_version", "harness_version", "release"]  # fmt: skip
+    setting = [
+        "model",
+        "reasoning",
+        "skin",
+        "seed_set",
+        "own_scale",
+        "game_rounds",
+        "tools",
+        "warm_up",
+        "rolling",
+        "tool_choice",
+        "inertia",
+        "prompt_hash",
+        "generator_version",
+        "harness_version",
+        "release",
+    ]
     assert set(setting) <= set(CSV_COLUMNS)
     groups = csv.groupby(setting)
     assert len(groups) == 2 == len(headings(text))
@@ -317,7 +359,9 @@ def test_at16_dry_runs_and_the_eci_date(logs, tmp_path, models_file):
 
 
 def test_at17_rows_that_differ_in_harness_version_alone(logs, tmp_path, helpers):
-    other = helpers.edit(logs.mockllm, tmp_path / "a" / "other.eval", lambda log: helpers.set_metadata(log, harness_version="9.9.9"))
+    other = helpers.edit(
+        logs.mockllm, tmp_path / "a" / "other.eval", lambda log: helpers.set_metadata(log, harness_version="9.9.9")
+    )
     version = read_eval_log(str(logs.mockllm)).samples[0].metadata["harness_version"]
     text = page(load_runs([logs.mockllm, other]), tmp_path / "out")
     (title,) = headings(text)

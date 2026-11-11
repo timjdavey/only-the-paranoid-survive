@@ -15,8 +15,8 @@ from ..keys import compared, keys_in, label, rows_of
 from ..kinds import WORLD, switch_kinds
 from ..names import slug
 from ..plots import strip_plot
-from ..runs import load_runs, mean_over_epochs
 from ..pool import by_scenario, pooled, scored
+from ..runs import load_runs, mean_over_epochs
 from ..scores import load_recognition
 from ..spread import sampling_share, spread
 from .charts import lines
@@ -24,8 +24,12 @@ from .common import CELL_COLUMNS, Section, median, read_cell, read_csv, share
 from .order import rounded
 
 TARGETS = (0.02, 0.05, 0.1)  # the bar half widths the seeds check sizes for
-GAPS = (("one_shock", "down_switch"), ("up_switch", "no_change"), ("up_switch_then_down_switch", "up_switch"),
-        ("switch_then_shock", "down_switch"))  # the four the up against down check reads  # fmt: skip
+GAPS = (
+    ("one_shock", "down_switch"),
+    ("up_switch", "no_change"),
+    ("up_switch_then_down_switch", "up_switch"),
+    ("switch_then_shock", "down_switch"),
+)  # the four the up against down check reads
 
 
 def seeds_and_repeats(logs: Path, main: Path | None) -> Section | None:
@@ -39,8 +43,17 @@ def seeds_and_repeats(logs: Path, main: Path | None) -> Section | None:
         widest = spreads.dropna(subset=["sd"]).sort_values("sd", ascending=False, kind="mergesort").head(1)
         if len(widest):
             row = widest.iloc[0]
-            needed = [{"model": row["model"], "reasoning": row["reasoning"], "scenario": row["scenario"], "sd": row["sd"],
-                       "target": t, "seeds_needed": math.ceil(round(1.5 * (row["sd"] / t) ** 2, 9))} for t in TARGETS]  # fmt: skip
+            needed = [
+                {
+                    "model": row["model"],
+                    "reasoning": row["reasoning"],
+                    "scenario": row["scenario"],
+                    "sd": row["sd"],
+                    "target": t,
+                    "seeds_needed": math.ceil(round(1.5 * (row["sd"] / t) ** 2, 9)),
+                }
+                for t in TARGETS
+            ]
             section.table("seeds-needed", pd.DataFrame(needed))
         for key in keys_in(scored(seeds)):
             section.plot(f"strip-{slug(label(key))}", lambda out, k=key: strip_plot(seeds, k, out))
@@ -61,9 +74,16 @@ def recognition(logs: Path, main: Path | None) -> Section | None:
     for (model, skin), group in table.groupby(["model", "skin"], sort=True):
         probed = group[group["probe"].isin(["round_1", "round_20"])]
         hits = int((probed["lint_hits"].fillna(0) > 0).sum())
-        rows.append({"model": model, "skin": skin, "probes": len(probed), "hits": hits,
-                     "hit_share": hits / len(probed) if len(probed) else None,
-                     "canary_finished": int(group["canary_finished"].fillna(False).astype(bool).sum())})  # fmt: skip
+        rows.append(
+            {
+                "model": model,
+                "skin": skin,
+                "probes": len(probed),
+                "hits": hits,
+                "hit_share": hits / len(probed) if len(probed) else None,
+                "canary_finished": int(group["canary_finished"].fillna(False).astype(bool).sum()),
+            }
+        )
     section = Section()
     section.table("hits", pd.DataFrame(rows))
     return section
@@ -74,12 +94,21 @@ def channel_order(logs: Path, main: Path | None) -> Section | None:
     if frame is None:
         return None
     rows = []
-    for keys, group in [*frame.groupby(["model", "skin", "shape"], sort=True), *((k + ("all", "all"), g) for k, g in frame.groupby(["model"]))]:
+    for keys, group in [
+        *frame.groupby(["model", "skin", "shape"], sort=True),
+        *((k + ("all", "all"), g) for k, g in frame.groupby(["model"])),
+    ]:
         valid = group[group["valid"] == 1]
-        rows.append(dict(zip(("model", "skin", "shape"), keys)) | {
-            "probes": len(group), "called_share": share(group["called"] == 1), "valid_share": share(group["valid"] == 1),
-            "slip_share": share(valid["slipped"] == 1), "own_numbers_share": share((valid["matched"] != 1) & (valid["slipped"] != 1)),
-        })  # fmt: skip
+        rows.append(
+            dict(zip(("model", "skin", "shape"), keys))
+            | {
+                "probes": len(group),
+                "called_share": share(group["called"] == 1),
+                "valid_share": share(group["valid"] == 1),
+                "slip_share": share(valid["slipped"] == 1),
+                "own_numbers_share": share((valid["matched"] != 1) & (valid["slipped"] != 1)),
+            }
+        )
     slips = []
     for _, row in frame[frame["slipped"] == 1].iterrows():
         wanted, sent = str(row["wanted"]).split(), str(row["sent"]).split()
@@ -100,7 +129,11 @@ def up_against_down(logs: Path, main: Path | None) -> Section | None:
     for key in keys_in(played):
         if seeds is None:
             continue
-        mine = [k for k in keys_in(seeds) if (k.model, k.reasoning) == (key.model, key.reasoning) and compared(k.setting) == compared(key.setting)]
+        mine = [
+            k
+            for k in keys_in(seeds)
+            if (k.model, k.reasoning) == (key.model, key.reasoning) and compared(k.setting) == compared(key.setting)
+        ]
         for other in mine:  # the One shock rows only, as the Up switch ids would clash, under this log's version
             shock = rows_of(seeds, other)
             shock = shock[shock["scenario"] == "one_shock"].assign(harness_version=key.setting.harness_version)
@@ -115,7 +148,12 @@ def up_against_down(logs: Path, main: Path | None) -> Section | None:
         section.notes.append("_Inertia needs --main._")
     else:
         section.table("inertia", inertia_table(mean_over_epochs(load_runs([main]))))
-    section.plot("kinds", lambda out: lines(kinds.dropna(subset=["run_score"]), "switch_kind", "run_score", "scenario", "Run score by switch kind", out))
+    section.plot(
+        "kinds",
+        lambda out: lines(
+            kinds.dropna(subset=["run_score"]), "switch_kind", "run_score", "scenario", "Run score by switch kind", out
+        ),
+    )
     return section
 
 
@@ -146,8 +184,14 @@ def sleeper_table(table: pd.DataFrame) -> pd.DataFrame:
     for scenario, group in by_scenario(table).items():
         sleeper = group["sleeper_round"].dropna()
         reached = sleeper[sleeper > 0]
-        rows.append({"scenario": scenario, "reached_share": share(sleeper > 0) if len(sleeper) else None,
-                     "median_round": median(reached.astype(float)), "explore_points": group["explore_points"].mean()})  # fmt: skip
+        rows.append(
+            {
+                "scenario": scenario,
+                "reached_share": share(sleeper > 0) if len(sleeper) else None,
+                "median_round": median(reached.astype(float)),
+                "explore_points": group["explore_points"].mean(),
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -177,4 +221,3 @@ def jev_checks(logs: Path, main: Path | None) -> Section | None:
         calm = scored(played)[scored(played)["scenario"] == "no_change"]
         section.table("explore", calm.groupby(["model", "reasoning"], sort=True)["explore_points"].mean().reset_index())
     return section
-
