@@ -13,7 +13,7 @@ class Skin:
     channels: tuple[str, ...]               # one name per channel, in channel index order. Ten in the example skin
     intro: str                              # who the agent is and what it runs
     rules: str                              # the channels by name, the split in whole percentages adding up to 100
-    how_points_earn: str                    # what a percent of the budget buys, what a reading means, a small spend gives a rough reading
+    how_points_earn: str                    # what a percent of the budget buys, what each funded channel paid, a small spend swings more
     ask: str                                # the record is below, place this round's points with the tool
     tool_name: str                          # the tool's name as the model sees it
     tool_text: str                          # the tool's description
@@ -100,4 +100,4 @@ One file per skin, one table, no nesting.
 ## Not decided
 
 - **Whether a skin should carry what a round stands for** as its own field, so the pilot can swap "week" for "minute" on one engine, see [future](../../design/future.md). Decide when the pilot asks for a second unit.
-- **Whether to pilot the reading note.** `how_points_earn` ends with the line that a small spend gives a rough reading. A pilot cell that drops it to see whether the agent still explores needs a second TOML file with the line cut, not a field of its own.
+- **Whether to pilot the reading note.** `how_points_earn` ends with the line that a small spend swings more than a large one. A pilot cell that drops it to see whether the agent still explores needs a second TOML file with the line cut, not a field of its own.

@@ -12,7 +12,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `channels` | One name per channel, ten in the study. Which one leads is drawn per seed by the [ladder](../design/mechanics.md#the-ladder) |
 | `intro` | Who the agent is and what it runs |
 | `rules` | The ten channels by name, and that the split is in whole percentages adding up to 100 |
-| `how_points_earn` | What a percent of the budget buys, what a reading means, and that a small spend gives a rough reading |
+| `how_points_earn` | What a percent of the budget buys, that what each funded channel paid is reported, and that a small spend swings more than a large one |
 | `ask` | The record is below, place this round's points with the tool |
 | `tool_name` | The tool's name as the model sees it |
 | `tool_text` | The tool's description |

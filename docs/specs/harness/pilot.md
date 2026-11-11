@@ -103,7 +103,7 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 #### `reading-roughness`
 
 - **Runs.** `read_noise_k` at 4, 8 and 16. `HedgeRule(explore=e, scout_rounds=k)` for `e` in 1, 2 and 5 and `k` in 1, 2 and 3 on the Down switch and No change scenarios. `ScoutRule(s=s)` for `s` in 1, 2 and 5 on the Up switch and No change scenarios.
-- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows.
+- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round, explore_readings, below_zero_readings`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows. `explore_readings` counts the readings in the record on every channel but each row's largest bet, lowest index on a tie. `below_zero_readings` counts the ones below 0, which are real losses as a bet is paid its reading, see [readings](../engine/game.md#readings).
 
 #### `up-and-down`
 

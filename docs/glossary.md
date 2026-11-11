@@ -16,7 +16,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Run | One playthrough of the game |
 | Baseline | A fixed strategy run through the same game and score as the models. A fixed baseline's name always ends in "baseline", so it never reads as a plain adjective. See [baselines](design/baselines.md) |
 | Provider | The harness code that plays one model through the same solver as an LLM. inspect_ai's own for chat LLMs, ours for baselines, Jev and Timestral. `baseline/<name>`, `jev/<model>` and `timestral/<policy>` in code. See [inspect](harness/inspect.md#providers) |
-| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer. It divides nothing. `baseline/perfect` in code |
+| Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer, read from the pool. It divides nothing. `baseline/perfect` in code |
 | Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. The ceiling: a scenario score of 1. `baseline/discerning` in code |
 | Complacent baseline | The baseline that holds the Discerning baseline's round 1 bets to the end. A mark on every scenario's bar, near 0.55 where there is a switch. `baseline/complacent` in code |
 | Uniform baseline | The baseline that bets 10 on every channel, every round. The floor: a scenario score of 0. `baseline/uniform` in code |
@@ -45,7 +45,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 
 | Word | What it means |
 |---|---|
-| Channel | One of the things the agent can put budget on. Each pays out at its own level |
+| Channel | One of the things the agent can put budget on. Each has its own hidden level, which its readings centre on |
 | Level | Where a channel's readings centre in a round: its base level, its weather and its share of the shared factor. Hidden, and nothing is paid at it. Never called a mean: that word is kept for averaging over runs |
 | Reading | The rate a bet on a channel was paid at this round, and the number the agent sees for that channel. A bet earns its share of the budget times its reading. It is the level plus read noise. A channel with no bet shows a blank. See [mechanics](design/mechanics.md#what-the-agent-sees) |
 | Read noise | How far a reading lands from the channel's level. Real luck that the bet is paid, not a measuring error. Smaller the larger the bet, so a small bet gives a rough reading |

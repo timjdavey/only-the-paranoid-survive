@@ -72,7 +72,7 @@ Each try is one `generate(state, tool_calls="single")`, so inspect runs whatever
 - **The bets go through untouched.** The harness does no coercion. A list of JSON whole numbers passes. `10.0`, `"10"` or `true` fail the engine's `shape` check, see [bets](../engine/game.md#bets).
 - **On `BetError`** the tool adds one to `store.bad_calls` and raises `ToolError(skin.bad_call)`. The engine's own message never reaches the model. The round, the record and `store.awaiting_submit` are unchanged.
 - **When `store.awaiting_submit` is false** the call raises `ToolError(skin.bad_call)` and counts as a bad call, so a second submit in one reply cannot play two rounds.
-- **On success** the tool appends a `StoredRow` from the `Row` the engine returns, sets `store.awaiting_submit = False`, and returns the header line and the last line of `render_record(skin, store.record())`. That is the round just played in the record's own shape, with no words from the harness. The record is rendered by `render_record` everywhere, the user message, this result and the compute file, so they cannot drift apart.
+- **On success** the tool appends `StoredRow(round, bets, readings)` from the `Row` the engine returns, sets `store.awaiting_submit = False`, and returns the header line and the last line of `render_record(skin, store.record())`. That is the round just played in the record's own shape, with no words from the harness. The record is rendered by `render_record` everywhere, the user message, this result and the compute file, so they cannot drift apart.
 
 ### Notes
 
@@ -107,7 +107,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 - A round ends only on a valid call to the skin's tool. The harness never places bets for the agent.
 - `sum(store.tries) == ` the number of generate calls in the run, whether or not it gave up.
 - `len(store.tries) == len(store.rows) − store.warm_up_rounds`, plus one when the run gave up.
-- Replaying `store.rows` as bets on `store.timeline()` with `Game` gives the same readings and outputs, so the log is enough to check a run.
+- Replaying `store.rows` as bets on `store.timeline()` with `Game` gives the same readings, and so the same `row.output`, so the log is enough to check a run.
 - With `rolling` off, every round starts with exactly two messages. The second holds the record, as one content block or as `record_blocks` cuts it, then one more block when a note is saved.
 - `"".join(record_blocks(text)) == text` for any text, so the model reads the same record however it is cut.
 - `state.tool_choice` is `"any"` or `"auto"`, never a `ToolFunction`.

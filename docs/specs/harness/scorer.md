@@ -115,7 +115,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 - `pooled_score` equals the gap-weighted mean of the run scores.
 - The same log gives the same metrics on every machine, with no seed file and no engine.
 - No metric reads a timeline. The scorer is the only reader, and only through the store.
-- `perfect ≥ discerning` on every seed, see [BP5](../baselines/tests.md#policies).
+- `perfect ≥ discerning` once pooled over seeds, see [BP7](../baselines/tests.md#policies). Not on every seed, as read noise is paid and can flip a near tie, see [policies](../baselines/policies.md#invariants).
 
 ## Not decided
 

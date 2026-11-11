@@ -30,9 +30,9 @@ The model's missing 0.24 is lag, explore bets and a wrong destination. None of i
 - **The Discerning baseline is reachable.** It knows the climate, not the weather, so its only edge over an ideal reader is zero lag, and lag is what we want to price. The Perfect baseline knows each round's weather too, so part of the gap to it is luck nobody could read. It stays in the table as a mark for how much luck was on offer, and divides nothing.
 - **The Bayesian baseline says how much of that lag is unavoidable.** It knows how the world works but reads only its own record, so the gap between it and the Discerning baseline is lag no reader can beat, and a model near it is near the ceiling. Its prior and rule come from the [Bayesian frontier](baselines.md#the-bayesian-frontier), set from timelines before any model runs.
 - **The Uniform baseline is not a strategy.** It is what knowing nothing earns, so it needs no case per scenario and it is the same floor for any scenario we add. The Complacent baseline would give more range where there is a switch, but it equals the Discerning baseline where there is not, which makes the ratio 0 ÷ 0.
-- **The Uniform baseline is exactly even.** 10 on each of ten channels, so it earns the plain average of the channels with no rounding. That is why there are ten, see [rejected](interface.md#rejected).
+- **The Uniform baseline is exactly even.** 10 on each of ten channels, so it earns the plain average of its ten readings with no rounding. That is why there are ten, see [rejected](interface.md#rejected).
 - **The denominator never gets close to zero.** The Discerning baseline holds the leader or better and the Uniform baseline earns the average of ten channels, and the ladder puts the leader well above that average on every seed.
-- **Scores outside 0 to 1 are possible on one seed.** Lucky weather can lift a run above the Discerning baseline, and a run can fall below the Uniform baseline. Both are reported as they come. Pooled over seeds they wash out, and the [baseline order](../pilot/engine-checks.md#baseline-order) check reports any player that sits above the Discerning baseline where nothing changes.
+- **Scores outside 0 to 1 are possible on one seed.** Lucky weather or lucky read noise can lift a run above the Discerning baseline, and a run can fall below the Uniform baseline. Both are reported as they come. Pooled over seeds they wash out, and the [baseline order](../pilot/engine-checks.md#baseline-order) check reports any player that sits above the Discerning baseline where nothing changes.
 - **A yardstick must not peek.** A Bayesian yardstick that sees only what the agent saw depends on what the agent chose to explore, so a lazy agent gets a lenient yardstick. Bayesian, CUSUM and the hedge rule are fine as [players](baselines.md) with their own marks. Only the denominator must be independent of the agent's play.
 
 ## Traits
@@ -100,7 +100,7 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 - **Scenario.** Resample the seeds with replacement, recompute the pooled ratio each time, and report the 2.5th and 97.5th percentiles (a percentile bootstrap). Not SD/√n: a ratio is not a mean, and run scores bunch near 1 in the No change scenario.
 - **Headline.** Resample seeds within each scenario, then take the plain mean of the scenario scores. Never resample scenarios. They are a fixed list of questions, not a sample. The weakest trait's bar is that scenario's bar.
 - **The weakest scenario sets the bar.** In logs each scenario adds its relative error, bar over score. A scenario at 0.3 ± 0.05 widens the headline far more than one at 0.9 ± 0.05.
-- **Gaps between models.** Every model plays the same seeds, so draw one set of seed indices and apply it to both models each time. The world's luck cancels. Report the difference with its paired interval.
+- **Gaps between models.** Every model plays the same seeds, so draw one set of seed indices and apply it to both models each time. Level luck cancels, and read noise mostly does, see [spread](#spread). Report the difference with its paired interval.
 - **The unit is the seed.** If a seed is ever played more than once, average its repeats first and resample seeds, not runs. Pooling repeats counts one world twice and shrinks the bar falsely.
 
 ## Spread
@@ -116,6 +116,7 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 | Name | What changes between runs | Kind | Where it shows |
 |---|---|---|---|
 | Level luck | The channels' levels | Noise. Every player on a seed meets the same levels, so pairing by seed cancels it | The gap between the Perfect and Discerning baselines says how much there was |
+| Read noise | The luck in each reading, drawn per seed | Noise. Two players who place the same bets meet the same luck, so pairing by seed cancels it there and most of it elsewhere. About 0.6% of one run's score at the defaults | Nowhere on its own. It washes out in the pool, see [what the agent sees](mechanics.md#what-the-agent-sees) |
 | Sampling spread | Nothing. Same seed, same skin, run again | Aleatoric, more seeds don't shrink it | A share of the spread, from the pilot |
 | World spread | The seed | Aleatoric, more seeds don't shrink it | The per-seed dots |
 | Spread | The seed, each played once, so both mixed | Aleatoric, more seeds don't shrink it | The dots and the 10th percentile run |

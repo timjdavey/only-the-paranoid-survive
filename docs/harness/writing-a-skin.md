@@ -67,12 +67,12 @@ The agent redraws its whole split every round and reads the result at the end of
 
 #### The figure
 
-The engine pays each bet its reading times its share of the 100, see [readings](../specs/engine/game.md#readings). So a reading is a rate and not a total: all 100 on a channel that reads 61.2 earns 61.2, and 50 on it earns 30.6. The reading is what was paid, not an estimate of it, and the record shows no total, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
+The engine pays each bet its reading times its share of the 100, see [readings](../specs/engine/game.md#readings). So a reading is a return per unit and not a total: all 100 on a channel that reads 61.2 earns 61.2, and 50 on it earns 30.6. The reading is what was paid, not an estimate of it, and the record shows no total, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
 
 | Test | Ask | It fails when | An example that fails |
 |---|---|---|---|
 | Wide enough | Can the figure swing two or three times over, and lose half in a bad spell? | It sits in a narrow band, or is a rate with a ceiling | Ten card payment providers, scored on the share of payments approved. A good one approves nearly all, and one that approved half would not exist |
-| A yield, not a rate | Could the figure pass any ceiling? | It is a percentage or a pass rate, which stops at 100 | Ten tutors scored on the share of pupils who pass. The first level above 100 breaks the skin |
+| A yield, not a rate | Could the figure pass any ceiling? | It is a percentage or a pass rate, which stops at 100 | Ten tutors scored on the share of pupils who pass. The first reading above 100 breaks the skin |
 | The unit | Does a reading in the tens, with one decimal, read true? Can it go below zero? | It is a count per person per day | Cars sold per seller per day. Nobody sells 61.2 cars in a day, and nobody sells fewer than none |
 | Many small draws | Is a unit one of many small things, each with its own luck? | Every unit sent to a channel earns the same | Money split over ten funds. Each pound in a fund earns the same rate, so a small stake reads as true as a large one |
 | The sums | Do an all in row and a split row match `how_points_earn`? | The story makes the figure a total | The skin calls the figure a stall's takings. A stall reads 61.2 on 5 units and 60.5 on 100, so twenty times the goods took no more |
@@ -83,7 +83,7 @@ The engine pays each bet its reading times its share of the 100, see [readings](
 - **Expect a figure below zero now and then.** Levels and readings have no ceiling and are not clipped at zero. Money after costs can go negative. A count of things made cannot.
 - **Keep percent for the split.** The agent's split is already in percentages, so a figure in percent would put two kinds of percent in one record.
 - **To pass "The unit", write an engine reading into the story's sentence.** Then ask whether someone in the job would believe it.
-- **To pass "The sums", make the figure a rate per unit**, such as a price or a yield, so each unit brings in its part.
+- **To pass "The sums", make the figure a return per unit**, such as a price or a yield, so each unit brings in its part.
 - **Never promise a total.** The record shows none. The figures are what was paid, so the agent can add them up itself.
 - **Never say that one channel rises in a shock.** In a shock every channel falls but one, which rises. The story has to allow for it without a word from the skin.
 

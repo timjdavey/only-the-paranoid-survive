@@ -96,7 +96,7 @@ Every gap function returns `GAP_COLUMNS`: `pair` names the scenario or `headline
 
 ### Paired gap
 
-Every model plays the same seeds, so a gap between two result rows is paired by seed and the world's luck cancels, see [error bars](../../design/scoring.md#error-bars).
+Every model plays the same seeds, so a gap between two result rows is paired by seed. Level luck cancels, and read noise mostly does, as `read_noise_z` is shared, see [error bars](../../design/scoring.md#error-bars).
 
 - **`paired_gap(runs, a, b)`** requires `a.setting.seed_set == b.setting.seed_set`, and within every scenario the same `engine_hash` on both sides, else `ValueError` naming what differs. The skin and the other knobs may differ, as the skin sensitivity, inertia and warm up checks are gaps across them. It uses the `seed_index` values both rows scored, `n_shared` saying how many, ordered by `seed_index`.
 - **`diff`** is `a`'s pooled score minus `b`'s on the shared seeds. **`lo`, `hi`**: `BOOTSTRAP_DRAWS` draws of one set of seed indices, applied to both, the 2.5th and 97.5th percentiles of the difference of the two pooled scores. The rng is seeded `BOOTSTRAP_SEED`.

@@ -5,6 +5,7 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Run length, how many events a run holds, and the minimum gap between them.
 - Persistence, own-weather scale and shared-factor scale, per release.
 - The loading range and the base ladder ranges.
+- How often an explore bet reads below 0, from [reading roughness](docs/pilot/engine-checks.md#reading-roughness). A bet is paid its reading, so that is a real loss, and it can move the ladder up.
 - The Bayesian baseline's `hazard` and `rule`, from the [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
 
 ## Code
