@@ -30,7 +30,9 @@ CANARY: str                                 # in paranoid.skins.canary
 
 `lint_text` splits the text into words and reports each banned entry a word starts with.
 
-- **A word is a maximal run of letters**, by `str.isalpha`, after lowercasing. Digits, punctuation and apostrophes end a word, so `can't` is `can` and `t`.
+- **A word is a maximal run of letters**, by `str.isalpha`, after folding. Digits, punctuation and apostrophes end a word, so `can't` is `can` and `t`.
+- **Folding is NFKC, then `casefold`.** NFKC turns a fullwidth `ｃｈａｎｇｅ` or a ligature such as `ﬁ` into plain letters, and `casefold` lowercases them, so a word cannot dodge the lint by its form. A hidden character such as a zero width joiner would still split a word, but a [skin](skin.md#validation-on-construction) holding one fails to build, so none reaches the lint from a skin.
+- **A lookalike letter from another script still passes.** A Cyrillic `с` in `сhange` is a different letter, and no fold maps it to `c`. The lint is a floor, so a reviewer reads a new skin, see [writing a skin](../../harness/writing-a-skin.md#what-the-lint-checks-and-what-only-a-reader-can).
 - **A word hits an entry when it starts with it**, as it is or after one entry of `PREFIXES` is removed from its front. So one entry catches a word's plural, its tenses and its negatives: `check` catches checks, checking, rechecked and unchecked, and `stabil` catches stability, destabilise and instability.
 - **Substrings inside a word do not count.** `established` does not hit `stabl`, `exchange` does not hit `chang` and `research` does not hit `search`.
 - **A word hits at most one entry.** The word as it is is tried first, then with a prefix removed, and the first entry that matches is reported. No entry in `BANNED_WORDS` is a prefix of another, and the test suite pins that.

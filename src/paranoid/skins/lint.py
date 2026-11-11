@@ -4,6 +4,7 @@ Problems name fields, indexes and entries, never the skin's text, so a failure i
 """
 
 import itertools
+import unicodedata
 from dataclasses import fields
 
 from .canary import CANARY
@@ -73,12 +74,17 @@ class LintError(SkinError):
 def lint_text(text: str) -> tuple[str, ...]:
     """Each banned entry some word starts with, as is or after one prefix, in text order, each once."""
     hits: dict[str, None] = {}
-    for is_word, letters in itertools.groupby(text.lower(), str.isalpha):
+    for is_word, letters in itertools.groupby(fold(text), str.isalpha):
         if is_word:
             entry = banned_entry("".join(letters))
             if entry is not None:
                 hits[entry] = None
     return tuple(hits)
+
+
+def fold(text: str) -> str:
+    """NFKC then casefold, so fullwidth letters and ligatures are plain lowercase, see docs/specs/skins/lint.md#words."""
+    return unicodedata.normalize("NFKC", text).casefold()
 
 
 def banned_entry(word: str) -> str | None:

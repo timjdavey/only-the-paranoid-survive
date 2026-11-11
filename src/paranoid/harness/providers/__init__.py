@@ -19,7 +19,7 @@ from inspect_ai.model import (
 from inspect_ai.tool import ToolCall, ToolChoice, ToolInfo
 from inspect_ai.util import store_as
 
-from paranoid.engine import Bets
+from paranoid.engine import BetError, Bets
 
 from ..store import RunStore
 
@@ -53,8 +53,12 @@ class StoreAPI(ModelAPI):
             raise RuntimeError(f"{self.model_name} was offered no tool, so it cannot place bets")
         store = store_as(RunStore)
         bets, metadata = await self.answer(store, input)
+        try:
+            checked = store.game().check(bets)  # a bad split is a bug in the provider, never a model's bad call
+        except BetError as error:
+            raise RuntimeError(f"{self.model_name} placed bets the engine rejects in round {store.round()}: {error}") from None
         name = next(iter(tools[0].parameters.properties))  # the skin's bets_name
-        call = ToolCall(id=f"{self.model_name}-{store.round()}", function=tools[0].name, arguments={name: list(bets)})
+        call = ToolCall(id=f"{self.model_name}-{store.round()}", function=tools[0].name, arguments={name: list(checked)})
         message = ChatMessageAssistant(content="", tool_calls=[call], model=self.model_name, metadata=metadata)
         choice = ChatCompletionChoice(message=message, stop_reason="tool_calls")
         return ModelOutput(model=self.model_name, choices=[choice], usage=ModelUsage())

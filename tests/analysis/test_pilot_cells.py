@@ -1,4 +1,5 @@
-"""AI15, AI16 and AI23: the Jev and Timestral sections, and every cell's columns, on hand-built CSVs.
+"""AI15, AI16, AI23, AI24 and AI26: the Jev, Timestral and Up and down sections, and every cell's columns,
+on hand-built CSVs.
 
 See docs/specs/analysis/tests.md#pilot.
 """
@@ -83,3 +84,43 @@ def test_ai23_every_column_read_is_a_column_written(cell, tmp_path):
             odd = ""  # its header is held whole, so the message names the header it found
         with pytest.raises(ValueError, match=rf"{cell}\.csv.*{odd}"):
             write_pilot(logs, tmp_path / f"{name}-out")
+
+
+def test_ai24_timestral_marks_on_the_seeds_it_played(tmp_path):
+    logs, out = tmp_path / "logs", tmp_path / "out"
+    outputs = {"uniform": (100, 100), "discerning": (200, 200), "hedge_rule": (170, 200), "complacent": (150, 100)}
+    grid = [
+        {"setting": 4.0, "scenario": "down_switch", "baseline": name, "seed": seed, "output": pair[seed >= 20]}
+        for seed in range(30)
+        for name, pair in outputs.items()
+    ]  # pooled on all 30 seeds, the hedge rule's mark would be 0.8 and the Complacent baseline's 1/3
+    csv(logs, "noise-grid", grid)
+    played = [{"setting": 4.0, "scenario": "down_switch", "model": "timestral/odds", "seed": s, "output": 160} for s in range(20)]
+    csv(logs, "timestral-grid", played)
+    write_pilot(logs, out)
+    rows = table(out, "timestral-checks", "grid").set_index("baseline")
+    assert rows["seeds"].to_dict() == {name: 20 for name in [*outputs, "timestral/odds"]}
+    assert rows.loc["hedge_rule", "score"] == pytest.approx(0.7) and rows.loc["complacent", "score"] == pytest.approx(0.5)
+
+
+def test_ai26_a_move_round_of_0_is_never(tmp_path):
+    logs, out = tmp_path / "logs", tmp_path / "out"
+    moves = {"uniform": (0, 0, 0), "discerning": (0, 4, 8), "complacent": (0, 0, 0)}
+    rows = [
+        {
+            "setting": 1.0,
+            "scenario": "down_switch",
+            "kind": "fall",
+            "baseline": name,
+            "seed": seed,
+            "onset": 10,
+            "output": {"uniform": 100, "discerning": 200, "complacent": 140}[name],
+            "move_round": rounds[seed],
+        }
+        for name, rounds in moves.items()
+        for seed in range(3)
+    ]
+    csv(logs, "up-and-down", rows)
+    write_pilot(logs, out)
+    median = table(out, "up-and-down", "kinds").set_index("player")["median_move_round"]
+    assert median["discerning"] == 6 and pd.isna(median["complacent"])

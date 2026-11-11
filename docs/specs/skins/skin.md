@@ -41,6 +41,7 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 ```
 
 - **Every field is a `str`** except `channels`, which is a tuple of names. There are no numbers on a skin, see [conventions](README.md#conventions).
+- **`repr(skin)` is `Skin(name='<name>')`**, never the text, so a failed assertion or a traceback that prints a held-out skin leaks only its name.
 - **The fields are the parts of the prompt**, one each, in the order the [system prompt](../../harness/prompts.md#system-prompt) uses them, then the names and text of the three tools, then the three column words of the [record](render.md#record). Adding a part to the prompt means adding a field here, a key to every skin file, and a row to [skins](../../harness/skins.md#what-a-skin-file-holds).
 
 ## Behaviour
@@ -50,11 +51,13 @@ def load_skins(path: Path | None = None) -> Mapping[str, Skin]
 `__post_init__` normalises, then raises `SkinError` if any of these hold. Lint is separate, see [lint](lint.md), so a test can build a skin that fails lint.
 
 - **Normalise first.** Every `str` field and every channel name has `\r\n` and `\r` replaced by `\n`, trailing whitespace removed from every line, Unicode normalised to NFC, then leading and trailing whitespace stripped. `channels` is stored as a `tuple` whatever sequence was passed. The stored values are the normalised ones, so one file hashes the same on every OS and in every editor, and two spellings of one accented name are one name.
+- **Any field or channel name holds a hidden character**, after normalising: Unicode category `Cc` bar `\n`, `Cf`, `Zl`, `Zp`, `Mn`, `Me`, `Co`, `Cn` or `Cs`. That is control characters, a tab included, zero width and format characters such as a soft hyphen or a joiner, line and paragraph separators, combining marks left over after NFC, and private, unassigned and surrogate code points. Each can hide a word from the [lint](lint.md#words) or break the record the model reads. Accented letters pass, as NFC folds a letter and its accent into one character. The error names the field and the category, never the text.
 - `name` does not match `^[a-z][a-z0-9_]*$`.
 - Any `str` field is empty after stripping.
 - `channels` has fewer than four entries, the engine's floor, see [config](../engine/config.md#fields). The example skin has ten, as the frozen study config does. Whether a skin's count matches its config is checked when the task is built, see [task settings](../harness/task.md#task-settings).
 - Any channel name or column word is empty, or contains `,`, `"` or `\n`. Each is a word in the record's header, and any of those characters would add a column or a row to the CSV the agent reads, see [record](render.md#record). So a bad word fails here and never mid-run.
 - Two channel names are equal ignoring case.
+- **Two words of the record's header are equal ignoring case.** `header_words(skin)` in `skin.py` builds the `1 + 2 × channels` words of the [header](render.md#record), and `render_record` writes them, so the check and the record never disagree. It is not exported. A `bet_word` equal to `reading_word`, or a `round_word` of `Ashford_sent` beside a channel `Ashford` and a `bet_word` of `sent`, gives two columns one name. The error names the two positions, never the words.
 - `tool_name`, `notes_name` or `compute_name` does not match `^[a-z][a-z0-9_]{0,63}$`, or two of the three are equal. Every provider accepts a name of that shape, and needs the three to differ.
 - `bets_name`, `notes_param` or `compute_param` does not match the same pattern. Each is a key in its tool's JSON schema, so it has a tool name's shape. One may equal a tool name or another tool's parameter, as each tool has a namespace of its own.
 
@@ -77,6 +80,7 @@ One file per skin, one table, no nesting.
 
 - **The example skin always loads**, from `example.toml` beside the code, as package data.
 - **Then the held-out folder**, if there is one. `path` when given, else the folder `PARANOID_SKINS` names, else nothing. `PARANOID_SKINS` set to an empty string counts as unset. A `path` given explicitly wins over the variable.
+- **A `path` of `""`** raises `SkinError`. `Path("")` is the current folder, which no caller means.
 - **A folder that does not exist or is not a directory** raises `SkinError`.
 - **Every file in the folder whose name ends `.toml`** is loaded with `load_skin`, in sorted filename order. Other files are ignored, subfolders are not walked. The private repo keeps `skins/` a plain folder of TOML files, see [skins](../../harness/skins.md#where-skins-live).
 - **One bad file fails the call.** `load_skins` raises the `SkinError` or `LintError` the first bad file raises, naming it. It never skips a file, so a held-out skin that fails to lint is never quietly left out of a run.
@@ -96,7 +100,9 @@ One file per skin, one table, no nesting.
 ## Invariants
 
 - Every `str` field on a built `Skin` is non-empty, stripped, in NFC, free of `\r`, and has no trailing whitespace on any line.
+- No field or channel name holds a character of a [hidden category](#validation-on-construction), so the one control character a skin holds is `\n`.
 - `len(skin.channels) >= 4`, `skin.channels` is a `tuple`, every name and column word is CSV safe, and no two names are equal ignoring case.
+- No two words of `header_words(skin)` are equal ignoring case.
 - `load_skins()` always contains `"example"`, and `load_skins()["example"].name == "example"`.
 - Every skin `load_skins` returns has passed `lint`.
 - A `Skin` is immutable. Two skins built from the same file are equal and hash alike.

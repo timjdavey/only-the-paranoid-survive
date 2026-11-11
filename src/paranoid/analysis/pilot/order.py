@@ -223,6 +223,7 @@ def timestral_checks(logs: Path, main: Path | None) -> Section | None:
             [*keys, "baseline", "output"]
         ]
         played = grid.rename(columns={"model": "baseline"})[[*keys, "baseline", "output"]]
+        marks = marks.merge(played[keys].drop_duplicates(), on=keys)  # the marks on the seeds the policies played
         section.table("grid", engine_scores(pd.concat([marks, played], ignore_index=True), ["setting", "scenario"]))
     return section
 

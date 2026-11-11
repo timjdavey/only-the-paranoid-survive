@@ -1,4 +1,4 @@
-"""AI3, AI5, AI6, AI9 and AI17 to AI22: the provider sections, on edited logs under `<logs>/<cell>/`.
+"""AI3, AI5, AI6, AI9, AI17 to AI22 and AI25: the provider sections, on edited logs under `<logs>/<cell>/`.
 
 See docs/specs/analysis/tests.md#pilot.
 """
@@ -219,3 +219,19 @@ def test_ai22_odd_columns_and_inertia(logs, tmp_path, helpers):
     write_pilot(folder, out, main=main)
     (row,) = table(out, "up-against-down", "inertia").itertuples()
     assert {row.a, row.b} == {"baseline/complacent", "mockllm/model (off)"}
+
+
+def test_ai25_up_against_down_keeps_models_apart(logs, tmp_path, helpers):
+    both = tmp_path / "both"
+    for name in ("complacent", "discerning"):
+        helpers.edit(getattr(logs, name), both / "up-against-down" / f"{name}.eval", keep("up_switch", "down_switch"))
+        helpers.edit(getattr(logs, name), tmp_path / name / "up-against-down" / "a.eval", keep("up_switch", "down_switch"))
+    write_pilot(both, tmp_path / "out")
+    for name in ("complacent", "discerning"):
+        write_pilot(tmp_path / name, tmp_path / f"{name}-out")
+        for kind in ("kinds", "sleeper"):
+            together = table(tmp_path / "out", "up-against-down", kind)
+            mine = together[together["model"] == f"baseline/{name}"].reset_index(drop=True)
+            alone = table(tmp_path / f"{name}-out", "up-against-down", kind)
+            assert len(mine) and (alone["model"] == f"baseline/{name}").all(), kind
+            pd.testing.assert_frame_equal(mine, alone, check_dtype=False)

@@ -23,7 +23,7 @@
 |---|---|---|
 | `submit(bets)`, named by the skin, see [tool text](../harness/prompts.md#tool-text) | Ten whole percentages that sum to 100 | A reading of each channel it bet on this round. A neutral error and a retry if the bets are not valid |
 | `notes(text)`, named by the skin | Text to keep for next round. It replaces the last note whole, and its length is capped | The text as stored. Next round it comes back below the record |
-| `compute(code)`, named by the skin | Python to run in a sandbox that sees the record as `record.csv` and nothing else. No network, no engine, no seeds | What the code printed, truncated |
+| `compute(code)`, named by the skin | Python to run in a sandbox that sees the record as `record.csv` and nothing else. No network, no engine, no seeds, and nothing kept from one round to the next | What the code printed, truncated |
 
 ## Models that cannot place bets
 

@@ -22,6 +22,9 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HK12 | `load_grid()` on `configs/grid.toml` gives positive floats in `own_scale` that include the default, and `scenario_config(name, own_scale=s)` raises nothing for every scenario and every setting. A temp grid with a setting of 0 raises `ValueError` | [task](task.md#scenarios-and-config) |
 | HK13 | With `PARANOID_SKINS` pointing at a folder holding a clean four-name skin, `paranoid(skin=<its name>)` raises `ValueError` naming the skin and a scenario, before any sample is built | [task](task.md#task-settings) |
 | HK14 | Every sample's `release` equals `load_grid().release`, which is `dev` in this repo. A temp grid whose `release` is `R 1` raises `ValueError` | [task](task.md#release) |
+| HK15 | `paranoid(seeds=3)` plays position 3, as `seeds="3"` does, and `scenario` and `tools` given as one-item lists work too | [task](task.md#scenarios-and-config) |
+| HK16 | With `subprocess.run` patched, `harness_version()` is `<version>+<sha>` when `git status --porcelain -- src/paranoid` prints nothing and `<version>+<sha>.dirty` when it prints a line | [task](task.md#dataset) |
+| HK17 | With `INSPECT_TRACEBACK_LOCALS=1`, `paranoid(seeds="held-out")` raises `ValueError` naming the variable, and `paranoid(seeds="0")` does not | [task](task.md#dataset) |
 
 ## Solver
 
@@ -46,6 +49,11 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HS17 | `record_blocks` on `render_record` of a three-row record returns four pieces, the header line then one per row, that join back to the same string. `BLOCK_CACHE_APIS` is empty, and a `mockllm` run sends the record as one content block. With `BLOCK_CACHE_APIS` patched to `("mockllm",)`, the round 3 user message has three record blocks, and four content blocks once a note is saved, the note last | [solver](solver.md#record-blocks) |
 | HS18 | With a copy of the example skin whose `bets_name` is `amounts`, the tool the model is offered has one required parameter named `amounts`, an array of integers, described by `bets_text`. A call of `{"amounts": [10] × 10}` plays the round. A call of `{"bets": [10] × 10}` gets `bad_call` and plays nothing. With `notes_param` of `memo` and `compute_param` of `script`, the other two tools each offer one required string parameter of that name, described by `notes_param_text` and `compute_param_text`, and the tool itself by `notes_text` and `compute_text` | [solver](solver.md#submit) |
 | HS19 | `compute(skin)` on inspect's `local` sandbox, so it runs without Docker: `print(1 + 1)` returns `2`, code that raises returns its traceback, a sleep past a patched one second timeout returns `timeout`, and output past 4000 characters is cut to 4000. Two calls in one round give `compute_rounds == 1`, and the round's `record.csv` holds `render_record` of the record | [solver](solver.md#compute) |
+| HS20 | Compute on the `local` sandbox, so it runs without Docker. Round 1's first call writes `mem.txt`, `.mem` and `d/f`, and a second call in round 1 still lists them. Round 2 lists only `record.csv`. A reset whose sandbox command fails raises `RuntimeError` | [solver](solver.md#compute) |
+| HS21 | **sandbox** Round 1 plants a file in `/work`, `/tmp` and `/dev/shm`, a SysV shared memory segment and a detached process listening on `127.0.0.1`. A second call in round 1 finds all five, so the plants worked. Round 2 finds none of them, `os.getuid()` is 65534, and opening `record.csv` to write raises | [solver](solver.md#compute) |
+| HS22 | Compute on a fake sandbox whose `exec` raises `PermissionError` with a path in its message: the sample errors with a `RuntimeError` naming the tool and `permission`, and the path is not in the error. Unpatched, code that writes bytes that are not UTF-8 returns text and the sample succeeds | [solver](solver.md#refused-calls) |
+| HS23 | `record_blocks` on text holding `\x0b` and U+2028 cuts at `\n` alone, and the pieces join back to the text. Text with no last `\n` keeps its last piece | [solver](solver.md#record-blocks) |
+| HS24 | A reply with `stop_reason == "model_length"` adds one to `cut_offs` and one to `no_calls`, as HS5's `max_tokens` does | [solver](solver.md#tries) |
 
 ## Providers
 
@@ -60,6 +68,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HR7 | A full eval of `timestral/<id>` with a fake `Forecaster`, for each of the seven, on 3 seeds of Down switch: its rows equal `play(replace(TIMESTRAL_POLICIES[id], forecaster=fake), timeline)`. Every message's `metadata` holds `quantiles`, `cache_key` and `rounded_out`, with `quantiles` and `cache_key` `None` on round 1. `timestral/nope` raises `ValueError` naming the seven | [providers](providers.md#timestral) |
 | HR8 | Without the extra, `TimestralAPI("top-pick")` raises `ImportError` naming `uv sync --extra timestral`, and with a fake `Forecaster` passed it does not | [providers](providers.md#timestral) |
 | HR9 | `BaselineAPI` reports `max_connections` of 32, a `JevAPI` with a fake client 4, and a `TimestralAPI` with a fake forecaster 1 | [providers](providers.md#shared-behaviour) |
+| HR10 | A policy that bets 110 in all, patched into the baseline provider's copy of `POLICIES`, which is read only: an eval of it errors the sample with a `RuntimeError` naming the model and round 1. `gave_up` is unset and `bad_calls` is 0 | [providers](providers.md#shared-behaviour) |
 
 ## Scorer
 
@@ -110,7 +119,7 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 | HP3 | `seeds=20` against a public seed file of ten raises `ValueError` naming `PARANOID_PILOT_SEEDS` | [pilot](pilot.md#shared-rules) |
 | HP4 | In `baseline-order.csv`, `kind` on every Down switch row equals the word `make_timeline` gives by hand, `discerning`'s `move_round` lies within the switch's ramp, from its onset to `onset + ramp − 1`, on every Down switch seed, as its base falls past the next one's during the ramp, and is `0` on every No change seed, and `complacent`'s `move_round` is `0` everywhere | [pilot](pilot.md#words-the-columns-use) |
 | HP5 | `seeds` with a models file whose one `llm` row is `mockllm/model` writes one log under `out/seeds/` with twenty `one_shock` and twenty `up_switch` samples and `reasoning` and `kind` in the eval metadata. `repeats` then writes a log under `out/repeats/` with ten sample ids of one scenario at four epochs each and prints the row, the scenario and the ten positions. `repeats` with no `seeds` log raises `ValueError` naming `seeds` | [pilot](pilot.md#provider-cells) |
-| HP6 | `recognition` with `mockllm/model` scripted to three replies, one holding a banned word and one the GUID, writes a CSV with the six columns and three rows per model and skin, `lint_hits` of 1 on the first, `canary_finished` of 1 on the canary row only, and the GUID appears in no message the fake received. With two `llm` rows in the models file the CSV has both models' rows, and `--only` narrows it to one | [pilot](pilot.md#recognition) |
+| HP6 | `recognition` with `mockllm/model` scripted to three replies, one holding a banned word and one the GUID, writes a CSV with the six columns and three rows per model and skin, `lint_hits` of 1 on the first, `canary_finished` of 1 on the canary row only, and the GUID appears in no message the fake received. With two `llm` rows in the models file the CSV has both models' rows, and `--only` runs one and keeps the other's rows, see HP17 | [pilot](pilot.md#recognition) |
 | HP7 | `jev` with a fake client that answers `[0.004, 0.996, 0, …]` on round 3 writes a log and a `jev.csv` whose round 3 rows have `rounded_out` 1 and every other row 0 | [pilot](pilot.md#jev) |
 | HP8 | `timestral` with a fake forecaster writes `timestral.csv` with thirty `gap` rows per channel and shape, `spread` non-decreasing in `gap` when the fake widens with the gap, and one `determinism` row per shape with `equal` 1. `timestral-grid.csv` has one row per row, setting, scenario and seed, and `timestral-rounding.csv` one per round of each. It writes no eval log | [pilot](pilot.md#timestral) |
 | HP9 | `dry_run=True` on every cell writes nothing under `out` and prints one line per eval call or CSV | [pilot](pilot.md#shared-rules) |
@@ -121,6 +130,9 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 | HP14 | In `reading-roughness.csv` there is one `complacent` row per setting, scenario and seed, with `parameter` and `scout_rounds` empty and `move_round` of `0` | [pilot](pilot.md#reading-roughness) |
 | HP15 | `seeds` with `mockllm/model` scripted to one reply with no call writes `seeds-tokens.csv` with the eight columns and one row per round of every sample. The round that took two tries has the sum of two events' `input_tokens`, and every row's `rolling` is 0. `rolling` writes `rolling-tokens.csv` with rows at both values | [pilot](pilot.md#token-files) |
 | HP16 | `luck` and `baseline-order` each write the same bytes at `workers=2` as at `workers=1`. `workers=0` raises `ValueError` | [pilot](pilot.md#shared-rules) |
+| HP17 | `write_csv` with `--only b` on a file holding rows of models `a` and `b` keeps `a`'s rows and replaces `b`'s. Without `--only` it replaces the file. With `--only` and a file whose header differs it raises `ValueError` | [pilot](pilot.md#shared-rules) |
+| HP18 | `write_csv` whose `rows()` raises part way leaves the old file byte for byte, and no temp file beside it | [pilot](pilot.md#shared-rules) |
+| HP19 | `widest` over fake seeds logs: a log whose status is `error` is skipped, an older log of the same model and reasoning is skipped for the newer one, and a scenario of five scored samples is skipped, however wide its spread | [pilot](pilot.md#repeats) |
 
 ## Property tests
 
@@ -134,4 +146,4 @@ With `hypothesis`, kept fast with a small example count.
 
 ## Not decided
 
-- HS12 needs Docker on CI. Until CI has it, the sandbox tests run locally only. Decide when CI is set up.
+- HS12 and HS21 need Docker on CI. Until CI has it, the sandbox tests run locally only. Decide when CI is set up.

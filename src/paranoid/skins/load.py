@@ -64,6 +64,8 @@ def check_keys(path: Path, data: dict[str, object]) -> None:
 
 def load_skins(path: Path | None = None) -> Mapping[str, Skin]:
     """The example skin, then every `.toml` file in `path`, else in the folder PARANOID_SKINS names."""
+    if isinstance(path, str) and not path:
+        raise SkinError("path is empty, which would read the current folder. Pass None to use PARANOID_SKINS")
     skins = {"example": load_skin(EXAMPLE)}
     folder = path if path is not None else os.environ.get(HELD_OUT_VARIABLE) or None
     if folder is not None:

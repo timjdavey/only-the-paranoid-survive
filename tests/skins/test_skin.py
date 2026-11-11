@@ -1,4 +1,4 @@
-"""KS3 and KS4, a Skin's own validation, see docs/specs/skins/tests.md#skin."""
+"""KS3, KS4 and KS14 to KS16, a Skin's own validation and repr, see docs/specs/skins/tests.md#skin."""
 
 import unicodedata
 
@@ -86,3 +86,45 @@ def test_ks4_skins_differing_only_in_whitespace_or_form_are_equal(make_skin, cle
     assert messy == tidy and hash(messy) == hash(tidy) and prompt_hash(messy) == prompt_hash(tidy)
     assert plain == make_skin(question="\r\n" + clean["question"] + " \r")
     assert isinstance(plain, Skin)
+
+
+# Each hidden character sits mid word, so normalising cannot strip it.
+HIDDEN = {
+    "a zero width joiner in intro": ("intro", "intro", "You run a bake‍ry.", "Cf"),
+    "a line separator in a channel": ("channels", "channels[1]", "Bri ll", "Zl"),
+    "a soft hyphen in rules": ("rules", "rules", "Each day you split the bre­ad.", "Cf"),
+    "a tab in ask": ("ask", "ask", "Your\trecord is below.", "Cc"),
+    "a lone combining mark in question": ("question", "question", "Which shop?́", "Mn"),
+}
+
+
+@pytest.mark.parametrize("field, label, text, category", HIDDEN.values(), ids=HIDDEN.keys())
+def test_ks14_a_hidden_character_raises(field, label, text, category, make_skin, clean):
+    value = (clean["channels"][0], text, *clean["channels"][2:]) if field == "channels" else text
+    with pytest.raises(SkinError) as caught:
+        make_skin(**{field: value})
+    message = str(caught.value)
+    assert label in message and category in message
+    assert not any(word in message for word in ("bake", "Bri", "bre", "record", "shop"))
+
+
+def test_ks14_an_accent_typed_in_nfd_builds(make_skin):
+    nfd = unicodedata.normalize("NFD", "Zürich")
+    assert make_skin(channels=("Ashford", "Brill", "Corran", nfd)).channels[3] == "Zürich"
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [{"bet_word": "price", "reading_word": "PRICE"}, {"round_word": "Ashford_sent", "bet_word": "sent"}],
+    ids=["bet_word equal to reading_word", "a name and word clash"],
+)
+def test_ks15_two_header_words_equal_ignoring_case_raise(overrides, make_skin):
+    with pytest.raises(SkinError) as caught:
+        make_skin(**overrides)
+    assert not any(word in str(caught.value) for word in ("price", "PRICE", "Ashford", "sent"))
+
+
+def test_ks16_repr_shows_the_name_alone(make_skin, clean):
+    shown = repr(make_skin())
+    assert shown == "Skin(name='bakery')"
+    assert not any(str(value) in shown for value in clean.values())

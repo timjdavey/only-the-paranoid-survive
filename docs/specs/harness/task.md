@@ -70,7 +70,7 @@ def load_grid() -> Grid               # configs/grid.toml
 
 ### Scenarios and config
 
-- **`scenario`, `seeds` and `tools` take a list too**, joined with commas first. inspect splits `-T scenario=a,b` into a list before the task sees it, see [checked](#checked).
+- **`scenario`, `seeds` and `tools` take a list too**, joined with commas first. inspect splits `-T scenario=a,b` into a list before the task sees it, see [checked](#checked). A number is taken as its text, so `seeds=3` plays position 3, as `"3"` does.
 - **`scenario`** is `"all"`, one code name from `SCENARIOS`, or a comma list such as `"one_shock,down_switch"`. `"all"` is the eight in `SCENARIOS` order. An unknown name raises `ValueError` naming it, before any file is read or path is built.
 - **`scenario_config`**, in `config.py`, starts from `SCENARIOS[name]` and applies the knobs with `dataclasses.replace`, so the engine's validation runs again:
   - `rounds` replaces `rounds`.
@@ -113,10 +113,11 @@ A [release](../../glossary.md#seeds-and-secrecy) is one frozen set of generator 
 | `engine_hash`, `generator_version`, `numpy_version` | From the engine, see [engine hash](../engine/config.md#engine-hash) |
 | `prompt_hash` | The skin's hash, from the skins layer, see [names from the skins layer](README.md#names-from-the-skins-layer) |
 | `release` | `load_grid().release`, see [release](#release) |
-| `harness_version` | The `paranoid` package version, with the short git SHA when run from a checkout, as `0.1.0+2f13c9a`. The two hashes do not cover the solver, so this is what says which round loop played |
+| `harness_version` | The `paranoid` package version, with the short git SHA when run from a checkout, as `0.1.0+2f13c9a`, and `.dirty` after it when `git status --porcelain -- src/paranoid` prints anything, as `0.1.0+2f13c9a.dirty`. The two hashes do not cover the solver, so this is what says which round loop played |
 | `rounds`, `inertia`, `own_scale`, `tools`, `warm_up`, `rolling` | The knobs, as resolved. `rounds` is the config's final value |
 | `tool_choice` | `any` or `auto`. Written by the solver on round 1 into `state.metadata`, not by the dataset, so the analysis reads it without the store, see [each round](solver.md#each-round) |
 
+- **A held-out seed set refuses `INSPECT_TRACEBACK_LOCALS=1`.** The task raises `ValueError` before any sample is built, as a traceback with its locals would print the seeds into the log.
 - **A held-out seed's value is never in the log.** Not in the metadata, not in the store, not in the score. The store holds `seed_set` and `seed_index`, and `seed()` reads the value from the seed file at run time. The engine is public, so one leaked seed is eight leaked worlds, where a leaked record is one run. A held-out log is still as private as its skin, see [contamination](../../harness/contamination.md#public-and-held-out), and the engine spec says the same, see [timeline](../engine/timeline.md#interface).
 
 ### Task settings

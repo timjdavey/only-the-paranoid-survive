@@ -8,7 +8,7 @@ import json
 
 from paranoid.engine import Record
 
-from .skin import Skin
+from .skin import Skin, header_words
 
 # Goes up by one when the layout of either text changes, see docs/specs/skins/render.md#prompt-hash.
 RENDER_VERSION = 1
@@ -45,12 +45,7 @@ def render_system_prompt(skin: Skin) -> str:
 def render_record(skin: Skin, record: Record) -> str:
     """The header, then one row per round played. Every line ends with a newline."""
     channels = len(skin.channels)
-    header = [
-        skin.round_word,
-        *(f"{name}_{skin.bet_word}" for name in skin.channels),
-        *(f"{name}_{skin.reading_word}" for name in skin.channels),
-    ]
-    lines = [",".join(header)]
+    lines = [",".join(header_words(skin))]
     for row in record.rows:
         if len(row.bets) != channels or len(row.readings) != channels:
             raise ValueError(

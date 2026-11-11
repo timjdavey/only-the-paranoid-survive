@@ -1,16 +1,18 @@
-"""HK1, HK2, HK3's sample half, HK6 to HK8, HK10 and HK13, see docs/specs/harness/tests.md#task.
+"""HK1, HK2, HK3's sample half, HK6 to HK8, HK10, HK13 and HK15 to HK17, see docs/specs/harness/tests.md#task.
 
 Task tests build the task and read its dataset. The ones that need a log play mockllm's default
 text reply, which gives up on round 1 after ten tries: cheap, and enough to read the metadata.
 """
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from inspect_ai.model import get_model
 
 from paranoid.engine import SCENARIOS, engine_hash
 from paranoid.harness import load_grid, load_seeds, paranoid, scenario_config
+from paranoid.harness.version import harness_version
 from paranoid.skins import prompt_hash
 
 KEYS = {
@@ -95,3 +97,34 @@ def test_hk13_a_skin_that_does_not_fit(tmp_path, monkeypatch, skin_file):
     monkeypatch.setenv("PARANOID_SKINS", str(tmp_path))
     with pytest.raises(ValueError, match="four.*no_change"):
         paranoid(skin="four")
+
+
+def test_hk15_a_number_is_taken_as_its_text():
+    assert [s.id for s in paranoid(scenario="no_change", seeds=3).dataset] == ["no_change/3"]
+    task = paranoid(scenario=["no_change"], seeds="3", tools=["notes"])
+    assert [s.id for s in task.dataset] == ["no_change/3"] and task.dataset[0].metadata["tools"] == "notes"
+
+
+def test_hk16_a_dirty_checkout(monkeypatch):
+    status = []
+
+    def run(command, **kwargs):
+        return SimpleNamespace(stdout=status[0] if "status" in command else "2f13c9a\n")
+
+    monkeypatch.setattr("paranoid.harness.version.subprocess.run", run)
+    try:
+        for printed, suffix in (("", ""), (" M src/paranoid/harness/solver.py\n", ".dirty")):
+            status[:] = [printed]
+            harness_version.cache_clear()
+            assert harness_version().endswith(f"+2f13c9a{suffix}")
+    finally:
+        harness_version.cache_clear()
+
+
+def test_hk17_held_out_refuses_traceback_locals(tmp_path, monkeypatch):
+    monkeypatch.setenv("PARANOID_SEEDS", str(tmp_path))
+    (tmp_path / "held-out.txt").write_text("".join(f"{s}\n" for s in HELD_OUT))
+    monkeypatch.setenv("INSPECT_TRACEBACK_LOCALS", "1")
+    with pytest.raises(ValueError, match="INSPECT_TRACEBACK_LOCALS"):
+        paranoid(scenario="no_change", seeds="held-out")
+    assert len(paranoid(scenario="no_change", seeds="0").dataset) == 1

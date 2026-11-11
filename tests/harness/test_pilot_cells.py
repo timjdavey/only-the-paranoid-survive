@@ -92,8 +92,12 @@ def test_hp6_recognition(cell_args, helpers, monkeypatch):
     monkeypatch.setattr("paranoid.harness.pilot.probes.model_for", lambda row: helpers.Script(then=replies[1]).model())
     (path,) = run_cell("recognition", cell_args(LLM, other))
     assert [r["model"] for r in read(path)] == ["mockllm/model"] * 3 + ["mockllm/other"] * 3
+    calls = []
+    monkeypatch.setattr("paranoid.harness.pilot.probes.model_for", lambda row: calls.append(row.id) or script.model())
+    script = helpers.Script(then=replies[0])
     (path,) = run_cell("recognition", replace(cell_args(LLM, other), only="mockllm/other"))
-    assert {r["model"] for r in read(path)} == {"mockllm/other"}
+    assert set(calls) == {"mockllm/other"}
+    assert [(r["model"], r["lint_hits"]) for r in read(path)] == [("mockllm/model", "0")] * 3 + [("mockllm/other", "1")] * 3
 
 
 def test_hp7_jev(cell_args, monkeypatch, FakeJev, evals):

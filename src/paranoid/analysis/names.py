@@ -96,6 +96,11 @@ def bar(score: float, lo: float | None, hi: float | None, places: int = 2) -> st
 
 
 def markdown_table(columns: Sequence[str], rows: Sequence[Sequence[str]]) -> list[str]:
-    """A markdown table, every cell as given. A `|` never reaches one, as every string in it is guarded."""
-    lines = ["| " + " | ".join(columns) + " |", "|" + "---|" * len(columns)]
-    return lines + ["| " + " | ".join(row) + " |" for row in rows]
+    """A markdown table. A `|` in a cell is escaped and a line break is a space, so no cell breaks the table."""
+    lines = ["| " + " | ".join(map(table_cell, columns)) + " |", "|" + "---|" * len(columns)]
+    return lines + ["| " + " | ".join(map(table_cell, row)) + " |" for row in rows]
+
+
+def table_cell(text: str) -> str:
+    """One cell's text, safe inside a markdown table row."""
+    return " ".join(str(text).splitlines()).replace("|", "\\|")

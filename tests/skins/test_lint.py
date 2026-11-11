@@ -1,4 +1,4 @@
-"""KL1 to KL10, KL12 and KL14, see docs/specs/skins/tests.md#lint. KL11 and KL13 are in test_example.py."""
+"""KL1 to KL10, KL12, KL14 and KL15, see docs/specs/skins/tests.md#lint. KL11 and KL13 are in test_example.py."""
 
 import dataclasses
 
@@ -244,3 +244,21 @@ def test_kl14_a_number_in_the_name_alone_passes(make_skin):
 
 def test_kl14_lint_text_ignores_numbers():
     assert lint_text("In 1987 we sent 12 loaves.") == ()
+
+
+def fullwidth(text: str) -> str:
+    """ASCII letters as their fullwidth forms, U+FF21 onwards."""
+    return "".join(chr(ord(char) + 0xFEE0) for char in text)
+
+
+@pytest.mark.parametrize(
+    "text, entry",
+    [(fullwidth("change"), "chang"), (fullwidth("CHANGE"), "chang"), ("ﬆable", "stabl")],
+    ids=["fullwidth", "fullwidth capitals", "a ligature"],
+)
+def test_kl15_fullwidth_letters_and_ligatures_are_folded(text, entry):
+    assert lint_text(f"Prices {text} often.") == (entry,)
+
+
+def test_kl15_a_lookalike_from_another_script_passes():
+    assert lint_text("сhange") == ()  # a Cyrillic es, the known limit

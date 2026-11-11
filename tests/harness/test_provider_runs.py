@@ -1,7 +1,9 @@
-"""HR3, HR7, HS1, HS14 and HK9: whole evals through the providers. See docs/specs/harness/tests.md."""
+"""HR3, HR7, HR10, HS1, HS14 and HK9: whole evals through the providers. See docs/specs/harness/tests.md."""
 
-from dataclasses import replace
+import tempfile
+from dataclasses import dataclass, replace
 
+import inspect_ai
 import pytest
 from inspect_ai.model import ChatMessageAssistant, get_model
 
@@ -68,3 +70,24 @@ def test_hk9_warm_up(helpers):
     for bad in ("complacent:0", "complacent:40", "nope:5", "complacent"):
         with pytest.raises(ValueError):
             paranoid(seeds="0", warm_up=bad)
+
+
+@dataclass(frozen=True)
+class OverBudget:
+    """A buggy baseline: 110 points a round."""
+
+    peeks: bool = False
+
+    def __call__(self, view):
+        return [11] * 10
+
+
+def test_hr10_a_baseline_that_bets_badly_errors_the_sample(monkeypatch, helpers):
+    monkeypatch.setattr("paranoid.harness.providers.baseline.POLICIES", {**POLICIES, "over_budget": OverBudget})
+    task = paranoid(scenario="no_change", seeds="0", tools="none")
+    model = get_model("baseline/over_budget", memoize=False)
+    (log,) = inspect_ai.eval(task, model=model, display="none", log_dir=tempfile.mkdtemp(), log_realtime=False)
+    sample = log.samples[0]
+    assert sample.error is not None and "over_budget" in sample.error.message and "round 1" in sample.error.message
+    store = helpers.store_of(sample)
+    assert not store.gave_up and store.bad_calls == 0 and store.rows == []

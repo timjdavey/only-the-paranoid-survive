@@ -16,9 +16,14 @@ TOOLS = ("notes", "compute")
 TOOL_CHOICES = ("any", "auto")
 
 
-def joined(arg: str | Sequence[str]) -> str:
-    """A comma list as one string. inspect splits `-T scenario=a,b` into a list before the task sees it."""
-    return arg if isinstance(arg, str) else ",".join(str(part) for part in arg)
+def joined(arg: str | int | Sequence[str]) -> str:
+    """A comma list as one string. inspect splits `-T scenario=a,b` into a list before the task sees it.
+
+    A number is its text, so `seeds=3` is `"3"`.
+    """
+    if isinstance(arg, str) or not isinstance(arg, Sequence):
+        return str(arg)
+    return ",".join(str(part) for part in arg)
 
 
 def check_scenario(name: str) -> None:

@@ -45,7 +45,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 
 - **Temperature is the provider's default.** We never set it. It is the setting people deploy with, and some reasoning models refuse any other value. inspect writes the generate config into every log, so the value used is on record.
 - **Max tokens is the model's own output limit.** There is no standard number across evals. The usual practice is a cap high enough that it never binds, so the cap can't make a choice for the model. Where a provider's default is lower, the harness sets `max_tokens` to the model's limit.
-- **A reply cut off by the limit is a retry**, see the [retry rule](prompts.md#retry-rule). It is counted apart from other retries, so a cap problem can't pass as a model problem.
+- **A reply cut off by the limit is a retry**, whether inspect reports it as `max_tokens` or as `model_length`, see the [retry rule](prompts.md#retry-rule). It is counted apart from other retries, so a cap problem can't pass as a model problem.
 - **Cost is guarded elsewhere**, by `--limit` and the [cost per run](../pilot/provider-checks.md#cost-per-run) check, not by a low cap.
 
 ## Prompt caching

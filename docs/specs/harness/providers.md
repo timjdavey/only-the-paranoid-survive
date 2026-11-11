@@ -46,6 +46,7 @@ class JevClient(Protocol):
 - **I/O is awaited, compute is serialised.** `JevClient.ask` is async, so a network call never stalls the other samples. A Timestral forecast is CPU bound, so `TimestralAPI.max_connections` is 1 and the forecast runs on the loop. Two at once would stall the loop for no gain, see [Timestral](#timestral).
 - **`tools` is never empty.** If it is, `generate` raises `RuntimeError`, as the solver is not the one calling.
 - **A provider that cannot produce bets raises.** A baseline that bets badly is a bug and the sample errors, see [play](../engine/game.md#play). Providers never retry.
+- **`generate` checks the bets before it answers**, with `store.game().check(bets)`, and sends the checked split. A `BetError` becomes a `RuntimeError` naming the provider and the round, so the sample errors. Otherwise the bad split would reach `submit` as a model's bad call, and ten of them would end in a give up scored as the Uniform baseline.
 - **Usage is zero tokens.** The scorer and the [cost check](../../pilot/provider-checks.md#cost-per-run) can tell a provider row from an LLM row by `kind` in the models config, not by usage.
 - **Extra information goes on the message.** Jev's probabilities and Timestral's quantiles are set on `ChatMessageAssistant.metadata`, so they sit beside the bets in the log. `generate` calls `answer`, which by default is `bets` with nothing logged, and Jev and Timestral override it.
 
