@@ -25,6 +25,7 @@ def record_blocks(text: str) -> list[str]   # the record cut after every line en
 def submit(skin: Skin) -> Tool                     # one parameter, named skin.bets_name, a list of ints. Returns str
 def notes(skin: Skin, cap: int = 2000) -> Tool     # one parameter, named skin.notes_param, a str. Returns str
 def compute(skin: Skin) -> Tool                    # one parameter, named skin.compute_param, a str. Returns str
+                                                   # each parameter's description is the skin's, see Notes below
 ```
 
 ## Behaviour
@@ -33,7 +34,7 @@ def compute(skin: Skin) -> Tool                    # one parameter, named skin.c
 
 1. **Fill the store** if `store.scenario == ""`: copy the metadata in and play the warm up, see [store](task.md#store).
 2. **Reset the messages.** `state.messages` becomes exactly: a system message of `render_system_prompt(skin)`, then a user message of `render_record(skin, store.record())`, as one content block or cut by [record blocks](#record-blocks). With `notes` on and `store.notes` non-empty, the user message has one more content block after the record, holding the notes, see [notes](#notes). With `rolling` on the messages are not reset, see [rolling](#rolling).
-3. **Set the tools.** `state.tools` is `[submit(skin)]`, which carries the skin's `tool_name`, `tool_text`, `bets_name` and `bets_text`, see [submit](#submit), then `notes(skin)` as `skin.notes_name` with `skin.notes_text` and one parameter named `skin.notes_param`, and `compute(skin)` as `skin.compute_name` with `skin.compute_text` and one parameter named `skin.compute_param`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
+3. **Set the tools.** `state.tools` is `[submit(skin)]`, which carries the skin's `tool_name`, `tool_text`, `bets_name` and `bets_text`, see [submit](#submit), then `notes(skin)` as `skin.notes_name` with `skin.notes_text` and one parameter named `skin.notes_param` and described by `skin.notes_param_text`, and `compute(skin)` as `skin.compute_name` with `skin.compute_text` and one parameter named `skin.compute_param` and described by `skin.compute_param_text`, when `tools` asks for them. Every word on every tool is the skin's, see [tool text](../../harness/prompts.md#tool-text). The submit tool is always first, so a provider finds it at `tools[0]`, see [providers](providers.md#shared-behaviour).
 4. **Set the tool choice.** `"any"` for `"any"`, so the reply must call some tool, and `"auto"` otherwise. A `ToolFunction` naming the skin's tool is never used: it would stop the model calling notes or compute first. With `tool_choice=None` the solver calls `tool_choice_for(ModelName(get_model()).api, get_model().config)` on round 1. `Model.api` is the provider object, not its name, so the name comes from `ModelName`, see [checked](#checked) and writes the answer to `store.tool_choice` and to `state.metadata["tool_choice"]`, so the log says which it was and the analysis reads it without the store, see [result key](../analysis/runs.md#result-key). The rule: `"auto"` when the api is `"anthropic"` and the config asks for thinking, which is a `reasoning_effort` other than `"none"` or any `reasoning_tokens`, else `"any"`. With thinking on, `any` never reaches Claude as asked: inspect drops it, turns it into `auto`, or sends it and the model skips its thinking, see [checked](#checked) and [reasoning](../../harness/models.md#reasoning). Deciding here, not on the command line, means `inspect eval paranoid/paranoid --model anthropic/<model>` works as typed.
 5. **Try until the round is played**, see [tries](#tries).
 6. **Repeat** until `store.round() > store.config().rounds`, or the run gave up. Then return the state.
@@ -93,7 +94,7 @@ In the headline, see [tools](../../design/interface.md#tools). What it costs or 
 - **Length is logged** by the store itself, as `len(store.notes)`.
 - **The first `notes` call in a round adds one to `store.notes_rounds`.** Later calls in the same round add nothing, so the count is rounds, not calls. The solver counts it at the end of the round, from the tool messages of calls that ran, so a refused call saves nothing and counts nothing.
 - **A reply that calls `notes` and not the skin's tool is a no call**, see [tries](#tries).
-- **Each parameter is described by its tool's own text**, `skin.notes_text` and `skin.compute_text`. inspect will not build a tool whose parameter has no description, and the harness writes no words of its own, see [not decided](#not-decided).
+- **Each parameter is described by the skin**, in `skin.notes_param_text` and `skin.compute_param_text`, as `bets_text` describes `submit`'s. inspect will not build a tool whose parameter has no description, and the harness writes no words of its own. Decided on 2026-11-11, before the pilot, as the prompt structure freezes after it: a parameter that repeated its tool's text made the model read one sentence twice, in every skin alike.
 
 ### Compute
 
@@ -102,6 +103,7 @@ In the headline, so a default run needs Docker, see [running](../../harness/runn
 - **Before each round**, and only when `compute` is on, the solver writes `render_record(skin, store.record())` to `record.csv` in the sandbox's working directory, so the code sees the record and nothing else. With `compute` off there is no sandbox to write to.
 - **The compute tool takes one string**, under the skin's `compute_param`, and runs `python3 -I -c <string>` in the sandbox with a 30 second timeout and `timeout_retry=False`, and returns stdout then stderr, truncated to 4000 characters. A timeout returns the text `timeout`. inspect retries a timed out command twice by default, which would run the model's code three times.
 - **The sandbox is locked down.** The code is the model's and is untrusted. `compose.yaml` sets `network_mode: none`, mounts nothing from the host, passes no environment, runs the root filesystem read only with a small writable working directory, and caps memory, processes and CPU with `mem_limit`, `pids_limit`, `cpus` and `no-new-privileges`. So the code can reach neither the engine nor a seed, and a memory or fork bomb ends inside the container, not on the machine.
+- **Code that eats memory reads Python's own `MemoryError`.** `ulimits` sets `data` to 384 MB, below the 512 MB `mem_limit`, so Python fails to grow and raises. Past `mem_limit` the kernel kills the process with no output, and the model would read an empty result and no reason, see [checked](#checked).
 - **The first `compute` call in a round adds one to `store.compute_rounds`**, as for notes.
 - **The compose file is found from the module**, `Path(__file__).parent / "compose.yaml"`, never from the working directory, and `pyproject.toml` ships it as package data.
 
@@ -136,7 +138,6 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 ## Not decided
 
 - Whether `rolling` runs need their own `max_tokens`, as the conversation grows with the square of the game length, see [rejected](../../design/interface.md#rejected). inspect records usage per call, so input tokens per round are read from the log, and the rolling check reports them. Decide when the rolling cell runs.
-- **Whether the skin should describe the notes and compute parameters itself.** inspect needs a description on every parameter. Today each repeats its tool's text, so the model reads that text twice. Two more skin fields, as `bets_text` is for `submit`, would end the repeat and add two short sentences to every skin. Decide before the first headline run on held-out skins, as the prompt freezes there.
 - Whether a run needs a try budget on top of the ten a round. A model that needs five tries every round spends two hundred calls a run with no give up. The retry share marks it, and the [cost check](../../pilot/provider-checks.md#cost-per-run) prices it. Decide when the cost check has run.
 
 ## Checked
@@ -161,6 +162,8 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 | What `sandbox.exec(timeout=...)` does on a timeout | Raises `TimeoutError`, after two retries unless `timeout_retry=False` |
 | Does `@tool` keep a `ToolDef`'s name | No. It tags the tool it returns with its factory's name, so the tools are plain functions returning `ToolDef(...).as_tool()` |
 | What Docker needs from Python | Nothing beyond inspect_ai. Its Docker sandbox drives the `docker` command line |
+| Does `compose.yaml` run, read-only root and all | Yes. HS12 passes on Docker 29.5 under Colima, run on 2026-11-11. inspect writes `record.csv` to the `tmpfs` working directory, the code reads it, the network is unreachable and no key is in the environment |
+| What a memory bomb returns under `mem_limit` alone | Nothing. The kernel kills Python with exit code 137 and no output. With `ulimits` `data` below `mem_limit` it returns a `MemoryError` traceback |
 
 - **So the rule above stands for Claude**, for a wider reason than a refused call: `auto` is the only choice that leaves thinking on.
 - **A Claude that thinks with nothing set** still gets `any`, as the rule reads the config and not the model. Every Anthropic row in `configs/models/` sets its reasoning, so no row of the study plays that way.

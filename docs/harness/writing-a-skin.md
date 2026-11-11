@@ -205,6 +205,7 @@ The frame is a fingerprint. If a held-out skin shares a sentence shape with the 
 | One use per stock answer | Has another skin in the set used the same ready answer from this page? | It has | Two skins that both call a channel's figure "what the whole lot would make there" |
 | Own parameter name | Is `bets_name` the story's word for the list, in snake case? | It is `split`, the example skin's, or `bets`, the engine's word on every published page | `bets`, see [skin](../specs/skins/skin.md#validation-on-construction) |
 | Own names for the other two | Are `notes_param` and `compute_param` this skin's own words? | One is `note` or `python`, the example skin's, or the same as another skin's in the set | `text` and `code` in every skin |
+| Own text for the other two | Do `notes_param_text` and `compute_param_text` say what goes in the parameter, in the story's words? | One repeats its tool's text, or shares a shape with another skin's | "The text to save" in every skin |
 | The question | Is `question` a which-channel question about one period, with the channels as its options? | It asks anything else, or fails the lint | A question about the whole run, see [Jev](providers.md#jev) |
 
 - **Change the shape, not just the nouns.** Lead with what is wrong in the story's terms. Fold the constraint into one clause. Say "none below zero" in the story's words in place of "none negative".

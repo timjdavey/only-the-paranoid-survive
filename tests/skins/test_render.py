@@ -85,9 +85,11 @@ COVERED = {
     "notes_name": "memo",
     "notes_text": "Other text.",
     "notes_param": "memo_text",
+    "notes_param_text": "Other text.",
     "compute_name": "python",
     "compute_text": "Other text.",
     "compute_param": "script",
+    "compute_param_text": "Other text.",
     "question": "Other question?",
     "round_word": "morning",
     "bet_word": "baked",
@@ -111,9 +113,9 @@ def test_kr7_a_render_version_bump_moves_the_hash(make_skin, monkeypatch):
 
 
 def test_kr8_a_non_ascii_name_hashes_to_a_pinned_value(make_skin):
-    """Worked out from the spec by hand. With ensure_ascii on, the same skin would hash to 1f222cbb1ca7."""
+    """Worked out from the spec by hand. With ensure_ascii on, the same skin would hash to bcc3b9e7ee29."""
     skin = make_skin(channels=("Ashford", "Brill", "Corran", "Zürich"))
-    assert prompt_hash(skin) == "6380dbdb2b6f"
+    assert prompt_hash(skin) == "bd9ecae1db28"
 
 
 TWO_ROUNDS = Record(

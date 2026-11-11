@@ -16,7 +16,7 @@ from paranoid.skins import CANARY, Skin, lint, lint_text, prompt_hash, render_sy
 ROOT = Path(__file__).parents[2]
 EXAMPLE_TOML = Path(paranoid.skins.__file__).parent / "example.toml"
 
-EXAMPLE_HASH = "d7556875731d"
+EXAMPLE_HASH = "f867614334d6"
 EXAMPLE_PROMPT = (
     "You run the sales desk at Merridew Fruit, a small importer. The fruit will not keep, so every load goes "
     "straight out to wholesale markets, where salesmen sell it on commission for whatever the buyers will pay. "
