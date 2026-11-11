@@ -13,7 +13,8 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    # A run takes under a minute. Slow tests run by hand, see docs/harness/running.md.
+    # A run takes about 2 minutes, most of it the tests on the runner's 2 cores. Slow tests run by hand,
+    # see docs/harness/running.md.
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v5
