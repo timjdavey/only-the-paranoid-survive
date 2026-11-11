@@ -6,7 +6,8 @@ See docs/specs/harness/pilot.md#shared-rules and #words-the-columns-use.
 import csv
 import math
 import os
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, ClassVar
@@ -26,9 +27,13 @@ class CellArgs:
     only: str | None = None  # a model id, for cells that need a model
     seeds: int = 1000  # seeds an engine cell plays, capped by PARANOID_PILOT_SEEDS
     dry_run: bool = False
+    workers: int = 1  # processes an engine cell splits its seeds over
 
 
 Cell = Callable[[CellArgs], list[Path]]  # returns the paths it wrote
+Rows = list[Sequence[Any]]
+Work = Callable[[Any, int], Rows]  # one block and one seed into that seed's rows. Module level, as a process pickles it
+CHUNK = 16  # seeds handed to a process at a time
 
 
 def seed_cap(seeds: int) -> int:
@@ -44,6 +49,21 @@ def engine_seeds(args: CellArgs) -> list[int]:
     if len(seeds) < count:
         raise ValueError(f"the public list has {len(seeds)} seeds, fewer than {count}. Lower --seeds or {PILOT_SEEDS_VARIABLE}")
     return seeds[:count]
+
+
+def seed_rows(args: CellArgs, work: Work, blocks: Iterable[Any]) -> Iterator[Sequence[Any]]:
+    """`work(block, seed)`'s rows for every block, then every seed, in that order whatever `args.workers` is."""
+    if args.workers < 1:
+        raise ValueError(f"workers must be at least 1, got {args.workers}")
+    seeds = engine_seeds(args)
+    tasks = [(block, seed) for block in blocks for seed in seeds]
+    if args.workers == 1 or not tasks:
+        for block, seed in tasks:
+            yield from work(block, seed)
+        return
+    with ProcessPoolExecutor(max_workers=args.workers) as pool:
+        for rows in pool.map(work, *zip(*tasks), chunksize=CHUNK):
+            yield from rows
 
 
 def write_csv(args: CellArgs, name: str, columns: Sequence[str], rows: Callable[[], Iterable[Sequence[Any]]]) -> list[Path]:

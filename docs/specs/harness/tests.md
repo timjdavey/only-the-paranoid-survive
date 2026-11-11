@@ -105,7 +105,7 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 
 | Id | Test | Page |
 |---|---|---|
-| HP1 | Each engine cell writes its CSV with exactly the columns in its Writes line, in order, and one row per seed per setting per scenario per baseline as its Runs line says. `timeline-sanity` also writes the sparklines file with one row per scenario and round. The network is blocked by a socket monkeypatch throughout. The `bayesian-frontier` and `game-length` cases are **slow**, as they take minutes at five seeds | [pilot](pilot.md#engine-cells) |
+| HP1 | Each engine cell writes its CSV with exactly the columns in its Writes line, in order, and one row per seed per setting per scenario per baseline as its Runs line says. `timeline-sanity` also writes the sparklines file with one row per scenario and round. The network is blocked by a socket monkeypatch throughout. `bayesian-frontier` has a row per seed, scenario and each of its three players and five fixed baselines. The `game-length` case is **slow**, as it takes a minute at five seeds | [pilot](pilot.md#engine-cells) |
 | HP2 | `CELLS` has the twenty-one names in page order. `run_cell("nope", args)` raises `ValueError` listing them | [pilot](pilot.md#invariants) |
 | HP3 | `seeds=20` against a public seed file of ten raises `ValueError` naming `PARANOID_PILOT_SEEDS` | [pilot](pilot.md#shared-rules) |
 | HP4 | In `baseline-order.csv`, `kind` on every Down switch row equals the word `make_timeline` gives by hand, `discerning`'s `move_round` lies within the switch's ramp, from its onset to `onset + ramp − 1`, on every Down switch seed, as its base falls past the next one's during the ramp, and is `0` on every No change seed, and `complacent`'s `move_round` is `0` everywhere | [pilot](pilot.md#words-the-columns-use) |
@@ -120,6 +120,7 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 | HP13 | In `game-length.csv`, `clear_round_1` is set on `discerning` rows only, lies from `onset_1` to the window's end or is `0`, and on a seed where it is above 0 the Discerning baseline's output summed from `onset_1` is above the Complacent baseline's in every round from it to the window's end, played by hand | [pilot](pilot.md#game-length) |
 | HP14 | In `reading-roughness.csv` there is one `complacent` row per setting, scenario and seed, with `parameter` and `scout_rounds` empty and `move_round` of `0` | [pilot](pilot.md#reading-roughness) |
 | HP15 | `seeds` with `mockllm/model` scripted to one reply with no call writes `seeds-tokens.csv` with the eight columns and one row per round of every sample. The round that took two tries has the sum of two events' `input_tokens`, and every row's `rolling` is 0. `rolling` writes `rolling-tokens.csv` with rows at both values | [pilot](pilot.md#token-files) |
+| HP16 | `luck` and `baseline-order` each write the same bytes at `workers=2` as at `workers=1`. `workers=0` raises `ValueError` | [pilot](pilot.md#shared-rules) |
 
 ## Property tests
 

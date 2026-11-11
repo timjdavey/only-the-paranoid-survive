@@ -24,7 +24,10 @@ First numbers from the baselines layer at its defaults, on seeds 0 to 49, for th
   | Up switch then down switch | 0.36 | 0.29 | 80% | Yes |
 
   Never moving scored 0.84 on the headline and the Bayesian baseline 0.93. The explore cost was 0.05 for the Bayesian baseline, 0.05 for the hedge rule and 0.11 for the Scout rule. The Bayesian baseline moved off the leader on 191 of 200 Up switch then down switch seeds, so that line holds. A rough sweep: an onset of 8 to 12 with switch sizes of 2 to 4 sigmas clears every scenario but Up switch, which needed a rise of 3 to 5 sigmas.
-- **Bayesian run time.** About 90 ms a run, 240 ms with `lookahead`, so the frontier's 240,000 runs take 6 to 16 hours on one core. A cache on the record's rows should about halve it. Add it with the frontier's pilot cell.
+- **Bayesian run time.** About 46 ms a run, down from 103, now the filter's states are cached by the record's rows, and 204 ms with `lookahead`, down from 265, see [the cache](docs/specs/baselines/bayesian.md#the-cache). Every engine cell wrote the same bytes before and after. Measured on eight cores:
+  - `baseline-order` on 1000 seeds takes about 8 minutes on one core and 97 seconds with `--workers 8`.
+  - `game-length` on 50 seeds takes 83 seconds with `--workers 8`, so about 27 minutes on 1000. Pass `--seeds 200` while a knob is still moving.
+  - `bayesian-frontier` takes 15 seconds, as it now plays three players on ten seeds, see [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
 
 First numbers from the forecasters layer, on the real Timestral at its [pins](docs/specs/forecasters/timestral.md#pinned), for the [Timestral checks](docs/pilot/provider-checks.md#timestral-checks):
 - **Gap test.** Ten readings then blanks, on seed 0 of One shock. After thirty blanks the spread is wider on every channel: 2.1 to 3.0 times with the channels joint, 2.0 to 6.9 times with each alone. It does not widen round by round. Joint, the mean spread falls from 44 to 40 points over the first ten blanks, then grows to 107. Alone it grows from 43 to 198. Decide whether that is widening enough for Timestral odds.

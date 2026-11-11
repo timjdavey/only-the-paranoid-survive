@@ -63,6 +63,7 @@ One file carries a duty for every layer. Each row links to the spec that owns th
 | Console script | `paranoid`, pointing at the harness's `main` | [command spec](../specs/harness/command.md#subcommands) |
 | `inspect_ai` entry point | The module that registers the `baseline`, `jev` and `timestral` providers | [providers spec](../specs/harness/providers.md) |
 | `paranoid.commands` entry point | `analyse`, which the harness finds without importing the analysis layer | [analysis command](../specs/analysis/command.md#dispatch) |
+| Provider SDKs | `anthropic`, `google-genai` and `openai`, each at the lowest version the pinned inspect accepts. inspect ships none of them, and an `llm` row cannot be called without its provider's | [running](running.md#setup) |
 | Extras | `timestral` for torch and Timestral, which only the forecasters layer imports. The Docker sandbox needs no extra, as inspect drives the `docker` command | [running](running.md#setup) |
 | Package data | `skins/example.toml` and the harness's `compose.yaml` | [skin spec](../specs/skins/skin.md#the-example-skin), [solver spec](../specs/harness/solver.md#compute) |
 | Pins | numpy and pandas to one minor version, scipy to one minor version, matplotlib exactly, as its version is written into every SVG, and the Timestral package to one git commit | [engine hash](../specs/engine/config.md#engine-hash), [plots](../specs/analysis/plots.md#checked), [forecasters spec](../specs/forecasters/timestral.md#pinned) |

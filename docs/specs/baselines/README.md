@@ -39,8 +39,9 @@ The baselines layer imports these from `paranoid.engine`. Their behaviour is in 
 |---|---|
 | `View`, `Start`, `Dials`, `Policy`, `Bets` | What every policy takes and returns, and what it is handed, see [view](../engine/view.md) |
 | `Timeline`, `Record` | What a peeking policy reads, and what every policy reads, through the view |
+| `Row` | A record's rows, which key the Bayesian baseline's [cache](bayesian.md#the-cache) |
 | `split_budget` | Weights into a valid split: `uniform`, the hedge rule's scout split and `Odds`, see [`split_budget`](../engine/view.md#split_budget) |
-| `play`, `make_timeline`, `SCENARIOS`, `Game`, `Row` | Whole runs, and views built from hand-written rows, for the test suite only, see [tests](tests.md) |
+| `play`, `make_timeline`, `SCENARIOS`, `Game` | Whole runs, and views built from hand-written rows with `Row`, for the test suite only, see [tests](tests.md) |
 
 ## What the layers above read
 
@@ -50,7 +51,7 @@ What each layer above takes from this one is listed on that layer's README, so e
 |---|---|
 | skins | [Names from the baselines layer](../skins/README.md#names-from-the-baselines-layer): `uniform`, to play records in its tests |
 | forecasters | [Names from the baselines layer](../forecasters/README.md#names-from-the-baselines-layer): `ForecastRule`, `FORECAST_RULES`, `QUANTILE_LEVELS` and `Odds` for the forecast policies, `uniform` for an empty record, and `complacent` in its tests |
-| harness | [Names from the baselines layer](../harness/README.md#names-from-the-baselines-layer): `POLICIES` for the baseline provider and warm up, the policies, rules and `Bayesian` with `HAZARDS` and `BAYESIAN_RULES` for the pilot cells |
+| harness | [Names from the baselines layer](../harness/README.md#names-from-the-baselines-layer): `POLICIES` for the baseline provider and warm up, the policies, rules and `Bayesian` for the pilot cells |
 
 ## Modules
 

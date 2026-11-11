@@ -11,15 +11,14 @@ import numpy as np
 from paranoid.engine import Bets, View
 
 from .filter import Family, Runs, sample, step, update
+from .forecast import fixed_draws
 
 
 def best_split(
     view: View, runs: Runs, family: Family, mean: np.ndarray, candidates: Sequence[Bets], draws: int
 ) -> Bets:
     """The candidate with the highest value this round plus the rounds left times next round's best, first on a tie."""
-    rng = np.random.default_rng(1)
-    shape = (draws, view.channels)
-    picks, level_normals, read_normals = rng.random(shape), rng.standard_normal(shape), rng.standard_normal(shape)
+    picks, level_normals, read_normals = fixed_draws(1, draws, view.channels, 2)
     levels = sample(runs, picks, level_normals)
     batch = runs.broadcast(draws)
     rounds_left = view.dials.rounds - view.round

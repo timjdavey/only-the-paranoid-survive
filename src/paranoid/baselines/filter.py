@@ -3,16 +3,21 @@
 See docs/specs/baselines/bayesian.md#the-family. Every array is (..., channels, runs):
 one Kalman state of (base, weather) per run, for every channel at once. The leading
 axes are empty for the record, and the lookahead's draws for one step ahead.
+
+The states are cached by the family and the record's rows, see bayesian.md#the-cache.
+A hit is the same arrays a replay from round 1 gives, to the bit.
 """
 
 import math
 from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 
-from paranoid.engine import Record, View
+from paranoid.engine import Dials, Record, Row, Start, View
 
 Range = tuple[float, float]
+STATE_CACHE = 128  # filter states kept, a few runs' worth
 
 
 def normal_of(span: Range) -> tuple[float, float]:
@@ -22,9 +27,12 @@ def normal_of(span: Range) -> tuple[float, float]:
     return (lo + hi) / 2, sd * sd
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Family:
-    """The engine's family as the belief reads it, from the dials, the start and the hazard."""
+    """The engine's family as the belief reads it, from the dials, the start and the hazard.
+
+    Compared by identity, as it holds arrays. `of` hands back one object for equal inputs, so it can key the cache.
+    """
 
     hazard: float
     persistence: float
@@ -37,26 +45,33 @@ class Family:
 
     @classmethod
     def of(cls, view: View, hazard: float) -> "Family":
-        start, dials = view.start, view.dials
-        means, variances = np.empty(view.channels), np.empty(view.channels)
-        field = normal_of(dials.field_base)
-        for c in range(view.channels):
-            means[c], variances[c] = field
-        leader, gap = normal_of(dials.leader_base), normal_of(dials.runner_up_gap_points)
-        means[start.leader], variances[start.leader] = leader
-        means[start.runner_up], variances[start.runner_up] = leader[0] - gap[0], leader[1] + gap[1]
-        means[start.hedge], variances[start.hedge] = normal_of(dials.hedge_base)
-        jump_mean, jump_var = normal_of((dials.hedge_base[0], dials.leader_base[1]))
-        return cls(
-            hazard=hazard,
-            persistence=dials.persistence,
-            weather_var=dials.own_scale**2 + dials.factor_scale**2,
-            read_noise_k=dials.read_noise_k,
-            role_mean=means,
-            role_var=variances,
-            jump_mean=jump_mean,
-            jump_var=jump_var,
-        )
+        return family_of(view.start, view.dials, view.channels, hazard)
+
+
+@lru_cache(maxsize=STATE_CACHE)
+def family_of(start: Start, dials: Dials, channels: int, hazard: float) -> Family:
+    """One Family for each start, dials, channel count and hazard."""
+    means, variances = np.empty(channels), np.empty(channels)
+    field = normal_of(dials.field_base)
+    for c in range(channels):
+        means[c], variances[c] = field
+    leader, gap = normal_of(dials.leader_base), normal_of(dials.runner_up_gap_points)
+    means[start.leader], variances[start.leader] = leader
+    means[start.runner_up], variances[start.runner_up] = leader[0] - gap[0], leader[1] + gap[1]
+    means[start.hedge], variances[start.hedge] = normal_of(dials.hedge_base)
+    jump_mean, jump_var = normal_of((dials.hedge_base[0], dials.leader_base[1]))
+    means.setflags(write=False)
+    variances.setflags(write=False)
+    return Family(
+        hazard=hazard,
+        persistence=dials.persistence,
+        weather_var=dials.own_scale**2 + dials.factor_scale**2,
+        read_noise_k=dials.read_noise_k,
+        role_mean=means,
+        role_var=variances,
+        jump_mean=jump_mean,
+        jump_var=jump_var,
+    )
 
 
 @dataclass(frozen=True)
@@ -155,10 +170,20 @@ def logsumexp(log_weight: np.ndarray) -> np.ndarray:
 
 def replay(record: Record, family: Family) -> Runs:
     """The state for the round after the record: each row's readings, then the step into the next round."""
-    runs = first_runs(family)
-    for row in record.rows:
+    return state(family, record.rows)
+
+
+@lru_cache(maxsize=STATE_CACHE)
+def state(family: Family, rows: tuple[Row, ...]) -> Runs:
+    """The state after `rows`: the state after all but the last, through the last. Keyed by the rows, never their count."""
+    if not rows:
+        runs = first_runs(family)
+    else:
+        row = rows[-1]
         readings = np.array([np.nan if r is None else r for r in row.readings])
-        runs = step(update(runs, family, readings, np.array(row.bets)), family)
+        runs = step(update(state(family, rows[:-1]), family, readings, np.array(row.bets)), family)
+    for array in runs.arrays():
+        array.setflags(write=False)
     return runs
 
 

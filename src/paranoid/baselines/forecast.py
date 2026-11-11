@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from functools import lru_cache
 from types import MappingProxyType
 from typing import Protocol
 
@@ -19,6 +20,16 @@ ODDS_DRAWS = 1000
 
 class ForecastRule(Protocol):
     def __call__(self, quantiles: np.ndarray, budget: int) -> Bets: ...
+
+
+@lru_cache(maxsize=32)
+def fixed_draws(seed: int, draws: int, channels: int, normals: int) -> tuple[np.ndarray, ...]:
+    """One `random((draws, channels))` then `normals` of `standard_normal`, from `default_rng(seed)`. Drawn once, read only."""
+    rng, shape = np.random.default_rng(seed), (draws, channels)
+    arrays = (rng.random(shape), *(rng.standard_normal(shape) for _ in range(normals)))
+    for array in arrays:
+        array.setflags(write=False)
+    return arrays
 
 
 def checked(quantiles: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -82,7 +93,7 @@ class Odds:
     def __call__(self, quantiles: np.ndarray, budget: int) -> Bets:
         q, finite = checked(quantiles)
         channels = len(q)
-        levels = np.random.default_rng(0).random((self.draws, channels))
+        (levels,) = fixed_draws(0, self.draws, channels, 0)
         values = np.full((self.draws, channels), -np.inf)
         for c in np.flatnonzero(finite):
             values[:, c] = np.interp(levels[:, c], QUANTILE_LEVELS, q[c])

@@ -68,6 +68,7 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 | BB7 | `Bayesian(rule="lookahead")` on a hand-built record returns a split equal to one of the five forecast rules' splits on `belief(view).quantiles`, and on a view with `round == dials.rounds` returns the `top-pick` split | [bayesian](bayesian.md#rules) |
 | BB8 | `bayesian` through `play`: on Down switch seeds 0 and 2 its output is above the Complacent baseline's, and on One shock seeds 0 and 1 it ends on `start.leader` | [bayesian](bayesian.md#the-family) |
 | BB9 | `HAZARDS` has five ascending values in `(0, 1)`, `BAYESIAN_RULES` is the five `FORECAST_RULES` ids then `"lookahead"`, and every `Bayesian(hazard, rule)` over both, 30 players, returns valid splits on every round of Down switch seed 0 and One shock seed 0, with `play` | [bayesian](bayesian.md#interface) |
+| BB10 | The cache changes no answer. On Down switch seed 0, the views for round 21 of the Bayesian baseline's own record and of the Complacent baseline's, two records of one length, give different beliefs. Each belief is equal to the bit asked first, asked second, and asked again after four other seeds' runs have pushed it out of the cache. `play(bayesian, timeline)` twice gives equal records, and every array of a belief is read only | [bayesian](bayesian.md#the-cache) |
 
 ## Property tests
 

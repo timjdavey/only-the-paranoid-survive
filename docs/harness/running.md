@@ -7,6 +7,7 @@
     cp .env.example .env         # then fill in keys, see models.md
 
 - **Python 3.12 or later.** `uv` installs the version in `.python-version` for you.
+- **`uv sync` installs the provider SDKs too.** inspect calls Anthropic, Google, OpenAI and OpenRouter through `anthropic`, `google-genai` and `openai`, ships none of them, and raises on the first call without one. All three are default dependencies, so there is nothing more to install.
 - **Check a change** with `uv run pytest` and `uv run lint-imports`, the two things CI runs. Slow tests are skipped unless you add `-m slow`, see the [engine tests](../specs/engine/tests.md).
 - **Tests run in parallel**, one worker per core, through `pytest-xdist`. Add `-n 0` to run them in one process, for example to read a test's output in order.
 - **Sweeps** play a baseline on a thousand seeds and take about two minutes. CI skips them, so run `uv run pytest -m sweep` by hand after changing a baseline or the engine, see the [baselines tests](../specs/baselines/tests.md#three-sizes).
@@ -23,7 +24,7 @@
 | The proof of concept list | `uv run paranoid run --skins <a>,<b> --seeds 0-19`, which reads `configs/models/poc.toml` and plays the two held-out skins named, so it needs `PARANOID_SKINS`. Without `--skins` it plays the example skin |
 | The full study | `uv run paranoid run --models configs/models/full.toml --skins <a>,<b> --seeds held-out --own-scale grid`, which plays every setting of the [noise grid](../pilot/engine-checks.md#noise-grid) in `configs/grid.toml`, see the [command spec](../specs/harness/command.md#run) |
 | One noise setting | Add `--own-scale 6` to `paranoid run`, or `-T own_scale=6` to `inspect eval paranoid/paranoid` |
-| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md). What each writes is in the [pilot spec](../specs/harness/pilot.md) |
+| A pilot cell | `uv run paranoid pilot seeds`, one name per check in [engine checks](../pilot/engine-checks.md) or [provider checks](../pilot/provider-checks.md). What each writes is in the [pilot spec](../specs/harness/pilot.md). Add `--workers 8` to split an engine cell's seeds over eight processes, which writes the same file sooner |
 | Browse logs | `inspect view` |
 | Rebuild the results tables and CSVs | `uv run paranoid analyse logs/`, see the [analysis command](../specs/analysis/command.md) |
 | Rebuild the pilot results | `uv run paranoid analyse pilot` |
