@@ -1,5 +1,6 @@
 """Logs into tables and plots. See docs/specs/analysis/README.md#exports."""
 
+from .cli import analyse
 from .cost import write_cost
 from .gaps import GAP_COLUMNS, paired_gap, public_gap, scenario_gap
 from .keys import ResultKey, Setting, result_key
@@ -48,4 +49,5 @@ __all__ = [
     "REACHABLE_GAIN_FLOOR",
     "BAYESIAN_GAIN_PERCENTAGE_FLOOR",
     "BAYESIAN_MOVE_SHARE_FLOOR",
+    "analyse",
 ]
