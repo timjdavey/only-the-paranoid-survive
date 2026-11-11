@@ -48,8 +48,8 @@ Every test the baselines suite runs, in `tests/baselines/`. Ids start `B` for ba
 
 | Id | Test | Page |
 |---|---|---|
-| BB1 | On a hand-built record of 20 rounds with `budget` on channel 0 and readings within 1 of 60: `belief(view).mean[0]` is within 1 of 60, and `changed[0]` is below the prior `1 − (1 − hazard)^19`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
-| BB2 | The same record with the readings 20 lower from round 15 on: `changed[0]` is above 0.9 on the view for round 18, and `mean[0]` is within 3 of 40 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
+| BB1 | On a hand-built record of 20 rounds with `budget` on channel 0 and readings within 1 of 90: `belief(view).mean[0]` is within 1 of 90, and `changed[0]` is below the prior `1 − (1 − hazard)^19`, as flat readings argue against a jump | [bayesian](bayesian.md#the-belief) |
+| BB2 | The same record with the readings 20 lower from round 15 on: `changed[0]` is above 0.9 on the view for round 18, and `mean[0]` is within 3 of 70 on the view for round 21 | [bayesian](bayesian.md#the-filter) |
 | BB3 | A channel with no reading on any round of a 30 round record has `changed` equal to `1 − (1 − hazard)^29` within `1e-9`, and `mean` equal to its role's prior mean within `1e-6` | [bayesian](bayesian.md#the-belief) |
 | BB4 | `bayesian` called twice on one view gives equal splits and equal quantiles, every quantile row is finite and ascending, and the view's record is unchanged | [bayesian](bayesian.md#invariants) |
 | BB5 | `Bayesian(hazard=1e-9, rule="top-pick")` through `play` on 50 No change seeds gives a record equal to `play(complacent, timeline)` on every seed | [bayesian](bayesian.md#invariants) |

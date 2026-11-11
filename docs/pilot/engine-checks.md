@@ -48,13 +48,13 @@ Picks the shared-factor scale. The tell is the hedge rising while the field fall
 ### Timeline sanity
 
 - **Question.** Do the timelines do what the design pages say.
-- **Run.** Timelines for every scenario on a thousand seeds, at every setting the noise grid tries.
+- **Run.** Timelines for every scenario on a thousand seeds, at every setting the noise grid tries. On each, the Scout rule plays with one point on every other channel and never moves off the leader, so every channel gets its roughest reading every round.
 - **Measure.**
-  - **Below zero.** The share of channel rounds with a level below 0 at the noisiest setting. Levels are not clipped, see [generator](../design/mechanics.md#generator).
+  - **Below zero.** At every setting, the share of channel rounds with a level below 0, and the share of runs where that Scout rule gets a reading below 0. Neither is clipped, and a reading below 0 is a real loss, as a bet is paid its reading. The default ladder is set so that none shows, see [each round](../design/mechanics.md#each-round).
   - **Pinning.** The Discerning baseline's output minus the Complacent baseline's, in level points, at each setting. It should be the same across the grid, see [difficulty](../design/mechanics.md#difficulty).
   - **Twin timelines.** The One shock and Down switch timelines of one seed are identical until onset, and the Up switch and No change timelines are identical on every channel but the sleeper. The Switch then shock timeline matches Down switch until the shock, and the Up switch then down switch timeline matches Up switch until the fall, on seeds where the Up switch sleeper does not stop short. These are tests in the engine suite, not decisions.
   - **Sparklines.** The leader's median level in each round of each scenario, plotted beside its sparkline in [scenarios](../design/scenarios.md#scenarios-we-test).
-- **Decide.** If levels below 0 are common, the base ladder moves up, which is where the ladder ranges are decided. If pinning drifts, events are not pinned in level points. A sparkline that does not look like the leader's median levels is redrawn.
+- **Decide.** If any run shows a reading below 0 at the proof of concept setting, the base ladder moves up, which is where the ladder ranges are decided. It moves up too if a noisier setting shows one in more than one run in a hundred. If pinning drifts, events are not pinned in level points. A sparkline that does not look like the leader's median levels is redrawn.
 
 ## Noise grid
 
@@ -91,8 +91,8 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 - **Run.** The hedge rule baseline with 1, 2 and 5 points on the hedge and 1, 2 and 3 scout rounds, and the Scout rule baseline with 1, 2 and 5 points on every other channel, at a few strengths of read noise.
 - **Measure.** Whether a bigger explore bet buys a better read of the switch, and how much an explore bet costs in output. The Scout rule shows the same for a rise, which is where an explore bet's size bites hardest, see [Up and down](#up-and-down).
 - **Read noise is paid as well as seen.** A larger k adds luck to every output, with an SD of k ÷ 10 a round whatever the split. On a full bet that is well under the weather, so read noise mostly prices explore bets, see [what the agent sees](../design/mechanics.md#what-the-agent-sees).
-- **Below zero.** The share of explore bet readings below 0, at each strength and bet size. A reading below 0 is a real loss, and a figure every skin has to make believable, see [the figure](../harness/writing-a-skin.md#the-figure). [Timeline sanity](#timeline-sanity) counts levels below 0, which misses these.
-- **Decide.** One strength, where an explore bet is worth its cost but no explore bet tells the whole story. If readings below 0 are common at that strength, the base ladder moves up or the strength comes down. And at that strength the hedge rule's `explore` and `scout_rounds`: the cheapest pair that still moves to the best channel as often as a larger one. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with explore bets.
+- **Decide.** One strength, where an explore bet is worth its cost but no explore bet tells the whole story. And at that strength the hedge rule's `explore` and `scout_rounds`: the cheapest pair that still moves to the best channel as often as a larger one. A [provider check](provider-checks.md#timestral-checks) confirms it with Timestral top pick with explore bets.
+- **Then Timeline sanity again**, at the chosen strength. A stronger read noise puts far more readings below 0 than rougher weather does, so the ladder is checked against the strength the study will play, see [Timeline sanity](#timeline-sanity).
 
 ## Up and down
 

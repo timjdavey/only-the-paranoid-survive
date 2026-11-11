@@ -11,7 +11,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | EC3 | `engine_hash(SCENARIOS["no_change"])` is 12 lowercase hex characters and equals a pinned string. Changing the pinned string is a reviewed change | [config](config.md#engine-hash) |
 | EC4 | `dataclasses.replace` on each field with a different valid value changes the hash. Replacing a field with its own value does not | [config](config.md#engine-hash) |
 | EC5 | Each `*_points` default equals its `*_sigmas` default times `own_scale` at the default config | [config](config.md#defaults) |
-| EC6 | `leader_base=(60, 70)` and `(60.0, 70.0)` give equal configs, equal hashes and equal timelines on seed 0 | [config](config.md#fields) |
+| EC6 | `leader_base=(90, 100)` and `(90.0, 100.0)` give equal configs, equal hashes and equal timelines on seed 0 | [config](config.md#fields) |
 | EC7 | The test rebuilds the canonical JSON of `one_shock` from the recipe on the config page, and its SHA-256 starts with `engine_hash`. It contains `"shape":"shock"` inside its one event, and `shock_then_switch`'s has one `shock` and one `switch` | [config](config.md#engine-hash) |
 | EC8 | `replace(SCENARIOS[name], own_scale=8.0, pin_in_level_points=True)` builds for every scenario. The same with `pin_in_level_points=False` raises `ValueError`, as does a pinned config with `runner_up_gap_points=(8.0, 30.0)` | [config](config.md#fields) |
 | EC9 | A `Range` entry that is not a real number, an `IntRange` entry or `int` field that is not a whole number, and a `bool` in either, raise `TypeError`. `own_scale=4` and `own_scale=4.0` give equal configs and equal hashes | [config](config.md#fields) |

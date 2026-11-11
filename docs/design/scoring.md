@@ -17,11 +17,11 @@ A worked Down switch run, output over 40 rounds:
 
 | Player | Output | Scenario score |
 |---|---|---|
-| Uniform baseline | 1,720 | 0.00 |
-| Complacent baseline | 2,300 | 0.56 |
-| A model | 2,500 | 0.76 |
-| Discerning baseline | 2,750 | 1.00 |
-| Perfect baseline | 2,900 | A mark, not a score |
+| Uniform baseline | 2,920 | 0.00 |
+| Complacent baseline | 3,500 | 0.56 |
+| A model | 3,700 | 0.76 |
+| Discerning baseline | 3,950 | 1.00 |
+| Perfect baseline | 4,100 | A mark, not a score |
 
 The model's missing 0.24 is lag, explore bets and a wrong destination. None of it is weather.
 
@@ -79,8 +79,8 @@ Two Down switch seeds. Each seed draws its own switch size and timing, so one ha
 
 | Seed | Uniform | Discerning | Gap | Model | Gain | Run score |
 |---|---|---|---|---|---|---|
-| A, big early switch | 1,700 | 2,800 | 1,100 | 2,580 | 880 | 0.80 |
-| B, small late switch | 1,700 | 2,250 | 550 | 1,920 | 220 | 0.40 |
+| A, big early switch | 2,900 | 4,000 | 1,100 | 3,780 | 880 | 0.80 |
+| B, small late switch | 2,900 | 3,450 | 550 | 3,120 | 220 | 0.40 |
 | Both, pooled | | | 1,650 | | 1,100 | 0.67 |
 
 - **Pooled, the scenario score is 0.67.** (880 + 220) ÷ (1,100 + 550). The model missed 550 of the 1,650 on offer, a third.

@@ -49,12 +49,12 @@ class ScenarioConfig:
     rounds: int = 40
     budget: int = 100
     # ladder, in level points unless the name says sigmas
-    leader_base: Range = (60.0, 70.0)
+    leader_base: Range = (90.0, 100.0)
     runner_up_gap_sigmas: Range = (2.0, 4.0)
     runner_up_gap_points: Range = (8.0, 16.0)
-    field_base: Range = (30.0, 55.0)
+    field_base: Range = (60.0, 85.0)
     field_headroom: float = 4.0             # a field channel lands at least this far below the runner-up
-    hedge_base: Range = (20.0, 28.0)
+    hedge_base: Range = (50.0, 58.0)
     # weather
     own_scale: float = 4.0                  # sigma: the SD per round of own weather
     persistence: float = 0.8
@@ -84,7 +84,7 @@ def engine_hash(config: ScenarioConfig) -> str
 
 - **Every number in [mechanics](../../design/mechanics.md) is a field.** Nothing is hard coded in `timeline.py` or `game.py`. If a rule needs a number, it gets a field here first.
 - **A `Range` is drawn uniform per seed**, low and high inclusive. An `IntRange` is drawn uniform over the whole numbers from low to high inclusive. A range with low equal to high is a fixed value.
-- **Every field is stored as its declared type.** `__post_init__`, on the config and on each event spec, casts each `Range` entry and `float` field to `float`, each `IntRange` entry and `int` field to `int`, and `events` to a tuple. So `leader_base=(60, 70)` and `(60.0, 70.0)` are one config with one hash, as are `own_scale=4` and `4.0`.
+- **Every field is stored as its declared type.** `__post_init__`, on the config and on each event spec, casts each `Range` entry and `float` field to `float`, each `IntRange` entry and `int` field to `int`, and `events` to a tuple. So `leader_base=(90, 100)` and `(90.0, 100.0)` are one config with one hash, as are `own_scale=4` and `4.0`.
 - **A value of the wrong type raises `TypeError`.** A whole number is a `numbers.Integral` that is not a `bool`, as for [bets](game.md#bets), so `channels=10.0` and `gap=(8.5, 12)` raise. A real number is a `numbers.Real` that is not a `bool`. A `bool` field takes a `bool` only, `name` a `str` only, and `events` holds event specs only. A range is a pair.
 - **A `float` field or `Range` entry that is not finite raises `ValueError`**, as JSON cannot hash it.
 - **Sizes come in pairs**, one in sigmas and one in level points. The engine reads the sigmas pair unless `pin_in_level_points` is true, then it reads the points pair and ignores the sigmas pair. See [difficulty](../../design/mechanics.md#difficulty) for why. The pairs are set so that at the default `own_scale` they agree.
@@ -103,7 +103,7 @@ def engine_hash(config: ScenarioConfig) -> str
   - `onset` low is below 2 or `onset` high is above `rounds`. Round 1 is never edited, so the ladder holds on round 1 and an [undo](timeline.md#switch) can read row 0 as the base from before the rise.
   - `inertia_cap` is set and below 0.
   - `hedge_base` high is not below `field_base` low.
-  - `field_base` low is above `leader_base` low minus the widest runner-up gap the config can draw, minus `field_headroom`. The widest gap is `runner_up_gap_points` high when `pin_in_level_points` is true, and `runner_up_gap_sigmas` high × `own_scale` when it is not, as only the pair the engine reads can break the ladder, see [pinning](timeline.md#pinning). So the noise grid's settings all build: pinned at `own_scale` 8 the check is 60 − 16 − 4 = 40, above the field's low of 30. Unpinned at 8 it is 60 − 32 − 4 = 24 and raises, which is right, as that ladder could put a field channel above the runner-up.
+  - `field_base` low is above `leader_base` low minus the widest runner-up gap the config can draw, minus `field_headroom`. The widest gap is `runner_up_gap_points` high when `pin_in_level_points` is true, and `runner_up_gap_sigmas` high × `own_scale` when it is not, as only the pair the engine reads can break the ladder, see [pinning](timeline.md#pinning). So the noise grid's settings all build: pinned at `own_scale` 8 the check is 90 − 16 − 4 = 70, above the field's low of 60. Unpinned at 8 it is 90 − 32 − 4 = 54 and raises, which is right, as that ladder could put a field channel above the runner-up.
   - In any event spec: `riser_share` or `short_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, any `*_sigmas` or `*_points` range has a low at or below 0, or `kind` or `profile` is not one of its words.
   - A `SwitchSpec` has `short_share` above 0 and a `kind` other than `"rise"`, or a `short_level` low at or below 0 or high at or above 1.
   - A `SwitchSpec` with `kind="undo"` is the first event, or the most recent `SwitchSpec` before it does not have `kind` `"rise"` or `"fall_and_rise"`.
@@ -145,10 +145,10 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 |---|---|---|---|
 | `channels`, `budget` | 10, 100 | 100 so a bet is a percentage, ten so the Uniform baseline is 10 on every channel, see [interface](../../design/interface.md#how-the-agent-plays) | Fixed by design |
 | `rounds` | 40 | [defaults](../../design/mechanics.md#defaults) | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
-| `leader_base` | 60 to 70 | Mid-range, so a deep shock stays above 0 | [Timeline sanity](../../pilot/engine-checks.md#timeline-sanity) |
+| `leader_base` | 90 to 100 | High enough that no reading realistically falls below 0, see [each round](../../design/mechanics.md#each-round) | [Timeline sanity](../../pilot/engine-checks.md#timeline-sanity) |
 | `runner_up_gap_sigmas` | 2 to 4 | "A few sigmas below", see [the ladder](../../design/mechanics.md#the-ladder) | [Streaks](../../pilot/engine-checks.md#streaks) |
-| `field_base`, `field_headroom` | 30 to 55, 4 | Below the runner-up, with room so no field channel is a near twin of it | [Up and down](../../pilot/engine-checks.md#up-and-down) |
-| `hedge_base` | 20 to 28 | Lowest, and low enough that the shock cap rarely bites | [The tell](../../pilot/engine-checks.md#the-tell) |
+| `field_base`, `field_headroom` | 60 to 85, 4 | Below the runner-up, with room so no field channel is a near twin of it | [Up and down](../../pilot/engine-checks.md#up-and-down) |
+| `hedge_base` | 50 to 58 | Lowest, and low enough that the shock cap rarely bites | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `own_scale` | 4 | A switch lands 4 to 12 points below the runner-up, so one reading rarely settles it | [Noise grid](../../pilot/engine-checks.md#noise-grid) |
 | `persistence` | 0.8 | A bad stretch half gone after three rounds, see [each round](../../design/mechanics.md#each-round) | [Streaks](../../pilot/engine-checks.md#streaks) |
 | `factor_scale` | 3 | Shared weeks visible but smaller than own weather | [The tell](../../pilot/engine-checks.md#the-tell) |

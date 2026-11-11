@@ -68,7 +68,7 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 - **A funded channel reads** `levels[r−1, c] + read_noise_k / sqrt(b) × read_noise_z[r−1, c]`, rounded to one decimal place with Python's `round`. So a bet of 4 is twice as rough as a bet of 16, and a bet of 100 reads with SD `k / 10`.
 - **An unfunded channel reads `None`.** Never 0, never blank-as-zero.
-- **Readings are not clipped.** A rough reading of a low channel can be negative.
+- **Readings are not clipped.** Clipping at 0 would pay a small bet on a low channel more than its level, so a point in a small bet would earn more than a point in a large one, see [rejected](../../design/mechanics.md#rejected). The ladder is lifted instead, so at the defaults no reading realistically falls below 0, see [defaults](config.md#defaults). On a lower ladder a rough reading of a low channel can be negative.
 - **The row the record keeps holds the rounded readings**, the ones the agent saw. The timeline keeps the ground truth.
 - **`row.output`** is `sum(b_c × reading_c) / sum(b)` over the funded channels, in channel index order, from the row's rounded readings. It is not rounded again and not stored, so a row holds nothing the agent did not see. A bet is paid its reading, never the level, see [what the agent sees](../../design/mechanics.md#what-the-agent-sees).
 - **The score sums `row.output` over the record.** The agent can rebuild every output from the readings it was shown, so the agent and the scorer agree on every number. The scorer never reads the timeline for the agent's own output.

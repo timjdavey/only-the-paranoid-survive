@@ -171,7 +171,7 @@ What one seed guarantees across scenarios whose configs differ only in `events`.
 - `levels == base + weather + loadings × factor[:, None] + impulse`, to floating point.
 - `levels`, `base`, `weather`, `loadings`, `impulse`, `read_noise_z` have shape `(rounds, channels)`. `factor` has shape `(rounds,)`. All are read only.
 - `impulse` is all zeros unless `one_channel_shock` is on.
-- No array is clipped. A level can be below 0.
+- No array is clipped. A level can be below 0 on a low ladder. The default ladder sits high enough that none realistically is, see [defaults](config.md#defaults).
 - Exactly one leader, runner-up and hedge, all different, and `field` has `channels − 2` entries including the hedge.
 - At round 1, `base[0, leader] > base[0, runner_up] > base[0, c]` for every other channel, and the hedge's base is the lowest.
 - Every loading is positive except the hedge's, which is negative, until a switch redraws the sleeper's, which is positive.

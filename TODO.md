@@ -5,11 +5,12 @@ The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
 - Run length, how many events a run holds, and the minimum gap between them.
 - Persistence, own-weather scale and shared-factor scale, per release.
 - The loading range and the base ladder ranges.
-- How often an explore bet reads below 0, from [reading roughness](docs/pilot/engine-checks.md#reading-roughness). A bet is paid its reading, so that is a real loss, and it can move the ladder up.
+- Whether any reading falls below 0 on the default ladder, from [timeline sanity](docs/pilot/engine-checks.md#timeline-sanity). A bet is paid its reading, so that would be a real loss, and it moves the ladder up.
 - The Bayesian baseline's `hazard` and `rule`, from the [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
 
 ## Code
 - Write the baselines from their [spec](docs/specs/baselines/README.md), tests first.
+- Bring the engine on `main` up to its spec, as it was built from an older one. Pay a bet its reading in `game.py` and `record.py`, see [readings](docs/specs/engine/game.md#readings), with the EG6 test. Set the new ladder in `config.py`, see [defaults](docs/specs/engine/config.md#defaults), which moves the pinned hash in EC3 and the ranges in EC6.
 - Write the analysis from its [spec](docs/specs/analysis/README.md), last, once the harness writes logs.
 - Add the console script, entry points, extras and package data to `pyproject.toml` with the harness, see [layout](docs/harness/layout.md#what-pyprojecttoml-holds). The scaffold holds only what the engine needs.
 - `configs/grid.toml`, the noise grid the `luck`, `timeline-sanity` and `noise-grid` cells read, see the [pilot spec](docs/specs/harness/pilot.md#engine-cells).

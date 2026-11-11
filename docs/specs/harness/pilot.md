@@ -84,8 +84,8 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `timeline-sanity`
 
-- **Runs.** Every scenario at every grid setting, pinned, with `discerning` and `complacent`.
-- **Writes** `timeline-sanity.csv`: `setting, scenario, seed, below_zero_rounds, discerning, complacent`. `below_zero_rounds` counts channel rounds with a level below 0.
+- **Runs.** Every scenario at every grid setting, pinned, with `discerning`, `complacent` and `ScoutRule(s=1, n=config.rounds)`, the player `streaks` uses, which never moves and reads every channel at one point every round.
+- **Writes** `timeline-sanity.csv`: `setting, scenario, seed, below_zero_rounds, below_zero_readings, discerning, complacent`. One row per seed, as the three players share it. `below_zero_rounds` counts channel rounds with a level below 0. `below_zero_readings` counts the readings below 0 in the Scout rule's record, which are real losses as a bet is paid its reading, see [readings](../engine/game.md#readings).
 - **Also writes** `timeline-sanity-sparklines.csv` at the default setting only: `scenario, round, median, p10, p90` of `levels[t, leader]` over seeds, the leader being each seed's own. A percentile over a thousand seeds is not a timeline.
 
 #### `noise-grid`
@@ -103,7 +103,7 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 #### `reading-roughness`
 
 - **Runs.** `read_noise_k` at 4, 8 and 16. `HedgeRule(explore=e, scout_rounds=k)` for `e` in 1, 2 and 5 and `k` in 1, 2 and 3 on the Down switch and No change scenarios. `ScoutRule(s=s)` for `s` in 1, 2 and 5 on the Up switch and No change scenarios.
-- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round, explore_readings, below_zero_readings`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows. `explore_readings` counts the readings in the record on every channel but each row's largest bet, lowest index on a tie. `below_zero_readings` counts the ones below 0, which are real losses as a bet is paid its reading, see [readings](../engine/game.md#readings).
+- **Writes** `reading-roughness.csv`: `setting, scenario, baseline, parameter, scout_rounds, seed, output, move_round`. `parameter` is `explore` or `s`, and `scout_rounds` is empty on the Scout rule's rows.
 
 #### `up-and-down`
 
