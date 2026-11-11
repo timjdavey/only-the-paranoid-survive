@@ -16,7 +16,7 @@ The analysis is the top layer. It reads `.eval` logs and writes the tables, CSVs
 
 ## Exports
 
-`paranoid.analysis` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.analysis` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -70,7 +70,7 @@ The analysis imports these from `paranoid.engine`. The engine's side of this bou
       cli.py         analyse
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.analysis` only, plus `paranoid.harness` to make logs.
-- Third-party imports are inspect_ai, pandas, matplotlib, scipy and numpy. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#five-layers).
+- Third-party imports are inspect_ai, pandas, matplotlib, scipy and numpy. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#six-layers).
 - `pyproject.toml` registers `analyse = "paranoid.analysis.cli:analyse"` in the `paranoid.commands` entry point group, see [subcommands](../harness/command.md#subcommands).
 
 ## Conventions

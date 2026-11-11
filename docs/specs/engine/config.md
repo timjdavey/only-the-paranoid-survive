@@ -171,6 +171,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 ## Pilot decides
 
 - Every default above. The [noise grid](../../pilot/engine-checks.md#noise-grid) is a list of `own_scale` values with `pin_in_level_points` on. It lives in `configs/grid.toml`, and the harness applies one setting per eval, see the [task spec](../harness/task.md#scenarios-and-config).
+- **Every default that sets how much moving earns** must also clear the [reachable gain](../../pilot/engine-checks.md#reachable-gain) check: `rounds`, `onset`, `gap`, the event sizes, the drift's `length` and `field_base`.
 
 ## Not decided
 

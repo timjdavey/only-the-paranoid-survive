@@ -89,7 +89,7 @@ Checks before we trust the Jev row, see [providers](../harness/providers.md#jev)
 
 Checks before we trust the [Timestral baselines](../design/baselines.md#timestral).
 
-- **Gap test.** Ten readings, then thirty blanks. The quantiles should widen as the gap grows. If they do not, Timestral odds cannot explore and is dropped.
+- **Gap test.** Ten readings, then thirty blanks, on both [input shapes](../specs/forecasters/timestral.md#two-shapes). The quantiles should widen as the gap grows. If they do not, Timestral odds cannot explore and is dropped.
 - **Rounding.** A tiny probability rounds to 0, which is a blank, so a channel can still fall out of view. Watch how often it happens.
 - **Determinism.** The same input twice gives the same quantiles. If not, the forecast needs a fixed seed before the cache can key on the inputs alone.
 - **On the grid.** Timestral top pick and Timestral odds at every setting on the [noise grid](engine-checks.md#noise-grid). Each should land between the hedge rule baseline and the Complacent baseline, as in the [baseline order](engine-checks.md#baseline-order).
@@ -150,7 +150,7 @@ A fixed budget is forgiving. A model that never moves still earns most of the ou
 
 - **The rule.** Cap how far bets can move each round, say 10 points. Moving takes time, so the agent has to decide early.
 - **Cost.** The cap is a rule the agent must be told, and it mixes planning into every trait.
-- **Question.** Are the gaps between models too small to read, even with the Complacent baseline sitting near 0.55.
+- **Question.** Are the gaps between models too small to read, even with the Complacent baseline held at or below 0.7 by the [reachable gain](engine-checks.md#reachable-gain) check.
 - **Measure.** The gaps between models in the Down switch and Slow drift scenarios, from the main pilot runs.
 - **Decide.** Switched off by default. A generator option, turned on only if the gaps are too small to read.
 

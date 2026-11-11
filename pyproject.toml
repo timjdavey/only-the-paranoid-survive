@@ -11,6 +11,14 @@ dependencies = [
     "numpy~=2.5.0",
 ]
 
+[project.optional-dependencies]
+# torch and Timestral, which only paranoid.forecasters imports. Pinned to one commit as a direct
+# reference, so no installer ever resolves the name from an index, see docs/specs/forecasters/timestral.md#pinned.
+timestral = [
+    "torch>=2.4",
+    "timestral @ git+https://github.com/mistralai/timestral.git@a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=9.2",
@@ -22,18 +30,24 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true  # the timestral extra's git pin
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/paranoid"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Slow tests are skipped by default. Run them with `uv run pytest -m slow`.
-addopts = "-m 'not slow' --strict-markers --import-mode=importlib"
+# Slow tests, sweeps and tests on the real Timestral are skipped by default.
+# Run them with `uv run pytest -m slow`, `-m sweep` or `-m timestral`.
+addopts = "-m 'not slow and not sweep and not timestral' --strict-markers --import-mode=importlib"
 markers = [
-    "slow: runs a thousand seeds or more, see the tests page of each layer's spec",
+    "slow: runs a thousand seeds or more, see the tests page of each layer's spec. CI runs them",
+    "sweep: plays a thousand seeds of a baseline, see docs/specs/baselines/tests.md. Run by hand, CI skips them",
+    "timestral: loads the real Timestral, so it needs the timestral extra, see docs/specs/forecasters/tests.md. Run by hand, CI skips them",
 ]
 
-# The layer rule, see docs/harness/layout.md#five-layers. CI runs `lint-imports`.
+# The layer rule, see docs/harness/layout.md#six-layers. CI runs `lint-imports`.
 [tool.importlinter]
 root_package = "paranoid"
 include_external_packages = true
@@ -44,13 +58,19 @@ type = "layers"
 layers = [
     "paranoid.analysis",
     "paranoid.harness",
-    "paranoid.skins",
+    "paranoid.skins | paranoid.forecasters",  # side by side, neither imports the other
     "paranoid.baselines",
     "paranoid.engine",
 ]
 
 [[tool.importlinter.contracts]]
-name = "The engine's only third-party import is numpy"
+name = "The engine's and the baselines' only third-party import is numpy"
 type = "forbidden"
-source_modules = ["paranoid.engine"]
+source_modules = ["paranoid.engine", "paranoid.baselines"]
 forbidden_modules = ["inspect_ai", "pandas", "matplotlib", "scipy", "torch", "hypothesis", "pytest"]
+
+[[tool.importlinter.contracts]]
+name = "Only the forecasters layer imports torch or Timestral"
+type = "forbidden"
+source_modules = ["paranoid.engine", "paranoid.baselines", "paranoid.skins", "paranoid.harness", "paranoid.analysis"]
+forbidden_modules = ["torch", "timestral", "huggingface_hub"]

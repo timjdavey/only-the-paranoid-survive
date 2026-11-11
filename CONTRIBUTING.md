@@ -27,6 +27,7 @@ This matters most.
 | A scenario | An events list in `paranoid.engine`, a row in [scenarios](docs/design/scenarios.md) | Tie it to a failure mode and test its reverse |
 | A skin | A TOML file, see [skins](docs/harness/skins.md) and [writing a skin](docs/harness/writing-a-skin.md) | It must pass the lint. Held-out skins go in the private repo |
 | A baseline | A pure policy in `paranoid.baselines` and a key in its `POLICIES`, see the [baselines spec](docs/specs/baselines/README.md), a row in [baselines](docs/design/baselines.md). The harness then plays it as `baseline/<name>` with no change | Check the [baseline order](docs/pilot/engine-checks.md#baseline-order) still holds |
+| A forecaster | A class that meets `Forecaster` in `paranoid.forecasters`, and its policies in a mapping beside `TIMESTRAL_POLICIES`, see the [forecasters spec](docs/specs/forecasters/README.md). torch and model packages are imported nowhere else | Run it on the gap test first, see [Timestral checks](docs/pilot/provider-checks.md#timestral-checks) |
 | Seeds | Public seeds in `configs/seeds/public.txt`, held-out seeds in the private repo's `held-out.txt`. One list for every scenario, see [contamination](docs/harness/contamination.md#two-seed-sets) | Never publish a held-out seed, its timeline or a log that played it |
 | A model | A row in `configs/models/` | Say its reasoning setting |
 | A docs page | Its folder under `docs/`, and a row in the [docs directory](docs/README.md). A spec or prior work page gets its row in that folder's own README | Keep it under 300 lines |

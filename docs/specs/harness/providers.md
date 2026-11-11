@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A provider plays a model that cannot call a tool through the same solver, engine and score as an LLM. `StoreAPI` is the shared base: it ignores the messages, reads the store, and answers with one call to the skin's tool. The baselines, Jev and Timestral each subclass it. The design is in [providers](../../harness/inspect.md#providers) and [providers for Jev and Timestral](../../harness/providers.md).
+A provider plays a model that cannot call a tool through the same solver, engine and score as an LLM. `StoreAPI` is the shared base: it ignores the messages, reads the store, and answers with one call to the skin's tool. The baselines, Jev and Timestral each subclass it. The Timestral provider only plays a policy from the [forecasters layer](../forecasters/README.md), which owns the model. The design is in [providers](../../harness/inspect.md#providers) and [providers for Jev and Timestral](../../harness/providers.md).
 
 ## Interface
 
@@ -17,7 +17,7 @@ class StoreAPI(ModelAPI):
 
 class BaselineAPI(StoreAPI): ...     # "baseline/<name>". model_args are the policy's parameters
 class JevAPI(StoreAPI): ...          # "jev/<model>"
-class TimestralAPI(StoreAPI): ...    # "timestral/<policy>"
+class TimestralAPI(StoreAPI): ...    # "timestral/<policy>". Plays a forecasters layer policy
 
 @dataclass(frozen=True)
 class JevAnswer:
@@ -27,12 +27,6 @@ class JevAnswer:
 
 class JevClient(Protocol):
     async def ask(self, state: str, question: str, options: Sequence[str]) -> JevAnswer: ...
-
-class Forecaster(Protocol):
-    def __call__(self, readings: np.ndarray, bets: np.ndarray | None) -> np.ndarray: ...
-    # readings (rounds, channels) with NaN for blanks. bets the same shape or None. Returns (channels, 21)
-
-TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -> the rule, and whether past bets go in
 ```
 
 ## Behaviour
@@ -47,7 +41,7 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 
 - **`generate` reads the store**, `store_as(RunStore)`, and awaits `self.bets(store, input)`. inspect's per-sample store is in scope inside `generate` because the model call is awaited in the sample's own task, see [verify before code](#verify-before-code).
 - **It answers with one tool call and no text.** `ModelOutput` with one `ChatMessageAssistant` whose `content` is `""` and whose `tool_calls` is one `ToolCall` with `id` `f"{self.model_name}-{store.round()}"`, `function` `tools[0].name` and `arguments` `{name: list(bets)}`, where `name` is the one key of `tools[0].parameters.properties`. That is the skin's `bets_name`, so a provider plays any skin, see [submit](solver.md#submit). `stop_reason` is `"tool_calls"`. The submit tool is always first, see [each round](solver.md#each-round).
-- **I/O is awaited, compute is serialised.** `JevClient.ask` is async, so a network call never stalls the other samples. A Timestral forecast is CPU bound and seeded by a process-wide `torch.manual_seed`, so `TimestralAPI.max_connections` is 1 and the forecast runs on the loop. Two at once would stall the loop and break determinism, see [Timestral](#timestral).
+- **I/O is awaited, compute is serialised.** `JevClient.ask` is async, so a network call never stalls the other samples. A Timestral forecast is CPU bound, so `TimestralAPI.max_connections` is 1 and the forecast runs on the loop. Two at once would stall the loop for no gain, see [Timestral](#timestral).
 - **`tools` is never empty.** If it is, `generate` raises `RuntimeError`, as the solver is not the one calling.
 - **A provider that cannot produce bets raises.** A baseline that bets badly is a bug and the sample errors, see [play](../engine/game.md#play). Providers never retry.
 - **Usage is zero tokens.** The scorer and the [cost check](../../pilot/provider-checks.md#cost-per-run) can tell a provider row from an LLM row by `kind` in the models config, not by usage.
@@ -72,15 +66,12 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 
 ### Timestral
 
-- **`TimestralAPI`** takes a `forecaster: Forecaster`. The default loads `mistralai/Timestral-209M` on CPU, imported lazily from the `timestral` extra. Without the extra, construction raises `ImportError` that names `uv sync --extra timestral`. Tests pass a fake.
-- **Pinned.** `pyproject.toml` pins the Timestral package to one git commit, and the loader passes a weights `revision`, so a rerun loads the same code and the same weights. Both are named in the row's `notes` in the models config. An unpinned git install is a supply chain risk and a reproducibility hole at once.
-- **Input** is `readings`, shape `(len(rows), channels)`, each row's readings with `NaN` where the bet was 0. For `odds-bet-aware`, `bets` is the same shape with the past bets, else `None`, see [Timestral](../../harness/providers.md#timestral).
-- **Round 1 is `uniform`.** With no rows there is nothing to forecast, so the first split is `uniform`'s, which also reads every channel once.
-- **Output** is `(channels, len(QUANTILE_LEVELS))` quantiles for next round, in ascending quantile order, on the baselines layer's [`QUANTILE_LEVELS`](../baselines/forecast.md#interface). The levels the Timestral package reports are to be read, see [verify before code](#verify-before-code). The provider sorts each row ascending before it calls a rule, as a forecaster can return crossed quantiles and the rules raise on them, see [forecast](../baselines/forecast.md#the-rules).
-- **Determinism and cache.** `torch.set_num_threads(1)` once, `torch.manual_seed(0)` before each forecast, and one forecast at a time, as CPU inference can differ across thread counts and the seed is process-wide, see [shared behaviour](#shared-behaviour). The result is cached under `$PARANOID_CACHE`, default `~/.cache/paranoid/timestral/`, keyed by the SHA-256 of the model id, the weights revision, the input arrays' bytes and shapes, and whether `bets` was passed. A cache hit never calls the model, so a rerun replays the same bets. The key is logged on the message's `metadata` as `cache_key`, with the quantiles, and `rounded_out`: true for `odds` and `odds-bet-aware` when a channel with a finite forecast got a bet of 0, false for the other rules, which go dark by design. The `timestral` cell reads it from the log, see [pilot](pilot.md#timestral).
-- **The cache is as private as a log.** It holds forecasts of the readings a run saw, so after a held-out run it stays on the machine like the log does, see [contamination](../../harness/contamination.md#public-and-held-out).
-- **`TIMESTRAL_POLICIES`** maps each `timestral/<id>` in the [glossary](../../glossary.md#the-study) to a [forecast rule](../baselines/forecast.md#the-rules) and a flag for the `bets` input. `top-pick`, `odds`, `explore-1`, `explore-2` and `explore-5` map to `FORECAST_RULES[id]` with the flag off. `odds-bet-aware` maps to `FORECAST_RULES["odds"]` with it on. The rules themselves, and what they do with a `NaN` channel, are the baselines layer's.
-- **Bets** are `rule(quantiles, budget)` from round 2 on. The quantiles the forecaster returns must sit on `QUANTILE_LEVELS`, see [verify before code](#verify-before-code).
+- **The name after the slash is a key of [`TIMESTRAL_POLICIES`](../forecasters/policy.md#the-six-policies)**, from the forecasters layer. The provider holds that policy and nothing else. The model, its pin, its input and its cache are that layer's, see the [forecasters spec](../forecasters/README.md).
+- **`TimestralAPI`** takes a `forecaster: Forecaster | None`. With one, the policy is `dataclasses.replace(policy, forecaster=forecaster)`, which is how tests pass a fake. With none it calls [`require_timestral()`](../forecasters/timestral.md#loading), so without the extra construction raises `ImportError` naming `uv sync --extra timestral`.
+- **`bets`** is `policy(view)` with `view = store.game().view(False)`, as a baseline's is, see [baseline](#baseline). Round 1, a blank, a channel never read and crossed quantiles are all the policy's to handle.
+- **The same rounds as `play`.** A Timestral run through the provider has the same `rows` as `play(policy, timeline)`, warm up included. So anything `play` shows about a policy holds for its row in a log.
+- **Logged** on the message's `metadata`: `quantiles` and `cache_key` from `policy.forecast(view)`, and `rounded_out` from `policy.rounded_out(view)`, see [rounded out](../forecasters/policy.md#rounded-out). Both read the [cache](../forecasters/policy.md#the-cache), so logging costs no forecast. `quantiles` is a list per channel, `None` for a channel never read. On an empty record `quantiles` and `cache_key` are `None`.
+- **`max_connections`** is 1, see [shared behaviour](#shared-behaviour).
 
 ## Invariants
 
@@ -88,9 +79,9 @@ TIMESTRAL_POLICIES: Mapping[str, tuple[ForecastRule, bool]]   # timestral/<id> -
 - `BaselineAPI("baseline/<name>")` plays the same `rows` as `play(POLICIES[name](), timeline)` on the same timeline and warm up.
 - A provider never writes to the store. Only the solver and the tools do.
 - A fake `JevClient` or `Forecaster` is enough to run a whole eval with no network.
+- The harness never imports torch or Timestral. `import-linter` enforces it, see [layout](../../harness/layout.md#what-pyprojecttoml-holds).
 
 ## Verify before code
 
 - **Store in scope.** `store_as` inside `generate` relies on inspect's sample context reaching the model call. Check it with `mockllm` and a stub provider before `StoreAPI.generate` is written. If it does not hold, the solver sets a `ContextVar` holding the store before each generate and the base reads that instead.
-- **Timestral's quantile levels and call signature.** Read them from the package when the extra is first installed. The levels are assumed to equal `QUANTILE_LEVELS`, the 21 on its model card, until then. If they differ, the default `Forecaster` interpolates onto `QUANTILE_LEVELS`, see the baselines side at [verify before code](../baselines/forecast.md#verify-before-code). `Forecaster` waits on it.
 - **`typesafe-sdk`'s call shape.** `JevClient` is the seam, so only `TypesafeClient` changes if the SDK differs. `TypesafeClient` waits on it.

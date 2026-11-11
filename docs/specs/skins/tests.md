@@ -1,6 +1,6 @@
 # Tests
 
-Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#five-layers). Records come from `paranoid.engine`, with `uniform` from `paranoid.baselines`, so a test may call `play(uniform, make_timeline(...))` on public seeds. Where a test needs a skin that fails, it builds a `Skin` by hand or writes a TOML file to `tmp_path`, so no bad skin is checked in.
+Every test the skins suite runs, in `tests/skins/`. Ids start `K` for skins, then the page's letter, see [test ids](../README.md#rules). They need no model, no network and no inspect, see [layout](../../harness/layout.md#six-layers). Records come from `paranoid.engine`, with `uniform` from `paranoid.baselines`, so a test may call `play(uniform, make_timeline(...))` on public seeds. Where a test needs a skin that fails, it builds a `Skin` by hand or writes a TOML file to `tmp_path`, so no bad skin is checked in.
 
 - **A test over held-out skins never prints their text.** With `PARANOID_SKINS` set, pytest would show both sides of a failed assertion in a CI log. Those tests fail with `pytest.fail` and the skin's name only, see [who can see them](../../harness/contamination.md#who-can-see-them).
 

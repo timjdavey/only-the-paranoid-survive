@@ -1,6 +1,6 @@
 # Harness spec
 
-The harness is the inspect_ai layer. It turns one run of the game into one inspect sample, plays a model through it one fresh call a round, scores the run against the fixed [baselines](../../design/baselines.md) on the same timeline, and reads the metrics off the log. It also plays the models that cannot call a tool, through providers, and holds the `paranoid` command. It depends on the skins layer, the baselines layer, the engine and inspect_ai, and knows nothing about pandas or plots. Why it is shaped this way lives in [inspect](../../harness/inspect.md), [prompts](../../harness/prompts.md), [interface](../../design/interface.md) and [scoring](../../design/scoring.md).
+The harness is the inspect_ai layer. It turns one run of the game into one inspect sample, plays a model through it one fresh call a round, scores the run against the fixed [baselines](../../design/baselines.md) on the same timeline, and reads the metrics off the log. It also plays the models that cannot call a tool, through providers, and holds the `paranoid` command. It depends on the skins layer, the forecasters layer, the baselines layer, the engine and inspect_ai, and knows nothing about pandas or plots. Why it is shaped this way lives in [inspect](../../harness/inspect.md), [prompts](../../harness/prompts.md), [interface](../../design/interface.md) and [scoring](../../design/scoring.md).
 
 ## Pages
 
@@ -16,7 +16,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 
 ## Exports
 
-`paranoid.harness` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.harness` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -27,8 +27,7 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
 | `round_loop`, `tool_choice_for`, `record_blocks` | The round loop solver, the `any` or `auto` rule, and the cut of the record into content blocks for the prompt cache | [solver](solver.md) |
 | `submit`, `notes`, `compute` | The tools | [solver](solver.md) |
 | `StoreAPI`, `BaselineAPI`, `JevAPI`, `TimestralAPI` | The provider base and the three providers | [providers](providers.md) |
-| `JevAnswer`, `JevClient`, `Forecaster` | Jev's reply, and the two seams a test fakes | [providers](providers.md) |
-| `TIMESTRAL_POLICIES` | Timestral ids to a forecast rule and whether the past bets go in | [providers](providers.md) |
+| `JevAnswer`, `JevClient` | Jev's reply, and the seam a test fakes | [providers](providers.md) |
 | `gain` | The `@scorer` | [scorer](scorer.md) |
 | `scenario_score`, `headline`, `weakest_trait`, `retry_share` | The `@metric`s | [scorer](scorer.md) |
 | `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED`, `TRAITS` | The maths the metrics share, its two constants, and scenario to trait | [scorer](scorer.md) |
@@ -53,13 +52,13 @@ The harness is the inspect_ai layer. It turns one run of the game into one inspe
         __init__.py    the @modelapi registrations, StoreAPI
         baseline.py    BaselineAPI, over the baselines layer's POLICIES
         jev.py         JevAPI, JevClient
-        timestral.py   TimestralAPI, Forecaster, TIMESTRAL_POLICIES, over the baselines layer's FORECAST_RULES
+        timestral.py   TimestralAPI, over the forecasters layer's TIMESTRAL_POLICIES
       models.py        load_models, ModelRow, generate_config
       cli.py           main, run, pilot
       pilot.py         CellArgs, CELLS, run_cell, one function per cell
 
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.harness` only.
-- Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py` and torch and Timestral inside `timestral.py`, imported lazily so the default install runs without them. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#five-layers).
+- Third-party imports are inspect_ai, numpy, pydantic and tomllib, plus `typesafe-sdk` inside `jev.py`, imported lazily so the default install runs without it. torch and Timestral are the forecasters layer's alone. `import-linter` enforces the layer rule, see [layout](../../harness/layout.md#six-layers).
 - `pyproject.toml` registers the providers under the `inspect_ai` entry point and `main` as the `paranoid` console script, and ships `compose.yaml` as package data.
 
 ## Names from the engine
@@ -84,7 +83,16 @@ The harness imports these from `paranoid.baselines`. Their behaviour is in the [
 | `POLICIES` | The seven `baseline/<name>` names, for the baseline provider and warm up, see [baseline](providers.md#baseline) and [warm up](task.md#warm-up) |
 | `uniform`, `discerning`, `complacent`, `perfect`, `hedge_rule`, `scout_rule`, `HedgeRule`, `ScoutRule` | Every baseline's output in the score, and the pilot cells' sweeps, see [scoring one run](scorer.md#scoring-one-run) and [pilot](pilot.md#engine-cells) |
 | `Bayesian`, `HAZARDS`, `BAYESIAN_RULES` | The Bayesian frontier cell, see [pilot](pilot.md#bayesian-frontier) |
-| `FORECAST_RULES`, `ForecastRule`, `QUANTILE_LEVELS` | Timestral's quantiles into bets, and the grid its forecast must be on, see [Timestral](providers.md#timestral) |
+
+## Names from the forecasters layer
+
+The harness imports these from `paranoid.forecasters`. Their behaviour is in the [forecasters spec](../forecasters/README.md#exports), and that layer's side of this boundary is [what the layers above read](../forecasters/README.md#what-the-layers-above-read).
+
+| Name | What the harness uses it for |
+|---|---|
+| `TIMESTRAL_POLICIES`, `require_timestral` | The six `timestral/<policy>` names and the check for the extra, for the Timestral provider, see [Timestral](providers.md#timestral) |
+| `Forecaster` | The type of the fake a test passes the provider, see [tests](tests.md) |
+| `Timestral`, `timestral` | The two input shapes the `timestral` cell probes, see [pilot](pilot.md#timestral) |
 
 ## Names from the skins layer
 

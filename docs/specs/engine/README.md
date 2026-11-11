@@ -14,7 +14,7 @@ The engine is the game with no story. It turns a scenario and a seed into a [tim
 
 ## Exports
 
-`paranoid.engine` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#five-layers).
+`paranoid.engine` exports these names from its `__init__.py` and nothing else, see [layout](../../harness/layout.md#six-layers).
 
 | Name | Kind | Page |
 |---|---|---|
@@ -34,8 +34,9 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 
 | Layer | Its list |
 |---|---|
-| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Dials`, `Policy`, `Bets`, `Timeline`, `Record` and `split_budget`, and `play`, `make_timeline` and `SCENARIOS` in its tests |
+| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Dials`, `Policy`, `Bets`, `Timeline`, `Record` and `split_budget`, and `play`, `make_timeline`, `SCENARIOS`, `Game` and `Row` in its tests |
 | skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_timeline` and `SCENARIOS` in its tests |
+| forecasters | [Names from the engine](../forecasters/README.md#names-from-the-engine): `View` and `Bets`, and `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record` and `Row` in its tests |
 | harness | [Names from the engine](../harness/README.md#names-from-the-engine): the config and its hash, the timeline, the game, `Bets`, `play`, `Policy` and `split_budget` |
 | analysis | [Names from the engine](../analysis/README.md#names-from-the-engine): `make_timeline`, `Timeline` and `Event` for the switch kind a seed drew, `SwitchSpec` for the signal on the noise axis, and `SCENARIOS` to check the names a log claims |
 
@@ -62,7 +63,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 - Nothing outside `__init__.py` is public. Tests import from `paranoid.engine` only.
 - Every file stays under 300 lines, so the timeline is split by step. `timeline.py` wires the steps in the order of [timeline](timeline.md).
 - `Bets` lives in `record.py`, as `Row` holds it. So `view.py` never imports `game.py`, which imports it.
-- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#five-layers).
+- The only third-party import is numpy. `import-linter` enforces it, see [layout](../../harness/layout.md#six-layers).
 
 ## Conventions
 

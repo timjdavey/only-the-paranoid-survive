@@ -38,6 +38,8 @@ ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to
 - **Columns that do not apply are empty**, which pandas reads as NA. A round column that means "never" is `0`, as rounds start at 1.
 - **`--dry-run`** prints each eval call or each CSV's path and columns, and writes nothing.
 - **No `inertia` cell.** The fixed baselines move whole budgets, so under a cap `play` raises `BetError` on the first move. The [inertia check](../../pilot/provider-checks.md#inertia) reads the gaps between models from the proof of concept logs instead, see [analysis pilot](../analysis/pilot.md#sections).
+- **The Stayer** is a pilot reference, built in this module and never in `POLICIES`, see the [glossary](../../glossary.md#scoring). A frozen dataclass with `peeks` true, it plays `budget` on `timeline.climate_leader(min(round, onset − 1))`, `onset` being the last event's, so it plays as `discerning` until the last event begins and then holds. Its rows have `baseline` set to `stayer`. It is played only in the Up switch then down switch scenario.
+- **No `reachable-gain` cell.** The [reachable gain](../../pilot/engine-checks.md#reachable-gain) check reads `baseline-order.csv`, see [analysis pilot](../analysis/pilot.md#sections).
 - **No `cost` cell.** [Cost per run](../../pilot/provider-checks.md#cost-per-run) reads logs and writes a table, which is analysis, so it is `paranoid analyse cost`, see [analysis command](../analysis/command.md#cost).
 
 ### Words the columns use
@@ -50,7 +52,7 @@ Every engine cell plays each baseline with `play(policy, timeline)` and reads th
 | `seed` | The public seed value. Public, so it may be written, see [dataset](task.md#dataset) |
 | `onset` | The first event's `onset`, empty with no event |
 | `kind` | The first switch's `numbers["kind"]`, `rise_short` when its `short` is 1, `none` with no switch. The same word as [switch kinds](../analysis/scores.md#switch-kinds) |
-| `baseline`, `parameter` | A key of `POLICIES`, and the one parameter a rule was built with, empty at the defaults |
+| `baseline`, `parameter` | A key of `POLICIES` or `stayer`, and the one parameter a rule was built with, empty at the defaults |
 | `output` | The policy's output summed over every round, from the record |
 | `move_round` | The first round whose largest bet is not on `start.leader`, lowest index on a tie. `0` when it never happens. A scout round counts, as the rule acted |
 | `last_end` | The round the last event ends: `onset + ramp − 1` for a switch, `onset + length − 1` for a drift, and for a shock the first round its impulse is back to an eighth of `depth`, which is `onset + ceil(3 × half_life)` sharp and `onset + half_life + 3 × ceil(half_life / 2)` slide. Empty with no event. The rounds to spare are `rounds − last_end`, see [rounds to spare](../../pilot/engine-checks.md#game-length-and-switch-round) |
@@ -95,7 +97,7 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `game-length`
 
-- **Runs.** `rounds` at 30, 40 and 60, crossed with `onset` at `(8, 12)`, `(12, 20)` and `(16, 24)`. The One shock, Down switch and Slow drift scenarios, and the Shock then switch, Switch then shock and Up switch then down switch scenarios, which are also crossed with `gap` at `(6, 8)`, `(8, 12)` and `(12, 16)` on every event spec. Every entry in `POLICIES` at its defaults.
+- **Runs.** `rounds` at 30, 40 and 60, crossed with `onset` at `(8, 12)`, `(12, 20)` and `(16, 24)`. The One shock, Down switch, Up switch and Slow drift scenarios, and the Shock then switch, Switch then shock and Up switch then down switch scenarios, which are also crossed with `gap` at `(6, 8)`, `(8, 12)` and `(12, 16)` on every event spec. Every entry in `POLICIES` at its defaults, and the Stayer in the Up switch then down switch scenario.
 - **Writes** `game-length.csv`: `rounds, onset_low, onset_high, gap_low, gap_high, scenario, seed, onset_1, onset_2, last_end, baseline, output, output_window_1, output_window_2, move_round`.
   - `onset_k` is event k's onset. `output_window_k` is the output summed from `onset_k` to the round before `onset_{k+1}`, or to the end. Both are empty where there is no event k, and the `gap` columns are empty for the one-event scenarios.
   - The data behind "Events per run and minimum gap" in [decisions](../../pilot/decisions.md#engine-checks), and the two length questions on [timeline](../engine/timeline.md#pilot-decides). `move_round` gives the unmoved share, and `last_end` the rounds to spare.
@@ -107,8 +109,8 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `up-and-down`
 
-- **Runs.** The Down switch, Up switch and No change scenarios at the defaults, with `discerning`, `complacent`, the hedge rule and `ScoutRule(s=s)` for `s` in 1, 2 and 5.
-- **Writes** `up-and-down.csv`: `scenario, kind, baseline, parameter, seed, onset, output, move_round`.
+- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule and `ScoutRule(s=s)` for `s` in 1, 2 and 5. `rise_sigmas` on every switch spec at `(1, 3)`, the default, then `(2, 4)` and `(3, 5)`.
+- **Writes** `up-and-down.csv`: `setting, scenario, kind, baseline, parameter, seed, onset, output, move_round`. `setting` is the `rise_sigmas` low.
 
 #### `bayesian-frontier`
 
@@ -117,8 +119,8 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `baseline-order`
 
-- **Runs.** Every scenario at the defaults with every entry in `POLICIES`.
-- **Writes** `baseline-order.csv`: `scenario, kind, baseline, seed, output`. Pooling and the order check are the measure's, see [analysis pilot](../analysis/pilot.md#sections), and `kind` lets it split the Up switch seeds where the sleeper stops short, see [baseline order](../../pilot/engine-checks.md#baseline-order).
+- **Runs.** Every scenario at the defaults with every entry in `POLICIES`, and the Stayer in the Up switch then down switch scenario.
+- **Writes** `baseline-order.csv`: `scenario, kind, baseline, seed, output, move_round`. Pooling and the order check are the measure's, see [analysis pilot](../analysis/pilot.md#sections), and `kind` lets it split the Up switch seeds where the sleeper stops short, see [baseline order](../../pilot/engine-checks.md#baseline-order). The [reachable gain](../../pilot/engine-checks.md#reachable-gain) check reads this file too.
 
 ### Provider cells
 
@@ -173,11 +175,14 @@ Each calls `inspect_ai.eval("paranoid", model=row.id, task_args=..., log_dir=out
 
 #### `timestral`
 
-- **Runs.** First two probes on the default `Forecaster`, then for every `timestral` row and every grid setting one eval: `scenario="one_shock,down_switch,up_switch"`, `seeds="0-19"`, `own_scale=s`. A row whose extra is missing is skipped with one line, as `run` does.
-  - **The gap test.** `readings` of shape `(40, channels)`: rows 0 to 9 from `play(uniform, make_timeline(SCENARIOS["one_shock"], seed_0), max_rounds=10)`, rows 10 to 39 `NaN`. The forecaster is called on the first `10 + g` rows for `g` from 1 to 30.
+- **Not an eval.** It plays the [forecasters layer](../forecasters/README.md)'s policies with `play`, as an engine cell plays a baseline, so it needs no task and no Docker. Without the extra it prints one line saying so and writes nothing, as `run` skips the row.
+- **Runs.** First two probes, each on `timestral` and on `Timestral(joint=False)`, the two [input shapes](../forecasters/timestral.md#two-shapes). Then for every `timestral` row and every grid setting, `play(TIMESTRAL_POLICIES[id], timeline)` on the One shock, Down switch and Up switch scenarios, pinned as [`noise-grid`](#noise-grid) plays them, at seed positions 0 to 19.
+  - **The gap test.** `readings` of shape `(40, channels)`: rows 0 to 9 from `play(uniform, make_timeline(SCENARIOS["one_shock"], seed_0), max_rounds=10)`, rows 10 to 39 `NaN`. The forecaster is called on the first `10 + g` rows for `g` from 1 to 30, with `bets` as `None`.
   - **Determinism.** The forecaster is called twice on the ten finite rows.
-- **Writes** `timestral.csv`: `probe, gap, channel, spread, equal`. For `gap` rows, `spread` is the forecast's last quantile minus its first per channel at each `g`. The one `determinism` row has `equal` 1 when the two outputs are equal, else 0.
-- **Also writes** `timestral-rounding.csv` from the logs: `model, scenario, seed_index, round, rounded_out`, as `jev.csv`, see [Timestral](providers.md#timestral).
+- **Writes** `timestral.csv`: `probe, joint, gap, channel, spread, equal`. `joint` is 1 or 0. For `gap` rows, `spread` is the forecast's last quantile minus its first per channel at each `g`. The `determinism` row of each shape has `equal` 1 when the two outputs are equal, else 0.
+- **Writes** `timestral-grid.csv`: `setting, scenario, model, seed, output`, one row per run, `model` the row's id. It joins `noise-grid.csv` on `setting`, `scenario` and `seed`, which holds every fixed baseline's output on the same timeline.
+- **Writes** `timestral-rounding.csv`: `setting, model, scenario, seed_index, round, rounded_out`, one row per round of every run, from `policy.rounded_out(view)`, see [rounded out](../forecasters/policy.md#rounded-out).
+- **The forecast cache makes a second run cheap.** Every forecast is read back from disk, see [the cache](../forecasters/policy.md#the-cache).
 
 #### `bare`
 

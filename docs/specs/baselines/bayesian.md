@@ -11,8 +11,8 @@ HAZARDS = (0.005, 0.01, 0.025, 0.05, 0.1)            # the frontier's hazards, p
 BAYESIAN_RULES = ("top-pick", "odds", "explore-1", "explore-2", "explore-5", "lookahead")
 LOOKAHEAD_DRAWS = 100
 
-@dataclass(frozen=True)
-class Belief:                                # the posterior for next round, one entry per channel
+@dataclass(frozen=True, eq=False)
+class Belief:                                # the belief for view.round, one entry per channel. Read only arrays, compared by identity
     mean: np.ndarray                         # predictive mean of next round's level
     sd: np.ndarray                           # predictive SD of next round's level
     changed: np.ndarray                      # chance the base level has jumped since round 1
@@ -50,10 +50,11 @@ One channel, independent of every other. Round `t`, a bet `bet` on it:
 
 Per channel, a run-length filter after Adams and MacKay 2007, with a Kalman state per run length: the mean of `(b, w)` and its 2 by 2 covariance. Run length `r` means the base has held for `r` rounds.
 
-- **Round 1** has one run, `r = 0`, with `b` from the role prior and `w ~ N(0, σ_w²)`, independent.
-- **Each round**, for every run: the predict step, `b` unchanged, `w ← ρ w`, the covariance as the weather equation says. Then, when the channel had a reading this round, the likelihood of `y` under the run's predictive `N(b + w, var(b + w) + read_noise_k² / bet)`, and the Kalman update. With no reading the likelihood is 1 and there is no update.
-- **A new run** `r = 0` starts every round: `b` from the jump prior, `w` the old runs' mixture of `w` collapsed to one Gaussian, no covariance between them. It takes the round's reading like any run.
-- **Weights.** Run `r` grows to `r + 1` with weight `(1 − hazard) × weight_r × likelihood_r`. The new run has weight `hazard × likelihood_new`. Normalise over every run.
+- **Round 1** has one run, `r = 0`, with `b` from the role prior and `w ~ N(0, σ_w²)`, independent. No jump comes before round 1.
+- **Round `t`'s reading.** For every run, when the channel had a reading on round `t`: the likelihood of `y` under the run's predictive `N(b + w, var(b + w) + read_noise_k² / bet)`, then the Kalman update. With no reading the likelihood is 1 and there is no update. Each run's weight is multiplied by its likelihood, then the weights are normalised.
+- **Into round `t + 1`.** Every run takes the predict step, `b` unchanged, `w ← ρ w`, the covariance as the weather equation says, and grows to `r + 1` with its weight times `1 − hazard`. A new run `r = 0` starts with weight `hazard`: `b` from the jump prior, `w` the old runs' mixture of predicted `w` collapsed to one Gaussian, no covariance between them.
+- **So the state for round `t`** has had `t − 1` chances to jump, the jump into round `t` included. The belief is the state for `view.round`, before its reading, see [the belief](#the-belief).
+- **Weights are kept in logs**, so a long run of unlikely readings never underflows to 0.
 - **No pruning.** At 40 rounds there are at most 40 runs a channel. Pruning for longer runs is [not decided](#not-decided).
 
 ### Priors
@@ -70,11 +71,11 @@ Every prior is a Normal from a `Range` `(lo, hi)` on the dials: mean `(lo + hi) 
 
 ### The belief
 
-`belief(view)` runs the filter over the record and returns next round's predictive per channel.
+`belief(view)` runs the filter over the record and returns the predictive for `view.round`, the round about to be played, per channel.
 
-- **The predictive of a run** is the predict step applied to its posterior with no reading, read as `b + w`. The channel's predictive is the mixture of its runs by weight. `mean` and `sd` are the mixture's.
-- **`changed`** is `1 − weight` of the run that began on round 1. A channel with no reading on any round has `changed == 1 − (1 − hazard)^(round − 1)` exactly, as every likelihood is 1.
-- **`quantiles`** are `draws` samples from the mixture per channel, drawn with `default_rng(0)` as `Odds` does, sorted, read at `QUANTILE_LEVELS` by linear interpolation. No row is `NaN`: every channel has a prior, so a channel never explored is forecast from its prior and the hazard, which is what makes the odds rule explore it once enough rounds have passed.
+- **The predictive of a run** is its `b + w` in the state for `view.round`. The channel's predictive is the mixture of its runs by weight. `mean` and `sd` are the mixture's.
+- **`changed`** is `1 − weight` of the run that began on round 1. A channel with no reading on any round has `changed == 1 − (1 − hazard)^(view.round − 1)` exactly, as every likelihood is 1. Its `mean` is `(1 − changed) × its role's prior mean + changed × the jump prior's mean`, as every run's weather mean is 0 and every jump draws from the jump prior.
+- **`quantiles`** are `draws` samples from the mixture per channel, read at `QUANTILE_LEVELS` by `np.quantile`'s linear method, which sorts and interpolates. With `rng = default_rng(0)`: one `rng.random((draws, channels))` picks each sample's run by the cumulative weights, then one `rng.standard_normal((draws, channels))` places it in that run's Normal. No row is `NaN`: every channel has a prior, so a channel never explored is forecast from its prior and the hazard, which is what makes the odds rule explore it once enough rounds have passed.
 
 ### Rules
 
@@ -82,9 +83,12 @@ Every prior is a Normal from a `Range` `(lo, hi)` on the dials: mean `(lo + hi) 
 - **The five forecast rules.** For `rule` in `FORECAST_RULES`, the split is `FORECAST_RULES[rule](belief(view).quantiles, view.budget)`, see [the rules](forecast.md#the-rules).
 - **`lookahead`** is one-step value of information over the five:
   - The candidates are the five rules' splits on this round's quantiles, in `FORECAST_RULES` order, equal splits kept once.
-  - For each candidate, `lookahead_draws` simulated next rounds with `default_rng(1)`: next round's level per channel from the predictive, a reading on each channel the candidate funds with read noise at its bet, the filter run one more round on a copy of the belief, and `best`, the highest predictive mean over channels after that.
+  - For each candidate, `lookahead_draws` simulated next rounds: this round's level per channel from the predictive, a reading on each channel the candidate funds with read noise at its bet, the filter run one more round on a copy of the state, and `best`, the highest mean over channels of the predictive for `view.round + 1`.
+  - **The draws are shared**, so the comparison between candidates is paired. With `rng = default_rng(1)`, three arrays of shape `(lookahead_draws, channels)`, in order: `rng.random` picks the run, `rng.standard_normal` places the level in it, and `rng.standard_normal` is the read noise `z`. A funded channel reads `level + read_noise_k / sqrt(bet) × z`, not rounded.
   - Its value is `sum(bet_c / budget × mean_c)` this round plus `(dials.rounds − view.round) × mean of best` over the draws.
   - The split is the candidate with the highest value, the first on a tie. On the last round the second term is 0, so it exploits.
+  - A candidate rule that raises, such as an explore rule too big for the view, raises out of the lookahead too.
+- **Not the Complacent baseline at a hazard near 0.** The belief forecasts weather, which persists. So a leader with a low base in a bad spell can forecast below an unread runner-up, and a top pick moves off it. Only on a timeline with no weather and no read noise does it hold as the Complacent baseline does.
 - **Construction checks** `0 < hazard < 1`, `rule in BAYESIAN_RULES`, `draws ≥ 1` and `lookahead_draws ≥ 1`, else `ValueError`. An explore rule's own check on `explore × (channels − 1) < budget` runs when it is called, see [forecast](forecast.md#the-rules).
 
 ## Defaults
@@ -103,8 +107,7 @@ Every number is **pilot to confirm** by the [Bayesian frontier](../../pilot/engi
 
 - `bayesian` and every `Bayesian(hazard, rule)` over `HAZARDS` and `BAYESIAN_RULES` returns a valid split for every view: `channels` ints, none negative, summing to `budget`.
 - Called twice on one view it gives equal splits and equal quantiles. Every quantile row is finite and ascending.
-- `0 ≤ changed ≤ 1` on every channel, and a channel never explored has `changed == 1 − (1 − hazard)^(round − 1)`.
-- `Bayesian(hazard=1e-9, rule="top-pick")` plays every round of a No change timeline as the Complacent baseline does.
+- `0 ≤ changed ≤ 1` on every channel.
 - The layer still imports nothing outside `paranoid.engine`, numpy and the standard library.
 
 ## Pilot decides

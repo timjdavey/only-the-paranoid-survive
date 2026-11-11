@@ -32,7 +32,7 @@ People react to the signals in front of them and too little to the system that m
 
 ## Repo
 
-- The code is five layers, engine, baselines, skins, harness and analysis, each importing only the ones below. See [layout](docs/harness/layout.md).
+- The code is six layers, engine, baselines, skins, forecasters, harness and analysis, each importing only the ones below. See [layout](docs/harness/layout.md).
 - The harness is [inspect_ai](docs/harness/inspect.md). Setup and commands are in [running](docs/harness/running.md).
 - The engine, the public seeds and this repo are public. The held-out skins and held-out seeds are private. See [contamination](docs/harness/contamination.md).
 - Every docs page is listed in the [docs directory](docs/README.md).
