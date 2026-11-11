@@ -70,7 +70,7 @@ The full study plots the headline two ways, one point per model and setting:
 
 ## Keys
 
-inspect reads keys from the environment. Copy `.env.example` to `.env` and fill it in, see [running](running.md).
+inspect reads keys from the environment. Copy `.env.example` to `.env` and fill it in, kept outside the workspace and linked in, see [keys](running.md#keys).
 
 | Provider | Env var |
 |---|---|

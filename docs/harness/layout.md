@@ -34,6 +34,7 @@ How the code is arranged. The [design](../README.md#design) pages say why the ga
 
     README.md  AGENTS.md  TODO.md  CONTRIBUTING.md  LICENSE
     pyproject.toml  .env.example
+    .conductor/    settings.toml, the setup script that links .env into a new workspace. See running.md
     configs/
       models/      poc.toml and full.toml. See models.md
       seeds/       public.txt, the one list every scenario plays, once the engine exists. Held-out seeds are private, see contamination.md
