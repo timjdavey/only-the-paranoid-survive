@@ -17,7 +17,7 @@ class Skin:
     ask: str                                # the record is below, place this round's points with the tool
     tool_name: str                          # the tool's name as the model sees it
     tool_text: str                          # the tool's description
-    bets_name: str                          # the name of the tool's one parameter. "bets" in the example skin
+    bets_name: str                          # the name of the tool's one parameter. "split" in the example skin
     bets_text: str                          # the description of the tool's one parameter, one bet per channel
     bad_call: str                           # the retry message for bets the engine rejects. One message, no slots
     no_call: str                            # the retry message for a reply with no tool call
@@ -26,9 +26,9 @@ class Skin:
     compute_name: str                       # the compute tool's name as the model sees it
     compute_text: str                       # the compute tool's description
     question: str                           # Jev's choice question, see providers
-    round_word: str                         # the record's first column header. "round" in the example skin
-    bet_word: str                           # the suffix of each bet column. "bet" in the example skin
-    reading_word: str                       # the suffix of each reading column. "reading" in the example skin
+    round_word: str                         # the record's first column header. "week" in the example skin
+    bet_word: str                           # the suffix of each bet column. "sent" in the example skin
+    reading_word: str                       # the suffix of each reading column. "price" in the example skin
 
 class SkinError(ValueError): ...            # a skin file or a Skin that is not well formed. LintError is one too
 
@@ -84,7 +84,8 @@ One file per skin, one table, no nesting.
 ### The example skin
 
 - **Lives at `src/paranoid/skins/example.toml`** and is the one skin in this repo, see [where skins live](../../harness/skins.md#where-skins-live).
-- **The file is coming.** Its story and words are being written and will be added to this repo as `example.toml`. Until then [prompts](../../harness/prompts.md#system-prompt) shows the shape with brackets where the story goes, and the tests that pin its bytes, KS2, KR2, KL11 and KL13, wait on it, see [tests](tests.md#waiting-on-the-example-skin).
+- **Its story is a fruit importer** that sends each week's fruit to ten wholesale markets. It was written to the standard [writing a skin](../../harness/writing-a-skin.md) sets for a held-out skin.
+- **Four tests pin its bytes**, KS2, KR2, KL11 and KL13. They are written with the skins layer, see [tests](tests.md#pinning-the-example-skin).
 - **Its wording is the wording in [prompts](../../harness/prompts.md)**, and only its wording is published. A held-out skin words the frame its own way, see [contamination](../../harness/contamination.md#why).
 - **Its text never changes once a headline run has played it**, see [CONTRIBUTING](../../../CONTRIBUTING.md#what-never-changes-without-a-new-pilot). The test suite pins its `prompt_hash`, so a change is a reviewed change, see [tests](tests.md#skin).
 

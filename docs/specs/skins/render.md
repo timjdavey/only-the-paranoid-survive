@@ -35,10 +35,10 @@ Four parts, in this order, each one skin field, see [system prompt](../../harnes
 
 `render_record(skin, record)` writes the record as CSV. The engine holds the rows and renders nothing, see [record](../engine/game.md#record). The CSV is the whole user message, which the harness sends as is, see [user message](../../harness/prompts.md#user-message).
 
-- **The header** is `{round_word},{name}_{bet_word} × channels,{name}_{reading_word} × channels`, with the skin's channel names in channel index order. With the example skin's words that reads `round,<name>_bet…,<name>_reading…`.
+- **The header** is `{round_word},{name}_{bet_word} × channels,{name}_{reading_word} × channels`, with the skin's channel names in channel index order. With the example skin's words that reads `week,<name>_sent…,<name>_price…`.
 - **One row per round played**, in round order: the round as an int, each bet as an int, then each reading with exactly one decimal and a `None` reading as an empty field. There is no output column, as a bet is paid its reading and the agent can add them up, see [what the agent sees](../../design/mechanics.md#what-the-agent-sees). A value that rounds to zero from below is written `0.0`, never `-0.0`.
 - **Rows end with `\n`**, the last included. An empty record renders the header line only, which is what round 1 sends. A record a baseline pre-filled renders the same way, see [starting part way](../engine/game.md#starting-part-way).
-- **Example**, a four-channel skin with the example words: `round,a_bet,b_bet,c_bet,d_bet,a_reading,b_reading,c_reading,d_reading\n1,100,0,0,0,61.2,,,\n`.
+- **Example**, a four-channel skin with the example words: `week,a_sent,b_sent,c_sent,d_sent,a_price,b_price,c_price,d_price\n1,100,0,0,0,61.2,,,\n`.
 - **A row whose bets do not fit the skin's channels** raises `ValueError`. An empty record cannot tell, so the harness checks the skin against the config when the task is built, see [task settings](../harness/task.md#task-settings).
 - **The column words are the skin's.** `round`, `bet` and `reading` are engine words, and a header every skin shared would mark the benchmark under any story, see [why](../../harness/contamination.md#why). So each skin picks its own, the lint checks them, and `prompt_hash` covers them.
 

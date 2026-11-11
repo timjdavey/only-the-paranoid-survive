@@ -69,6 +69,6 @@ With `hypothesis`, kept fast with a small example count.
 
 - Whether to run KL12 in CI against a private checkout, or on the maintainers' machines only. Held-out skins never reach CI today, see [who can see them](../../harness/contamination.md#who-can-see-them).
 
-## Waiting on the example skin
+## Pinning the example skin
 
-- KS2, KR2, KL11 and KL13 pin or lint the bytes of `example.toml`, which is [coming](skin.md#the-example-skin). They are written when the file lands, and its `prompt_hash` is pinned then. Every other test here builds its own skin by hand and can be written now.
+- KS2, KR2, KL11 and KL13 pin or lint the bytes of `example.toml`, which is [in the repo](skin.md#the-example-skin). They are written with the skins layer, as the `prompt_hash` they pin is the layer's own function. Every other test here builds its own skin by hand.
