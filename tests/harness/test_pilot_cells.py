@@ -1,4 +1,4 @@
-"""HP2, HM8 and HP5 to HP10: the cell list and the provider cells. See docs/specs/harness/tests.md#pilot.
+"""HP2, HM8, HP5 to HP10 and HP15: the cell list and the provider cells. See docs/specs/harness/tests.md#pilot.
 
 Provider cells play `mockllm/model`, a fake Jev or a fake forecaster, so nothing calls out. Their evals
 play the headline tools, so the `evals` fixture puts them on inspect's local sandbox.
@@ -9,6 +9,7 @@ import re
 from dataclasses import replace
 from pathlib import Path
 
+import inspect_ai
 import pytest
 from inspect_ai.log import list_eval_logs, read_eval_log
 
@@ -87,6 +88,12 @@ def test_hp6_recognition(cell_args, helpers, monkeypatch):
     ]  # fmt: skip
     guid = CANARY.split(":", 1)[1]
     assert not any(guid in m.text for call in script.calls for m in call[0])
+    other = ("mockllm/other", "llm", "off")
+    monkeypatch.setattr("paranoid.harness.pilot.probes.model_for", lambda row: helpers.Script(then=replies[1]).model())
+    (path,) = run_cell("recognition", cell_args(LLM, other))
+    assert [r["model"] for r in read(path)] == ["mockllm/model"] * 3 + ["mockllm/other"] * 3
+    (path,) = run_cell("recognition", replace(cell_args(LLM, other), only="mockllm/other"))
+    assert {r["model"] for r in read(path)} == {"mockllm/other"}
 
 
 def test_hp7_jev(cell_args, monkeypatch, FakeJev, evals):
@@ -162,3 +169,28 @@ def test_hp10_channel_order(cell_args, helpers, example, monkeypatch):
         named = [example.channels.index(name) for name in re.findall(r"([A-Z]\w+) \d+", request)]
         assert named == [(i + 3 * j) % 10 for j in range(10)]
     assert not any(channel in path.read_text() for channel in example.channels)
+
+
+def test_hp15_token_files(cell_args, helpers, example, monkeypatch, evals):
+    valid = helpers.reply((example.tool_name, {example.bets_name: [10] * 10}))
+    script = helpers.Script([helpers.say("Let me think.")], then=valid)
+    monkeypatch.setattr("paranoid.harness.pilot.evals.PILOT_SEEDS", "0-2")  # the file's shape needs few seeds
+    wrapped = inspect_ai.eval  # the evals fixture's, on the local sandbox
+    monkeypatch.setattr(inspect_ai, "eval", lambda *a, **k: wrapped(*a, **(k | {"model": script.model()})))
+    args = cell_args(LLM)
+    paths = run_cell("seeds", args)
+    assert paths[-1] == args.out / "seeds-tokens.csv"
+    rows = read(args.out / "seeds-tokens.csv")
+    assert list(rows[0]) == [
+        "model", "rolling", "scenario", "seed_index", "round", "input_tokens", "cache_read_tokens", "cache_write_tokens",
+    ]  # fmt: skip
+    (log,) = logs_in(args.out / "seeds")
+    assert len(rows) == sum(len(helpers.store_of(sample).tries) for sample in log.samples)
+    assert {r["rolling"] for r in rows} == {"0"}
+    (twice,) = [s for s in log.samples if helpers.store_of(s).tries[0] == 2]
+    events = [e for e in twice.events if type(e).__name__ == "ModelEvent"]
+    named = (twice.metadata["scenario"], str(twice.metadata["seed_index"]), "1")
+    (first,) = [r for r in rows if (r["scenario"], r["seed_index"], r["round"]) == named]
+    assert int(first["input_tokens"]) == events[0].output.usage.input_tokens + events[1].output.usage.input_tokens
+    run_cell("rolling", args)
+    assert {r["rolling"] for r in read(args.out / "rolling-tokens.csv")} == {"0", "1"}

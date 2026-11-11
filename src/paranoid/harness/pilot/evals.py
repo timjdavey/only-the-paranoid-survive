@@ -8,11 +8,14 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from inspect_ai.event import ModelEvent
 from inspect_ai.log import read_eval_log
+from inspect_ai.util import Store
 
 from ..evals import EvalCall
 from ..models import ModelRow, generate_config, load_models
 from ..solver import tool_choice_for
+from ..store import RunStore
 from .common import CellArgs, write_csv
 
 PILOT_SEEDS = "0-19"  # so every pilot log pairs by seed with every other
@@ -50,12 +53,46 @@ def each_llm(cell: str, scenario: str, settings: list[dict[str, Any]], *, first:
     return run
 
 
-seeds = each_llm("seeds", "one_shock,up_switch", [{}])
+TOKEN_COLUMNS = (
+    "model", "rolling", "scenario", "seed_index", "round", "input_tokens", "cache_read_tokens", "cache_write_tokens",
+)  # fmt: skip
+USAGE = ("input_tokens", "input_tokens_cache_read", "input_tokens_cache_write")  # inspect's names for the three
+
+
+def with_tokens(cell: str, play: Callable) -> Callable:
+    """A cell that also writes `<cell>-tokens.csv`, see docs/specs/harness/pilot.md#token-files."""
+
+    def run(args: CellArgs) -> list[Path]:
+        paths = play(args)
+        return paths + write_csv(args, f"{cell}-tokens", TOKEN_COLUMNS, lambda: token_rows(paths))
+
+    return run
+
+
+def token_rows(paths: list[Path]):
+    """One row per round the agent played, its tries' usage summed. Nothing but the usage is read."""
+    for path in paths:
+        log = read_eval_log(str(path))
+        for sample in log.samples or []:
+            if "gain" not in (sample.scores or {}):
+                continue
+            store = RunStore(store=Store(sample.store))
+            events = iter(event for event in sample.events if isinstance(event, ModelEvent))
+            for played, tries in enumerate(store.tries, start=store.warm_up_rounds + 1):
+                usage = [event.output.usage for event in (next(events) for _ in range(tries))]
+                totals = [sum((getattr(u, field) or 0) for u in usage if u is not None) for field in USAGE]
+                meta = sample.metadata
+                yield log.eval.model, int(bool(meta["rolling"])), meta["scenario"], meta["seed_index"], played, *totals
+
+
+seeds = with_tokens("seeds", each_llm("seeds", "one_shock,up_switch", [{}]))
 up_against_down = each_llm(
     "up-against-down", "no_change,down_switch,up_switch,up_switch_then_down_switch,switch_then_shock", [{}], first=True
 )
 bare = each_llm("bare", "one_shock,down_switch", [{"tools": t} for t in ("notes,compute", "notes", "compute", "none")])
-rolling = each_llm("rolling", "no_change,one_shock,down_switch", [{"rolling": False}, {"rolling": True}])
+rolling = with_tokens(
+    "rolling", each_llm("rolling", "no_change,one_shock,down_switch", [{"rolling": False}, {"rolling": True}])
+)
 warm_up = each_llm("warm-up", "no_change,down_switch", [{}, {"warm_up": "complacent:5"}])
 
 

@@ -20,7 +20,8 @@ BOTH_WAYS = "up_switch_then_down_switch"  # the one scenario the Stayer plays
 def game_length(args: CellArgs) -> list[Path]:
     columns = (
         "rounds", "onset_low", "onset_high", "gap_low", "gap_high", "scenario", "seed", "onset_1", "onset_2",
-        "last_end", "baseline", "output", "output_window_1", "output_window_2", "move_round",
+        "last_end", "baseline", "output", "output_window_1", "output_window_2", "clear_round_1", "clear_round_2",
+        "move_round",
     )  # fmt: skip
     gaps = ((6, 8), (8, 12), (12, 16))
 
@@ -43,12 +44,15 @@ def game_length(args: CellArgs) -> list[Path]:
                 t = make_timeline(config, seed)
                 onsets = [event.onset for event in t.events] + [None]
                 gap_cells = (None, None) if gap is None else gap
-                for baseline, policy in players:
-                    record = play(policy, t)
+                records = {baseline: play(policy, t) for baseline, policy in players}
+                for baseline, record in records.items():
                     windows = [window(record, onsets, k) for k in (0, 1)]
+                    clear = [None, None]
+                    if baseline == "discerning":
+                        clear = [clear_round(record, records["complacent"], onsets, k) for k in (0, 1)]
                     yield (
                         rounds, *start, *gap_cells, name, seed, onsets[0], onsets[1], last_end(t), baseline,
-                        output(record), *windows, move_round(record, t.leader),
+                        output(record), *windows, *clear, move_round(record, t.leader),
                     )  # fmt: skip
 
     return write_csv(args, "game-length", columns, rows)
@@ -56,17 +60,39 @@ def game_length(args: CellArgs) -> list[Path]:
 
 def window(record, onsets: list[int | None], k: int) -> float | None:
     """Output from event k's onset to the round before the next one's, or to the end. Empty with no event k."""
+    rounds = window_rounds(record, onsets, k)
+    return None if rounds is None else output(record, slice(rounds.start - 1, rounds.stop - 1))
+
+
+def window_rounds(record, onsets: list[int | None], k: int) -> range | None:
+    """Event k's window, from its onset to the round before the next one's, or to the end. An onset may pass the end."""
     if k >= len(onsets) - 1 or onsets[k] is None:
         return None
-    end = onsets[k + 1] - 1 if onsets[k + 1] is not None else len(record)
-    return output(record, slice(onsets[k] - 1, end))
+    end = len(record) + 1
+    return range(min(onsets[k], end), min(onsets[k + 1] or end, end))
+
+
+def clear_round(ahead, behind, onsets: list[int | None], k: int) -> int | None:
+    """The first round of window k from which `ahead`'s output since onset stays above `behind`'s. 0 if never."""
+    rounds = window_rounds(ahead, onsets, k)
+    if rounds is None:
+        return None
+    lead, clear = 0.0, 0
+    for r in rounds:
+        lead += ahead.rows[r - 1].output - behind.rows[r - 1].output
+        if lead <= 0:
+            clear = 0
+        elif clear == 0:
+            clear = r
+    return clear
 
 
 def reading_roughness(args: CellArgs) -> list[Path]:
     columns = ("setting", "scenario", "baseline", "parameter", "scout_rounds", "seed", "output", "move_round")
     hedges = [("hedge_rule", e, k, HedgeRule(explore=e, scout_rounds=k)) for e in (1, 2, 5) for k in (1, 2, 3)]
     scouts = [("scout_rule", s, None, ScoutRule(s=s)) for s in (1, 2, 5)]
-    plan = [("down_switch", hedges), ("no_change", hedges), ("up_switch", scouts), ("no_change", scouts)]
+    base = [("complacent", None, None, complacent)]  # never explores, so the explore cost's base
+    plan = [("down_switch", base + hedges), ("no_change", base + hedges + scouts), ("up_switch", base + scouts)]
 
     def rows():
         for setting in (4.0, 8.0, 16.0):

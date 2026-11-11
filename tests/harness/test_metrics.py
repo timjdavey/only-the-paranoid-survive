@@ -10,8 +10,8 @@ from hypothesis import strategies as st
 from inspect_ai.scorer import SampleScore, Score
 
 from paranoid.engine import SCENARIOS
-from paranoid.harness import TRAITS, bootstrap, headline, pooled_score, retry_share, scenario_score
-from paranoid.harness import tool_use_share, weakest_trait
+from paranoid.harness import BOOTSTRAP_DRAWS, BOOTSTRAP_SEED, TRAITS, bootstrap, draws_of, headline, pooled_score
+from paranoid.harness import retry_share, scenario_score, tool_use_share, weakest_trait
 
 
 def scored(scenario: str, index: int, gain: float, gap: float = 100.0, **value) -> SampleScore:
@@ -36,6 +36,9 @@ def test_ho5_bootstrap():
     assert bootstrap(gains, gaps) == bootstrap(gains, gaps)
     lo, hi = bootstrap(gains, gaps)
     assert lo < 0.7 < hi
+    drawn = draws_of(gains, gaps, np.random.default_rng(BOOTSTRAP_SEED), BOOTSTRAP_DRAWS)
+    assert len(drawn) == BOOTSTRAP_DRAWS
+    assert tuple(np.percentile(drawn, [2.5, 97.5])) == (lo, hi)
 
 
 def test_ho6_scenario_score():

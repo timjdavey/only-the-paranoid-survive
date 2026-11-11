@@ -1,4 +1,4 @@
-"""HP1, HP3, HP4, HP9 and HP11: the engine cells. See docs/specs/harness/tests.md#pilot.
+"""HP1, HP3, HP4, HP9, HP11 and HP12 to HP14: the engine cells. See docs/specs/harness/tests.md#pilot.
 
 Every cell runs with PARANOID_PILOT_SEEDS=5 into a temp `out`. The columns are read from the pilot spec's
 Writes lines, so the CSV and the page cannot drift apart.
@@ -7,11 +7,13 @@ Writes lines, so the CSV and the page cannot drift apart.
 import csv
 import re
 import socket
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
-from paranoid.engine import SCENARIOS, Game, make_timeline
+from paranoid.baselines import complacent, discerning
+from paranoid.engine import SCENARIOS, Game, make_timeline, play
 from paranoid.harness import CELLS, CellArgs, load_grid, load_seeds, run_cell
 
 SPEC = Path(__file__).parents[2] / "docs" / "specs" / "harness" / "pilot.md"
@@ -25,7 +27,7 @@ ROWS = {  # one row per seed per setting per scenario per baseline, as each Runs
     "timeline-sanity-sparklines": SCENARIO_COUNT * 40,
     "noise-grid": GRID * 3 * POLICIES * SEEDS,
     "game-length": 9 * (4 + 3 * 3) * POLICIES * SEEDS + 9 * 3 * SEEDS,
-    "reading-roughness": 3 * (9 * 2 + 3 * 2) * SEEDS,
+    "reading-roughness": 3 * (9 * 2 + 3 * 2 + 3) * SEEDS,
     "up-and-down": 3 * 3 * 7 * SEEDS,
     "bayesian-frontier": SCENARIO_COUNT * 35 * SEEDS,
     "baseline-order": SCENARIO_COUNT * POLICIES * SEEDS + SEEDS,
@@ -136,3 +138,47 @@ def test_hp9_a_dry_run_writes_nothing(pilot, capsys):
     assert len(lines) == len(ENGINE) + 1  # timeline-sanity writes two files
     assert all(": " in line and line.split(": ")[0].endswith(".csv") for line in lines)
     assert set(ENGINE) <= set(CELLS)
+
+
+def test_hp12_fall_and_tell_rounds(pilot):
+    (path,) = run_cell("tell", pilot)
+    rows = read(path)
+    for row in rows:
+        if row["scenario"] == "no_change":
+            assert row["fall_rounds"] == row["tell_rounds"] == ""
+            continue
+        falls, tells = int(row["fall_rounds"]), int(row["tell_rounds"])
+        assert 0 <= tells <= falls
+        if int(row["move_round"]) >= int(row["onset"]):
+            assert falls > tells, row
+    assert any(int(row["tell_rounds"] or 0) > 0 for row in rows)
+
+
+def test_hp13_clear_rounds(pilot, monkeypatch):
+    two = [("discerning", discerning), ("complacent", complacent)]  # the two clear_round reads, so the cell is quick
+    monkeypatch.setattr("paranoid.harness.pilot.sweeps.defaults", lambda: two)
+    (path,) = run_cell("game-length", pilot)
+    rows = read(path)
+    assert {row["baseline"] for row in rows if row["clear_round_1"]} == {"discerning"}
+    checked = 0
+    for row in rows:
+        if row["baseline"] != "discerning" or row["scenario"] != "down_switch" or row["clear_round_1"] == "0":
+            continue
+        onset = (int(row["onset_low"]), int(row["onset_high"]))
+        config = replace(SCENARIOS["down_switch"], rounds=int(row["rounds"]), onset=onset)
+        t = make_timeline(config, int(row["seed"]))
+        clear, start = int(row["clear_round_1"]), int(row["onset_1"])
+        assert start <= clear <= config.rounds
+        ahead, behind = play(discerning, t).rows, play(complacent, t).rows
+        for r in range(clear, config.rounds + 1):
+            assert sum(ahead[k - 1].output - behind[k - 1].output for k in range(start, r + 1)) > 0
+        checked += 1
+    assert checked
+
+
+def test_hp14_complacent_rows(pilot):
+    (path,) = run_cell("reading-roughness", pilot)
+    base = [row for row in read(path) if row["baseline"] == "complacent"]
+    assert len(base) == 3 * 3 * SEEDS
+    assert len({(row["setting"], row["scenario"], row["seed"]) for row in base}) == len(base)
+    assert all(row["parameter"] == row["scout_rounds"] == "" and row["move_round"] == "0" for row in base)

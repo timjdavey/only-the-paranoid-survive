@@ -34,7 +34,6 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 - **Run time.** About 115 ms a forecast on CPU, so 5 seconds a run and half an hour a grid setting for the `timestral` cell. The thread count makes no difference.
 
 ## Code
-- Build the harness additions its spec now names and the code lacks, before any analysis code: the `draws_of` and `BUDGETS` exports, `warm_up_kept` in the score, the two token files, `fall_rounds` and `tell_rounds`, `clear_round_1` and `clear_round_2`, the `complacent` rows of `reading-roughness`, and `recognition` on every LLM row. See [scorer](docs/specs/harness/scorer.md#scoring-one-run) and [pilot](docs/specs/harness/pilot.md). The exports test fails until the first is in.
 - Write the analysis from its [spec](docs/specs/analysis/README.md), last. The harness writes logs now. Close its three "Verify before code" items first, on [runs](docs/specs/analysis/runs.md#verify-before-code) and [scores](docs/specs/analysis/scores.md#verify-before-code).
 - The held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets). The public list, 0 to 999, is in `configs/seeds/public.txt`.
 - Ask each provider in `configs/models/` for zero data retention before the proof of concept, as it plays held-out skins, see [contamination](docs/harness/contamination.md#who-can-see-them).

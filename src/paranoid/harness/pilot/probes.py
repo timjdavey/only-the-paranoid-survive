@@ -43,7 +43,7 @@ def recognition(args: CellArgs) -> list[Path]:
         record = play(complacent, make_timeline(SCENARIOS["one_shock"], seed_0()), max_rounds=19)
         guid = CANARY.split(CANARY_CUT)[1]
         canary = CANARY.split(CANARY_CUT)[0] + CANARY_CUT
-        for row in rows_of(args, "llm", first=True):
+        for row in rows_of(args, "llm"):
             model = model_for(row)
             for skin in loaded_skins().values():
                 probes = {
