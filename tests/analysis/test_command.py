@@ -7,7 +7,8 @@ import pandas as pd
 import pytest
 
 from paranoid.analysis import analyse
-from paranoid.harness import main
+from paranoid.analysis.cost import load_prices
+from paranoid.harness import load_models, main
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -64,14 +65,26 @@ def test_am3_gap(logs, tmp_path, capsys, offline, helpers):
 
 
 def test_am4_cost(logs, tmp_path, capsys, offline, monkeypatch):
-    assert not (ROOT / "configs" / "prices.toml").exists()
+    assert analyse(["cost", str(logs.folder)]) == 0
+    printed = capsys.readouterr().out
+    assert " cost" in printed.split("cached_share")[1].splitlines()[0] and "Prices read on " in printed
+    missing = tmp_path / "prices.toml"
+    monkeypatch.setattr("paranoid.analysis.cli.DEFAULT_PRICES", missing)
     assert analyse(["cost", str(logs.folder)]) == 0
     printed = capsys.readouterr().out
     assert "cached_share" in printed and " cost" not in printed.split("cached_share")[1].splitlines()[0]
-    assert "No prices at configs/prices.toml" in printed
+    assert f"No prices at {missing}" in printed
     assert analyse(["cost", str(logs.folder), "--prices", "/nope"]) == 1
     assert analyse(["results", "/nope"]) == 1
     assert "/nope" in capsys.readouterr().out
+
+
+def test_am4_the_prices_file_prices_every_poc_llm_row():
+    prices, read_on = load_prices(ROOT / "configs" / "prices.toml")
+    llm = [row.id for row in load_models(ROOT / "configs" / "models" / "poc.toml") if row.kind == "llm"]
+    assert read_on is not None and llm and set(llm) <= set(prices)
+    for price in prices.values():
+        assert 0 < price["cache_read"] < price["input"] <= price["cache_write"] < price["output"]
 
 
 def test_am5_every_subcommand_offline(logs, tmp_path, offline):

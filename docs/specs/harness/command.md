@@ -9,7 +9,7 @@
 ```
 paranoid run   [--models configs/models/poc.toml] [--skins example] [--seeds public]
                [--own-scale <value>|grid] [--limit N] [--log-dir logs/] [--only <id>] [--dry-run]
-paranoid pilot <check> [--out logs/pilot/] [--models configs/models/poc.toml] [--only <id>] [--seeds N] [--dry-run]
+paranoid pilot <check> [--out logs/pilot/] [--models configs/models/poc.toml] [--only <id>] [--seeds N] [--workers N] [--dry-run]
 paranoid analyse ...    registered by the analysis layer, see the analysis command page
 ```
 
@@ -94,6 +94,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
 ### `pilot`
 
 - **`paranoid pilot <check>`** builds a `CellArgs` from the options, with `seeds` capped by `PARANOID_PILOT_SEEDS` when set, and calls `run_cell(check, args)`, see [pilot](pilot.md#interface). It prints each path the cell wrote.
+- **`--workers N`** splits an engine cell's seeds over `N` processes, 1 unless given. The CSV is the same bytes at any `N`, see [shared rules](pilot.md#shared-rules).
 - **An unknown check** raises `ValueError` listing the names in `CELLS`, so `main` prints them and returns 1.
 - **What each cell runs and writes** is on the [pilot](pilot.md) page, one section per cell. Nothing about a cell lives here.
 

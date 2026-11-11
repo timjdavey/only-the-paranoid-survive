@@ -77,7 +77,7 @@ The record as CSV. Round 1 sends the header only, or a record pre-filled by a ba
 
 ## Tool text
 
-`submit`, `notes` and `compute` are the harness's names for the three tools. The model sees the names and text the skin gives them: `tool_name`, `tool_text`, `bets_name`, `bets_text`, `bad_call` and `no_call` for `submit`, then `notes_name`, `notes_text` and `notes_param`, and `compute_name`, `compute_text` and `compute_param`. In the example skin the three are `send_fruit`, `desk_note` and `calculate`. `submit` always takes ten whole numbers in channel order. `bets_name` is what that one parameter is called and `bets_text` is what the model reads beside it. The harness adds no words of its own to any tool. Each of the other two takes one string, named by the skin's `notes_param` and `compute_param`, so no parameter name is shared across skins.
+`submit`, `notes` and `compute` are the harness's names for the three tools. The model sees the names and text the skin gives them: `tool_name`, `tool_text`, `bets_name`, `bets_text`, `bad_call` and `no_call` for `submit`, then `notes_name`, `notes_text`, `notes_param` and `notes_param_text`, and `compute_name`, `compute_text`, `compute_param` and `compute_param_text`. In the example skin the three are `send_fruit`, `desk_note` and `calculate`. `submit` always takes ten whole numbers in channel order. `bets_name` is what that one parameter is called and `bets_text` is what the model reads beside it. The harness adds no words of its own to any tool. Each of the other two takes one string, named by the skin's `notes_param` and `compute_param` and described by its `notes_param_text` and `compute_param_text`, so no parameter name or description is shared across skins.
 
 The example skin's wording, `tool_name` and `bets_name` on the first line, then `tool_text`, then `bets_text`:
 
@@ -94,15 +94,17 @@ A reply with no tool call returns `no_call`:
 
     Send this week's fruit with the send_fruit tool.
 
-The example skin's wording for the other two, the name and parameter on the first line, then the text:
+The example skin's wording for the other two, the name and parameter on the first line, then the tool's text, then the parameter's:
 
     desk_note(note)
     Leave a note on the desk for yourself. It replaces your last note and comes
     back to you next week, under your record.
+    The words of the note, as you want to read them next week.
 
     calculate(python)
     Run Python. Your record is in record.csv beside the code, and you get back
     what it prints.
+    The Python to run, written out in full as one piece of code.
 
 ## Retry rule
 

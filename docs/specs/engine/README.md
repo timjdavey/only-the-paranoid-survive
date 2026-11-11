@@ -34,7 +34,7 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
 
 | Layer | Its list |
 |---|---|
-| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Dials`, `Policy`, `Bets`, `Timeline`, `Record` and `split_budget`, and `play`, `make_timeline`, `SCENARIOS`, `Game` and `Row` in its tests |
+| baselines | [Names from the engine](../baselines/README.md#names-from-the-engine): `View`, `Start`, `Dials`, `Policy`, `Bets`, `Timeline`, `Record`, `Row` and `split_budget`, and `play`, `make_timeline`, `SCENARIOS` and `Game` in its tests |
 | skins | [Names from the engine](../skins/README.md#names-from-the-engine): `Record` and `Row` to render, and `play`, `make_timeline`, `SCENARIOS` and `ScenarioConfig` in its tests |
 | forecasters | [Names from the engine](../forecasters/README.md#names-from-the-engine): `View` and `Bets`, and `play`, `make_timeline`, `SCENARIOS`, `Game`, `Record` and `Timeline` in its tests |
 | harness | [Names from the engine](../harness/README.md#names-from-the-engine): `SCENARIOS`, `ScenarioConfig`, `engine_hash`, `GENERATOR_VERSION`, `make_timeline`, `Timeline`, `Event`, `Game`, `Record`, `Row`, `Bets`, `BetError`, `play`, `Policy` and `split_budget` |

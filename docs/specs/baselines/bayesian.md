@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`Bayesian` is the baseline that knows how the world works and reads only its own record. It keeps a belief over each channel's base level in the engine's own family, turns the belief into quantiles on `QUANTILE_LEVELS`, and hands them to a [forecast rule](forecast.md), so `Bayesian(rule="odds")` is the Timestral odds row with a belief in place of a forecaster. Its prior and rule are set by the [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier), which sweeps a fixed family of both on timelines. It is a player with a mark on every bar, never the yardstick, see [the Bayesian frontier](../../design/baselines.md#the-bayesian-frontier).
+`Bayesian` is the baseline that knows how the world works and reads only its own record. It keeps a belief over each channel's base level in the engine's own family, turns the belief into quantiles on `QUANTILE_LEVELS`, and hands them to a [forecast rule](forecast.md), so `Bayesian(rule="odds")` is the Timestral odds row with a belief in place of a forecaster. Its prior and rule are set by the [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier), which plays a few of a fixed family of both on timelines. It is a player with a mark on every bar, never the yardstick, see [the Bayesian frontier](../../design/baselines.md#the-bayesian-frontier).
 
 ## Interface
 
@@ -30,7 +30,7 @@ bayesian: Policy    # Bayesian() at the defaults
 ```
 
 - **Handed round 1 and the dials.** It reads `view.start` for each channel's role and `view.dials` for the weather, read noise, ladder ranges and run length, see [view](../engine/view.md#view). It never reads `view.timeline`.
-- **State is derived, never kept.** Each call replays the record from round 1, so the same view gives the same split, see [conventions](README.md#conventions).
+- **State is derived, never kept.** Each call's state is the record replayed from round 1, so the same view gives the same split, see [conventions](README.md#conventions). [The cache](#the-cache) saves the work and changes no number.
 
 ## Behaviour
 
@@ -91,6 +91,17 @@ Every prior is a Normal from a `Range` `(lo, hi)` on the dials: mean `(lo + hi) 
 - **Not the Complacent baseline at a hazard near 0.** The belief forecasts weather, which persists. So a leader with a low base in a bad spell can forecast below an unread runner-up, and a top pick moves off it. Only on a timeline with no weather and no read noise does it hold as the Complacent baseline does.
 - **Construction checks** `0 < hazard < 1`, `rule in BAYESIAN_RULES`, `draws ≥ 1` and `lookahead_draws ≥ 1`, else `ValueError`. An explore rule's own check on `explore × (channels − 1) < budget` runs when it is called, see [forecast](forecast.md#the-rules).
 
+### The cache
+
+A run of 40 rounds would replay 780 rounds in all, so the filter's states are cached. Private to `filter.py`, and no policy's split depends on it.
+
+- **Keyed by the family and the record's rows.** The state for a record is the state for all its rows but the last, taken through that last row. `play` adds one row a call, so each call runs the filter for one round.
+- **Never by the record's length**, which would hand one timeline's state to another, see [conventions](README.md#conventions).
+- **A hit equals a replay to the bit.** The filter is a fold over the rows, so a cached state taken one row on runs the same sums in the same order as a replay from round 1.
+- **The family is built once** for each `start`, `dials`, channel count and hazard, and is compared by identity, as it holds arrays.
+- **The last `STATE_CACHE` states are kept**, 128. A state is six arrays of one float per channel and run, so under 20 KB at 40 rounds. Every cached array is read only.
+- **The fixed draws are drawn once.** The belief's two arrays and the lookahead's three come from a seed and a shape that never change, so [`fixed_draws`](forecast.md#the-rules) hands back the same read only arrays on every call.
+
 ## Defaults
 
 Every number is **pilot to confirm** by the [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier).
@@ -107,6 +118,7 @@ Every number is **pilot to confirm** by the [Bayesian frontier](../../pilot/engi
 
 - `bayesian` and every `Bayesian(hazard, rule)` over `HAZARDS` and `BAYESIAN_RULES` returns a valid split for every view: `channels` ints, none negative, summing to `budget`.
 - Called twice on one view it gives equal splits and equal quantiles. Every quantile row is finite and ascending.
+- A split and a belief are the same to the bit with the cache warm, cold or cleared between calls.
 - `0 ≤ changed ≤ 1` on every channel.
 - The layer still imports nothing outside `paranoid.engine`, numpy and the standard library.
 

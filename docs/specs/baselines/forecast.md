@@ -51,6 +51,7 @@ FORECAST_RULES: Mapping[str, ForecastRule]   # "top-pick", "odds", "explore-1", 
 - **`explore × (channels − 1)` must be below `budget`**, else `ValueError` when the rule is called, as `channels` is the array's.
 - **A bad array** raises `ValueError`: not two dimensions, the last axis not `len(QUANTILE_LEVELS)`, a row that is neither all finite nor all `NaN`, or a finite row that falls anywhere. Equal neighbours pass. The rules never sort. Crossed quantiles are the forecaster's to fix, so a forecast policy sorts each row before it calls a rule, see [the arrays](../forecasters/policy.md#the-arrays).
 - **Construction checks** `explore ≥ 1` for `TopPickWithExploreBets` and `draws ≥ 1` for `Odds`, else `ValueError`.
+- **The draws are drawn once.** `Odds` asks for the same seed and shape on every call, so a private `fixed_draws(seed, draws, channels, normals)` keeps the arrays: one `rng.random((draws, channels))`, then `normals` arrays of `rng.standard_normal((draws, channels))`, from `default_rng(seed)`, all read only. The Bayesian baseline's belief and lookahead read theirs the same way, see [the cache](bayesian.md#the-cache).
 - **A tiny share rounds to 0.** `Odds` can give a channel a bet of 0 and so a blank reading next round. The pilot watches how often, see [Timestral checks](../../pilot/provider-checks.md#timestral-checks).
 
 ## Defaults

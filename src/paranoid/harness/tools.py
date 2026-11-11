@@ -62,7 +62,7 @@ def notes(skin: Skin, cap: int = NOTES_CAP) -> Tool:
         store.notes = str(kwargs[skin.notes_param])[:cap]
         return store.notes
 
-    schema = {"type": "string", "description": skin.notes_text}  # the tool's own text, see the spec's not decided
+    schema = {"type": "string", "description": skin.notes_param_text}
     return built(execute, skin.notes_name, skin.notes_text, skin.notes_param, schema)
 
 
@@ -81,7 +81,7 @@ def compute(skin: Skin) -> Tool:
             return (error.truncated_output or "")[:COMPUTE_OUTPUT]
         return (result.stdout + result.stderr)[:COMPUTE_OUTPUT]
 
-    schema = {"type": "string", "description": skin.compute_text}
+    schema = {"type": "string", "description": skin.compute_param_text}
     return built(execute, skin.compute_name, skin.compute_text, skin.compute_param, schema)
 
 

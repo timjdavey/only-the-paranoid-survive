@@ -1,4 +1,8 @@
-"""The weather cells: streaks, tell, luck, timeline-sanity and noise-grid. See docs/specs/harness/pilot.md#engine-cells."""
+"""The weather cells: streaks, tell, luck, timeline-sanity and noise-grid. See docs/specs/harness/pilot.md#engine-cells.
+
+Each cell is its blocks, one per setting, and a module level function from a block and a seed to that seed's rows,
+which `seed_rows` may hand to another process.
+"""
 
 from dataclasses import replace
 from pathlib import Path
@@ -10,7 +14,7 @@ from paranoid.engine import SCENARIOS, Game, Record, Timeline, make_timeline, pl
 
 from ..config import scenario_config
 from ..seeds import load_grid
-from .common import CellArgs, defaults, engine_seeds, first_switch, largest, move_round, onset, output, write_csv
+from .common import CellArgs, Rows, defaults, engine_seeds, first_switch, largest, move_round, onset, output, seed_rows, write_csv
 
 
 def longest_run(flags: list[bool]) -> int:
@@ -30,24 +34,24 @@ def before_onset(timeline: Timeline) -> range:
 def streaks(args: CellArgs) -> list[Path]:
     columns = ("setting", "scenario", "seed", "onset", "leader_below_streak", "rounds_to_separate", "field_beats_leader_streak")
 
-    def rows():
-        for setting in (0.0, 0.5, 0.8, 0.9):
-            for name in ("no_change", "down_switch"):
-                config = replace(SCENARIOS[name], persistence=setting)
-                for seed in engine_seeds(args):
-                    t = make_timeline(config, seed)
-                    levels, leader, runner = t.levels, t.leader, t.runner_up
-                    calm = before_onset(t)
-                    below = [levels[r - 1, leader] < levels[r - 1, runner] for r in calm]
-                    record = play(ScoutRule(s=1, n=config.rounds), t)
-                    field = [c for c in range(config.channels) if c not in (leader, t.hedge)]
-                    beats = [
-                        longest_run([record.rows[r - 1].readings[c] > record.rows[r - 1].readings[leader] for r in calm])
-                        for c in field
-                    ]
-                    yield setting, name, seed, onset(t), longest_run(below), separate(t), max(beats, default=0)
+    blocks = [
+        (setting, name, replace(SCENARIOS[name], persistence=setting))
+        for setting in (0.0, 0.5, 0.8, 0.9)
+        for name in ("no_change", "down_switch")
+    ]
+    return write_csv(args, "streaks", columns, lambda: seed_rows(args, streak_rows, blocks))
 
-    return write_csv(args, "streaks", columns, rows)
+
+def streak_rows(block, seed: int) -> Rows:
+    setting, name, config = block
+    t = make_timeline(config, seed)
+    levels, leader, runner = t.levels, t.leader, t.runner_up
+    calm = before_onset(t)
+    below = [levels[r - 1, leader] < levels[r - 1, runner] for r in calm]
+    record = play(ScoutRule(s=1, n=config.rounds), t)
+    field = [c for c in range(config.channels) if c not in (leader, t.hedge)]
+    beats = [longest_run([record.rows[r - 1].readings[c] > record.rows[r - 1].readings[leader] for r in calm]) for c in field]
+    return [(setting, name, seed, onset(t), longest_run(below), separate(t), max(beats, default=0))]
 
 
 def separate(t: Timeline) -> int | None:
@@ -78,21 +82,24 @@ def tell(args: CellArgs) -> list[Path]:
         for p in (2.0, 4.0, 6.0)
     ]
 
-    def rows():
-        for scale, loading, rule, named in first + thresholds:
-            for name in scenarios:
-                config = replace(SCENARIOS[name], factor_scale=scale, loading=loading)
-                for seed in engine_seeds(args):
-                    t = make_timeline(config, seed)
-                    record = play(rule, t)
-                    knobs = (rule.window, rule.fall_points, rule.tell_points) if named else (None, None, None)
-                    yield (
-                        scale, loading[0], *knobs, name, seed, onset(t), depth_capped(t), hedge_rise(t, record, rule),
-                        int(largest(record.rows[-1].bets) == t.leader),
-                        move_round(record, t.leader), *fall_and_tell(t, record, rule), field_together(t),
-                    )  # fmt: skip
+    blocks = [
+        (scale, loading, rule, named, name, replace(SCENARIOS[name], factor_scale=scale, loading=loading))
+        for scale, loading, rule, named in first + thresholds
+        for name in scenarios
+    ]
+    return write_csv(args, "tell", columns, lambda: seed_rows(args, tell_rows, blocks))
 
-    return write_csv(args, "tell", columns, rows)
+
+def tell_rows(block, seed: int) -> Rows:
+    scale, loading, rule, named, name, config = block
+    t = make_timeline(config, seed)
+    record = play(rule, t)
+    knobs = (rule.window, rule.fall_points, rule.tell_points) if named else (None, None, None)
+    return [(
+        scale, loading[0], *knobs, name, seed, onset(t), depth_capped(t), hedge_rise(t, record, rule),
+        int(largest(record.rows[-1].bets) == t.leader),
+        move_round(record, t.leader), *fall_and_tell(t, record, rule), field_together(t),
+    )]  # fmt: skip
 
 
 def depth_capped(t: Timeline) -> int | None:
@@ -148,30 +155,24 @@ def field_together(t: Timeline) -> int:
 
 
 def luck(args: CellArgs) -> list[Path]:
-    def rows():
-        for setting in load_grid().own_scale:
-            config = scenario_config("down_switch", own_scale=setting)
-            for seed in engine_seeds(args):
-                t = make_timeline(config, seed)
-                yield setting, seed, *(output(play(policy, t)) for policy in (perfect, discerning, uniform))
+    def blocks():
+        return [(setting, scenario_config("down_switch", own_scale=setting)) for setting in load_grid().own_scale]
 
-    return write_csv(args, "luck", ("setting", "seed", "perfect", "discerning", "uniform"), rows)
+    columns = ("setting", "seed", "perfect", "discerning", "uniform")
+    return write_csv(args, "luck", columns, lambda: seed_rows(args, luck_rows, blocks()))
+
+
+def luck_rows(block, seed: int) -> Rows:
+    setting, config = block
+    t = make_timeline(config, seed)
+    return [(setting, seed, *(output(play(policy, t)) for policy in (perfect, discerning, uniform)))]
 
 
 def timeline_sanity(args: CellArgs) -> list[Path]:
     columns = ("setting", "scenario", "seed", "below_zero_rounds", "below_zero_readings", "discerning", "complacent")
     grid = load_grid().own_scale
 
-    def rows():
-        for setting in grid:
-            for name in SCENARIOS:
-                config = scenario_config(name, own_scale=setting)
-                for seed in engine_seeds(args):
-                    t = make_timeline(config, seed)
-                    scout = play(ScoutRule(s=1, n=config.rounds), t)
-                    readings = [r for row in scout.rows for r in row.readings if r is not None and r < 0]
-                    below = int((t.levels < 0).sum())
-                    yield setting, name, seed, below, len(readings), output(play(discerning, t)), output(play(complacent, t))
+    blocks = [(setting, name, scenario_config(name, own_scale=setting)) for setting in grid for name in SCENARIOS]
 
     def sparklines():
         setting = SCENARIOS["no_change"].own_scale
@@ -182,22 +183,36 @@ def timeline_sanity(args: CellArgs) -> list[Path]:
                 column = leaders[:, r]
                 yield name, r + 1, float(np.median(column)), *(float(np.percentile(column, p)) for p in (10, 90))
 
-    paths = write_csv(args, "timeline-sanity", columns, rows)
+    paths = write_csv(args, "timeline-sanity", columns, lambda: seed_rows(args, sanity_rows, blocks))
     return paths + write_csv(args, "timeline-sanity-sparklines", ("scenario", "round", "median", "p10", "p90"), sparklines)
+
+
+def sanity_rows(block, seed: int) -> Rows:
+    setting, name, config = block
+    t = make_timeline(config, seed)
+    scout = play(ScoutRule(s=1, n=config.rounds), t)
+    readings = [r for row in scout.rows for r in row.readings if r is not None and r < 0]
+    below = int((t.levels < 0).sum())
+    return [(setting, name, seed, below, len(readings), output(play(discerning, t)), output(play(complacent, t)))]
 
 
 def noise_grid(args: CellArgs) -> list[Path]:
     players = defaults()
 
-    def rows():
-        for setting in load_grid().own_scale:
-            for name in ("one_shock", "down_switch", "up_switch"):
-                config = scenario_config(name, own_scale=setting)
-                for seed in engine_seeds(args):
-                    t = make_timeline(config, seed)
-                    switch = first_switch(t)
-                    size = None if switch is None else switch.numbers["size"]
-                    for baseline, policy in players:
-                        yield setting, name, baseline, seed, size, output(play(policy, t))
+    def blocks():
+        return [
+            (setting, name, scenario_config(name, own_scale=setting), players)
+            for setting in load_grid().own_scale
+            for name in ("one_shock", "down_switch", "up_switch")
+        ]
 
-    return write_csv(args, "noise-grid", ("setting", "scenario", "baseline", "seed", "size", "output"), rows)
+    columns = ("setting", "scenario", "baseline", "seed", "size", "output")
+    return write_csv(args, "noise-grid", columns, lambda: seed_rows(args, noise_rows, blocks()))
+
+
+def noise_rows(block, seed: int) -> Rows:
+    setting, name, config, players = block
+    t = make_timeline(config, seed)
+    switch = first_switch(t)
+    size = None if switch is None else switch.numbers["size"]
+    return [(setting, name, baseline, seed, size, output(play(policy, t))) for baseline, policy in players]

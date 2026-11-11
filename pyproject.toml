@@ -15,6 +15,11 @@ dependencies = [
     "python-dotenv>=1",
     # Jev's SDK. Imported lazily, inside paranoid.harness.providers.jev only.
     "typesafe-sdk~=0.7.5",
+    # The provider SDKs inspect calls a model through. inspect ships none of them and raises on the first
+    # call without one, see docs/harness/running.md#setup. The floors are inspect 0.3.289's own.
+    "anthropic>=2.0.0",
+    "google-genai>=3.0.0",
+    "openai>=3.4.0",  # OpenAI and OpenRouter rows, which only the full study has
     # The analysis layer's three. matplotlib is exact, as its version is written into every SVG,
     # see docs/specs/analysis/plots.md#checked.
     "pandas~=3.1.0",

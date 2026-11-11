@@ -1,4 +1,4 @@
-"""HP1, HP3, HP4, HP9, HP11 and HP12 to HP14: the engine cells. See docs/specs/harness/tests.md#pilot.
+"""HP1, HP3, HP4, HP9, HP11, HP12 to HP14 and HP16: the engine cells. See docs/specs/harness/tests.md#pilot.
 
 Every cell runs with PARANOID_PILOT_SEEDS=5 into a temp `out`. The columns are read from the pilot spec's
 Writes lines, so the CSV and the page cannot drift apart.
@@ -29,12 +29,12 @@ ROWS = {  # one row per seed per setting per scenario per baseline, as each Runs
     "game-length": 9 * (4 + 3 * 3) * POLICIES * SEEDS + 9 * 3 * SEEDS,
     "reading-roughness": 3 * (9 * 2 + 3 * 2 + 3) * SEEDS,
     "up-and-down": 3 * 3 * 7 * SEEDS,
-    "bayesian-frontier": SCENARIO_COUNT * 35 * SEEDS,
+    "bayesian-frontier": SCENARIO_COUNT * (3 + 5) * SEEDS,  # three players and five fixed baselines
     "baseline-order": SCENARIO_COUNT * POLICIES * SEEDS + SEEDS,
 }
 ENGINE = ["streaks", "tell", "luck", "timeline-sanity", "noise-grid", "game-length", "reading-roughness"]
 ENGINE += ["up-and-down", "bayesian-frontier", "baseline-order"]
-SLOW = ("game-length", "bayesian-frontier")
+SLOW = ("game-length",)
 
 
 def written_columns() -> dict[str, list[str]]:
@@ -182,3 +182,16 @@ def test_hp14_complacent_rows(pilot):
     assert len(base) == 3 * 3 * SEEDS
     assert len({(row["setting"], row["scenario"], row["seed"]) for row in base}) == len(base)
     assert all(row["parameter"] == row["scout_rounds"] == "" and row["move_round"] == "0" for row in base)
+
+
+@pytest.mark.parametrize("cell", ["luck", "baseline-order"])
+def test_hp16_workers_write_the_same_bytes(cell, tmp_path, monkeypatch):
+    monkeypatch.setenv("PARANOID_PILOT_SEEDS", "3")
+    (one,) = run_cell(cell, CellArgs(out=tmp_path / "one"))
+    (two,) = run_cell(cell, CellArgs(out=tmp_path / "two", workers=2))
+    assert one.read_bytes() == two.read_bytes()
+
+
+def test_hp16_workers_below_one(pilot):
+    with pytest.raises(ValueError, match="workers"):
+        run_cell("luck", replace(pilot, workers=0))

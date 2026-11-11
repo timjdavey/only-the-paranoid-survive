@@ -7,7 +7,7 @@ from inspect_ai.event import ToolEvent
 from inspect_ai.model import ChatMessageTool
 
 from paranoid.engine import Record
-from paranoid.skins import render_record
+from paranoid.skins import load_skins, render_record
 
 EVEN = [10] * 10
 
@@ -66,6 +66,9 @@ def test_hs18_parameter_names_are_the_skin_s(tmp_path, monkeypatch, helpers, ski
     assert submit.properties["amounts"].type == "array" and submit.properties["amounts"].items.type == "integer"
     note = offered["desk_note"].parameters
     assert list(note.properties) == ["memo"] and note.required == ["memo"] and note.properties["memo"].type == "string"
+    renamed = load_skins()["renamed"]
+    assert offered["desk_note"].description == renamed.notes_text != renamed.notes_param_text
+    assert note.properties["memo"].description == renamed.notes_param_text
 
 
 @settings(max_examples=10, deadline=None, suppress_health_check=[HealthCheck.filter_too_much, HealthCheck.too_slow])

@@ -14,6 +14,7 @@ class CellArgs:
     only: str | None = None               # a model id, for cells that need a model
     seeds: int = 1000                     # seeds an engine cell plays, capped by PARANOID_PILOT_SEEDS
     dry_run: bool = False
+    workers: int = 1                      # processes an engine cell splits its seeds over
 
 Cell = Callable[[CellArgs], list[Path]]   # returns the paths it wrote
 CELLS: Mapping[str, Cell]                 # read only, the 21 names below in page order
@@ -22,6 +23,8 @@ def run_cell(name: str, args: CellArgs) -> list[Path]
 RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
 CHANNEL_ORDER_REQUEST = "Send exactly this now: {split}. Every one not named gets 0."
 ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to 100
+FRONTIER_PLAYERS = ((0.005, "odds"), (0.025, "odds"), (0.1, "odds"))   # the hazard and rule of each bayesian-frontier player
+FRONTIER_SEEDS = 10                             # the most seeds bayesian-frontier plays
 ```
 
 ## Behaviour
@@ -31,6 +34,7 @@ ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to
 - **Paths.** An engine cell writes `<out>/<cell>.csv`. A provider cell writes its eval logs to `<out>/<cell>/`, named by inspect, and any CSV to `<out>/<cell>.csv`, or to `<out>/<cell>-<name>.csv` when its Writes line names one. These are the paths `write_pilot` reads, see [analysis pilot](../analysis/pilot.md#interface).
 - **A CSV row is one seed's numbers**, or an aggregate over seeds. No CSV holds one seed's levels round by round, so a CSV gives away nothing a log does not. The rounding and token files have a row per round, of a count that says nothing about a level. The pilot runs on public seeds, so its outputs are publishable, with one exception: the `recognition` CSV holds replies about held-out skins' prompts, so it stays private whenever any skin but `example` ran, see [recognition](../../pilot/provider-checks.md#recognition) and [contamination](../../harness/contamination.md#public-and-held-out).
 - **Engine cells play positions `0` to `seeds − 1`** of the public list, with `load_seeds("public")`. A list shorter than `seeds` raises `ValueError` naming `PARANOID_PILOT_SEEDS`, which caps `seeds` when set and is the harness's one test hook, see [tests](tests.md).
+- **An engine cell splits its seeds over `workers` processes.** Each cell is a list of blocks, one per setting and scenario, and a function from a block and a seed to that seed's rows. With `workers` above 1 a process pool maps it over every block and seed, and the rows are written in the order one process writes them, so the CSV is the same bytes at any count. `workers` below 1 raises `ValueError`. The blocks, the grid and the seed list are read in the calling process, so a worker reads no file. Provider cells ignore it, as inspect runs their samples together already.
 - **A knob the pilot moves is a `replace` on the config in memory**, through `scenario_config` where it has an arg and `dataclasses.replace` otherwise, so the engine's validation runs again. Nothing here writes a config or a spec. The frozen defaults change only through [decisions](../../pilot/decisions.md).
 - **Cells that need a model** read `--models`. `up-against-down` takes the first `llm` row unless `--only` names one. `seeds`, `recognition`, `channel-order`, `bare`, `tool-choice`, `rolling` and `warm-up` take every `llm` row, as their checks ask, and `--only` narrows them to one. `jev` and `timestral` take the rows of their own `kind`. `repeats` takes the row the `seeds` logs pick.
 - **Every eval** passes `generate_config(row, row.reasoning[0])` as keywords, as `run` does, `retry_on_error=1`, `metadata={"reasoning": row.reasoning[0], "kind": row.kind}`, `max_connections=4` on an `llm` row and the provider's own cap otherwise, and the example skin, as `run` does by default, see [run](command.md#run). The task's other args stay at their defaults unless a cell names them, so a provider cell plays the headline tools, `notes,compute`, and needs Docker as a headline run does.
@@ -59,7 +63,7 @@ Every engine cell plays each baseline with `play(policy, timeline)` and reads th
 
 ### Engine cells
 
-Each runs with no model, no key and no network, on `seeds` seeds of every scenario it names.
+Each runs with no model, no key and no network, on `seeds` seeds of every scenario it names. `bayesian-frontier` plays `FRONTIER_SEEDS` at most.
 
 #### `streaks`
 
@@ -117,8 +121,9 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `bayesian-frontier`
 
-- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for every `h` in `HAZARDS` and `r` in `BAYESIAN_RULES`, 30 players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md).
-- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the 30 players, and `hazard` and `rule` are empty on the five fixed baselines. The split into seeds 0 to 499 and 500 to 999 is the measure's, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier), so the cell plays 1000 seeds unless capped.
+- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for each `(h, r)` in `FRONTIER_PLAYERS`, three players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md). On positions `0` to `min(seeds, FRONTIER_SEEDS) − 1`.
+- **Three of the family's thirty, on ten seeds**, so a knob move reruns the cell in seconds, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier). The three are the two ends of `HAZARDS` and the default hazard, at the default rule. More players or seeds are a change to the two constants and nothing else, as the columns hold.
+- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the three players, and `hazard` and `rule` are empty on the five fixed baselines. The split into a lower and an upper half of the seeds is the measure's, see [analysis pilot](../analysis/pilot.md#reading-the-inputs).
 
 #### `baseline-order`
 
@@ -218,6 +223,7 @@ What a round cost, which the analysis cannot read off a score. The `seeds` and `
 
 - Every engine cell runs with no key and no network, and reads nothing but `configs/grid.toml` and the public seed file.
 - Every CSV has exactly the columns named here, in that order.
+- An engine cell writes the same bytes at any `workers`.
 - No CSV holds a level for one seed and one round, a held-out seed's value, or a word of any skin but its name. `recognition.csv` is the one file that holds model replies.
 - `CELLS` has exactly the twenty-one names on this page, and `run_cell` on any other raises `ValueError` listing them.
 

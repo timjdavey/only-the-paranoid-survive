@@ -33,7 +33,6 @@ ORDERS = [  # (scenario, order), from the Baseline order check's Measure
     ("switch_then_shock", DOWN),
     (BOTH_WAYS, UP),
 ]
-SPLIT = 500  # the frontier picks on seeds below this and reports on the rest
 
 
 def bayesian_frontier(logs: Path, main: Path | None) -> Section | None:
@@ -44,9 +43,11 @@ def bayesian_frontier(logs: Path, main: Path | None) -> Section | None:
         player=[b if pd.isna(h) else f"bayesian {h} {r}" for b, h, r in zip(frame["baseline"], frame["hazard"], frame["rule"])]
     )
     players = with_headline(engine_scores(frame, ["scenario"], player="player"))
+    seeds = sorted(frame["seed"].unique())
+    split = seeds[len(seeds) // 2]  # the lower half of the seeds picks and the rest report
     early, late = (
         with_headline(engine_scores(part, ["scenario"], player="player"))
-        for part in (frame[frame["seed"] < SPLIT], frame[frame["seed"] >= SPLIT])
+        for part in (frame[frame["seed"] < split], frame[frame["seed"] >= split])
     )
     section = Section()
     section.table("players", players)

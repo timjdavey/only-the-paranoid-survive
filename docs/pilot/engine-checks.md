@@ -114,13 +114,14 @@ A switch comes in three kinds, see [events](../design/mechanics.md#events): the 
 Picks the Bayesian baseline's prior and rule, and says how much of the gap to the Discerning baseline no reader can close. The design is in [the Bayesian frontier](../design/baselines.md#the-bayesian-frontier) and the player in the [bayesian spec](../specs/baselines/bayesian.md).
 
 - **Question.** Which hazard and forecast rule make the best reader of the engine's family, and how far below the Discerning baseline the best one sits.
-- **Run.** Every `Bayesian(hazard, rule)` with `hazard` in `HAZARDS` and `rule` in `BAYESIAN_RULES`, 30 players, on 1000 public seeds of every scenario at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines on the same seeds.
+- **Run.** Three players of the family's thirty: `Bayesian(hazard, rule)` at the two ends of `HAZARDS` and at the default, all three at the `odds` rule. Ten public seeds of every scenario at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines on the same seeds.
+- **A coarse read, on purpose.** Thirty players on a thousand seeds is 240,000 runs and hours of one core, and every knob the pilot moves would run them again. Three players on ten seeds take seconds, so the frontier is read after every knob move. Five seeds pick and five report, so trust a pick only when the players sit well apart. Which three and how many seeds are two constants in the cell, see the [pilot spec](../specs/harness/pilot.md#bayesian-frontier).
 - **Measure.**
   - Pooled scenario score per player and scenario, and each player's headline.
   - The two planes: No change against Down switch, and No change against Up switch, one point per player, the hedge rule, Scout rule and Complacent baselines drawn in them, and the upper envelope.
-  - The best headline on seeds 0 to 499, and that player's headline and scenario scores on seeds 500 to 999, so the pick carries no lucky-draw bonus.
-  - Irreducible lag: one minus that player's Down switch score on seeds 500 to 999.
-- **Decide.** The `hazard` and `rule` of the best player become the Bayesian baseline's defaults. The irreducible lag is reported beside every Down switch bar. Whether the Bayesian baseline joins the scorer's marks is decided here too, see the [scorer](../specs/harness/scorer.md#not-decided). If no player beats the hedge rule on Down switch, the family is too narrow and `HAZARDS` or the rules widen, which is a spec change, not a knob.
+  - The best headline on the lower half of the seeds, and that player's headline and scenario scores on the upper half, so the pick carries no lucky-draw bonus.
+  - Irreducible lag: one minus that player's Down switch score on the upper half.
+- **Decide.** The `hazard` of the best player becomes the Bayesian baseline's default, and its `rule` stays `odds`, the one rule the cell plays. The irreducible lag is reported beside every Down switch bar. Whether the Bayesian baseline joins the scorer's marks is decided here too, see the [scorer](../specs/harness/scorer.md#not-decided). If no player beats the hedge rule on Down switch, the cell plays more of the family first. If none of the thirty does, the family is too narrow and `HAZARDS` or the rules widen, which is a spec change, not a knob.
 
 ## Baseline order
 

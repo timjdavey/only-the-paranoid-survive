@@ -1,7 +1,7 @@
 """The Bayesian baseline: a belief in the engine's family, through a forecast rule.
 
 See docs/specs/baselines/bayesian.md. It reads its own record, the start and the dials,
-never the timeline, and replays the record on every call, so it keeps no state.
+never the timeline. Its state is the record replayed, which filter.py caches by the record's rows.
 """
 
 from dataclasses import dataclass
@@ -12,7 +12,7 @@ import numpy as np
 from paranoid.engine import Bets, View
 
 from .filter import Family, Runs, replay, sample
-from .forecast import FORECAST_RULES, ODDS_DRAWS, QUANTILE_LEVELS
+from .forecast import FORECAST_RULES, ODDS_DRAWS, QUANTILE_LEVELS, fixed_draws
 from .lookahead import best_split
 
 HAZARDS = (0.005, 0.01, 0.025, 0.05, 0.1)
@@ -70,10 +70,8 @@ class Bayesian:
 
     def belief_of(self, runs: Runs) -> Belief:
         mean, var = runs.mixture()
-        rng = np.random.default_rng(0)
-        shape = (self.draws, len(mean))
-        picks = rng.random(shape)  # drawn first, as bayesian.md#the-belief pins
-        samples = sample(runs, picks, rng.standard_normal(shape))
+        picks, normals = fixed_draws(0, self.draws, len(mean), 1)  # picks drawn first, as bayesian.md#the-belief pins
+        samples = sample(runs, picks, normals)
         quantiles = np.quantile(samples, QUANTILE_LEVELS, axis=0).T
         changed = np.clip(1 - runs.weight[:, 0], 0.0, 1.0)
         return Belief(

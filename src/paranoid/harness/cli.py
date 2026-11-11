@@ -65,6 +65,7 @@ def parser() -> argparse.ArgumentParser:
     pilot_args.add_argument("--models", type=Path, default=Path("configs/models/poc.toml"))
     pilot_args.add_argument("--only", default=None)
     pilot_args.add_argument("--seeds", type=int, default=1000)
+    pilot_args.add_argument("--workers", type=int, default=1, help="processes an engine cell splits its seeds over")
     pilot_args.add_argument("--dry-run", dest="dry_run", action="store_true")
     pilot_args.set_defaults(handler=pilot)
     return top
@@ -151,7 +152,9 @@ def played(call: EvalCall) -> bool:
 def pilot(args: argparse.Namespace) -> int:
     from .pilot import CellArgs, run_cell, seed_cap
 
-    cell = CellArgs(out=args.out, models=args.models, only=args.only, seeds=seed_cap(args.seeds), dry_run=args.dry_run)
+    cell = CellArgs(
+        out=args.out, models=args.models, only=args.only, seeds=seed_cap(args.seeds), dry_run=args.dry_run, workers=args.workers
+    )
     for path in run_cell(args.check, cell):
         print(path)
     return 0

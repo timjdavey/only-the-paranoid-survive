@@ -7,20 +7,20 @@ from pathlib import Path
 
 from paranoid.engine import SCENARIOS, make_timeline, play
 
-from .common import CellArgs, defaults, engine_seeds, move_round, output, stayer, switch_kind, write_csv
+from .common import CellArgs, Rows, defaults, move_round, output, seed_rows, stayer, switch_kind, write_csv
 from .sweeps import BOTH_WAYS
 
 
 def baseline_order(args: CellArgs) -> list[Path]:
     columns = ("scenario", "kind", "baseline", "seed", "output", "move_round")
+    blocks = [
+        (name, config, defaults() + ([("stayer", stayer)] if name == BOTH_WAYS else [])) for name, config in SCENARIOS.items()
+    ]
+    return write_csv(args, "baseline-order", columns, lambda: seed_rows(args, order_rows, blocks))
 
-    def rows():
-        for name, config in SCENARIOS.items():
-            players = defaults() + ([("stayer", stayer)] if name == BOTH_WAYS else [])
-            for seed in engine_seeds(args):
-                t = make_timeline(config, seed)
-                for baseline, policy in players:
-                    record = play(policy, t)
-                    yield name, switch_kind(t), baseline, seed, output(record), move_round(record, t.leader)
 
-    return write_csv(args, "baseline-order", columns, rows)
+def order_rows(block, seed: int) -> Rows:
+    name, config, players = block
+    t = make_timeline(config, seed)
+    records = [(baseline, play(policy, t)) for baseline, policy in players]
+    return [(name, switch_kind(t), baseline, seed, output(record), move_round(record, t.leader)) for baseline, record in records]

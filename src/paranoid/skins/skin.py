@@ -37,9 +37,11 @@ class Skin:
     notes_name: str
     notes_text: str
     notes_param: str
+    notes_param_text: str
     compute_name: str
     compute_text: str
     compute_param: str
+    compute_param_text: str
     question: str
     round_word: str
     bet_word: str

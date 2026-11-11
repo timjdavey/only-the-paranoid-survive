@@ -163,6 +163,7 @@ def test_kl8_phrases_that_state_a_fact(rules, make_skin):
         ("ask", "Use the send_bread tool. " + GUID, "canary in prompt"),
         ("tool_text", "Send it. " + GUID, "canary in tool_text"),
         ("compute_text", "Run Python. " + GUID, "canary in compute_text"),
+        ("notes_param_text", "The note. " + GUID, "canary in notes_param_text"),
         ("reading_word", GUID, "canary in reading_word"),
     ],
 )

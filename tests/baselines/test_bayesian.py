@@ -1,4 +1,4 @@
-"""BB1 to BB4, BB6, BB7 and BB9, see docs/specs/baselines/tests.md#bayesian.
+"""BB1 to BB4, BB6, BB7, BB9 and BB10, see docs/specs/baselines/tests.md#bayesian.
 
 The rows about whole runs, BB5 and BB8, are in test_bayesian_runs.py.
 """
@@ -134,3 +134,25 @@ def test_bb9_every_player_splits_validly(hazard, rule, check_split):
     for name in ("down_switch", "one_shock"):
         for r in play(Bayesian(hazard=hazard, rule=rule), make_timeline(SCENARIOS[name], 0)).rows:
             check_split(r.bets)
+
+
+def belief_arrays(belief) -> list[np.ndarray]:
+    return [getattr(belief, field.name) for field in dataclasses.fields(belief)]
+
+
+def test_bb10_the_cache_changes_no_answer(view_of):
+    t = make_timeline(SCENARIOS["down_switch"], 0)
+    own, held = play(bayesian, t, max_rounds=20), play(complacent, t, max_rounds=20)
+    assert len(own) == len(held) and own != held
+    views = [view_of(t, record.rows) for record in (own, held)]
+    first = [belief_arrays(bayesian.belief(view)) for view in views]
+    assert not np.array_equal(first[0][0], first[1][0])  # two records of one length, two beliefs
+    second = [belief_arrays(bayesian.belief(view)) for view in reversed(views)][::-1]
+    for seed in range(1, 5):  # four runs of forty rounds push both out of the cache
+        play(bayesian, make_timeline(SCENARIOS["down_switch"], seed))
+    cold = [belief_arrays(bayesian.belief(view)) for view in views]
+    for again in (second, cold):
+        for before, after in zip(first, again):
+            assert all(np.array_equal(a, b) for a, b in zip(before, after))
+    assert all(not array.flags.writeable for arrays in first for array in arrays)
+    assert play(bayesian, t) == play(bayesian, t)

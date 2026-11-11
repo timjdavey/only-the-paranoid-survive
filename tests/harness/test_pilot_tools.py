@@ -3,6 +3,8 @@
 HS12 needs Docker: `uv run pytest -m sandbox`. HS19 runs compute on inspect's local sandbox, so it needs none.
 """
 
+import ast
+
 import pytest
 from inspect_ai.event import ToolEvent
 from inspect_ai.model import ChatMessageAssistant, ChatMessageTool
@@ -82,6 +84,10 @@ def test_hs19_compute_on_the_local_sandbox(example, helpers, monkeypatch):
     assert store.compute_rounds == 2 and store.no_calls == 2
 
 
+# What python:3.12-slim sets itself. GPG_KEY is the public fingerprint its build verified Python with.
+IMAGE_ENVIRONMENT = {"GPG_KEY", "HOME", "HOSTNAME", "LANG", "PATH", "PYTHON_SHA256", "PYTHON_VERSION"}
+
+
 @pytest.mark.sandbox
 def test_hs12_compute_in_docker(example, helpers):
     probes = [
@@ -96,7 +102,7 @@ def test_hs12_compute_in_docker(example, helpers):
     script = helpers.Script(outputs, then=helpers.reply(submit_call(example)))
     sample = helpers.run(script.model(), tools="compute", rounds=20).samples[0]
     results = [e.result for e in sample.events if isinstance(e, ToolEvent) and e.function == example.compute_name]
-    assert "Error" in results[0] and results[1] == "timeout" and "Error" in results[2]
-    assert "KEY" not in results[3] and "TOKEN" not in results[3]
+    assert "Error" in results[0] and results[1] == "timeout" and "MemoryError" in results[2]
+    assert set(ast.literal_eval(results[3])) <= IMAGE_ENVIRONMENT  # nothing from the host, so no key
     assert results[4] == render_record(example, Record())
     assert helpers.store_of(sample).compute_rounds == 1

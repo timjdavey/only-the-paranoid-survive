@@ -24,9 +24,11 @@ class Skin:
     notes_name: str                         # the notes tool's name as the model sees it
     notes_text: str                         # the notes tool's description
     notes_param: str                        # the name of the notes tool's one parameter. "note" in the example skin
+    notes_param_text: str                   # the description of that parameter
     compute_name: str                       # the compute tool's name as the model sees it
     compute_text: str                       # the compute tool's description
     compute_param: str                      # the name of the compute tool's one parameter. "python" in the example skin
+    compute_param_text: str                 # the description of that parameter
     question: str                           # Jev's choice question, see providers
     round_word: str                         # the record's first column header. "week" in the example skin
     bet_word: str                           # the suffix of each bet column. "sent" in the example skin

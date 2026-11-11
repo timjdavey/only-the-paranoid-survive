@@ -56,7 +56,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 - **Anthropic caches by content block.** A record sent as one growing block would only ever hit on the system prompt, and the record would be billed in full every round. So the solver can send the record one block per line to Anthropic models, see the [solver spec](../specs/harness/solver.md#record-blocks). It ships off, with `BLOCK_CACHE_APIS` empty, until two checks with a key show the cut moves the bill and not the prompt. Other providers match the start of the prompt whatever its blocks, so they get one block.
 - **Cached tokens are counted apart.** inspect leaves them out of its input count, so the [cost table](../specs/analysis/tables.md#cost) prices them on their own and the [cost per run](../pilot/provider-checks.md#cost-per-run) check reports each model's cached share.
 - **Batches do not fit.** A batch costs half as much, but each round needs the last round's reply, so a run is forty calls in a row and cannot be queued as one.
-- **To verify:** whether Google caches a repeated start on the models in `configs/models/`.
+- **Google caches a repeated start on its own**, on every Gemini from 2.5 on, and charges nothing to write it. Its docs give a floor of 4,096 tokens for the Flash models and none for Flash-Lite, read on 2026-11-11. **To verify:** that the Gemini row's cached share in the [cost check](../pilot/provider-checks.md#cost-per-run) is above zero, as a round's prompt may sit under the floor.
 
 ## Trend plots
 
@@ -84,7 +84,7 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 
 - **A Claude subscription works only if the plan gives API access.** inspect calls the Anthropic API with a console key, or with an OAuth token in `ANTHROPIC_AUTH_TOKEN`, which wins when both are set. A chat-only plan has neither.
 - **Check a subscription before a held-out skin goes through it.** Three things, none verified yet:
-  - That the plan neither keeps prompts nor trains on them. A held-out skin a provider trains on is no longer held out, see [who can see them](contamination.md#who-can-see-them).
+  - That the plan neither keeps prompts nor trains on them. A held-out skin a provider trains on is no longer held out, see [who can see them](contamination.md#who-can-see-them). Anthropic's [data retention page](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), read on 2026-11-11, says zero data retention is arranged per organization through its sales team, and that the Free, Pro and Max plans are outside it. So a held-out skin goes through a console key from an organization that has it, never through one of those plans.
   - That its rate limit covers the run. At twenty seeds and two skins a Claude row is 320 runs of at least forty calls each, so about 13,000 calls.
   - That a `--limit 2` run completes and its cost table shows cache reads, see [prompt caching](#prompt-caching).
 
