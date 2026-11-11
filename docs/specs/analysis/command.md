@@ -10,7 +10,7 @@
 paranoid analyse [results] [logs ...] [--out docs/results] [--name poc]
                  [--models configs/models/poc.toml] [--recognition logs/pilot/recognition.csv]
                  [--plots] [--eci-read-on YYYY-MM-DD] [--dry-run]
-paranoid analyse pilot [--logs logs/pilot] [--out docs/pilot] [--dry-run]
+paranoid analyse pilot [--logs logs/pilot] [--out docs/pilot] [--main <logs>] [--dry-run]
 paranoid analyse cost [logs ...] [--models configs/models/poc.toml] [--seeds N] [--prices configs/prices.toml]
 paranoid analyse gap <log-a> <log-b>
 ```
@@ -32,21 +32,31 @@ def analyse(argv: Sequence[str]) -> int
 
 1. `load_runs(logs)`, then print the report: logs read with sample counts, logs skipped, logs dropped as duplicates and which won, errored samples per log, mixed numpy versions, see [the report](runs.md#the-report).
 2. `load_recognition(--recognition)` when the file exists, for the `§` and `¶` flags, see [flags](scores.md#flags).
-3. `write_results(runs, out, name, models=..., recognition=..., plots=...)`, then print each path written. `--name` must be a bare file stem, see [tables](tables.md#the-results-page).
-4. **`--plots` with a models file that has `eci` values needs `--eci-read-on`**, the date the values were read from Epoch's CSV, for the credit on the ECI plot, see [trend plots](plots.md#trend-plots). Without it the command returns 1 before writing anything. The ECI values themselves come from the models file. The analysis never fetches them.
-5. **`--dry-run`** does steps 1 and 2 and prints what step 3 would write, and writes nothing.
+3. `write_results(runs, out, name, models=..., recognition=..., plots=..., eci_read_on=..., dry_run=...)`, then print each path written. `--name` must be a bare file stem, see [tables](tables.md#the-results-page).
+4. **`--plots` with a models file that has `eci` values needs `--eci-read-on`**, the date the values were read from Epoch's CSV, for the credit on the ECI plot, see [trend plots](plots.md#trend-plots). Without it `write_results` raises, so the command returns 1 before writing anything. The ECI values themselves come from the models file. The analysis never fetches them.
+5. **`--dry-run`** passes `dry_run` on. It does steps 1 and 2, prints the paths step 3 would write, and writes nothing.
 
 ### `pilot`
 
-`write_pilot(logs, out)`, then print each path written. `--dry-run` prints the sections whose input exists and writes nothing.
+`write_pilot(logs, out, main=..., dry_run=...)`, then print each path written.
+
+- **`--logs`** is the folder the pilot cells wrote to, the harness's `--out`, see [pilot cells](../harness/pilot.md#shared-rules).
+- **`--main`** is a folder of logs from `paranoid run`, which the inertia table reads, see [reading the inputs](pilot.md#reading-the-inputs). Without it that one table is left out.
+- **`--dry-run`** prints the paths a real run would write, so the sections whose input exists, and writes nothing.
 
 ### `cost`
 
-`load_runs(logs)`, the report, then `write_cost(runs, models=..., seeds=..., prices=...)` printed as a table. Nothing is written to disk; the pilot section does that, see [pilot](pilot.md#sections).
+`load_runs(logs)`, the report, then `write_cost(runs, models=..., seeds=..., prices=...)` on the table as loaded, printed as a table. Nothing is written to disk. The pilot section does that, see [pilot](pilot.md#sections).
+
+- **No prices file means no `cost` column.** `--prices` defaults to `configs/prices.toml`. When that default is not there the command passes no prices and prints one line saying so. A path typed by hand that does not exist returns 1.
+- **With prices**, the line under the table gives the date they were read on, from the table's `attrs["read_on"]`, see [cost](tables.md#cost).
 
 ### `gap`
 
-`load_runs([a, b])`, then `paired_gap` between the two logs' result rows, printed as a table with one row per scenario and the headline. Each log must hold exactly one result row, else `ValueError` naming the log and the keys it holds. The two rows may be the same key, which prints zeros, see [paired gap](scores.md#paired-gap).
+`load_runs([a, b])`, then `paired_gap` between the two logs' result rows, printed as a table with one row per scenario and the headline.
+
+- **Each log must hold exactly one result row**, else `ValueError` naming the log and the keys it holds.
+- **The two logs must not share a key**, else `ValueError` naming it. Two logs of one key are one result row, or a duplicate the loader has already dropped, see [duplicates](runs.md#duplicates), so the gap would be a row against itself and print zeros for two runs that differ. To compare two reruns of one key, analyse each on its own.
 
 ## Invariants
 

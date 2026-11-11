@@ -43,6 +43,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Decision | A knob's settled value, a number or a yes or no, written once in [decisions](pilot/decisions.md) and then frozen |
 | Setting | What was played, apart from who played it: the skin, seed set, noise setting, knobs and versions. Rows that differ in any of them never share a table. `Setting` in code, see the [analysis spec](specs/analysis/runs.md) |
 | Result row | One model at one reasoning setting on one setting. One row of a results table, and the unit the analysis compares. `ResultKey` in code, see the [analysis spec](specs/analysis/runs.md) |
+| Run table | The analysis layer's table of every run it loaded, one row per run, with the run's key, scores and token counts. Every table and plot starts from it. See the [analysis spec](specs/analysis/runs.md#one-row-per-run) |
 
 ## The world
 
@@ -84,6 +85,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Ramp | The rounds a switch spreads its move over, in a straight line. 1 to 5, drawn per seed. `ramp` in code |
 | Drift | A switch stretched over many more rounds |
 | Short | A sleeper's rise that stops short: it ends above the runner-up but below the leader, so the right call is to stay. Drawn on some Up switch seeds. `short` in code |
+| Switch kind | Which of four switches a seed drew: the leader falls, the leader falls and a sleeper rises, a sleeper rises past the leader, or a sleeper rises and stops short. `fall`, `fall_and_rise`, `rise` and `rise_short` in code, and `none` where a scenario has no switch. `switch_kind` in the analysis, see [switch kinds](specs/analysis/scores.md#switch-kinds) |
 | Undo | A switch that puts an earlier sleeper back: its base level and loading return to what they were before it rose. `kind="undo"` in code |
 | Profile | The form an event takes within its shape, drawn per seed. A shock falls sharply and climbs slowly, or slides and rebounds. A drift is linear or logistic |
 | Scenario | A list of events we put each model through. Its name always ends in "scenario", so it never reads as an event. See [scenarios](design/scenarios.md) |
@@ -140,15 +142,23 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Error bar | How sure we are of a score. The 2.5th to 97.5th percentiles of the score over resamples of the seeds, a percentile bootstrap, so it shrinks with more seeds (epistemic uncertainty). Never SD over √seeds, as a pooled ratio is not a mean. See [scoring](design/scoring.md#error-bars) |
 | Spread | How far one run lands from another. Does not shrink with more seeds (aleatoric uncertainty). See [scoring](design/scoring.md#spread) |
 | Sampling spread | The part of spread from the model's own draws. Same seed, run again |
+| Sampling share | The sampling spread's part of the spread, as a share of the variance: the variance within a seed across repeats over the variance of all runs. See [repeats](pilot/provider-checks.md#repeats) |
 | World spread | The part of spread from the seed |
+| Paired gap | The difference between two result rows' scores on the seeds both played, with an interval from resampling those seeds together. Pairing cancels the luck of the seed. `paired_gap` in code, see [paired gap](specs/analysis/scores.md#paired-gap) |
+| Scenario gap | The same pairing across two scenarios of one result row, on twin timelines, such as Switch then shock against Down switch for what a whipsaw cost. `scenario_gap` in code |
+| Public gap | A model's score on the public seeds minus its score on the held-out seeds. Near zero, unless the model has learned the public seeds. Not paired, as the two sets are different worlds. See [the public gap](harness/contamination.md#the-public-gap) |
 | Skin sensitivity | The gap in a model's score between skins, which covers both the story and how the skin words the frame. A finding, not an error. Reported as a gap paired by seed between two skins on one seed set, see [spread](design/scoring.md#spread) |
-| Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's |
+| Mark | A fixed baseline's pooled score drawn on a scenario's bar, such as the Complacent baseline's. A reference, not a score of the model's. Never a symbol beside a score, which is a flag |
 | Bayesian frontier | The scenario scores of every Bayesian baseline in a pre-registered family of hazards and forecast rules, drawn as the No change score against the Down switch and Up switch scores. Its upper envelope is the best any reader of the engine's family did, and the Bayesian baseline's defaults are the point on it with the best headline. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
 | Reachable gain | The Discerning baseline's scenario score minus the Complacent baseline's, so one minus the Complacent mark. What moving at the right time is worth. In the Up switch then down switch scenario the Stayer stands in for the Complacent baseline. In level points it is the Discerning baseline's output minus the Complacent baseline's. See [reachable gain](pilot/engine-checks.md#reachable-gain) |
 | Bayesian gain | The Bayesian baseline's scenario score minus the Complacent baseline's, or the Stayer's where it stands in. What the best blind baseline earns from moving, after explore bets and lag |
 | Bayesian gain percentage | The Bayesian gain over the reachable gain, as a whole percent. How much of the reachable gain a player can earn from its own record alone |
+| Explore cost | What exploring costs where nothing changes: one minus a player's No change scenario score. In level points, the Complacent baseline's output minus the player's on No change. The price that sits beside the gain an explore bet buys |
+| Irreducible lag | One minus the best Bayesian baseline's Down switch score, on seeds it was not picked on. The part of the gap to the Discerning baseline no reader can close. See [Bayesian frontier](pilot/engine-checks.md#bayesian-frontier) |
 | Stayer | A pilot reference, not a baseline. It plays as the Discerning baseline until the last event begins, then holds those bets. In the Up switch then down switch scenario it moves to the sleeper and never comes back. Never on a bar. See the [harness pilot spec](specs/harness/pilot.md#shared-rules) |
 | Flag | A symbol beside a score that says a run gave up, retries ran high, or the model recognised the prompt or finished the canary. It never drops a row. See [flags](specs/analysis/scores.md#flags) |
+| Retry share | The share of rounds that needed more than one try. Above a share the pilot sets, the scenario's bar is flagged. See the [retry rule](harness/prompts.md#retry-rule) |
+| No call share | The replies that made no call to place the split, over the rounds played. Each one costs a retry, and one round can hold several. Read by the [tool choice](pilot/provider-checks.md#tool-choice) check |
 | Bare harness | The headline harness with its notes file and compute tool taken away, `tools=none`. A sensitivity every LLM row plays once, never the headline. See [bare harness](pilot/provider-checks.md#bare-harness) |
 | Bare gap | A model's paired gap between its headline setting and the bare harness. How much of its score the tools did. Reported per model beside the headline, see [tables](specs/analysis/tables.md#the-results-page) |
 

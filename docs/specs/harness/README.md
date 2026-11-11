@@ -118,7 +118,7 @@ The analysis is the layer above. What it takes from the harness is listed on its
 
 | Layer | Its list |
 |---|---|
-| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `scenario_config` and `load_seeds` for the one timeline it rebuilds |
+| analysis | [Names from the harness](../analysis/README.md#names-from-the-harness): `pooled_score`, `bootstrap`, `draws_of`, `BOOTSTRAP_DRAWS`, `BOOTSTRAP_SEED` and `TRAITS` for every pooled number and bar, `load_models`, `ModelRow` and `REASONING` for row order and the trend plots, `BUDGETS` to read a reasoning setting back from a config, `scenario_config` and `load_seeds` for the one timeline it rebuilds |
 
 - **The analysis reads a log's scores and metadata, never its messages or store**, see [runs](../analysis/runs.md#privacy). So every number it reports is in `Score.value` or `Sample.metadata`, which is why the [scorer](scorer.md#scoring-one-run) puts the baselines' outputs there and the [task](task.md#dataset) puts every identifier in the metadata.
 - **`run` writes `reasoning` and `kind` on the eval**, so the analysis can name a result row without the models file, see [run](command.md#run).

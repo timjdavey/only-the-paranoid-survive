@@ -34,7 +34,7 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 - **Run time.** About 115 ms a forecast on CPU, so 5 seconds a run and half an hour a grid setting for the `timestral` cell. The thread count makes no difference.
 
 ## Code
-- Write the analysis from its [spec](docs/specs/analysis/README.md), last. The harness writes logs now.
+- Write the analysis from its [spec](docs/specs/analysis/README.md), last. The harness writes logs now. Close its three "Verify before code" items first, on [runs](docs/specs/analysis/runs.md#verify-before-code) and [scores](docs/specs/analysis/scores.md#verify-before-code).
 - The held-out seed lists in the private repo, see [contamination](docs/harness/contamination.md#two-seed-sets). The public list, 0 to 999, is in `configs/seeds/public.txt`.
 - Ask each provider in `configs/models/` for zero data retention before the proof of concept, as it plays held-out skins, see [contamination](docs/harness/contamination.md#who-can-see-them).
 - Pass the same two held-out skins to `paranoid run --skins` on every proof of concept run, see [running](docs/harness/running.md#commands).
@@ -53,7 +53,7 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 - `google/gemini-2.5-flash` in `configs/models/poc.toml` gets rerouted to `gemini-3.5-flash-lite` on 2026-12-01. Swap it before then.
 
 ## Needs a key
-Every other "Verify before code" item is closed, see the "Checked" section of each harness and analysis spec page. These call a provider, so they wait for a workspace with a `.env`. Each spec bullet says the exact call.
+Every other "Verify before code" item on a harness page is closed, see its "Checked" section. The analysis has three that need no key, see [code](#code). These call a provider, so they wait for a workspace with a `.env`. Each spec bullet says the exact call.
 - **Each provider takes what inspect sends.** One small call per `llm` row and reasoning setting in `configs/models/`, see the [command spec](docs/specs/harness/command.md#verify-before-code). It checks every model id and every setting marked "to verify" in `full.toml` on the way.
 - **`off` is off.** No reasoning tokens on any `off` row, same page. `poc.toml` says Claude 5.5 models cannot turn thinking off, and inspect turns it off on Haiku 5.5, so this settles that row.
 - **Which OpenRouter models refuse a required tool call while thinking**, see the [solver spec](docs/specs/harness/solver.md#verify-before-code). DeepSeek and Kimi are the likely ones.

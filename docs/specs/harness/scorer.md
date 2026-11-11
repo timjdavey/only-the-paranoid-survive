@@ -97,7 +97,7 @@ A run that hit ten failed tries in one round gave up, see [tries](solver.md#trie
 
 - **Per scenario and overall**, `sum(retry_rounds) / sum(rounds)` over the scored samples. A run that gave up counts its last round as retried, as its ten tries say.
 - **`cut_off_share`** is `sum(cut_offs) / sum(rounds)` overall, kept apart so a cap problem cannot pass as a model problem, see [sampling](../../harness/models.md#sampling).
-- The share that marks a bar is a pilot decision, see [decisions](../../pilot/decisions.md#provider-checks).
+- The share that flags a bar is a pilot decision, see [decisions](../../pilot/decisions.md#provider-checks).
 
 ### Tool use share
 
