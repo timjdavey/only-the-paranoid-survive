@@ -6,14 +6,15 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 
 | Id | Test | Page |
 |---|---|---|
-| EC1 | Every key in `SCENARIOS` equals its config's `name`, the eight glossary code names are all present and nothing else, and assigning to `SCENARIOS` raises `TypeError` | [config](config.md#scenarios) |
-| EC2 | `ScenarioConfig()` with each bad value in the validation list raises `ValueError`, one case per clause, including `onset=(0, 5)`, a `size_sigmas` low of 0, a `hedge_margin_points` of 0, `short_share=0.5` on a `"draw"` switch, a `short_level` of `(0.0, 0.5)`, an undo as the first event and an undo after a `"fall"` switch | [config](config.md#fields) |
-| EC3 | `engine_hash` of the default config is 12 lowercase hex characters and equals a pinned string. Changing the pinned string is a reviewed change | [config](config.md#engine-hash) |
+| EC1 | Every key in `SCENARIOS` equals its config's `name`, the eight glossary code names are all present in the scenario table's order and nothing else, and assigning to `SCENARIOS` raises `TypeError` | [config](config.md#scenarios) |
+| EC2 | `ScenarioConfig()` with each bad value in the validation list raises `ValueError`, one case per clause, including `onset=(1, 5)`, a `runner_up_gap_points` low of 0, an infinite `own_scale`, an unknown `kind`, a `size_sigmas` low of 0, a `hedge_margin_points` of 0, `short_share=0.5` on a `"draw"` switch, a `short_level` of `(0.0, 0.5)`, an undo as the first event and an undo after a `"fall"` switch | [config](config.md#fields) |
+| EC3 | `engine_hash(SCENARIOS["no_change"])` is 12 lowercase hex characters and equals a pinned string. Changing the pinned string is a reviewed change | [config](config.md#engine-hash) |
 | EC4 | `dataclasses.replace` on each field with a different valid value changes the hash. Replacing a field with its own value does not | [config](config.md#engine-hash) |
 | EC5 | Each `*_points` default equals its `*_sigmas` default times `own_scale` at the default config | [config](config.md#defaults) |
 | EC6 | `leader_base=(60, 70)` and `(60.0, 70.0)` give equal configs, equal hashes and equal timelines on seed 0 | [config](config.md#fields) |
-| EC7 | The canonical JSON of `one_shock` contains `"shape":"shock"` inside its one event, and `shock_then_switch` has one `shock` and one `switch` | [config](config.md#engine-hash) |
+| EC7 | The test rebuilds the canonical JSON of `one_shock` from the recipe on the config page, and its SHA-256 starts with `engine_hash`. It contains `"shape":"shock"` inside its one event, and `shock_then_switch`'s has one `shock` and one `switch` | [config](config.md#engine-hash) |
 | EC8 | `replace(SCENARIOS[name], own_scale=8.0, pin_in_level_points=True)` builds for every scenario. The same with `pin_in_level_points=False` raises `ValueError`, as does a pinned config with `runner_up_gap_points=(8.0, 30.0)` | [config](config.md#fields) |
+| EC9 | A `Range` entry that is not a real number, an `IntRange` entry or `int` field that is not a whole number, and a `bool` in either, raise `TypeError`. `own_scale=4` and `own_scale=4.0` give equal configs and equal hashes | [config](config.md#fields) |
 
 ## Timeline
 
@@ -34,10 +35,10 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | ET13 | Shock, hedge cap, 200 One shock seeds: at the trough, which is `−numbers["depth"]`, hedge `base + loading × trough` is at least `hedge_margin_points` below the leader's, and `depth ≤ depth_drawn`. With `hedge_may_overtake` on and `events=(ShockSpec(depth_sigmas=(4.0, 25.0), depth_points=(16.0, 100.0)),)`, which the default ladder and loadings allow on every seed as they never need more than 90 points, at least `hedge_margin_points` above. With the default config and the knob on, `make_timeline` raises `ValueError` on some seed in the first 50. On 200 Switch then shock seeds the same margin holds against the climate leader at the shock's onset, with that leader's loading at onset | [timeline](timeline.md#shock) |
 | ET14 | `one_channel_shock`: `factor` and `base` equal the No change timeline's, `impulse` is non-zero on the leader only, and `climate_leader(round)` is the same channel as on the No change timeline in every round. That the Discerning baseline then plays the same bets is [BP13](../baselines/tests.md#policies) | [timeline](timeline.md#shock) |
 | ET15 | Switch, fall: after the ramp the leader's base is `size` below the base of the channel that was second at onset, within `1e-9`. The ramp is linear, no other base moves, the hedge is never the sleeper, `numbers["fall"]` equals the points moved | [timeline](timeline.md#switch) |
-| ET16 | Switch, rise, on seeds with `short` 0: after the ramp the sleeper's base is `rise` above every other channel's base, including the runner-up's and the fallen leader's. Its loading from onset equals `numbers["sleeper_loading"]` and is positive. No other loading changes | [timeline](timeline.md#switch) |
+| ET16 | Switch, rise, on seeds with `short` 0: after the ramp the sleeper's base is `rise` above the highest other channel's base within `1e-9`, so above the runner-up's and the fallen leader's. Its loading from onset equals `numbers["sleeper_loading"]` and is positive. No other loading changes | [timeline](timeline.md#switch) |
 | ET17 | Switch, `kind="draw"`, **slow**: over 1000 seeds, the share with a sleeper is within 0.05 of `riser_share` | [timeline](timeline.md#switch) |
-| ET18 | Drift: after `length` rounds the leader's base is `size` below the channel that was second at onset. The linear profile's steps are equal. The logistic profile has the same endpoints and is monotone | [timeline](timeline.md#drift) |
-| ET19 | Events past the last round: a config with `onset = (rounds, rounds)` and a drift makes a timeline with one event and nothing out of bounds | [timeline](timeline.md#events) |
+| ET18 | Drift, with `length=(10, 15)` so it ends by round 40: after `length` rounds the leader's base is `size` below the channel that was second at onset, within `1e-9`. The linear profile's steps are equal. The logistic profile has the same endpoints and is monotone | [timeline](timeline.md#drift) |
+| ET19 | Events past the last round: a config with `onset = (rounds, rounds)`, a drift then a shock, makes a timeline with two events, the shock's onset past `rounds`, every array the right shape, and the drift's first step on the last round | [timeline](timeline.md#events) |
 | ET20 | No two alike: a config with two shocks whose ranges are single values raises `ValueError` after 100 tries | [timeline](timeline.md#no-two-alike) |
 | ET21 | Pinning: two pinned configs differing only in `own_scale` give equal `base`, `loadings`, `impulse` and events on each of 50 seeds of every scenario, One shock included | [timeline](timeline.md#pinning) |
 | ET23 | Nothing clipped: a config with a low ladder and a deep shock produces a level below 0, and `make_timeline` does not raise | [timeline](timeline.md#invariants) |
@@ -54,6 +55,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | ET34 | Twin timelines, Up switch then down switch and Up switch: on seeds where Up switch has `short` 0, `levels` equal before the undo's onset. On seeds where it has `short` 1, they differ on the sleeper only | [timeline](timeline.md#twin-timelines) |
 | ET35 | Twin timelines, Up switch then down switch and No change: `levels` equal from the end of the undo's ramp to the last round | [timeline](timeline.md#twin-timelines) |
 | ET36 | No two alike, redraw: a config with two `ShockSpec()` events on 200 seeds. Consecutive shocks always differ in at least two draws, `gap` excluded. Every first event has `numbers["tries"] == 1`, and at least one second event has `tries > 1` | [timeline](timeline.md#no-two-alike) |
+| ET37 | `inertia_cap`: a config with it set has a different hash from one without, and the same arrays and events on 20 seeds | [config](config.md#fields) |
 
 ## Game
 
@@ -62,7 +64,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | EG1 | Each row of the bets table raises `BetError` with the given `check`, at the defaults, and `str(error)` is `Bad tool call: {check}.`. `True` in a split fails `shape`, as do `10.0` and `"10"`. A split of `np.int64` passes. A split of 11 values fails `shape` before `sum`. A negative value fails `sign`, not `shape` | [game](game.md#bets) |
 | EG2 | A `BetError` leaves `round`, `done` and `len(record)` unchanged | [game](game.md#bets) |
 | EG3 | Inertia: with `inertia_cap = 20`, round 1 accepts any valid split, round 2 rejects a move of 21 with `check` `inertia` and accepts 20 | [game](game.md#bets) |
-| EG4 | Readings: with `read_noise_z` set to all ones on a hand-built timeline, a bet of 4 reads `level + k/2`, 16 reads `level + k/4`, 100 reads `level + k/10`, each to one decimal | [game](game.md#readings) |
+| EG4 | Readings: with `read_noise_z` set to all ones on a hand-built timeline, round 1 splits 4, 16 and 80 and reads `level + k/2`, `level + k/4` and `level + k/sqrt(80)`, and round 2 puts 100 on one channel and reads `level + k/10`, each to one decimal | [game](game.md#readings) |
 | EG5 | Unfunded channels read `None`, and the row's readings are `None` exactly where bets are 0 | [game](game.md#readings) |
 | EG6 | Output equals the exact-level weighted sum rounded to one decimal, not the sum of the readings, on a timeline where they differ | [game](game.md#readings) |
 | EG7 | A negative reading is possible: a low level and a large negative `read_noise_z` with a bet of 1 | [game](game.md#readings) |
@@ -111,7 +113,7 @@ With `hypothesis`, kept fast with a small example count.
 |---|---|
 | EH1 | For any seed and scenario, ET2, ET3 and ET4 hold |
 | EH2 | For any valid split, `Game.play` accepts it and the row's `None`s match its zeros |
-| EH3 | For any weights with a positive sum, `split_budget` sums to the budget and is non-negative, see [view](view.md#split_budget) |
+| EH3 | For any finite non-negative weights with a positive sum, `split_budget` sums to the budget and is non-negative, see [view](view.md#split_budget). A weight that is not finite raises `ValueError` |
 
 ## Pilot decides
 

@@ -59,7 +59,7 @@ def split_budget(weights: Sequence[float], budget: int) -> Bets
 
 ### `split_budget`
 
-Turns weights into a valid split by largest remainder. Shares are `weight / sum × budget`. Each channel gets the floor of its share, then the leftover points go one each to the channels with the largest fractional parts, lowest index first on a tie. All weights zero or any weight negative raises `ValueError`. The result sums to `budget` and has one entry per weight. The baselines layer and the Jev provider both use it, see [names from the engine](../baselines/README.md#names-from-the-engine) and [Jev](../harness/providers.md#jev).
+Turns weights into a valid split by largest remainder. Shares are `weight / sum × budget`. Each channel gets the floor of its share, then the leftover points go one each to the channels with the largest fractional parts, lowest index first on a tie. All weights zero, any weight negative or any weight not finite raises `ValueError`. The arithmetic is exact, with `fractions.Fraction`, so a floor or a tie never rests on float rounding. The result sums to `budget` and has one entry per weight. The baselines layer and the Jev provider both use it, see [names from the engine](../baselines/README.md#names-from-the-engine) and [Jev](../harness/providers.md#jev).
 
 ## Invariants
 

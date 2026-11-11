@@ -15,5 +15,7 @@ jobs:
         run: uv sync --locked
       - name: Tests
         run: uv run pytest
+      - name: Slow tests
+        run: uv run pytest -m slow
       - name: Layer rule
         run: uv run lint-imports

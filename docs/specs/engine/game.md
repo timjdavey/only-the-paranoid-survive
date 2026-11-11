@@ -20,8 +20,10 @@ class Row:
     output: float                           # one decimal
 
 class Record:
-    rows: Sequence[Row]                     # read only view. append is the one writer
+    def __init__(self, rows: Iterable[Row] = ())
+    rows: Sequence[Row]                     # read only, a tuple. append is the one writer
     def __len__(self) -> int
+    def __eq__(self, other: object) -> bool  # equal rows
     def append(self, row: Row) -> None
     def copy(self) -> Record
     def last_bets(self) -> Bets | None
@@ -72,8 +74,11 @@ For round `r` (row `r − 1`) and channel `c` with bet `b`:
 
 ### Record
 
+- **`Record(rows)` takes any rows**, `Record()` none. Neither it nor `append` checks them, `Game` does, see [starting part way](#starting-part-way).
+- **Two records are equal when their rows are**, so a copy equals its source and a replay equals the first play. A record is not hashable.
+- **`Row` casts `bets` and `readings` to tuples** on construction, `bets` to Python `int`s and each reading to a `float` or `None`.
 - **A record is the rows in round order**, 1 to `len(record)`, with no gaps. `Game(timeline, record)` raises `ValueError` if the rows are not 1, 2, 3… in order, if there are more rows than `timeline.config.rounds`, or if a row's bets or readings do not fit the timeline's `channels` and `budget`.
-- **`rows` is a read only view.** `append` is the only way to add a row and nothing removes or edits one. `copy()` returns a new record with the same rows.
+- **`rows` is a tuple.** `append` is the only way to add a row and nothing removes or edits one. `copy()` returns a new record with the same rows.
 - **A record renders nothing.** The skins layer turns it into the CSV the agent reads, column words and decimals included, see [render](../skins/render.md#record). So no engine word reaches a model.
 - **`unchanged_rounds`** returns every round from 2 on whose bets equal the previous round's. The harness reports them as rounds the agent left the plan alone, see [interface](../../design/interface.md#how-the-agent-plays).
 - **`readings_of(c)`** returns `(round, reading)` pairs for the rounds where `c` had a bet, in round order. Policies read the record through it.
