@@ -29,6 +29,7 @@ This matters most.
 | A baseline | A pure policy in `paranoid.baselines` and a key in its `POLICIES`, see the [baselines spec](docs/specs/baselines/README.md), a row in [baselines](docs/design/baselines.md). The harness then plays it as `baseline/<name>` with no change | Check the [baseline order](docs/pilot/engine-checks.md#baseline-order) still holds |
 | Seeds | Public seeds in `configs/seeds/public.txt`, held-out seeds in the private repo's `held-out.txt`. One list for every scenario, see [contamination](docs/harness/contamination.md#two-seed-sets) | Never publish a held-out seed, its timeline or a log that played it |
 | A model | A row in `configs/models/` | Say its reasoning setting |
+| A docs page | Its folder under `docs/`, and a row in the [docs directory](docs/README.md). A spec or prior work page gets its row in that folder's own README | Keep it under 300 lines |
 | A pilot check | A section in [engine checks](docs/pilot/engine-checks.md) if it needs no model, else in [provider checks](docs/pilot/provider-checks.md), and a row in [decisions](docs/pilot/decisions.md) | A cell in the [harness pilot spec](docs/specs/harness/pilot.md) and a section in the [analysis pilot spec](docs/specs/analysis/pilot.md) |
 
 ## What never changes without a new pilot
