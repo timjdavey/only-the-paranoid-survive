@@ -32,7 +32,7 @@ This matters most.
 | Seeds | Public seeds in `configs/seeds/public.txt`, held-out seeds in the private repo's `held-out.txt`. One list for every scenario, see [contamination](docs/harness/contamination.md#two-seed-sets) | Never publish a held-out seed, its timeline or a log that played it |
 | A model | A row in `configs/models/` | Say its reasoning setting |
 | A docs page | Its folder under `docs/`, and a row in the [docs directory](docs/README.md). A spec or prior work page gets its row in that folder's own README | Keep it under 300 lines |
-| A finding | A section in [findings](docs/pilot/findings.md), with the run's settings, what it means and what changed | A to-do it leaves goes in `TODO.md`, linking to the finding |
+| A finding | A section in [findings](docs/pilot/findings.md), or in [model findings](docs/pilot/model-findings.md) if a model played, with the run's settings, what it means and what changed | A to-do it leaves goes in `TODO.md`, linking to the finding |
 | A pilot check | A section in [engine checks](docs/pilot/engine-checks.md) if it needs no model, else in [provider checks](docs/pilot/provider-checks.md), and a row in [decisions](docs/pilot/decisions.md) | A cell in the [harness pilot spec](docs/specs/harness/pilot.md) and a section in the [analysis pilot spec](docs/specs/analysis/pilot.md) |
 
 ## What never changes without a new pilot
