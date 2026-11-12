@@ -7,7 +7,7 @@ Each cell is its blocks and a module level function from a block and a seed to r
 from dataclasses import replace
 from pathlib import Path
 
-from paranoid.baselines import POLICIES, Bayesian, HedgeRule, ScoutRule
+from paranoid.baselines import HAZARDS, POLICIES, Bayesian, HedgeRule, ScoutRule
 from paranoid.baselines import complacent, discerning, hedge_rule, uniform
 from paranoid.engine import SCENARIOS, SwitchSpec, make_timeline, play
 
@@ -16,8 +16,8 @@ from .common import CellArgs, Rows, defaults, last_end, move_round, onset, outpu
 ONE_EVENT = ("one_shock", "down_switch", "up_switch", "slow_drift")
 TWO_EVENTS = ("shock_then_switch", "switch_then_shock", "up_switch_then_down_switch")
 BOTH_WAYS = "up_switch_then_down_switch"  # the one scenario the Stayer plays
-FRONTIER_PLAYERS = ((0.005, "odds"), (0.025, "odds"), (0.1, "odds"))  # hazard and rule: the ends of HAZARDS and the default
-FRONTIER_SEEDS = 10  # a coarse read, so a knob move reruns the frontier in seconds
+FRONTIER_PLAYERS = tuple((hazard, "odds") for hazard in HAZARDS)  # hazard and rule: every hazard at the default rule
+FRONTIER_SEEDS = 100  # a coarse read, so a knob move reruns the frontier in a minute
 STREAKS = (3, 4, 5)  # the Scout rule's `n` that up-and-down plays at `s` of 1, the default among them once
 
 

@@ -20,7 +20,7 @@ class Belief:                                # the belief for view.round, one en
 
 @dataclass(frozen=True)
 class Bayesian:                              # peeks: ClassVar[bool] = False
-    hazard: float = 0.025                    # chance per round that a channel's base level jumps
+    hazard: float = 0.01                     # chance per round that a channel's base level jumps
     rule: str = "odds"                       # one of BAYESIAN_RULES
     draws: int = ODDS_DRAWS                  # samples behind the quantiles
     lookahead_draws: int = LOOKAHEAD_DRAWS   # simulated next rounds per candidate, rule "lookahead" only
@@ -108,7 +108,7 @@ Every number is **pilot to confirm** by the [Bayesian frontier](../../pilot/engi
 
 | Name | Default | Why |
 |---|---|---|
-| `hazard` | 0.025 | About one jump per channel per run at 40 rounds, the order of what the scenarios hold |
+| `hazard` | 0.01 | The best headline of the five hazards the pilot played, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier). About four jumps a run over the ten channels at 40 rounds |
 | `rule` | `odds` | Explores in proportion to its own doubt, so it needs no explore size |
 | `HAZARDS` | 0.005 to 0.1 | A factor of 2 to 2.5 apart, from one jump in 200 rounds to one in 10 |
 | `draws` | `ODDS_DRAWS` | As `Odds`, a convention |

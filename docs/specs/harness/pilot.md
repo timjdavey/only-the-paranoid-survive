@@ -23,8 +23,8 @@ def run_cell(name: str, args: CellArgs) -> list[Path]
 RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
 CHANNEL_ORDER_REQUEST = "Send exactly this now: {split}. Every one not named gets 0."
 ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to 100
-FRONTIER_PLAYERS = ((0.005, "odds"), (0.025, "odds"), (0.1, "odds"))   # the hazard and rule of each bayesian-frontier player
-FRONTIER_SEEDS = 10                             # the most seeds bayesian-frontier plays
+FRONTIER_PLAYERS = tuple((h, "odds") for h in HAZARDS)   # the hazard and rule of each bayesian-frontier player
+FRONTIER_SEEDS = 100                            # the most seeds bayesian-frontier plays
 ```
 
 ## Behaviour
@@ -124,9 +124,9 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `bayesian-frontier`
 
-- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for each `(h, r)` in `FRONTIER_PLAYERS`, three players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md). On positions `0` to `min(seeds, FRONTIER_SEEDS) − 1`.
-- **Three of the family's thirty, on ten seeds**, so a knob move reruns the cell in seconds, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier). The three are the two ends of `HAZARDS` and the default hazard, at the default rule. More players or seeds are a change to the two constants and nothing else, as the columns hold.
-- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the three players, and `hazard` and `rule` are empty on the five fixed baselines. The split into a lower and an upper half of the seeds is the measure's, see [analysis pilot](../analysis/pilot.md#reading-the-inputs).
+- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for each `(h, r)` in `FRONTIER_PLAYERS`, five players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md). On positions `0` to `min(seeds, FRONTIER_SEEDS) − 1`.
+- **Five of the family's thirty, on a hundred seeds**, so a knob move reruns the cell in about a minute with `--workers 8`, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier). The five are every hazard in `HAZARDS`, at the default rule. More players or seeds are a change to the two constants and nothing else, as the columns hold.
+- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the five players, and `hazard` and `rule` are empty on the five fixed baselines. The split into a lower and an upper half of the seeds is the measure's, see [analysis pilot](../analysis/pilot.md#reading-the-inputs).
 
 #### `baseline-order`
 

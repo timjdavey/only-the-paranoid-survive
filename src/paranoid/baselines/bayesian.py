@@ -41,7 +41,7 @@ class Bayesian:
     """A run-length filter per channel over its own readings, through one of BAYESIAN_RULES."""
 
     peeks: ClassVar[bool] = False
-    hazard: float = 0.025
+    hazard: float = 0.01
     rule: str = "odds"
     draws: int = ODDS_DRAWS
     lookahead_draws: int = LOOKAHEAD_DRAWS
