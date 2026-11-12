@@ -77,8 +77,12 @@ def either(rng: np.random.Generator, value: str, first: str, second: str) -> str
 
 def pick(rng: np.random.Generator, channels: Iterable[int]) -> int:
     """Uniform over a set of channels, taken in index order."""
+    return pick_with(rng.random(), channels)
+
+
+def pick_with(u: float, channels: Iterable[int]) -> int:
+    """The channel at floor(u × n) of a set taken in index order, for a draw made before the set was known."""
     ordered = sorted(channels)
-    u = rng.random()
     if not ordered:
         raise ValueError("the set of channels to pick from is empty, so the config is wrong")
     return ordered[min(math.floor(u * len(ordered)), len(ordered) - 1)]

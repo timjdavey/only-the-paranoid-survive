@@ -26,7 +26,7 @@ class Timeline:
     weather: np.ndarray  # (rounds, channels). Own weather
     factor: np.ndarray  # (rounds,). The shared factor, shock impulses included
     loadings: np.ndarray  # (rounds, channels). Per round, as a switch redraws the sleeper's
-    impulse: np.ndarray  # (rounds, channels). A one-channel shock. All zeros otherwise
+    impulse: np.ndarray  # (rounds, channels). A one-channel shock, or a storm's per-channel part. All zeros otherwise
     read_noise_z: np.ndarray  # (rounds, channels). Standard normals, see game.md
     leader: int
     runner_up: int

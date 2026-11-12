@@ -11,7 +11,7 @@ from typing import Literal
 import numpy as np
 
 from .config import ScenarioConfig
-from .draws import chance, either, pick, sized, uniform, whole
+from .draws import chance, either, pick, pick_with, sized, uniform, whole
 from .drift import apply_drift
 from .shock import apply_shock
 from .specs import SHAPES, DriftSpec, EventSpec, ShockSpec, SwitchSpec
@@ -20,7 +20,7 @@ from .world import World
 
 MAX_TRIES = 100
 
-Numbers = Mapping[str, float | int | str | None]
+Numbers = Mapping[str, float | int | str | tuple[float, ...] | None]
 
 
 @dataclass(frozen=True)
@@ -34,11 +34,17 @@ class Event:
 
 @dataclass(frozen=True)
 class Draws:
-    values: dict[str, float | int | str]
+    values: dict[str, float | int | str]  # the draws no two alike compares
     widths: dict[str, float]  # the range width in level points of each float draw
+    extras: dict[str, object] = field(default_factory=dict)  # draws no two alike leaves out, see storm
 
 
-def draw_shock(rng: np.random.Generator, spec: ShockSpec, config: ScenarioConfig, _sleepers) -> Draws:
+STORM_DRAWS = ("gap", "profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel")
+STORM_DERIVED = ("depth", "pop_rise")
+
+
+def draw_storm(rng: np.random.Generator, spec: ShockSpec, config: ScenarioConfig) -> tuple[Draws, float]:
+    """A shock's draws, then the shape knobs' draws, and the uniform that picks the pop once the onset is known."""
     depth_range, scale = sized(spec.depth_sigmas, spec.depth_points, config.own_scale, config.pin_in_level_points)
     values = {
         "gap": whole(rng, spec.gap),
@@ -46,10 +52,27 @@ def draw_shock(rng: np.random.Generator, spec: ShockSpec, config: ScenarioConfig
         "depth_drawn": uniform(rng, depth_range, scale),
         "half_life": whole(rng, spec.half_life),
     }
-    return Draws(values, {"depth_drawn": width(depth_range, scale)})
+    extras = {
+        "recovery": tuple(uniform(rng, spec.recovery) for _ in range(config.channels)),
+        "leader_last": 1 if chance(rng, spec.leader_last_share) else 0,
+        "pop": 1 if chance(rng, spec.pop_share) else 0,
+    }
+    return Draws(values, {"depth_drawn": width(depth_range, scale)}, extras), rng.random()
+
+
+def pop_channel(draws: Draws, u: float, sleepers: set[int]) -> int | None:
+    """The channel that pops, from the same set a sleeper is drawn from, or None with no pop."""
+    return pick_with(u, sleepers) if draws.extras["pop"] else None
+
+
+def draw_shock(rng: np.random.Generator, spec: ShockSpec, config: ScenarioConfig, sleepers) -> Draws:
+    draws, u = draw_storm(rng, spec, config)
+    draws.extras["pop_channel"] = pop_channel(draws, u, sleepers(draws.values["gap"]))
+    return draws
 
 
 def draw_switch(rng: np.random.Generator, spec: SwitchSpec, config: ScenarioConfig, sleepers) -> Draws:
+    storm = draw_storm(rng, spec.storm, config) if spec.storm is not None else None
     scale_args = (config.own_scale, config.pin_in_level_points)
     size_range, size_scale = sized(spec.size_sigmas, spec.size_points, *scale_args)
     rise_range, rise_scale = sized(spec.rise_sigmas, spec.rise_points, *scale_args)
@@ -76,7 +99,12 @@ def draw_switch(rng: np.random.Generator, spec: SwitchSpec, config: ScenarioConf
         "sleeper_loading": width(config.loading),
         "short_level": width(spec.short_level),
     }
-    return Draws(values, widths)
+    extras: dict[str, object] = {f"storm_{key}": None for key in STORM_DRAWS}
+    if storm is not None:
+        storm_draws, pop_u = storm
+        storm_draws.extras["pop_channel"] = pop_channel(storm_draws, pop_u, sleepers(gap))
+        extras = {f"storm_{key}": value for key, value in {**storm_draws.values, **storm_draws.extras}.items()}
+    return Draws(values, widths, extras)
 
 
 def draw_drift(rng: np.random.Generator, spec: DriftSpec, config: ScenarioConfig, _sleepers) -> Draws:
@@ -145,7 +173,7 @@ def apply_events(world: World, rngs: Sequence[np.random.Generator], first_onset:
         previous = next((e.numbers for e in reversed(events) if e.shape == shape), None)
         draws, tries = draw_until_different(rng, spec, config, previous, sleepers)
         onset = onset_after(draws.values["gap"])
-        channel, sleeper, derived = APPLY[shape](world, spec, draws.values, onset, events)
-        numbers = MappingProxyType({**draws.values, **derived, "tries": tries})
+        channel, sleeper, derived = APPLY[shape](world, spec, {**draws.values, **draws.extras}, onset, events)
+        numbers = MappingProxyType({**draws.values, **draws.extras, **derived, "tries": tries})
         events.append(Event(shape, onset, channel, sleeper, numbers))
     return tuple(events)

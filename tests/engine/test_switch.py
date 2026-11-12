@@ -13,12 +13,15 @@ from paranoid.engine import SCENARIOS, DriftSpec, ScenarioConfig, SwitchSpec, ma
 SEEDS = range(200)
 TOLERANCE = 1e-9
 
+SHOCK_KEYS = {
+    "gap", "profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel", "depth", "pop_rise",
+}
 NUMBER_KEYS = {
-    "shock": {"gap", "profile", "depth_drawn", "half_life", "depth", "tries"},
+    "shock": SHOCK_KEYS | {"tries"},
     "switch": {
         "gap", "kind", "size", "rise", "ramp", "sleeper", "sleeper_loading",
         "short", "short_level", "fall", "target", "tries",
-    },
+    } | {f"storm_{key}" for key in SHOCK_KEYS},
     "drift": {"gap", "profile", "size", "length", "fall", "tries"},
 }
 
@@ -105,6 +108,8 @@ def test_et29_numbers_keys(name):
         for event in make_timeline(SCENARIOS[name], seed).events:
             assert set(event.numbers) == NUMBER_KEYS[event.shape]
             assert event.numbers["tries"] >= 1
+            if event.shape == "switch":
+                assert all(event.numbers[f"storm_{key}"] is None for key in SHOCK_KEYS)
             if event.shape == "shock":
                 assert event.numbers["depth"] <= event.numbers["depth_drawn"]
 

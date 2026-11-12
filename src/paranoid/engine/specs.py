@@ -119,12 +119,27 @@ class ShockSpec:
     depth_points: Range = (16.0, 32.0)
     half_life: IntRange = (2, 4)
     profile: Literal["sharp", "slide", "draw"] = "draw"
+    # shape knobs, off by default, see docs/specs/engine/timeline.md#storm
+    recovery: Range = (1.0, 1.0)
+    leader_last_share: float = 0.0
+    pop_share: float = 0.0
+    leader_stays_ahead: bool = False
 
     def __post_init__(self) -> None:
         cast_fields(self)
         require_word(self.profile, SHOCK_PROFILES, "profile")
         require_low_at_least_1(self, "gap", "half_life")
         require_positive_sizes(self)
+        require(self.recovery[0] > 0, "recovery must have a low above 0")
+        require_share(self.leader_last_share, "leader_last_share")
+        require_share(self.pop_share, "pop_share")
+
+    @property
+    def knobs_on(self) -> bool:
+        """True when any shape knob is away from its default."""
+        return (
+            self.recovery != (1.0, 1.0) or self.leader_last_share > 0 or self.pop_share > 0 or self.leader_stays_ahead
+        )
 
 
 @dataclass(frozen=True)
@@ -139,9 +154,16 @@ class SwitchSpec:
     ramp: IntRange = (1, 5)
     short_share: float = 0.0
     short_level: Range = (0.25, 0.75)
+    storm: ShockSpec | None = None  # a fall arrives in this storm, see docs/specs/engine/timeline.md#storm
 
     def __post_init__(self) -> None:
         cast_fields(self)
+        if self.storm is not None and not isinstance(self.storm, ShockSpec):
+            raise TypeError(f"storm must be a ShockSpec or None, got {self.storm!r}")
+        require(
+            self.storm is None or self.kind in ("fall", "fall_and_rise", "draw"),
+            f"a storm needs a kind that falls, got {self.kind!r}",
+        )
         require_word(self.kind, SWITCH_KINDS, "kind")
         require_share(self.riser_share, "riser_share")
         require_share(self.short_share, "short_share")
