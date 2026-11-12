@@ -72,5 +72,5 @@ One file carries a duty for every layer. Each row links to the spec that owns th
 ## Naming
 
 - **Package** `paranoid`. The repo name stays as it is.
-- **Providers** are `baseline/<name>`, `jev/<model>` and `timestral/<policy>`, so `--model baseline/complacent` works like `--model anthropic/<model>`.
+- **Providers** are `baseline/<name>`, `jev/<model>` or `jev/<endpoint>/<model>`, and `timestral/<policy>`, so `--model baseline/complacent` works like `--model anthropic/<model>`.
 - **Glossary words in code too**, see [glossary](../glossary.md). A timeline is a timeline, not a tape, a world or a trajectory.
