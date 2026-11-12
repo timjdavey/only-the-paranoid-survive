@@ -8,14 +8,14 @@ What the pilot has taught us so far, in the order we learned it. Each finding sa
 
 ## Where we are
 
-- **The engine knobs are set,** as proposals in [decisions](decisions.md). Three moved so every scenario is worth reading.
+- **The engine knobs are set and accepted,** see [decisions](decisions.md). Three moved so every scenario is worth reading.
 - **The best blind reader sits near the ceiling.** The Bayesian baseline scores 0.93 to 0.98 on No change, One shock and Down switch, and more noise barely touches it.
-- **The shape knobs are built and off.** They make a shock and a switch look alike, and they beat the hedge rule but not the Bayesian baseline.
+- **The shape knobs are built and stay off for this pilot.** They make a shock and a switch look alike, and they beat the hedge rule but not the Bayesian baseline.
 - **The first model misread the game until one sentence fixed it.** Haiku spread its bets because the frame never said a market's price ignores how much you send. That sentence is now a frame fact in every skin.
 - **With that sentence, the game is not too easy for a model.** On Down switch Haiku scores 0.52 and Sonnet 0.60, against the Bayesian baseline's 0.94.
 - **Both models lose where the new best rises from the bottom.** They write a channel off after one poor round and never look at it again. Sonnet is no better at this than Haiku.
 - **Neither model gives a reason to turn the shape knobs on.** The gain on a switch in the new world was mostly the luck of ten seeds.
-- **The provider checks wait** on a decision on the shape knobs.
+- **The provider checks are next.**
 
 ## The engine pilot
 
@@ -252,7 +252,7 @@ A scratch probe of `claude-sonnet-5-5`, to see whether a better reader finds the
 
 - **Saw.** On 1000 public seeds the new best starts in the bottom three on 0.15 of seeds today and 0.14 in the new world. On seeds 0 to 9 it is 4 of 10 today and 1 of 10 in the new world.
 - **Means.** The two worlds draw a different switch on the same seed, so pairing by seed does not pair how hard the switch is. Haiku's +0.14 in the new world was mostly an easier draw. Sorted by where the new best started, Sonnet scores 0.74 today and 0.70 in the new world.
-- **Did.** Nothing changed. The earlier reading that the new world helps a model look is withdrawn.
+- **Did.** The earlier reading that the new world helps a model look is withdrawn. No model gives a reason to turn the shape knobs on, so they stay off for this pilot and the engine rows in [decisions](decisions.md) are accepted as they stand, agreed on 2026-11-12.
 
 ### It holds back even when it has found the new best
 
@@ -288,8 +288,8 @@ A scratch probe of `claude-sonnet-5-5`, to see whether a better reader finds the
 
 Each is in [`TODO.md`](../../TODO.md#pilot) with its next step.
 
-- **The frame fact in the held-out skins**: merging the private branch, and whether each wording lands.
-- **Looking again at a written off channel**: whether more reasoning helps, and how the analysis should report it.
-- **The shape knobs**: no model gives a reason to turn them on. Still to settle are the two failing bands, with the looking band held, and the hedge rule's tell.
+- **The frame fact in the held-out skins**: merging the private repo's pull request, and whether each wording lands.
+- **Looking again at a written off channel**: how the analysis should report it.
+- **The shape knobs**, for a later pilot: the two failing bands, with the looking band held, and the hedge rule's tell.
 - **A harder game for a patient reader**, such as inertia or a shorter game. Haiku says the game is hard enough for a model, so this is now about the baselines.
 - **The noise grid**, and whether it pins a smaller runner-up gap.
