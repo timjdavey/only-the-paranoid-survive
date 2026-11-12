@@ -158,8 +158,8 @@ class SwitchSpec:
 @dataclass(frozen=True)
 class DriftSpec:
     gap: IntRange = (8, 12)
-    size_sigmas: Range = (1.0, 3.0)
-    size_points: Range = (4.0, 12.0)
+    size_sigmas: Range = (2.0, 4.0)
+    size_points: Range = (8.0, 16.0)
     length: IntRange = (15, 25)
     profile: Literal["linear", "logistic", "draw"] = "draw"
 

@@ -34,8 +34,8 @@ class SwitchSpec:
 @dataclass(frozen=True)
 class DriftSpec:
     gap: IntRange = (8, 12)
-    size_sigmas: Range = (1.0, 3.0)         # how far below the runner-up's base the leader's base ends
-    size_points: Range = (4.0, 12.0)
+    size_sigmas: Range = (2.0, 4.0)         # how far below the runner-up's base the leader's base ends
+    size_points: Range = (8.0, 16.0)
     length: IntRange = (15, 25)             # rounds the fall is spread over
     profile: Literal["linear", "logistic", "draw"] = "draw"
 
@@ -164,7 +164,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `SwitchSpec.short_share` | 0 on the spec, 0.25 in `up_switch` | "On most seeds the sleeper rises past the leader, on some it stops short", see [scenarios](../../design/scenarios.md#scenarios-we-test) | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.short_level` | 0.25 to 0.75 | Clear of the runner-up, so an explore bet sees a real move, and clear of the leader, so the Scout rule does not move on a near tie | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.ramp` | 1 to 5 | [events](../../design/mechanics.md#events) | Fixed by design |
-| `DriftSpec.size_sigmas`, `length` | 1 to 3, 15 to 25 | The Down switch stretched: with the gap, about 0.5 to 1.9 points a round | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
+| `DriftSpec.size_sigmas`, `length` | 2 to 4, 15 to 25 | The Down switch stretched and a sigma deeper, so the slow fall is worth leaving: with the gap, about 0.6 to 2.1 points a round | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `gap` | 8 to 12 | Room for a habit to re-form after a shock | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `*_points` pairs | sigmas × 4 | Agree with the sigmas pair at `own_scale` 4 | [Noise grid](../../pilot/engine-checks.md#noise-grid) |
 
