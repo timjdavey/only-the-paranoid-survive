@@ -152,6 +152,9 @@ def test_ai8_weather(tmp_path):
             "move_round": 0,
             "held": 1,
             "field_together_rounds": 0,
+            "output": 115,
+            "uniform": 100,
+            "discerning": 120,
         }
         for seed, (f, t) in enumerate(falls)
     ]
@@ -160,6 +163,7 @@ def test_ai8_weather(tmp_path):
     write_pilot(logs, out)
     (tell,) = table(out, "weather", "tell").itertuples()
     assert tell.hit_rate == pytest.approx(8 / 9) and tell.never_fired_one_shock == pytest.approx(0.1)
+    assert tell.score_one_shock == pytest.approx(0.75) and pd.isna(tell.score)  # no mean without all three scenarios
     assert table(out, "weather", "luck")["luck_share"].tolist() == [0.5]
 
 

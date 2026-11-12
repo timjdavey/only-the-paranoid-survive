@@ -79,13 +79,14 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 - **Runs.** `factor_scale` at 1.5, 3, 4.5 and 6, crossed with `loading` at `(0.3, 1.0)` and `(0.5, 1.0)`. The One shock, Down switch and No change scenarios, the hedge rule at its defaults.
 - **Then the thresholds.** At `factor_scale` 3 and `loading` `(0.3, 1.0)`, the same scenarios with `HedgeRule(window=w, fall_points=f, tell_points=t)` for `w` in 2, 3 and 4, `f` in 4, 8 and 12, and `t` in 2, 4 and 6, see [the tell](../../pilot/engine-checks.md#the-tell). The measure picks the scale first and reads this pass at it, so a scale the first pass moves away from reruns the cell.
-- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, fall_rounds, tell_rounds, field_together_rounds`. The three threshold columns are empty on the first pass, which plays the defaults.
+- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, fall_rounds, tell_rounds, field_together_rounds, output, uniform, discerning`. The three threshold columns are empty on the first pass, which plays the defaults.
   - `depth_capped`: 1 when `numbers["depth"] < numbers["depth_drawn"]` on the shock, else 0. Empty with no shock. The share of 1s is what [timeline](../engine/timeline.md#pilot-decides) asks The tell to report.
   - `hedge_rise`: the hedge rule's mean hedge reading over the `window` rounds from `onset`, `window` being the rule's, minus its mean over the rounds before `onset`. The same rounds the rule's tell test reads, see [hedge rule](../baselines/rules.md#hedge-rule). Empty with no event.
   - `held`: 1 when the hedge rule's largest bet is on `start.leader` in the last round, else 0.
   - `fall_rounds`: the rounds from `onset` on which the rule's fall test fired, whether or not the tell stopped it, see [hedge rule](../baselines/rules.md#hedge-rule). The count is over the rounds the rule ran the test, so its scout rounds are not in it. Empty with no event.
   - `tell_rounds`: of those rounds, the ones on which its tell test fired too, so the rule held. Never above `fall_rounds`. The hit rate and the false tell rate are shares of seeds read off these two, see [the tell](../../pilot/engine-checks.md#the-tell).
   - `field_together_rounds`: the rounds in which every channel but the hedge moved by more than `own_scale` from the round before, all the same way, on levels.
+  - `output`, `uniform`, `discerning`: the hedge rule's output on the seed, and the `uniform` and `discerning` baselines' on the same timeline, so the measure can score each threshold set.
 
 #### `luck`
 
@@ -118,8 +119,8 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `up-and-down`
 
-- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule and `ScoutRule(s=s)` for `s` in 1, 2 and 5. `rise_sigmas` on every switch spec at `(1, 3)`, the default, then `(2, 4)` and `(3, 5)`.
-- **Writes** `up-and-down.csv`: `setting, scenario, kind, baseline, parameter, seed, onset, output, move_round`. `setting` is the `rise_sigmas` low.
+- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule, `ScoutRule(s=s)` for `s` in 1, 2 and 5, and `ScoutRule(n=n)` for each `n` in `STREAKS`, 3, 4 and 5, but the default, which the first three already play. `rise_sigmas` on every switch spec at `(1, 3)`, the default, then `(2, 4)` and `(3, 5)`.
+- **Writes** `up-and-down.csv`: `setting, scenario, kind, baseline, parameter, streak, seed, onset, output, move_round`. `setting` is the `rise_sigmas` low. `parameter` is the Scout rule's `s` and `streak` its `n`, both empty on every other baseline.
 
 #### `bayesian-frontier`
 

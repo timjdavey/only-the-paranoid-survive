@@ -72,6 +72,7 @@ def tell(args: CellArgs) -> list[Path]:
     columns = (
         "factor_scale", "loading_low", "window", "fall_points", "tell_points", "scenario", "seed", "onset",
         "depth_capped", "hedge_rise", "held", "move_round", "fall_rounds", "tell_rounds", "field_together_rounds",
+        "output", "uniform", "discerning",
     )  # fmt: skip
     scenarios = ("one_shock", "down_switch", "no_change")
     first = [(scale, loading, HedgeRule(), False) for scale in (1.5, 3.0, 4.5, 6.0) for loading in ((0.3, 1.0), (0.5, 1.0))]
@@ -99,6 +100,7 @@ def tell_rows(block, seed: int) -> Rows:
         scale, loading[0], *knobs, name, seed, onset(t), depth_capped(t), hedge_rise(t, record, rule),
         int(largest(record.rows[-1].bets) == t.leader),
         move_round(record, t.leader), *fall_and_tell(t, record, rule), field_together(t),
+        output(record), output(play(uniform, t)), output(play(discerning, t)),
     )]  # fmt: skip
 
 

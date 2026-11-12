@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 
 from paranoid.engine import SCENARIOS
-from paranoid.harness import scenario_config
+from paranoid.harness import pooled_score, scenario_config
 
 from ..threshold import signal_points
 from .charts import histogram, lines
@@ -55,7 +55,10 @@ def weather(logs: Path, main: Path | None) -> Section | None:
 
 
 def tell_table(tell: pd.DataFrame) -> pd.DataFrame:
-    """Hit rate, false tell rate and never fired, per scale, loading and threshold set. See the tell's Measure."""
+    """Hit rate, false tell rate, never fired and the hedge rule's scores, per scale, loading and threshold set.
+
+    See the tell's Measure. `score` is the plain mean of the three scenario scores.
+    """
     keys = ["factor_scale", "loading_low", "window", "fall_points", "tell_points"]
     rows = []
     for group, block in tell.groupby(keys, dropna=False, sort=True):
@@ -68,8 +71,20 @@ def tell_table(tell: pd.DataFrame) -> pd.DataFrame:
         row["never_fired_down_switch"] = share(down["fall_rounds"] == 0)
         row["field_together_share"] = share(calm["field_together_rounds"] > 0)
         row["depth_capped_share"] = share(shock["depth_capped"].dropna() == 1)
+        scores = [rule_score(rows_of) for rows_of in (shock, down, calm)]
+        row |= dict(zip(("score_one_shock", "score_down_switch", "score_no_change"), scores))
+        row["score"] = None if any(score is None for score in scores) else sum(scores) / len(scores)
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+def rule_score(rows: pd.DataFrame) -> float | None:
+    """The hedge rule's pooled scenario score on these seeds: output − uniform over discerning − uniform."""
+    rows = rows.dropna(subset=["output", "uniform", "discerning"])
+    gaps = (rows["discerning"] - rows["uniform"]).to_numpy(dtype=float)
+    if not len(rows) or gaps.sum() == 0:
+        return None
+    return pooled_score((rows["output"] - rows["uniform"]).to_numpy(dtype=float), gaps)
 
 
 def sanity_table(sanity: pd.DataFrame) -> pd.DataFrame:
@@ -193,7 +208,12 @@ def up_and_down(logs: Path, main: Path | None) -> Section | None:
     frame = read_csv(logs, "up-and-down")
     if frame is None:
         return None
-    frame = frame.assign(player=[b if pd.isna(p) else f"{b} s={int(p)}" for b, p in zip(frame["baseline"], frame["parameter"])])
+    frame = frame.assign(
+        player=[
+            b if pd.isna(p) else f"{b} s={int(p)} n={int(n)}"
+            for b, p, n in zip(frame["baseline"], frame["parameter"], frame["streak"])
+        ]
+    )
     keys = ["setting", "scenario", "kind"]
     scores = engine_scores(frame, keys, player="player")
     rows = []

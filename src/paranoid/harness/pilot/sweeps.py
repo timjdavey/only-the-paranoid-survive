@@ -18,6 +18,7 @@ TWO_EVENTS = ("shock_then_switch", "switch_then_shock", "up_switch_then_down_swi
 BOTH_WAYS = "up_switch_then_down_switch"  # the one scenario the Stayer plays
 FRONTIER_PLAYERS = ((0.005, "odds"), (0.025, "odds"), (0.1, "odds"))  # hazard and rule: the ends of HAZARDS and the default
 FRONTIER_SEEDS = 10  # a coarse read, so a knob move reruns the frontier in seconds
+STREAKS = (3, 4, 5)  # the Scout rule's `n` that up-and-down plays at `s` of 1, the default among them once
 
 
 def game_length(args: CellArgs) -> list[Path]:
@@ -122,10 +123,11 @@ def roughness_rows(block, seed: int) -> Rows:
 
 
 def up_and_down(args: CellArgs) -> list[Path]:
-    columns = ("setting", "scenario", "kind", "baseline", "parameter", "seed", "onset", "output", "move_round")
+    columns = ("setting", "scenario", "kind", "baseline", "parameter", "streak", "seed", "onset", "output", "move_round")
+    scouts = [ScoutRule(s=s) for s in (1, 2, 5)] + [ScoutRule(n=n) for n in STREAKS if n != ScoutRule().n]
     players = [
-        ("uniform", None, uniform), ("discerning", None, discerning), ("complacent", None, complacent),
-        ("hedge_rule", None, hedge_rule), *(("scout_rule", s, ScoutRule(s=s)) for s in (1, 2, 5)),
+        ("uniform", None, None, uniform), ("discerning", None, None, discerning), ("complacent", None, None, complacent),
+        ("hedge_rule", None, None, hedge_rule), *(("scout_rule", rule.s, rule.n, rule) for rule in scouts),
     ]  # fmt: skip
 
     def blocks():
@@ -142,9 +144,9 @@ def up_down_rows(block, seed: int) -> Rows:
     setting, name, config, players = block
     t = make_timeline(config, seed)
     kind, start, rows = switch_kind(t), onset(t), []
-    for baseline, parameter, policy in players:
+    for baseline, parameter, streak, policy in players:
         record = play(policy, t)
-        rows.append((setting, name, kind, baseline, parameter, seed, start, output(record), move_round(record, t.leader)))
+        rows.append((setting, name, kind, baseline, parameter, streak, seed, start, output(record), move_round(record, t.leader)))
     return rows
 
 

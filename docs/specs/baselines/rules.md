@@ -74,7 +74,7 @@ Every number is **pilot to confirm**.
 | `tell_points` | 4.0 | One weather SD at the default `own_scale`. The hedge's rise in a shock is its loading times the depth, and should clear this | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `scout_rounds` | 2 | Two rounds of a spread explore bet reads each channel twice before the move | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
 | `s` | 1 | The cheapest explore bet, 9 of the 100 points off the pick each round | [Up and down](../../pilot/engine-checks.md#up-and-down) |
-| `n` | 3 | A streak of a field reading above the leader's that is rare on No change | [Streaks](../../pilot/engine-checks.md#streaks) |
+| `n` | 3 | The shortest streak the pilot plays. A longer one false alarms less on No change and moves later everywhere else | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 
 ## Invariants
 
@@ -84,7 +84,7 @@ Every number is **pilot to confirm**.
 ## Pilot decides
 
 - `explore` and `scout_rounds` from [reading roughness](../../pilot/engine-checks.md#reading-roughness), `window` from [Streaks](../../pilot/engine-checks.md#streaks), and `fall_points` and `tell_points` from [the tell](../../pilot/engine-checks.md#the-tell), which also tries `window` beside them, as the [defaults](#defaults) table says.
-- `s` from [Up and down](../../pilot/engine-checks.md#up-and-down) and `n` from [Streaks](../../pilot/engine-checks.md#streaks).
+- `s` and `n` from [Up and down](../../pilot/engine-checks.md#up-and-down), `n` beside how rare [Streaks](../../pilot/engine-checks.md#streaks) finds each streak.
 
 ## Not decided
 
