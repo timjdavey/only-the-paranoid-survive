@@ -164,7 +164,7 @@ A scratch probe of `claude-sonnet-5-5`, to see whether a better reader finds the
 
 ## The provider checks, first results
 
-The two Claude rows of the [proof of concept list](../harness/models.md#two-lists) on the example skin, on the plan token. The held-out skins and the Gemini row wait on keys, see [`TODO.md`](../../TODO.md#pilot).
+The two Claude rows of the [proof of concept list](../harness/models.md#two-lists) on the example skin, on the plan token. The held-out skins wait on the Anthropic key, and the Gemini row is out of the pilot, see [`TODO.md`](../../TODO.md#pilot).
 
 - **Haiku now plays at `off` and Sonnet stays at `low`.** In two 12 round runs at `off`, Haiku sent no reasoning token. Sonnet still thought, about 50 tokens a round, the same as at `low`.
 - **At `off` the thinking moves into the tools.** Both models ran code on most rounds, where at `low` Sonnet almost never did. A reply that runs code before it sends a split counts as a retry, so a model that plays cleanly can show a retry on every round. The share that flags a bar has to allow for that.
@@ -202,4 +202,5 @@ The [`jev` cell](provider-checks.md#jev-checks), run in full on 2026-11-12: `jev
 
 - **A 12 round probe of `gemini-3.5-flash-lite` at `low`** on One shock, seed 0, scored 0.52. It used 47,280 tokens, 1853 of them reasoning, and ran code on 11 of 12 rounds.
 - **Means.** The key's project has no billing, so the full study's Google rows cannot run. Google may also use free tier prompts to improve its products, so no held-out skin may go through this key. Both runs above played the example skin on a public seed.
+- **Changed.** `gemini-3.5-flash-lite` is out of the pilot, with `pilot = false` in `poc.toml`, and stays in the proof of concept, decided on 2026-11-12.
 - **`minimal` may be the off Flash Lite lacks.** It sent no reasoning token on a one word reply. A 12 round run at `minimal`, as Haiku's off check was, would say whether it holds on a real round.

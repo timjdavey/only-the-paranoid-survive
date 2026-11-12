@@ -95,7 +95,7 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | Id | Test | Page |
 |---|---|---|
 | HM1 | `load_models` on `configs/models/poc.toml` and `full.toml` raises nothing, and every row has a `kind`, a `reasoning_kind` and at least one `reasoning` value | [command](command.md#models-config) |
-| HM2 | Each validation clause raises `ValueError` naming the row: a bad `kind`, `baseline/x` with `kind = "llm"`, `reasoning = "xhigh"`, a provider row with `reasoning = "low"`, `reasoning_kind = "lots"`, a duplicate `id` and setting, `max_tokens = 0` | [command](command.md#models-config) |
+| HM2 | Each validation clause raises `ValueError` naming the row: a bad `kind`, `baseline/x` with `kind = "llm"`, `reasoning = "xhigh"`, a provider row with `reasoning = "low"`, `reasoning_kind = "lots"`, a duplicate `id` and setting, `max_tokens = 0`, `pilot = "no"` | [command](command.md#models-config) |
 | HM3 | `generate_config` for `on` and `n/a` sets nothing. `off` sets `reasoning_effort="none"` and no `reasoning_tokens`, for an `openai/` row and for a row with `reasoning_kind = "budget"`, so on any `llm` row no two settings give equal configs. `high` sets `reasoning_effort="high"` for an `openai/` row and `reasoning_tokens` of `BUDGETS["high"]`, 16384, for a row with `reasoning_kind = "budget"`. `max` sets `reasoning_effort="max"` for an `anthropic/` row, never `"xhigh"`. `max_tokens` from the row lands in the config. `temperature` and `cache_prompt` are never set | [command](command.md#reasoning) |
 | HM4 | `reasoning_kind` defaults to `effort` for `anthropic/x` and `budget` for `together/x`, and the file's column wins over the prefix | [command](command.md#models-config) |
 | HM5 | `main(["run", "--dry-run"])` returns 0, prints one line per row and setting with provider rows first, and calls `eval` zero times | [command](command.md#run) |
@@ -135,6 +135,7 @@ Every cell runs with `PARANOID_PILOT_SEEDS=5` into a temp `out`, so the fixture 
 | HP17 | `write_csv` with `--only b` on a file holding rows of models `a` and `b` keeps `a`'s rows and replaces `b`'s. Without `--only` it replaces the file. With `--only` and a file whose header differs it raises `ValueError` | [pilot](pilot.md#shared-rules) |
 | HP18 | `write_csv` whose `rows()` raises part way leaves the old file byte for byte, and no temp file beside it | [pilot](pilot.md#shared-rules) |
 | HP19 | `widest` over fake seeds logs: a log whose status is `error` is skipped, an older log of the same model and reasoning is skipped for the newer one, and a scenario of five scored samples is skipped, however wide its spread | [pilot](pilot.md#repeats) |
+| HP20 | `recognition` on a models file of two `llm` rows, the second with `pilot = false`, calls and writes the first row only. `--only` naming the second raises `ValueError` naming it | [pilot](pilot.md#shared-rules) |
 
 ## Property tests
 

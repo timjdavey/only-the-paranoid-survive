@@ -1,4 +1,4 @@
-"""HP2, HM8, HP5 to HP10 and HP15: the cell list and the provider cells. See docs/specs/harness/tests.md#pilot.
+"""HP2, HM8, HP5 to HP10, HP15 and HP20: the cell list and the provider cells. See docs/specs/harness/tests.md#pilot.
 
 Provider cells play `mockllm/model`, a fake Jev or a fake forecaster, so nothing calls out. Their evals
 play the headline tools, so the `evals` fixture puts them on inspect's local sandbox.
@@ -198,3 +198,15 @@ def test_hp15_token_files(cell_args, helpers, example, monkeypatch, evals):
     assert int(first["input_tokens"]) == events[0].output.usage.input_tokens + events[1].output.usage.input_tokens
     run_cell("rolling", args)
     assert {r["rolling"] for r in read(args.out / "rolling-tokens.csv")} == {"0", "1"}
+
+
+def test_hp20_a_row_with_pilot_off_is_skipped(cell_args, helpers, monkeypatch):
+    args = cell_args(LLM, ("mockllm/other", "llm", "off"))
+    args.models.write_text(args.models.read_text() + "pilot = false\n")
+    calls = []
+    script = helpers.Script(then=helpers.say("A sales desk."))
+    monkeypatch.setattr("paranoid.harness.pilot.probes.model_for", lambda row: calls.append(row.id) or script.model())
+    (path,) = run_cell("recognition", args)
+    assert set(calls) == {"mockllm/model"} and {r["model"] for r in read(path)} == {"mockllm/model"}
+    with pytest.raises(ValueError, match="mockllm/other"):
+        run_cell("recognition", replace(args, only="mockllm/other"))

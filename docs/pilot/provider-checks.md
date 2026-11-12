@@ -4,6 +4,7 @@ The second half of the pilot, a short run before the full study to settle the kn
 
 - **These need a model behind a provider**, so they cost tokens. That covers LLMs, Timestral and Jev.
 - **Run them once the [engine checks](engine-checks.md) pass.** The noise grid, read noise and baseline order they settle are fixed by then.
+- **"Every LLM row" means every row the pilot plays.** A row with `pilot = false` in `poc.toml` is skipped by every cell, see [columns](../harness/models.md#columns). Today that is `gemini-3.5-flash-lite` alone.
 
 ## Seeds
 

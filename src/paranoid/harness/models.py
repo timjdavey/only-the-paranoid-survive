@@ -32,6 +32,7 @@ class ModelRow:
     released: date | None = None
     eci: float | None = None
     notes: str = ""
+    pilot: bool = True  # false keeps the row out of every pilot cell, see docs/harness/models.md#columns
 
 
 def load_models(path: str | Path) -> list[ModelRow]:
@@ -72,6 +73,9 @@ def model_row(table: dict, index: int) -> ModelRow:
     eci = table.get("eci")
     if eci is not None and (isinstance(eci, bool) or not isinstance(eci, int | float)):
         raise ValueError(f"{label}: eci must be a number")
+    pilot = table.get("pilot", True)
+    if not isinstance(pilot, bool):
+        raise ValueError(f"{label}: pilot must be true or false, got {pilot!r}")
     return ModelRow(
         id=model_id,
         kind=cast(Kind, kind),
@@ -81,6 +85,7 @@ def model_row(table: dict, index: int) -> ModelRow:
         released=released,
         eci=None if eci is None else float(eci),
         notes=str(table.get("notes", "")),
+        pilot=pilot,
     )
 
 

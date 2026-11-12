@@ -22,6 +22,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | `released` | Release date, from Epoch's `date` column. Full study only |
 | `eci` | The model's [ECI](../glossary.md), a snapshot from Epoch's [CSV](https://epoch.ai/data/eci_scores.csv). Full study only |
 | `max_tokens` | The model's own output limit, set only where the provider's default is lower, see [sampling](#sampling). Optional |
+| `pilot` | `false` keeps the row out of every [pilot cell](../specs/harness/pilot.md#shared-rules). `paranoid run` still plays it. Optional, `true` by default. `gemini-3.5-flash-lite` is the one row with it off, as its key is on Google's free tier, see [the Google key](../pilot/model-findings.md#the-google-key-works-on-the-free-tier) |
 | `notes` | Anything a reader needs, such as a rate limit or an id to verify |
 
 ## Reasoning
@@ -84,8 +85,9 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 | Baselines | None |
 
 - **A Claude subscription works only if the plan gives API access.** inspect calls the Anthropic API with a console key, or with an OAuth token in `ANTHROPIC_AUTH_TOKEN`, which wins when both are set. A chat-only plan has neither.
-- **Check a subscription before a held-out skin goes through it.** Three things, none verified yet:
-  - That the plan neither keeps prompts nor trains on them. A held-out skin a provider trains on is no longer held out, see [who can see them](contamination.md#who-can-see-them). Anthropic's [data retention page](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), read on 2026-11-11, says zero data retention is arranged per organization through its sales team, and that the Free, Pro and Max plans are outside it. So a held-out skin goes through a console key from an organization that has it, never through one of those plans.
+- **A held-out skin needs commercial terms, not zero data retention.** Decided on 2026-11-12: a provider that keeps a prompt 30 days and trains on none is enough, see [who can see them](contamination.md#who-can-see-them). An Anthropic console key is under those terms. Anthropic's [data retention page](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), read on 2026-11-11, puts the Free, Pro and Max plans outside them.
+- **Check a subscription before a held-out skin goes through it.** Three things:
+  - That the plan collects no data. A held-out skin a provider trains on is no longer held out. Confirmed on 2026-11-12 for the plan token in use.
   - That its rate limit covers the run. At twenty seeds and two skins a Claude row is 320 runs of at least forty calls each, so about 13,000 calls.
   - That a `--limit 2` run completes and its cost table shows cache reads, see [prompt caching](#prompt-caching).
 

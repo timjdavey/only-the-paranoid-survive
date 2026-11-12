@@ -38,8 +38,9 @@ def test_hm1_both_configs_load():
         row(id='"baseline/uniform"', kind='"baseline"', reasoning='"n/a"', reasoning_kind='"effort"'),
         row(id='"a/b"', kind='"llm"', reasoning='["low"]') + row(id='"a/b"', kind='"llm"', reasoning='["high", "low"]'),
         row(id='"a/b"', kind='"llm"', reasoning='"low"', max_tokens="0"),
+        row(id='"a/b"', kind='"llm"', reasoning='"low"', pilot='"no"'),
     ],
-    ids=["kind", "llm-prefix", "wrong-prefix", "xhigh", "provider-low", "llm-na", "lots", "provider-kind", "dup", "max0"],
+    ids=["kind", "llm-prefix", "wrong-prefix", "xhigh", "provider-low", "llm-na", "lots", "provider-kind", "dup", "max0", "pilot"],
 )
 def test_hm2_each_clause_names_the_row(tmp_path, body):
     named = body.split('"')[1]
