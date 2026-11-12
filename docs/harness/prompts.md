@@ -65,7 +65,7 @@ The lint fails a skin whose rendered prompt leaves any of these five out, see [l
 A sixth is checked by a reader, as no list of phrases finds it in skins that each word it their own way.
 
 - **That a channel pays the same for each point however many points it gets.** The example skin says "A market pays the same for a case however many you send it."
-- **Why.** Without it a model fills the gap from real markets, where selling more lowers the price, and spreads its points. Haiku 5.5 scored 0.30 on One shock without the sentence and 0.80 with it, see [findings](../pilot/findings.md#one-sentence-fixes-it-and-only-its-price-half-matters).
+- **Why.** Without it a model fills the gap from real markets, where selling more lowers the price, and spreads its points. Haiku 5.5 scored 0.30 on One shock without the sentence and 0.80 with it, see [findings](../pilot/model-findings.md#one-sentence-fixes-it-and-only-its-price-half-matters).
 - **A fact about the figure, never advice.** It says what a point is paid. It never says where to put the points or how long to hold, see [writing a skin](writing-a-skin.md#say-the-straight-line-out-loud).
 
 ## User message

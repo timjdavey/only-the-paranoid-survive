@@ -172,7 +172,7 @@ What a reason must never do:
 
 Every skin says, in its own words, that a channel pays the same for each unit however many units it gets. It is the one fixed fact a good story does not carry by itself.
 
-- **A model does not assume it.** It fills the gap from real markets, where selling more lowers the price, and spreads its units. Haiku 5.5 scored 0.30 on One shock without the sentence and 0.80 with it, see [findings](../pilot/findings.md#one-sentence-fixes-it-and-only-its-price-half-matters).
+- **A model does not assume it.** It fills the gap from real markets, where selling more lowers the price, and spreads its units. Haiku 5.5 scored 0.30 on One shock without the sentence and 0.80 with it, see [findings](../pilot/model-findings.md#one-sentence-fixes-it-and-only-its-price-half-matters).
 - **State it as a fact about the figure.** The example skin says "A market pays the same for a case however many you send it." That is what a unit is paid, and nothing on where to send it.
 - **Never turn it into advice.** "There is no such thing as sending too much" says how to play. "What counts is the whole run, not one period" asks for patience, which is what the study measures. It also did nothing when tested alone.
 - **The story still has to make it true.** The sentence states the straight line and cannot rescue a story that tails off, see [why more is better](#why-more-is-better). One clause of reason in the story's words is fine.
