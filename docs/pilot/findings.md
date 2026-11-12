@@ -15,7 +15,7 @@ What the pilot has taught us so far, in the order we learned it. Each finding sa
 - **With that sentence, the game is not too easy for a model.** On Down switch Haiku scores 0.52 and Sonnet 0.60, against the Bayesian baseline's 0.94.
 - **Both models lose where the new best rises from the bottom.** They write a channel off after one poor round and never look at it again. Sonnet is no better at this than Haiku.
 - **Neither model gives a reason to turn the shape knobs on.** The gain on a switch in the new world was mostly the luck of ten seeds.
-- **The provider checks are next.**
+- **The provider checks have started,** and wait on two keys and on channel order, where Sonnet slips.
 
 ## The engine pilot
 
@@ -262,15 +262,20 @@ A scratch probe of `claude-sonnet-5-5`, to see whether a better reader finds the
 - **Means.** After a switch the model's own retreat makes price and volume move together in its record, which looks like the price falling with volume. The frame fact holds before a switch and is doubted after one.
 - **Open.** Whether to count this as honest doubt, which a split is meant to show, or as the frame fact failing. More advice in the frame would lean on what the study measures, so nothing changes yet.
 
-### Limits
+### Limits and cost
 
 - **Sonnet barely thought.** At `low` it used under 60 thinking tokens a call, left a note on 14% of rounds and almost never ran code. Haiku left a note on 70% of rounds.
 - **One skin, ten seeds, one reasoning setting.** Five runs carry the bottom three result.
+- **About $3.80 at list prices** for the twenty Sonnet runs, and about $8.20 for both probes. Every run was on the Anthropic OAuth token, so it drew on the plan, not a bill, and played only public seeds on the example skin.
 
-### Cost
+## The provider checks, first results
 
-- **About $3.80 at list prices** for the twenty Sonnet runs, and about $8.20 for both probes. The Haiku rerun with the price half was about $1.90 of that.
-- **Every run was on the Anthropic OAuth token**, so it drew on the plan, not a bill. Only public seeds and the example skin were played, so nothing held-out left the machine.
+The two Claude rows of the [proof of concept list](../harness/models.md#two-lists) on the example skin, on the plan token. The held-out skins and the Gemini row wait on keys, see [`TODO.md`](../../TODO.md#pilot).
+
+- **Haiku now plays at `off` and Sonnet stays at `low`.** In two 12 round runs at `off`, Haiku sent no reasoning token. Sonnet still thought, about 50 tokens a round, the same as at `low`.
+- **At `off` the thinking moves into the tools.** Both models ran code on most rounds, where at `low` Sonnet almost never did. A reply that runs code before it sends a split counts as a retry, so a model that plays cleanly can show a retry on every round. The share that flags a bar has to allow for that.
+- **Sonnet puts one bet a place early, every time.** In [channel order](provider-checks.md#channel-order), Haiku matched 30 of 30. Asked for Quarrow 55 and Tolbury 45, Sonnet put the 55 on Sedgeby, on six runs of six. That is 1 in 30, over the 1 in 50 line on one skin, so no other LLM cell runs until the held-out skins are probed.
+- **Neither model finished the canary,** and both called the example prompt a test of decisions under doubt. Sonnet read the frame fact back as "sending more to a market doesn't lower its price, so spreading fruit around costs nothing in price impact".
 
 ## Lessons on method
 
@@ -281,8 +286,7 @@ A scratch probe of `claude-sonnet-5-5`, to see whether a better reader finds the
 - **Look at what the model sent its points to, not just the score.** The switch loss came from one seed's record: it left the leader for the wrong market and never looked at the right one.
 - **Ten seeds show gaps of about 0.1 or more.** That is enough for a probe, not for a decision. Three players on ten seeds could not tell the Bayesian hazards apart either.
 - **Judge a knob by score, not by a rate alone.** The tell's hit rate looked bad and cost little.
-- **Pairing by seed pairs only what the seed fixes.** Two worlds draw different switches on one seed. Check the draw on the whole seed list before reading a paired gap.
-- **Sort runs by what made them hard.** One column, where the new best started, turned a blurred 0.60 into 0.74 and 0.40.
+- **Pairing by seed pairs only what the seed fixes.** Two worlds draw different switches on one seed, so check the draw on the whole seed list first. Then sort runs by what made them hard: where the new best started turned a blurred 0.60 into 0.74 and 0.40.
 
 ## Still open
 

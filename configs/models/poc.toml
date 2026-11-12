@@ -5,14 +5,14 @@
 [[model]]
 id = "anthropic/claude-haiku-5-5"
 kind = "llm"
-reasoning = "low"
-notes = "Cheapest Claude. Anthropic's docs say thinking can be off at high effort or below, so this row moves to off once the off check passes with a key, see TODO.md. It reads its own earlier thinking when the blocks are sent back as they came, which inspect does"
+reasoning = "off"
+notes = "Cheapest Claude. Off since the off check passed on 2026-11-12: no reasoning token in two 12 round runs. With thinking off it works in the compute tool on most rounds instead"
 
 [[model]]
 id = "anthropic/claude-sonnet-5-5"
 kind = "llm"
 reasoning = "low"
-notes = "The mid Claude. It refuses a plain off: inspect sends between_tools for it, which the off check has still to confirm. It reads its own earlier thinking when the blocks are sent back as they came, which inspect does"
+notes = "The mid Claude. It stays at low, as it failed the off check on 2026-11-12: at off it still thought, about 50 reasoning tokens a round, the same as at low. It also refuses a forced tool call, so inspect sends auto. It reads its own earlier thinking when the blocks are sent back as they came, which inspect does"
 
 [[model]]
 id = "google/gemini-3.5-flash-lite"

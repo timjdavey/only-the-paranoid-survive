@@ -5,6 +5,13 @@ The engine checks are run, see [results](docs/pilot/results.md). Their rows in [
 
 What each step has taught us is in [findings](docs/pilot/findings.md). This list is what to do next.
 
+The provider checks have started, on the two Claude rows and the example skin only, see [first results](docs/pilot/findings.md#the-provider-checks-first-results):
+- **Two keys are needed to go on.** The `.env` holds one model credential, an Anthropic plan token, which may not play a held-out skin. An Anthropic API key under zero data retention opens the held-out skins, and a Google key opens the Gemini row.
+- **Finish channel order before any other LLM cell.** Haiku matched 30 of 30 on the example skin. Sonnet put a bet one place early on 1 of 30, the same probe every time, which is over the 1 in 50 line on one skin. Pooled over six skins `submit` keeps its list only if Sonnet slips on 3 of 180 or fewer. Run `paranoid pilot channel-order` with the held-out skins loaded, then decide.
+- **Then `seeds`,** 120 runs on three rows, about $10 to $15 at list prices, and `repeats` after it.
+- **Finish recognition on the held-out skins.** On the example skin neither Claude row finished the canary.
+- **Price a Jev call before the `jev` cell.** It makes 1600 calls to Typesafe, and no page says what one costs.
+
 The first model numbers, scratch probes of Haiku 5.5 and Sonnet 5.5, see [the first model](docs/pilot/findings.md#the-first-model-haiku-55) and [a stronger model](docs/pilot/findings.md#a-stronger-model-sonnet-55):
 - **Merge the frame fact into the held-out skins.** Every skin now says a channel pays the same for each point however many it gets, see [what every skin must say](docs/harness/prompts.md#what-every-skin-must-say). The five held-out skins carry it in pull request 6 of the private repo, not yet merged.
 - **Check each held-out wording lands.** Only the example's sentence has been played, and it lifted Haiku's top bet on No change from 29 to 95. In the provider checks, read each skin's top bet beside its score on No change, and rework the sentence of any skin that sits well under the example.
@@ -70,8 +77,8 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 
 ## Needs a key
 Every other "Verify before code" item on a harness or analysis page is closed, see its "Checked" section, bar equal plot bytes across machines, see [code](#code). These call a provider, so they wait for a workspace with a `.env`. Each spec bullet says the exact call. The `.env` lives outside any workspace and is linked in, see [keys](docs/harness/running.md#keys).
-- **Each provider takes what inspect sends.** One small call per `llm` row and reasoning setting in `configs/models/`, see the [command spec](docs/specs/harness/command.md#verify-before-code). It checks every model id and every setting marked "to verify" in `full.toml` on the way.
-- **`off` is off.** No reasoning tokens on any `off` row, same page. `poc.toml` has no `off` row today, so run the check at `off` on all three of its `llm` rows. Anthropic's docs say Haiku 5.5 can turn thinking off, inspect sends `between_tools` for Sonnet 5.5, and Google's docs list no off for `gemini-3.5-flash-lite`. A row that passes moves to `off`, as the proof of concept runs minimal, see [reasoning](docs/harness/models.md#reasoning).
+- **Each provider takes what inspect sends.** Done for the two Claude rows of `poc.toml`, at `low` and at `off`. Gemini and every row of `full.toml` still wait. One small call per `llm` row and reasoning setting in `configs/models/`, see the [command spec](docs/specs/harness/command.md#verify-before-code). It checks every model id and every setting marked "to verify" in `full.toml` on the way.
+- **`off` is off.** Done for Claude. Haiku 5.5 sent no reasoning token in two 12 round runs, so its row plays at `off`. Sonnet 5.5 still thought at `off`, about 50 reasoning tokens a round, so it stays at `low`. Gemini waits on its key, and Google's docs list no off for `gemini-3.5-flash-lite`. The `off` rows of `full.toml` still wait, see the [command spec](docs/specs/harness/command.md#verify-before-code).
 - **Which OpenRouter models refuse a required tool call while thinking**, see the [solver spec](docs/specs/harness/solver.md#verify-before-code). DeepSeek and Kimi are the likely ones.
 - **Cutting the record into content blocks changes the bill and not the prompt.** Two checks left of three, on one Anthropic model, same page. Run them before the pilot, as the prompt structure freezes after it. Once both pass, set `BLOCK_CACHE_APIS = ("anthropic",)` in `src/paranoid/harness/solver.py`, which ships empty. Anthropic's docs put the cache minimum at 512 tokens on Claude 5.5 models, so a `uniform` warm up of thirty rounds clears it.
 - **One live Jev reply holds a probability for every option**, see the [providers spec](docs/specs/harness/providers.md#verify-before-code).
