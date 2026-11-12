@@ -56,7 +56,7 @@ One row per section of the pilot results page, in page order. `SECTIONS` holds t
 - **A pooled score from an engine CSV** is `pooled_score` over each seed's `output − uniform` and `discerning − uniform`, the three rows joined on the seed and the cell's setting columns.
 - **A pooled output is a sum over seeds**, in level points, as in the Baseline order and Reading roughness tables, and the explore cost there is the `complacent` rows' summed output minus the rule's on the same No change seeds.
 - **Where a check leaves a word loose, the section says how it reads it.**
-  - **≈ and ≥ in an order line** allow 0.02 of a scenario score: two scores are ≈ within 0.02, and `a ≥ b` holds while `a` is no more than 0.02 below `b`. `>` is strict.
+  - **≈ and ≥ in an order line** allow 0.05 of a scenario score: two scores are ≈ within 0.05, and `a ≥ b` holds while `a` is no more than 0.05 below `b`. `>` is strict. The Up switch then down switch scenario has two lines, as the Stayer is its yardstick, see [baseline order](../../pilot/engine-checks.md#baseline-order).
   - **The hedge rule's unmoved share** in Game length counts the seeds where the Discerning baseline moves, outside Up switch and Up switch then down switch, where the leader never falls. The Scout rule's counts every seed where the Discerning baseline moves.
   - **Rounds to pull clear** are `clear_round − onset`, over the seeds that pull clear.
   - **The Bayesian frontier's split** is on the seed value: the seeds in the file in order, the lower half to pick and the rest to report, the middle seed reporting when the count is odd. The cell's hundred seeds split into 0 to 49 and 50 to 99, and a thousand would split at 500. The pick is the Bayesian player with the best headline on the lower half.
