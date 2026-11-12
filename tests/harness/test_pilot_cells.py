@@ -102,7 +102,7 @@ def test_hp6_recognition(cell_args, helpers, monkeypatch):
 
 def test_hp7_jev(cell_args, monkeypatch, FakeJev, evals):
     answer = [0.004, 0.996] + [0.0] * 8
-    monkeypatch.setattr("paranoid.harness.providers.jev.TypesafeClient", lambda model: FakeJev({3: answer}))
+    monkeypatch.setattr("paranoid.harness.providers.jev.TypesafeClient", lambda model, endpoint: FakeJev({3: answer}))
     args = cell_args(("jev/fake", "jev", "n/a"))
     paths = run_cell("jev", args)
     assert len(logs_in(args.out / "jev")) == 1 and paths[-1] == args.out / "jev.csv"

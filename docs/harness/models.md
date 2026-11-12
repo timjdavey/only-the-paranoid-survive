@@ -16,7 +16,7 @@ Which models run, and with what settings. The lists live in `configs/models/` so
 | Column | Meaning |
 |---|---|
 | `id` | The inspect model string, such as `anthropic/claude-haiku-5-5` or `baseline/complacent` |
-| `kind` | `llm`, `baseline`, `jev` or `timestral`. Tells the analysis which rows are floors and ceilings |
+| `kind` | `llm`, `baseline`, `jev` or `timestral`. Tells the analysis which rows are floors and ceilings. `jev` covers any model behind a Jev-compatible API, such as `jev/decisionmodels/s1-pro-5`, see [providers](providers.md#jev) |
 | `reasoning` | The [reasoning setting](../glossary.md). One value in `poc.toml`, a list in `full.toml` where each value is its own result row |
 | `reasoning_kind` | `effort` or `budget`: whether the provider takes an effort name or a token budget. Optional. The harness guesses from the id's prefix, so set it only for an exception such as `claude-haiku-4-5`, see the [command spec](../specs/harness/command.md#reasoning) |
 | `released` | Release date, from Epoch's `date` column. Full study only |
@@ -79,6 +79,7 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 | Google | `GOOGLE_API_KEY` |
 | OpenRouter | `OPENROUTER_API_KEY` |
 | Jev | `TYPESAFE_API_KEY` |
+| Decision Models | `DECISIONMODELS_API_KEY`. Turn off peer-to-peer and worldwide processing on the key, see [who can see them](contamination.md#who-can-see-them) |
 | Timestral | None. Runs locally, see [providers](providers.md#timestral) |
 | Baselines | None |
 

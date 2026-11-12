@@ -26,6 +26,41 @@ kind = "jev"
 reasoning = "n/a"
 notes = "See docs/harness/providers.md"
 
+# Jev-compatible decision models from Decision Models, played through its EU tier. Pinned ids, as the
+# s1-pro and s1-fast aliases can change model. Limits read from https://decisionmodels.io/llms.txt on 2026-11-12.
+# Left out: s1-vision-2 gives s1-fast-2's answers exactly, s1-pro-2 and reax-1.2 retire in December, and
+# s1-llm-auto-router is a fixed-schema routing classifier, not a decision model.
+
+[[model]]
+id = "jev/decisionmodels/s1-pro-5"
+kind = "jev"
+reasoning = "n/a"
+notes = "mammoth-1 27B by baselabs, a Qwen3.5-27B fine-tune. The top open-weights row on JevBench. EU tier only, 8,192 input tokens"
+
+[[model]]
+id = "jev/decisionmodels/s1-pro-3"
+kind = "jev"
+reasoning = "n/a"
+notes = "vLLM-SR d3 26B, a Qwen3.8-27B fine-tune. 16,384 input tokens. Kept until at least 2027-01-27"
+
+[[model]]
+id = "jev/decisionmodels/s1-fast-2"
+kind = "jev"
+reasoning = "n/a"
+notes = "Blink v0.3 26B-A4B, a Gemma 4 mixture of experts. The small, cheap point. 16,192 input tokens. Runs batched, so one request twice can differ slightly"
+
+[[model]]
+id = "jev/decisionmodels/reax-1-20261021"
+kind = "jev"
+reasoning = "n/a"
+notes = "REAX 1, Decision Models' own fine-tune of Perplexity Decider v1.2, from Qwen3.8-27B. 8,192 input tokens"
+
+[[model]]
+id = "jev/decisionmodels/reax-1.3"
+kind = "jev"
+reasoning = "n/a"
+notes = "REAX 1.3, two fine-tunes from the REAX training network answering together. EU tier only. 28,672 input tokens, and each prompt counts twice"
+
 [[model]]
 id = "timestral/top-pick"
 kind = "timestral"

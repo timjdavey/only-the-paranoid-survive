@@ -18,7 +18,7 @@ class StoreAPI(ModelAPI):
     def max_connections(self) -> int                                       # 32 for baselines, 4 for Jev, 1 for Timestral
 
 class BaselineAPI(StoreAPI): ...     # "baseline/<name>". model_args are the policy's parameters
-class JevAPI(StoreAPI): ...          # "jev/<model>"
+class JevAPI(StoreAPI): ...          # "jev/<model>" on TypeSafe, or "jev/<endpoint>/<model>"
 class TimestralAPI(StoreAPI): ...    # "timestral/<policy>". Plays a forecasters layer policy
 
 @dataclass(frozen=True)
@@ -29,6 +29,18 @@ class JevAnswer:
 
 class JevClient(Protocol):
     async def ask(self, state: str, question: str, options: Sequence[str]) -> JevAnswer: ...
+
+@dataclass(frozen=True)
+class Endpoint:                                 # a Jev-compatible API
+    base_url: str | None                        # None: the SDK's own default, TypeSafe
+    key_env: str | None                         # None: the SDK reads TYPESAFE_API_KEY itself
+    headers: Mapping[str, str]                  # sent on every call
+
+TYPESAFE = Endpoint(None, None, {})
+ENDPOINTS = {"decisionmodels": Endpoint("https://api.decisionmodels.io", "DECISIONMODELS_API_KEY",
+                                        {"S1-Region": "eu"})}
+
+def endpoint_of(model_name: str) -> tuple[Endpoint, str]   # the endpoint and the model id it takes
 ```
 
 ## Behaviour
@@ -37,7 +49,7 @@ class JevClient(Protocol):
 
 - **`providers/__init__.py`** registers `baseline`, `jev` and `timestral` with `@modelapi(name=...)`, each returning its class. `pyproject.toml` lists the module under the `inspect_ai` entry point, so `--model baseline/complacent` resolves with no import by the caller, see [naming](../../harness/layout.md#naming).
 - **The model name after the slash** picks the policy, the Jev model or the Timestral policy. inspect builds the provider with that bare name, so `--model timestral/top-pick` builds `TimestralAPI("top-pick")`. An unknown one raises `ValueError` on construction, naming the known ones.
-- **No key is read** by the baseline and Timestral providers. Jev reads `TYPESAFE_API_KEY`, see [keys](../../harness/models.md#keys).
+- **No key is read** by the baseline and Timestral providers. A `jev` row reads its endpoint's key, `TYPESAFE_API_KEY` or `DECISIONMODELS_API_KEY`, see [keys](../../harness/models.md#keys).
 
 ### Shared behaviour
 
@@ -61,10 +73,13 @@ class JevClient(Protocol):
 ### Jev
 
 - **`JevAPI`** takes a `client: JevClient`. The default is `TypesafeClient`, a thin wrapper over `typesafe-sdk`. The package is a default dependency and is imported lazily, inside `TypesafeClient`, so nothing but a Jev run loads it. Its module is `typesafe_sdk`. Tests pass a fake.
-- **`TypesafeClient.ask`** holds one `AsyncTypeSafeClient(model=<the name after the slash>)`, which reads `TYPESAFE_API_KEY` itself, and awaits `client.system_one(state=state, questions={"channel": Choice(instructions=question, criteria={option: None for option in options})})`. The answer is `response.choices["channel"]`. Its `probabilities` is a dict keyed by option, so `JevAnswer.probabilities` reads it in option order, and an option the reply leaves out raises `ValueError`. `confidence` is the answer's own, and `raw` is `response.model_dump()`. The shape is in [checked](#checked).
+- **The endpoint is named in the id.** Other APIs take Jev's request shape, so one provider plays them all. `endpoint_of` splits the name inspect passes at its first slash. With no slash it is TypeSafe's model, so `jev/jev-latest` is `(TYPESAFE, "jev-latest")`. With one, the part before it is a key of `ENDPOINTS`, so `jev/decisionmodels/s1-pro-5` is `(ENDPOINTS["decisionmodels"], "s1-pro-5")`. An unknown key raises `ValueError` naming the known ones. `JevAPI` calls it on construction, fake client or not.
+- **Decision Models runs in its EU tier only.** The `S1-Region: eu` header keeps a call off its peer-to-peer network, out of its logs and out of training, see [who can see them](../../harness/contamination.md#who-can-see-them). Its rows name pinned ids, as an alias such as `s1-pro` can change model between calls and the SDK drops the `model_version` that would show it.
+- **`TypesafeClient(model, endpoint)`** builds one `AsyncTypeSafeClient(model=model, base_url=endpoint.base_url, api_key=key, headers=endpoint.headers)` in `sdk()`, on its first ask, and keeps it. For TypeSafe `key` is `None` and the SDK reads `TYPESAFE_API_KEY` itself. For any other endpoint `key` is `os.environ[endpoint.key_env]`, and a missing or blank one raises `ValueError` naming the variable before any call, so a run never sends one provider's key to another. An explicit `base_url` also wins over `TYPESAFE_BASE_URL`.
+- **`TypesafeClient.ask`** awaits `client.system_one(state=state, questions={"channel": Choice(instructions=question, criteria={option: None for option in options})})`. The answer is `response.choices["channel"]`. Its `probabilities` is a dict keyed by option, so `JevAnswer.probabilities` reads it in option order, and an option the reply leaves out raises `ValueError` naming the model. `confidence` is the answer's own, and `raw` is `response.model_dump()`. The shape is in [checked](#checked).
 - **State** is the text of the system message and the text of the user message in `input`, joined by two newlines. That is exactly what an LLM sees this round, notes included when the pilot turns them on.
 - **Question and options** are the skin's `question` and `channels`, in channel index order. The provider loads the skin by `store.skin` from `load_skins()`, called once per process and kept.
-- **Bets** are `split_budget(answer.probabilities, budget)`, see [`split_budget`](../engine/view.md#split_budget). A probability under 0.005 of the budget gets 0 unless a leftover point falls to it. An answer with the wrong number of probabilities, a negative one, or all zeros raises `ValueError`.
+- **Bets** are `split_budget(answer.probabilities, budget)`, see [`split_budget`](../engine/view.md#split_budget). A probability under 0.005 of the budget gets 0 unless a leftover point falls to it. An answer with the wrong number of probabilities, a negative one, or all zeros raises `ValueError` naming the model.
 - **Logged** on the message's `metadata`: `probabilities`, `confidence`, `raw` and `rounded_out`, which is how many options have a probability above 0 and a bet of 0, so the [Jev rounding check](../../pilot/provider-checks.md#jev-checks) can count the channels that fell out of view. It is a count for the reason Timestral's is, see [rounded out](../forecasters/policy.md#rounded-out). The `jev` cell reads it from the log, see [pilot](pilot.md#jev).
 - **No memory.** The client is awaited once a round with the state as given. Nothing is kept between rounds, see [Jev](../../harness/providers.md#jev).
 
@@ -87,7 +102,7 @@ class JevClient(Protocol):
 
 ## Checked
 
-Run on 2026-11-11 against inspect_ai 0.3.289 and read from `typesafe-sdk` 0.7.5. No key was used, so nothing here called Jev.
+Run on 2026-11-11 against inspect_ai 0.3.289 and read from `typesafe-sdk` 0.7.5. No key was used, so nothing here called Jev. The Decision Models rows were read from its [llms.txt](https://decisionmodels.io/llms.txt), [model registry](https://api.decisionmodels.io/v1/models) and [migration checklist](https://decisionmodels.io/jev-migration-checklist) on 2026-11-12, and called live the same day.
 
 | Question | Answer |
 |---|---|
@@ -97,6 +112,10 @@ Run on 2026-11-11 against inspect_ai 0.3.289 and read from `typesafe-sdk` 0.7.5.
 | Its reply | `SystemOneResponse.choices[<name>]` is a `ChoiceAnswer` with `choice`, `confidence` from 0 to 1, and `probabilities`, a dict keyed by label that sums to about 1 |
 | Its key, model and timeout | `TYPESAFE_API_KEY`, `jev-latest` by default, 10 seconds a call, with its own retries |
 | Its usage | The reply holds `usage.input_tokens`, which Jev bills. It lands in `raw`, so the log has it, and the provider still reports zero tokens to inspect |
+| The SDK's request | `POST {base_url}/v1/systemone` with `Authorization: Bearer <key>`, and it reads the reply's `answers`. It takes `base_url`, `api_key` and `headers` as arguments |
+| Decision Models' API | The same path, auth and reply, at `https://api.decisionmodels.io`. `S1-Region: eu` picks the EU tier. One question a call on `s1-fast`, three on `s1-pro`, and we send one |
+| Decision Models' limits | `s1-pro-5` (mammoth-1 27B, EU only) and `reax-1-20261021` 8,192 input tokens, and `s1-pro-5` 64 options. `s1-pro-3` (vLLM-SR d3 26B, kept to at least 2027-01-27) 16,384. `s1-fast-2` (Blink v0.3 26B-A4B) 16,192 and 16 options, on a batched engine, so one request twice can differ slightly. `reax-1.3` (EU only) 28,672, and it counts a prompt twice. A prompt over the limit is a 400, never cut |
+| A live reply, 2026-11-12 | One call to each of the five rows with a round 40 Uniform record on the example skin: all ten probabilities back, summing to 1, in under 2 seconds. About 3,850 input tokens, or 7,700 on `reax-1.3`, so every row has at least twice the room it needs. Then one full run of each through `paranoid run --skins example --limit 1`, with no errors. `s1-vision-2` gave `s1-fast-2`'s answer to the digit, so it is the same model and has no row |
 
 ## Verify before code
 

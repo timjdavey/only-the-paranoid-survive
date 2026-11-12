@@ -46,6 +46,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 - **The maintainers only.** No lab sees held-out seeds, timelines or logs, funders included.
 - **Results publish one score per run.** Never a held-out seed, a timeline, or a round-by-round log.
 - **Providers see what they serve.** A run through an API shows the provider that run's readings. So we use zero data retention where a provider offers it.
+- **Decision Models only through its EU tier.** Its default tier can pass a request to a peer-to-peer network of anonymous GPU owners who may store it. Every call sends `S1-Region: eu`, which its terms say stays in the EU, is not logged and is not trained on, see [providers](../specs/harness/providers.md#jev). Keep peer-to-peer and worldwide processing off on the key as well.
 - **Fresh held-out seeds each release.** Readings a provider kept from one release are no use on the next. Old models are rerun on the new set, not carried over. Every log names its release, so two releases' runs are never pooled, see the [task spec](../specs/harness/task.md#release).
 
 ## The public gap

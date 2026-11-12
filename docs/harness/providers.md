@@ -9,10 +9,12 @@ Jev and Timestral are the two models that cannot call `submit` themselves. This 
 
 [Jev](https://docs.typesafe.ai/introduction) takes a state and a question with fixed options, and returns a probability for each option rather than text.
 
+Other decision models take the same request, so the Jev provider plays them too. Each is a `jev` row whose id names its endpoint. Today that is [Decision Models](https://decisionmodels.io), which serves open-weights models from the [JevBench](https://benchmarkheaven.com/jev-models) board. Everything in the table holds for them as for Jev.
+
 | | Jev |
 |---|---|
-| Provider | `jev/jev-latest`, `kind = "jev"` in [models](models.md#columns) |
-| Install | `typesafe-sdk`, in the default `uv sync`. Key `TYPESAFE_API_KEY`, see [keys](models.md#keys) |
+| Provider | `jev/jev-latest` for Jev, and `jev/decisionmodels/<model>` for Decision Models, such as `jev/decisionmodels/s1-pro-5`. All `kind = "jev"` in [models](models.md#columns) |
+| Install | `typesafe-sdk`, in the default `uv sync`. Key `TYPESAFE_API_KEY` for Jev and `DECISIONMODELS_API_KEY` for Decision Models, see [keys](models.md#keys). Decision Models is always called in its EU tier, see [who can see them](contamination.md#who-can-see-them) |
 | Input | The rendered system prompt and record as its state, the same text an LLM sees, see [prompts](prompts.md). Then one question in the skin's words, from the skin's `question` field: which channel should the budget go on this round. Ten options, one per channel, named by the skin's `channels`. The question stands in for the line that tells an LLM to call `submit` |
 | Output | A probability for each of the ten channels |
 | Bets | Each probability times 100, rounded to whole numbers that sum to 100. Leftover points go to the channels that lost most in rounding, which is largest remainder rounding |

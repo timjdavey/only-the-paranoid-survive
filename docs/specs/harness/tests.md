@@ -69,6 +69,8 @@ Every test the harness suite runs, in `tests/harness/`. Ids start `H` for the ha
 | HR8 | Without the extra, `TimestralAPI("top-pick")` raises `ImportError` naming `uv sync --extra timestral`, and with a fake `Forecaster` passed it does not | [providers](providers.md#timestral) |
 | HR9 | `BaselineAPI` reports `max_connections` of 32, a `JevAPI` with a fake client 4, and a `TimestralAPI` with a fake forecaster 1 | [providers](providers.md#shared-behaviour) |
 | HR10 | A policy that bets 110 in all, patched into the baseline provider's copy of `POLICIES`, which is read only: an eval of it errors the sample with a `RuntimeError` naming the model and round 1. `gave_up` is unset and `bad_calls` is 0 | [providers](providers.md#shared-behaviour) |
+| HR11 | `endpoint_of("decisionmodels/s1-fast-2")` is `(ENDPOINTS["decisionmodels"], "s1-fast-2")` and `endpoint_of("jev-latest")` is `(TYPESAFE, "jev-latest")`. `JevAPI("nope/x", client=FakeJev())` raises `ValueError` naming `decisionmodels` | [providers](providers.md#jev) |
+| HR12 | With `TYPESAFE_API_KEY` set and `DECISIONMODELS_API_KEY` unset, a `TypesafeClient` for `ENDPOINTS["decisionmodels"]` raises `ValueError` naming `DECISIONMODELS_API_KEY` on `ask`. With both set and `TYPESAFE_BASE_URL` set too, the SDK client its `sdk()` builds has Decision Models' base URL and key and the `S1-Region: eu` header. Nothing is sent | [providers](providers.md#jev) |
 
 ## Scorer
 

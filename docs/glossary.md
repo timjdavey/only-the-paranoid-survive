@@ -15,7 +15,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
 | Baseline | A fixed strategy run through the same game and score as the models. A fixed baseline's name always ends in "baseline", so it never reads as a plain adjective. See [baselines](design/baselines.md) |
-| Provider | The harness code that plays one model through the same solver as an LLM. inspect_ai's own for chat LLMs, ours for baselines, Jev and Timestral. `baseline/<name>`, `jev/<model>` and `timestral/<policy>` in code. See [inspect](harness/inspect.md#providers) |
+| Provider | The harness code that plays one model through the same solver as an LLM. inspect_ai's own for chat LLMs, ours for baselines, Jev and Timestral. `baseline/<name>`, `jev/<model>` or `jev/<endpoint>/<model>`, and `timestral/<policy>` in code. See [inspect](harness/inspect.md#providers) |
 | Perfect baseline | The baseline that knows each round's levels and bets on the best channel. A mark for how much weather luck was on offer, read from the pool. It divides nothing. `baseline/perfect` in code |
 | Discerning baseline | The baseline that knows each channel's base level, so it holds through a shock and moves at a switch. The ceiling: a scenario score of 1. `baseline/discerning` in code |
 | Complacent baseline | The baseline that holds the Discerning baseline's round 1 bets to the end. A mark on every scenario's bar. The [reachable gain](pilot/engine-checks.md#reachable-gain) check holds it at or below 0.7 wherever a change lasts. It sits near 1 in the Up switch then down switch scenario, where the change undoes itself. `baseline/complacent` in code |

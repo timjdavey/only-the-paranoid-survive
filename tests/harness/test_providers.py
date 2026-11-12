@@ -1,4 +1,4 @@
-"""HR1, HR2, HR4 to HR6, HR8, HR9 and HY3, see docs/specs/harness/tests.md#providers."""
+"""HR1, HR2, HR4 to HR6, HR8, HR9, HR11, HR12 and HY3, see docs/specs/harness/tests.md#providers."""
 
 import asyncio
 import sys
@@ -11,6 +11,7 @@ from inspect_ai.model import ChatMessageAssistant, GenerateConfig, get_model
 from paranoid.baselines import POLICIES, HedgeRule
 from paranoid.engine import Record
 from paranoid.harness import BaselineAPI, JevAPI, TimestralAPI
+from paranoid.harness.providers.jev import ENDPOINTS, TYPESAFE, TypesafeClient, endpoint_of
 from paranoid.skins import render_record, render_system_prompt
 
 
@@ -85,6 +86,26 @@ def test_hr9_max_connections(FakeJev, Fake):
     assert BaselineAPI("uniform").max_connections() == 32
     assert JevAPI("fake", client=FakeJev()).max_connections() == 4
     assert TimestralAPI("odds", forecaster=Fake()).max_connections() == 1
+
+
+def test_hr11_endpoint_of(FakeJev):
+    assert endpoint_of("decisionmodels/s1-fast-2") == (ENDPOINTS["decisionmodels"], "s1-fast-2")
+    assert endpoint_of("jev-latest") == (TYPESAFE, "jev-latest")
+    with pytest.raises(ValueError, match="decisionmodels"):
+        JevAPI("nope/x", client=FakeJev())
+
+
+def test_hr12_endpoint_key_and_header(monkeypatch):
+    monkeypatch.setenv("TYPESAFE_API_KEY", "typesafe-key")
+    monkeypatch.setenv("TYPESAFE_BASE_URL", "https://typesafe.invalid")
+    monkeypatch.delenv("DECISIONMODELS_API_KEY", raising=False)
+    client = TypesafeClient("s1-fast-2", ENDPOINTS["decisionmodels"])
+    with pytest.raises(ValueError, match="DECISIONMODELS_API_KEY"):
+        asyncio.run(client.ask("state", "question", ["a", "b"]))
+    monkeypatch.setenv("DECISIONMODELS_API_KEY", "dm-key")
+    config = TypesafeClient("s1-fast-2", ENDPOINTS["decisionmodels"]).sdk()._config
+    assert config.base_url == "https://api.decisionmodels.io" and config.api_key == "dm-key"
+    assert config.default_headers["S1-Region"] == "eu"
 
 
 @settings(max_examples=10, deadline=None)

@@ -23,7 +23,7 @@ def offline(monkeypatch):
     monkeypatch.setattr(socket.socket, "connect", blocked)  # outbound only, as asyncio's own socket pair needs no connect
     monkeypatch.setattr(socket, "create_connection", blocked)
     monkeypatch.setattr(socket, "getaddrinfo", blocked)
-    for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", "OPENROUTER_API_KEY", "TYPESAFE_API_KEY"):
+    for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", "OPENROUTER_API_KEY", "TYPESAFE_API_KEY", "DECISIONMODELS_API_KEY"):
         monkeypatch.delenv(name, raising=False)
 
 
