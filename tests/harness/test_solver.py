@@ -85,7 +85,7 @@ def test_hs17_record_blocks(example, played, helpers, monkeypatch):
     text = render_record(example, played)
     pieces = record_blocks(text)
     assert len(pieces) == 4 and "".join(pieces) == text and pieces[0] == text.splitlines(keepends=True)[0]
-    assert BLOCK_CACHE_APIS == ()
+    assert BLOCK_CACHE_APIS == ("anthropic",)
     script = helpers.Script(then=helpers.reply(submit_call(example)))
     helpers.run(script.model())
     assert len(script.calls[2][0][1].content) == 1
