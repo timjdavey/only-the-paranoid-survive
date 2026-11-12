@@ -11,10 +11,11 @@ What the pilot has taught us so far, in the order we learned it. Each finding sa
 - **The engine knobs are set,** as proposals in [decisions](decisions.md). Three moved so every scenario is worth reading.
 - **The best blind reader sits near the ceiling.** The Bayesian baseline scores 0.93 to 0.98 on No change, One shock and Down switch, and more noise barely touches it.
 - **The shape knobs are built and off.** They make a shock and a switch look alike, and they beat the hedge rule but not the Bayesian baseline.
-- **The first model misread the game until one sentence fixed it.** Haiku spread its bets because the frame never said a market's price ignores how much you send.
-- **With that sentence, the game is not too easy for a model.** Haiku scores 0.52 on Down switch against the Bayesian baseline's 0.94, because it stops looking and never finds the new best.
-- **Haiku gives no reason to turn the shape knobs on.** It does a little worse on a shock in the new world and better on a switch.
-- **The provider checks wait** on the frame fact and a decision on the shape knobs.
+- **The first model misread the game until one sentence fixed it.** Haiku spread its bets because the frame never said a market's price ignores how much you send. That sentence is now a frame fact in every skin.
+- **With that sentence, the game is not too easy for a model.** On Down switch Haiku scores 0.52 and Sonnet 0.60, against the Bayesian baseline's 0.94.
+- **Both models lose where the new best rises from the bottom.** They write a channel off after one poor round and never look at it again. Sonnet is no better at this than Haiku.
+- **Neither model gives a reason to turn the shape knobs on.** The gain on a switch in the new world was mostly the luck of ten seeds.
+- **The provider checks wait** on a decision on the shape knobs.
 
 ## The engine pilot
 
@@ -112,7 +113,7 @@ A smoke test of the real Timestral at its pins, ahead of the [Timestral checks](
 
 ## The first model: Haiku 5.5
 
-A scratch probe of `claude-haiku-5-5` on the example skin, before any formal provider check. Every run used public seeds 0 to 9, `low` reasoning, notes and compute on. "Today" is the engine's defaults, "new" is the shape knobs on at the values in [`shapes/src/worlds.py`](../../shapes/src/worlds.py). The probe's scripts and logs were scratch and are not kept, so the settings here are what you need to play it again.
+A scratch probe of `claude-haiku-5-5` on the example skin, before any formal provider check. Every run used public seeds 0 to 9, `low` reasoning, notes and compute on. "Today" is the engine's defaults, "new" is the shape knobs on at the values in [`shapes/src/worlds.py`](../../shapes/src/worlds.py). The scripts and logs of both probes were scratch and are not kept, so the settings here are what you need to play them again.
 
 ### It picks the right channel and bets small on it
 
@@ -168,7 +169,9 @@ A scratch probe of `claude-haiku-5-5` on the example skin, before any formal pro
 
 - **Means.** The price half does all the work. Price half against both halves on One shock is −0.03, with a standard error of 0.05. Haiku uses the fact by name: "Since a market's price doesn't fall with volume, keep going all-in on Wendlow unless its average drops clearly into the 70s for several weeks."
 - **Why the price half alone is the proposed frame fact.** It is a plain fact about the game. The season half tells the model not to mind one bad week, which leans on the patience the study measures. Alone it does nothing anyway: its notes still fear volume, for example "Oldmere still strong (~96 at 38% share), so trimmed to 35 to limit saturation risk".
-- **Open.** Agree the wording, then add it to [what every skin must say](../harness/prompts.md#what-every-skin-must-say), the lint's [frame facts](../specs/skins/lint.md#frame-facts), the example skin and the five held-out skins, each in its own words. That changes the frame, so it must land before the pilot freezes it.
+- **Did.** The price half is now the sixth fact in [what every skin must say](../harness/prompts.md#what-every-skin-must-say). It is in the example skin and, on a branch of the private repo, in the five held-out skins, each in its own words and its own place.
+- **A reader checks it, not the lint.** No phrase list finds it across skins worded apart, and a substring can't tell a fact from advice, see [frame facts](../specs/skins/lint.md#frame-facts) and [say the straight line out loud](../harness/writing-a-skin.md#say-the-straight-line-out-loud).
+- **Open.** Only the example's wording has been played. Whether each held-out wording lands is for the provider checks, see [`TODO.md`](../../TODO.md#pilot).
 - **Open, a small one.** In the storm, Haiku's bet on the leader dipped from 72 to 70 with both halves and from 68 to 54 with the price half alone. Ten seeds can't say whether that gap is real.
 
 ### With the fact, the game is not too easy
@@ -207,14 +210,66 @@ A scratch probe of `claude-haiku-5-5` on the example skin, before any formal pro
 - **The No change drop is mostly one run that gave up.** On seed 2 in the new world Haiku sent ten empty replies in a row at week 34 and scored 0 under the [retry rule](../harness/prompts.md#retry-rule). Without it the new world scores 0.84, and the gap is −0.05. It was the only failure in 70 runs.
 - **A shock shakes it more in the new world, and costs little.** Its bet on the leader dips from 68 to 54 today and from 64 to 38 in the new world. Its top bet leaves the leader on none of the storm rounds today and 11% in the new world, and it goes back after.
 - **The new world helps it find the new best.** It first sends fruit there 2.4 rounds after onset, against 8.0 today, and never settles there on 1 of 10 seeds, against 4. A likely reason is that rougher small bets slow its opening, so it still holds about six markets when the switch comes, against four today.
-- **The new world's switch is also kinder in itself.** The Complacent baseline scores 0.60 there, against 0.42 today.
+- **The new world's switch is also kinder in itself.** The Complacent baseline scores 0.60 there, against 0.42 today. On 300 seeds the gap is smaller, 0.54 against 0.46.
+- **Read the Down switch gain beside the Sonnet probe.** Most of it was an easier draw on these ten seeds, see [the luck of ten seeds](#the-new-worlds-gain-on-a-switch-was-the-luck-of-ten-seeds).
 - **Means.** None of the outcomes we planned for fits. The knobs neither tempt Haiku off the leader in a shock nor make a switch harder to read. Haiku gives no reason to turn them on.
 - **Limits.** One model, one skin, `low` reasoning and ten seeds, so gaps under about 0.1 can't be read.
-- **Open.** Whether a stronger model finds the new best without the storm's help. Ten Sonnet 5.5 runs on Down switch in each world would cost about $10 at list prices. Until then the knobs stay off and the engine rows in [decisions](decisions.md) stay proposals.
+
+## A stronger model: Sonnet 5.5
+
+A scratch probe of `claude-sonnet-5-5`, to see whether a better reader finds the new best. Twenty runs: Down switch in both worlds, public seeds 0 to 9, the example skin with the price sentence, `low` reasoning, notes and compute on. All twenty finished and none gave up.
+
+### It is no better than Haiku on a switch
+
+- **Saw.**
+
+  | World | Sonnet | Standard error | Haiku | Sonnet less Haiku, paired | All in on its top bet | Top bet, of 100 | Never settles on the new best | Bayesian 0.01 |
+  |---|---|---|---|---|---|---|---|---|
+  | Today | 0.60 | 0.06 | 0.52 | +0.08, standard error 0.06 | 0.77 | 64 | 3 of 10 | 0.94 |
+  | New | 0.66 | 0.04 | 0.67 | 0.00, standard error 0.06 | 0.90 | 58 | 1 of 10 | 0.91 |
+
+- **The worlds can't be told apart.** Paired by seed, new less today is +0.06 with a standard error of 0.09, up on 5 of 10 seeds.
+- **Means.** A stronger model does not close the gap to the Bayesian baseline, so the game is not too easy for Sonnet either.
+
+### It loses when the new best rises from the bottom
+
+- **Saw.** Runs sorted by where the new best stood in round 1:
+
+  | New best started | World | Seeds | Sonnet | Haiku |
+  |---|---|---|---|---|
+  | In the top seven | Today | 6 | 0.74 | 0.58 |
+  | In the top seven | New | 9 | 0.70 | 0.67 |
+  | In the bottom three | Today | 4 | 0.40 | 0.43 |
+  | In the bottom three | New | 1 | 0.31 | 0.61 |
+
+- **From the top seven Sonnet finds it every time,** on 15 of 15 runs. From the bottom three it sent nothing to the new best after onset on 4 of 5 runs, and on the fifth its top bet got there 20 rounds after onset.
+- **One run shows how.** On seed 2 today Quarrow paid about 61 in week 1 and 107 by the end. Sonnet sent it 10 in week 1 and nothing after, and ended on 40 for Sedgeby and 32 for Hexley, which paid 89 and 83.
+- **Its explore bets go to markets it already rates.** After onset it holds about 40 of its 100 off its top bet, over about four other markets. On seed 2 those were the four that paid best in week 1 after the leader.
+- **Haiku looked wider and later.** It sent fruit to the new best on 3 of the 4 bottom three seeds today, and its top bet got there 12 to 31 rounds after onset.
+- **Means.** Neither model looks again at a channel it wrote off. That is the paranoia the study is named for, and a stronger model did not bring more of it.
+
+### The new world's gain on a switch was the luck of ten seeds
+
+- **Saw.** On 1000 public seeds the new best starts in the bottom three on 0.15 of seeds today and 0.14 in the new world. On seeds 0 to 9 it is 4 of 10 today and 1 of 10 in the new world.
+- **Means.** The two worlds draw a different switch on the same seed, so pairing by seed does not pair how hard the switch is. Haiku's +0.14 in the new world was mostly an easier draw. Sorted by where the new best started, Sonnet scores 0.74 today and 0.70 in the new world.
+- **Did.** Nothing changed. The earlier reading that the new world helps a model look is withdrawn.
+
+### It holds back even when it has found the new best
+
+- **Saw.** On the 15 runs where it settled on the new best, all in on its top bet would have scored 0.94. It scored 0.72. It put 90 or more on one market in 8% of rounds, against about 28% for Haiku.
+- **Before onset it bets big.** It holds 83 of 100 on the leader today. After onset its top bet falls to about 60 and stays there.
+- **One reply shows a reason.** "Prices appear to fall as I send more to a market, even though the description says they shouldn't. Thackby fell from about 100 at 80–100% sent to about 80 at 15–40%. That could be drift over time rather than a volume effect."
+- **Means.** After a switch the model's own retreat makes price and volume move together in its record, which looks like the price falling with volume. The frame fact holds before a switch and is doubted after one.
+- **Open.** Whether to count this as honest doubt, which a split is meant to show, or as the frame fact failing. More advice in the frame would lean on what the study measures, so nothing changes yet.
+
+### Limits
+
+- **Sonnet barely thought.** At `low` it used under 60 thinking tokens a call, left a note on 14% of rounds and almost never ran code. Haiku left a note on 70% of rounds.
+- **One skin, ten seeds, one reasoning setting.** Five runs carry the bottom three result.
 
 ### Cost
 
-- **About $4.40 at list prices** for the whole probe. The rerun with the price half was about $1.90 of that.
+- **About $3.80 at list prices** for the twenty Sonnet runs, and about $8.20 for both probes. The Haiku rerun with the price half was about $1.90 of that.
 - **Every run was on the Anthropic OAuth token**, so it drew on the plan, not a bill. Only public seeds and the example skin were played, so nothing held-out left the machine.
 
 ## Lessons on method
@@ -226,13 +281,15 @@ A scratch probe of `claude-haiku-5-5` on the example skin, before any formal pro
 - **Look at what the model sent its points to, not just the score.** The switch loss came from one seed's record: it left the leader for the wrong market and never looked at the right one.
 - **Ten seeds show gaps of about 0.1 or more.** That is enough for a probe, not for a decision. Three players on ten seeds could not tell the Bayesian hazards apart either.
 - **Judge a knob by score, not by a rate alone.** The tell's hit rate looked bad and cost little.
+- **Pairing by seed pairs only what the seed fixes.** Two worlds draw different switches on one seed. Check the draw on the whole seed list before reading a paired gap.
+- **Sort runs by what made them hard.** One column, where the new best started, turned a blurred 0.60 into 0.74 and 0.40.
 
 ## Still open
 
 Each is in [`TODO.md`](../../TODO.md#pilot) with its next step.
 
-- **The frame fact**: the price half as its wording, and writing it into the prompts page, the lint and every skin.
-- **A stronger model on Down switch** in both worlds, before any knob decision.
-- **The shape knobs**: whether to turn them on, the two failing bands, with the looking band held, and reworking the hedge rule's tell.
+- **The frame fact in the held-out skins**: merging the private branch, and whether each wording lands.
+- **Looking again at a written off channel**: whether more reasoning helps, and how the analysis should report it.
+- **The shape knobs**: no model gives a reason to turn them on. Still to settle are the two failing bands, with the looking band held, and the hedge rule's tell.
 - **A harder game for a patient reader**, such as inertia or a shorter game. Haiku says the game is hard enough for a model, so this is now about the baselines.
 - **The noise grid**, and whether it pins a smaller runner-up gap.
