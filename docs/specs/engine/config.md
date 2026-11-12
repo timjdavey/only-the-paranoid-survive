@@ -25,8 +25,8 @@ class SwitchSpec:
     riser_share: float = 0.5                # chance "draw" gives fall_and_rise rather than fall
     size_sigmas: Range = (1.0, 3.0)         # how far below the runner-up's base the leader's base ends
     size_points: Range = (4.0, 12.0)
-    rise_sigmas: Range = (1.0, 3.0)         # how far above every other channel's base the sleeper's base ends
-    rise_points: Range = (4.0, 12.0)
+    rise_sigmas: Range = (3.0, 6.0)         # how far above every other channel's base the sleeper's base ends
+    rise_points: Range = (12.0, 24.0)
     ramp: IntRange = (1, 5)                 # rounds the move is spread over, linear
     short_share: float = 0.0                # chance a "rise" stops short of the leader
     short_level: Range = (0.25, 0.75)       # where a short rise ends, as a share of the gap from runner-up to leader
@@ -159,7 +159,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `ShockSpec.depth_sigmas` | 4 to 8 | Through a loading of 0.65 the leader dips 2.6 to 5.2 sigmas. The cap cuts the deepest draws on seeds with a high hedge and strong loadings, so the final depth is in `Event.numbers` | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `ShockSpec.half_life` | 2 to 4 | The shock is mostly gone in about ten rounds | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `SwitchSpec.size_sigmas` | 1 to 3 | The leader ends clearly below the runner-up on every seed. With the gap it moves 12 to 28 points | [Noise grid](../../pilot/engine-checks.md#noise-grid) |
-| `SwitchSpec.rise_sigmas` | 1 to 3 | A sleeper clearly best once risen, but not a giveaway | [Up and down](../../pilot/engine-checks.md#up-and-down) |
+| `SwitchSpec.rise_sigmas` | 3 to 6 | The smallest rise the pilot swept that lifts the Up switch scenario over the [reachable gain](../../pilot/engine-checks.md#reachable-gain) floor | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.riser_share` | 0.5 | Half the Down switch timelines draw a sleeper | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.short_share` | 0 on the spec, 0.25 in `up_switch` | "On most seeds the sleeper rises past the leader, on some it stops short", see [scenarios](../../design/scenarios.md#scenarios-we-test) | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `SwitchSpec.short_level` | 0.25 to 0.75 | Clear of the runner-up, so an explore bet sees a real move, and clear of the leader, so the Scout rule does not move on a near tie | [Up and down](../../pilot/engine-checks.md#up-and-down) |

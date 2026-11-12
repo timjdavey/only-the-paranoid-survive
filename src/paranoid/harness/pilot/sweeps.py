@@ -131,7 +131,7 @@ def up_and_down(args: CellArgs) -> list[Path]:
     ]  # fmt: skip
 
     def blocks():
-        for rise in ((1.0, 3.0), (2.0, 4.0), (3.0, 5.0)):
+        for rise in ((2.0, 5.0), (3.0, 6.0), (4.0, 7.0)):
             for name in ("down_switch", "up_switch", "no_change"):
                 config = SCENARIOS[name]
                 events = tuple(replace(e, rise_sigmas=rise) if isinstance(e, SwitchSpec) else e for e in config.events)

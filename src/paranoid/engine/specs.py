@@ -134,8 +134,8 @@ class SwitchSpec:
     riser_share: float = 0.5
     size_sigmas: Range = (1.0, 3.0)
     size_points: Range = (4.0, 12.0)
-    rise_sigmas: Range = (1.0, 3.0)
-    rise_points: Range = (4.0, 12.0)
+    rise_sigmas: Range = (3.0, 6.0)
+    rise_points: Range = (12.0, 24.0)
     ramp: IntRange = (1, 5)
     short_share: float = 0.0
     short_level: Range = (0.25, 0.75)

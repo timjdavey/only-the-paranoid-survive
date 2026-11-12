@@ -119,7 +119,7 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `up-and-down`
 
-- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule, `ScoutRule(s=s)` for `s` in 1, 2 and 5, and `ScoutRule(n=n)` for each `n` in `STREAKS`, 3, 4 and 5, but the default, which the first three already play. `rise_sigmas` on every switch spec at `(1, 3)`, the default, then `(2, 4)` and `(3, 5)`.
+- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule, `ScoutRule(s=s)` for `s` in 1, 2 and 5, and `ScoutRule(n=n)` for each `n` in `STREAKS`, 3, 4 and 5, but the default, which the first three already play. `rise_sigmas` on every switch spec at `(2, 5)`, then `(3, 6)`, the default, and `(4, 7)`.
 - **Writes** `up-and-down.csv`: `setting, scenario, kind, baseline, parameter, streak, seed, onset, output, move_round`. `setting` is the `rise_sigmas` low. `parameter` is the Scout rule's `s` and `streak` its `n`, both empty on every other baseline.
 
 #### `bayesian-frontier`
