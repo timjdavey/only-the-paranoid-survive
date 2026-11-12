@@ -32,7 +32,7 @@ SCENARIO_ORDER = [
 ]
 
 # Pinned. Changing it is a reviewed change, see EC3.
-NO_CHANGE_HASH = "63fe6cf8d3d0"
+NO_CHANGE_HASH = "6d5d2ec96713"
 
 
 def config(**fields) -> ScenarioConfig:

@@ -31,7 +31,7 @@ def game_length(args: CellArgs) -> list[Path]:
 
     def settings():
         for rounds in (30, 40, 60):
-            for start in ((8, 12), (12, 20), (16, 24)):
+            for start in ((6, 10), (8, 12), (12, 20)):
                 for name in ONE_EVENT:
                     yield rounds, start, None, name
                 for name in TWO_EVENTS:

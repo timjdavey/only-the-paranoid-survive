@@ -65,7 +65,7 @@ class ScenarioConfig:
     read_noise_k: float = 8.0               # reading SD is k / sqrt(bet)
     # events
     events: tuple[EventSpec, ...] = ()
-    onset: IntRange = (12, 20)              # the first event's onset round
+    onset: IntRange = (8, 12)               # the first event's onset round
     pin_in_level_points: bool = False
     hedge_margin_points: float = 4.0        # at a shock's trough the hedge sits at least this far from the leader, see timeline
     # hard-variant knobs
@@ -154,7 +154,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `factor_scale` | 3 | Shared weeks visible but smaller than own weather | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `loading`, `hedge_loading` | 0.3 to 1, −0.6 to −0.3 | "About 0.3 to 1", one negative, see [each round](../../design/mechanics.md#each-round) | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `read_noise_k` | 8 | A 1 point explore bet has SD 8, a 16 point explore bet SD 2, the full budget SD 0.8 | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
-| `onset` | 12 to 20 | Enough calm to set a habit, enough left to pull clear | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
+| `onset` | 8 to 12 | Seven calm rounds at least to set a habit, and enough left to pull clear | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `hedge_margin_points` | 4 | One sigma at the default `own_scale`, in points so it survives pinning | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `ShockSpec.depth_sigmas` | 4 to 8 | Through a loading of 0.65 the leader dips 2.6 to 5.2 sigmas. The cap cuts the deepest draws on seeds with a high hedge and strong loadings, so the final depth is in `Event.numbers` | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `ShockSpec.half_life` | 2 to 4 | The shock is mostly gone in about ten rounds | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |

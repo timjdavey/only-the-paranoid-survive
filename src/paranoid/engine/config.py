@@ -44,7 +44,7 @@ class ScenarioConfig:
     read_noise_k: float = 8.0
     # events
     events: tuple[EventSpec, ...] = ()
-    onset: IntRange = (12, 20)
+    onset: IntRange = (8, 12)
     pin_in_level_points: bool = False
     hedge_margin_points: float = 4.0
     # hard-variant knobs
