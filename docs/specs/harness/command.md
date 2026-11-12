@@ -55,6 +55,7 @@ def generate_config(row: ModelRow, reasoning: str) -> GenerateConfig
   - `reasoning_kind` in the file is not `effort` or `budget`, or is set on a provider row.
   - Two rows share `id` and a `reasoning` value.
   - `max_tokens`, when present, is not a positive whole number.
+  - `pilot`, when present, is not `true` or `false`.
 - **The two configs in `configs/models/`** both load clean. A test checks it, see [tests](tests.md#command).
 
 ### Reasoning

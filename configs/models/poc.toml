@@ -18,7 +18,8 @@ notes = "The mid Claude. It stays at low, as it failed the off check on 2026-11-
 id = "google/gemini-3.5-flash-lite"
 kind = "llm"
 reasoning = "low"
-notes = "Cheap non-Claude, and the model Google sends gemini-2.5-flash traffic to from 2026-12-01. Google's docs list the thinking levels minimal, low, medium and high and no off, so low is the lowest the grid can send. The off check with a key may still move it to off, see TODO.md. Its thought signatures carry its reasoning to a later turn when sent back, which inspect does"
+pilot = false
+notes = "Cheap non-Claude, and the model Google sends gemini-2.5-flash traffic to from 2026-12-01. Google's docs list the thinking levels minimal, low, medium and high and no off, so low is the lowest the grid can send. The off check with a key may still move it to off, see TODO.md. Its thought signatures carry its reasoning to a later turn when sent back, which inspect does. Out of the pilot since 2026-11-12, so no pilot cell plays it, see docs/harness/models.md#columns"
 
 [[model]]
 id = "jev/jev-latest"

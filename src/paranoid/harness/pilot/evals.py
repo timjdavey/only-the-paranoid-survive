@@ -22,12 +22,12 @@ PILOT_SEEDS = "0-19"  # so every pilot log pairs by seed with every other
 
 
 def rows_of(args: CellArgs, kind: str, *, first: bool = False) -> list[ModelRow]:
-    """The models file's rows of one kind, narrowed by --only, or the first one when `first`."""
-    rows = [row for row in load_models(args.models) if row.kind == kind]
+    """The models file's pilot rows of one kind, narrowed by --only, or the first one when `first`."""
+    rows = [row for row in load_models(args.models) if row.kind == kind and row.pilot]
     if args.only is not None:
         rows = [row for row in rows if row.id == args.only]
         if not rows:
-            raise ValueError(f"--only {args.only!r} names no {kind} row in {args.models}")
+            raise ValueError(f"--only {args.only!r} names no {kind} row in {args.models} with pilot left on")
     return rows[:1] if first else rows
 
 
