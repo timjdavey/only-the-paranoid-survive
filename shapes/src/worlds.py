@@ -10,7 +10,9 @@ from types import MappingProxyType
 
 from paranoid.engine import SCENARIOS, ScenarioConfig, ShockSpec, SwitchSpec
 
-KNOBS = dict(recovery=(0.5, 1.5), leader_last_share=0.5, pop_share=0.5, leader_stays_ahead=True)
+KNOBS = dict(
+    recovery=(0.5, 1.5), leader_last_share=0.5, pop_share=0.5, leader_stays_ahead=True, leader_loading=(0.8, 1.2)
+)
 READ_NOISE_K = 12.0  # small bets get rougher. Today's is 8
 FALLS = ("fall", "fall_and_rise", "draw")  # the kinds that carry a storm. A rise and an undo stay quiet
 

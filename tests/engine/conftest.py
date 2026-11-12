@@ -73,7 +73,9 @@ def hand_built():
 
 
 # Every shape knob on, near the values shapes/src/worlds.py tries, see docs/specs/engine/timeline.md#storm.
-KNOBS = dict(recovery=(0.5, 2.0), leader_last_share=0.5, pop_share=0.5, leader_stays_ahead=True)
+KNOBS = dict(
+    recovery=(0.5, 2.0), leader_last_share=0.5, pop_share=0.5, leader_stays_ahead=True, leader_loading=(0.8, 1.2)
+)
 
 
 @pytest.fixture(scope="session")

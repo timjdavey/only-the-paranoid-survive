@@ -14,7 +14,8 @@ SEEDS = range(200)
 TOLERANCE = 1e-9
 
 SHOCK_KEYS = {
-    "gap", "profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel", "depth", "pop_rise",
+    "gap", "profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel", "leader_loading",
+    "depth", "pop_rise",
 }
 NUMBER_KEYS = {
     "shock": SHOCK_KEYS | {"tries"},

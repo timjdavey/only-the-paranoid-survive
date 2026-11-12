@@ -7,7 +7,7 @@ from .specs import SwitchSpec
 from .storm import apply_storm
 from .world import World
 
-STORM_KEYS = ("profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel")
+STORM_KEYS = ("profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel", "leader_loading")
 
 
 def ramp_steps(ramp: int, rows: int) -> np.ndarray:

@@ -45,12 +45,15 @@ def impulse(profile: str, depth: float, half_life: int, rows: int, recovery: flo
     return np.array(series[:rows])
 
 
-def capped_depth(world: World, spec: ShockSpec, depth_drawn: float, row: int, leader: int) -> float:
-    """Keep the hedge at least the margin below the leader at the trough, or above it with the knob on."""
+def capped_depth(world: World, spec: ShockSpec, depth_drawn: float, row: int, leader: int, met: float) -> float:
+    """Keep the hedge at least the margin below the leader at the trough, or above it with the knob on.
+
+    `met` is the loading the leader meets the storm with: its own, or its `leader_loading` draw.
+    """
     config, hedge = world.config, world.ladder.hedge
     margin = config.hedge_margin_points
     base_gap = float(world.base[row, leader] - world.base[row, hedge])
-    slope = float(world.loadings[row, leader] - world.loadings[row, hedge])
+    slope = float(met - world.loadings[row, hedge])
     if leader == hedge or slope <= 0:
         raise ValueError("the hedge must load below the leader for the shock cap to hold")
     if not config.hedge_may_overtake:
@@ -81,9 +84,10 @@ def recoveries(draws: dict, leader: int) -> list[float]:
 
 
 def apply_storm(world: World, spec: ShockSpec, draws: dict, row: int, leader: int) -> Storm:
-    """Add the storm from `row` on, in the spec's order: the shared impulse, the uneven part, the pop, the lead."""
+    """Add the storm from `row` on, in the spec's order: the shared impulse, each channel's part, the pop, the lead."""
     profile, half_life, rows = draws["profile"], draws["half_life"], world.rows - row
-    depth = capped_depth(world, spec, draws["depth_drawn"], row, leader)
+    own_loading, met = float(world.loadings[row, leader]), draws["leader_loading"]
+    depth = capped_depth(world, spec, draws["depth_drawn"], row, leader, own_loading if met is None else met)
     shared = impulse(profile, depth, half_life, rows)
     world.shock[row:] += shared
     left = np.tile(shared / -depth, (world.config.channels, 1)).T
@@ -93,6 +97,8 @@ def apply_storm(world: World, spec: ShockSpec, draws: dict, row: int, leader: in
             own = impulse(profile, depth, half_life, rows, recovery)
             world.impulse[row:, channel] += world.loadings[row, channel] * (own - shared)
             left[:, channel] = own / -depth
+    if met is not None:
+        world.impulse[row:, leader] += (met - own_loading) * -depth * left[:, leader]
     trough = half_life if profile == "slide" else 0
     pop_rise = None
     if draws["pop"]:

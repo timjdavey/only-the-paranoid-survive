@@ -39,12 +39,13 @@ class Draws:
     extras: dict[str, object] = field(default_factory=dict)  # draws no two alike leaves out, see storm
 
 
-STORM_DRAWS = ("gap", "profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel")
+STORM_DRAWS = ("gap", "profile", "depth_drawn", "half_life")
+STORM_DRAWS += ("recovery", "leader_last", "pop", "pop_channel", "leader_loading")
 STORM_DERIVED = ("depth", "pop_rise")
 
 
 def draw_storm(rng: np.random.Generator, spec: ShockSpec, config: ScenarioConfig) -> tuple[Draws, float]:
-    """A shock's draws, then the shape knobs' draws, and the uniform that picks the pop once the onset is known."""
+    """A shock's draws, then the shape knobs' draws. Returns the uniform that picks the pop once the onset is known."""
     depth_range, scale = sized(spec.depth_sigmas, spec.depth_points, config.own_scale, config.pin_in_level_points)
     values = {
         "gap": whole(rng, spec.gap),
@@ -57,7 +58,10 @@ def draw_storm(rng: np.random.Generator, spec: ShockSpec, config: ScenarioConfig
         "leader_last": 1 if chance(rng, spec.leader_last_share) else 0,
         "pop": 1 if chance(rng, spec.pop_share) else 0,
     }
-    return Draws(values, {"depth_drawn": width(depth_range, scale)}, extras), rng.random()
+    pop_u = rng.random()
+    met = uniform(rng, spec.leader_loading or (0.0, 0.0))  # drawn even when off, as every draw is
+    extras["leader_loading"] = None if spec.leader_loading is None else met
+    return Draws(values, {"depth_drawn": width(depth_range, scale)}, extras), pop_u
 
 
 def pop_channel(draws: Draws, u: float, sleepers: set[int]) -> int | None:

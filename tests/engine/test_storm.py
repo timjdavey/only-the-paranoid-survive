@@ -1,4 +1,4 @@
-"""Storms on a shock: ET39 to ET44 and ET53. See docs/specs/engine/tests.md#timeline and timeline.md#storm."""
+"""Storms on a shock: ET39 to ET44, ET53 and ET54. See docs/specs/engine/tests.md#timeline and timeline.md#storm."""
 
 import dataclasses
 import hashlib
@@ -70,6 +70,7 @@ def test_et40_off_is_off(name):
                 n = event.numbers
                 assert n["recovery"] == (1.0,) * t.config.channels
                 assert (n["leader_last"], n["pop"], n["pop_channel"], n["pop_rise"]) == (0, 0, None, None)
+                assert n["leader_loading"] is None
 
 
 def test_et41_uneven_recovery_follows_its_formula():
@@ -99,7 +100,7 @@ def test_et42_leader_last():
 
 
 def test_et43_the_pop():
-    config, shares = one_shock(recovery=(0.5, 2.0), pop_share=1.0), []
+    config, shares = one_shock(recovery=(0.5, 2.0), pop_share=1.0, leader_loading=(0.8, 1.2)), []
     for seed in SEEDS:
         t, calm = with_calm(config, seed)
         shock = t.events[0]
@@ -137,3 +138,25 @@ def test_et53_invariants_with_every_knob_on(stormy):
         assert np.array_equal(t.base, calm.base)
         assert not t.impulse[:row].any()
         assert np.allclose(t.factor[row:] - calm.factor[row:], formula(t.events[0].numbers, 1.0, config.rounds - row))
+
+
+def test_et54_leader_loading():
+    config = one_shock(recovery=(0.5, 2.0), leader_loading=(0.8, 1.2))
+    full, margin = one_shock(leader_loading=(1.0, 1.0)), config.hedge_margin_points
+    assert ShockSpec(leader_loading=(1.0, 1.0)).knobs_on
+    for seed in SEEDS:
+        t, calm = with_calm(config, seed)
+        shock = t.events[0]
+        row, n = shock.onset - 1, shock.numbers
+        assert 0.8 <= n["leader_loading"] <= 1.2
+        assert np.array_equal(t.loadings, calm.loadings)
+        moved = t.levels - calm.levels
+        for channel, m in enumerate(n["recovery"]):
+            met = n["leader_loading"] if channel == t.leader else t.loadings[row, channel]
+            assert np.allclose(moved[row:, channel], met * formula(n, m, config.rounds - row), atol=TOLERANCE)
+        at_trough = before_weather(t, calm)[trough_row(shock)]
+        assert at_trough[t.leader] - at_trough[t.hedge] >= margin - TOLERANCE
+        whole = make_timeline(full, seed)
+        fall = make_timeline(SCENARIOS["no_change"], seed).levels - whole.levels
+        depth = whole.events[0].numbers["depth"]
+        assert fall[trough_row(whole.events[0]), whole.leader] == pytest.approx(depth, abs=TOLERANCE)

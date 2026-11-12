@@ -124,9 +124,13 @@ class ShockSpec:
     leader_last_share: float = 0.0
     pop_share: float = 0.0
     leader_stays_ahead: bool = False
+    leader_loading: Range | None = None  # the loading the leader meets the storm with, None for its own
 
     def __post_init__(self) -> None:
         cast_fields(self)
+        if self.leader_loading is not None:
+            object.__setattr__(self, "leader_loading", as_range(self.leader_loading, "leader_loading"))
+            require(self.leader_loading[0] > 0, "leader_loading must have a low above 0")
         require_word(self.profile, SHOCK_PROFILES, "profile")
         require_low_at_least_1(self, "gap", "half_life")
         require_positive_sizes(self)
@@ -137,9 +141,8 @@ class ShockSpec:
     @property
     def knobs_on(self) -> bool:
         """True when any shape knob is away from its default."""
-        return (
-            self.recovery != (1.0, 1.0) or self.leader_last_share > 0 or self.pop_share > 0 or self.leader_stays_ahead
-        )
+        uneven = self.recovery != (1.0, 1.0) or self.leader_last_share > 0 or self.pop_share > 0
+        return uneven or self.leader_stays_ahead or self.leader_loading is not None
 
 
 @dataclass(frozen=True)

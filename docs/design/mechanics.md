@@ -79,6 +79,7 @@ Off by default, and off until the next pilot. They make a shock and a switch har
 |---|---|
 | Uneven recovery | Each channel comes back from a shock at its own speed, `recovery` |
 | Leader last | Sometimes the leader is the slowest to come back, `leader_last_share` |
+| Leader loading | The leader falls about as far as the storm is deep, so a shock always shows on it. Off, it falls by its own loading, which is often less than the field does, `leader_loading` |
 | Pop | Sometimes one field channel pops to just under the leader at the trough, then fades, `pop_share` |
 | Leader stays ahead | Before weather, nothing passes the leader during a shock, `leader_stays_ahead` |
 | Storm | A switch's fall arrives in a shock, so its first rounds match the shock's on the same seed. The leader's base falls as the storm lifts, and a popped channel can stay up as the sleeper, `SwitchSpec.storm` |

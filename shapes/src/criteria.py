@@ -72,6 +72,7 @@ def weather(twins: Twins) -> list[Row]:
 
 def shock(twins: Twins) -> list[Row]:
     m = {key: [] for key in ("ratio", "round", "smaller", "fall", "depth", "ahead", "beats", "leave", "to_pop")}
+    m |= {"small": [], "less": []}
     shake = {key: [] for key in ("fall_1", "rise_1", "fall_3", "rise_3", "climbs", "pairs", "any", "overtaken")}
     hold = {key: [] for key in ("off_shock", "off_calm", "cost_shock", "cost_calm", "beaten_shock", "beaten_calm")}
     k = twins.world["one_shock"].read_noise_k
@@ -84,6 +85,8 @@ def shock(twins: Twins) -> list[Row]:
         m["round"].append(float((-np.diff(effect[:, leader])).max()) / weather_fall)
         m["smaller"].append(leader_fall < weather_fall)
         m["fall"].append(leader_fall)
+        m["small"].append(leader_fall < 3 * sigma(shocked))
+        m["less"].append(leader_fall < np.median(np.delete(-effect[trough], [leader, hedge])))
         m["depth"].append(shocked.events[0].numbers["depth"])
         calm_view = before_weather(calm, shocked)
         window = calm_view[row : row + WINDOW]
@@ -117,6 +120,8 @@ def shock(twins: Twins) -> list[Row]:
         Row("The shock's largest one round fall over that same weather fall", spread(m["round"], 2)),
         Row("Share of shocks whose whole fall is smaller than that weather fall", share(m["smaller"])),
         Row("Leader's fall at the trough, in points", spread(m["fall"])),
+        Row("Share of shocks where the leader falls by less than three sigmas at the trough", share(m["small"])),
+        Row("Share of shocks where the leader falls by less than the median other channel, hedge aside", share(m["less"])),
         Row("The shock's depth after the cap, in points", spread(m["depth"])),
         Row("Channels that fall by more than one sigma at the trough", counts(shake["fall_1"])),
         Row("Channels that rise by more than one sigma", counts(shake["rise_1"])),
