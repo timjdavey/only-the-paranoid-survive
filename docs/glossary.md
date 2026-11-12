@@ -10,7 +10,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Game engine | The simple cybernetics game at the core of the study: the rules and numbers, with no story |
 | Narrative skin | A story dressed over the game engine, so the model treats it as a real situation. It also lets us publish the engine while hiding which skin it wears |
-| Frame | The facts every prompt states whatever the skin: a budget split in whole percentages that add up to 100, ten channels, the record below, a tool to place the split, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
+| Frame | The facts every prompt states whatever the skin: a budget split in whole percentages that add up to 100, ten channels, that a channel pays the same for each point however many it gets, the record below, a tool to place the split, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |

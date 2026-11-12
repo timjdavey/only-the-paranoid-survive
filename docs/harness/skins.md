@@ -12,7 +12,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 | `channels` | One name per channel, ten in the study. Which one leads is drawn per seed by the [ladder](../design/mechanics.md#the-ladder) |
 | `intro` | Who the agent is and what it runs |
 | `rules` | The ten channels by name, and that the split is in whole percentages adding up to 100 |
-| `how_points_earn` | What a percent of the budget buys, that what each funded channel paid is reported, and that a small spend swings more than a large one |
+| `how_points_earn` | What a percent of the budget buys, that what each funded channel paid is reported, and that a small spend swings more than a large one. Most skins also say here that a channel pays the same for each point however many it gets, though that fact may sit in any part of the prompt |
 | `ask` | The record is below, place this round's points with the tool |
 | `tool_name` | The tool's name as the model sees it |
 | `tool_text` | The tool's description |
@@ -42,7 +42,7 @@ One TOML file per skin. Each field fills a part of the [system prompt](prompts.m
 ## Lint
 
 - Every field the model reads is linted on load against the [banned words](prompts.md#banned-words). `name` is the one field it never reads, so it is the one field not linted.
-- Every rendered prompt is checked for the facts in [what every skin must say](prompts.md#what-every-skin-must-say).
+- Every rendered prompt is checked for five of the facts in [what every skin must say](prompts.md#what-every-skin-must-say). The sixth, that a channel pays the same for each point however many it gets, is a reader's to check.
 - A skin that fails to lint does not load. There is no override flag.
 - The test suite renders the full prompt for every loaded skin and lints the result, so the record and tool text are linted too.
 

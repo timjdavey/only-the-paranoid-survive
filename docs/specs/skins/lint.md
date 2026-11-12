@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The lint is the one gate every word the model reads passes through. `lint_text` finds [banned words](../../harness/prompts.md#banned-words) in any text. `lint` runs it over every field of a skin the model reads, checks the rendered prompt states the [frame](../../glossary.md), and checks nothing the model reads leaks the canary. A skin that fails does not load, see [lint](../../harness/skins.md#lint). The [recognition check](../../pilot/provider-checks.md#recognition) reuses `lint_text` on model replies.
+The lint is the one gate every word the model reads passes through. `lint_text` finds [banned words](../../harness/prompts.md#banned-words) in any text. `lint` runs it over every field of a skin the model reads, checks the rendered prompt states the [frame](../../glossary.md) facts a substring can find, and checks nothing the model reads leaks the canary. A skin that fails does not load, see [lint](../../harness/skins.md#lint). The [recognition check](../../pilot/provider-checks.md#recognition) reuses `lint_text` on model replies.
 
 ## Interface
 
@@ -86,7 +86,7 @@ In the same pass, `lint` fails any field that writes a number in digits, bar the
 
 ### Frame facts
 
-Then it renders `render_system_prompt(skin)` and checks the facts in [what every skin must say](../../harness/prompts.md#what-every-skin-must-say). Each is a substring test on the rendered prompt.
+Then it renders `render_system_prompt(skin)` and checks five of the six facts in [what every skin must say](../../harness/prompts.md#what-every-skin-must-say). Each is a substring test on the rendered prompt.
 
 | Fact | Passes when | Problem string |
 |---|---|---|
@@ -97,6 +97,7 @@ Then it renders `render_system_prompt(skin)` and checks the facts in [what every
 | The tool | `skin.tool_name` is in the prompt | `missing: tool name` |
 
 - **The checks are on the whole prompt**, not on one field. A skin may put the names in `intro` and the tool in `rules` if its story reads better that way. The [frame](../../glossary.md) fixes the facts, not where they sit.
+- **The sixth fact is a reader's.** That a channel pays the same for each point however many it gets has no test here. Each skin words it its own way, so a phrase list would either miss a held-out skin or publish its wording, and a substring cannot tell the fact from advice. A reviewer checks it, see [writing a skin](../../harness/writing-a-skin.md#say-the-straight-line-out-loud).
 - **The other parts of the frame are the harness's.** That the record is below is true because the harness sends it, and that there is one tool is true because the harness offers one. The lint checks only what a skin's words can get wrong.
 - **A name that is a substring of another passes trivially.** `Rome` is found inside `Rome East`. `"100"` is found inside `1000`. The lint is a floor, not a proof, so a reviewer still reads a new skin.
 

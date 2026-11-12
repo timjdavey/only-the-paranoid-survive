@@ -5,6 +5,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 ## Payout
 
 - **Linear.** Output is the sum over channels of share times [reading](#what-the-agent-sees). A channel's level does not fall as the bet on it grows, so point 70 on a channel pays the same as point 1.
+- **The agent is told.** Every skin says a channel pays the same for each point however many it gets, see [what every skin must say](../harness/prompts.md#what-every-skin-must-say). Left unsaid, a model assumes the price falls as more is sent and spreads its points.
 - **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or an explore bet. See [scoring](scoring.md).
 - **Readings are reported to one decimal place.** Output is never shown, see [what the agent sees](#what-the-agent-sees).
 

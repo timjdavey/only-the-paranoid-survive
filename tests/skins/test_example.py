@@ -16,7 +16,7 @@ from paranoid.skins import CANARY, Skin, lint, lint_text, prompt_hash, render_sy
 ROOT = Path(__file__).parents[2]
 EXAMPLE_TOML = Path(paranoid.skins.__file__).parent / "example.toml"
 
-EXAMPLE_HASH = "f867614334d6"
+EXAMPLE_HASH = "0b793094625c"
 EXAMPLE_PROMPT = (
     "You run the sales desk at Merridew Fruit, a small importer. The fruit will not keep, so every load goes "
     "straight out to wholesale markets, where salesmen sell it on commission for whatever the buyers will pay. "
@@ -31,7 +31,8 @@ EXAMPLE_PROMPT = (
     "Each percent of the week's fruit goes to the market you put it on and is sold there lot by lot. A market's "
     "price is the average a case of yours fetched there that week, and it is what you are paid on every case you "
     "sent there. A market you send nothing to reports nothing. Every lot finds its own buyer, so a few percent can "
-    "do well or badly by luck, and many percent even out."
+    "do well or badly by luck, and many percent even out. A market pays the same for a case however many you send "
+    "it."
     "\n\n"
     "Your record so far is below. Send this week's fruit with the send_fruit tool."
 )
