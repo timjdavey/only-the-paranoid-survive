@@ -9,11 +9,11 @@ The two baselines with parameters: the hedge rule, the simplest player that read
 ```python
 @dataclass(frozen=True)
 class HedgeRule:                            # peeks: ClassVar[bool] = False
-    explore: int = 2
+    explore: int = 1
     window: int = 3
     fall_points: float = 8.0
     tell_points: float = 4.0
-    scout_rounds: int = 2
+    scout_rounds: int = 1
 
 @dataclass(frozen=True)
 class ScoutRule:                            # peeks: ClassVar[bool] = False
@@ -68,11 +68,11 @@ Every number is **pilot to confirm**.
 
 | Parameter | Default | Why | Settled by |
 |---|---|---|---|
-| `explore` | 2 | Reads the hedge less roughly than one point, for 2 of the 100 points | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
+| `explore` | 1 | The cheapest explore bet. The pilot found a bigger one costs more output than its cleaner read of the hedge earns, at every read noise it tried | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
 | `window` | 3 | Three rounds is the streak that is ordinary by chance on No change, so the fall test needs a real drop | [Streaks](../../pilot/engine-checks.md#streaks) |
 | `fall_points` | 8.0 | Two weather SDs at the default `own_scale` of 4, well inside a switch's size | [The tell](../../pilot/engine-checks.md#the-tell) |
 | `tell_points` | 4.0 | One weather SD at the default `own_scale`. The hedge's rise in a shock is its loading times the depth, and should clear this | [The tell](../../pilot/engine-checks.md#the-tell) |
-| `scout_rounds` | 2 | Two rounds of a spread explore bet reads each channel twice before the move | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
+| `scout_rounds` | 1 | One round of a spread explore bet reads each channel at about 11 points. The pilot found a second round costs more than it earns | [Reading roughness](../../pilot/engine-checks.md#reading-roughness) |
 | `s` | 1 | The cheapest explore bet, 9 of the 100 points off the pick each round | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 | `n` | 3 | The shortest streak the pilot plays. A longer one false alarms less on No change and moves later everywhere else | [Up and down](../../pilot/engine-checks.md#up-and-down) |
 

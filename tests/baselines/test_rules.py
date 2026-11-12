@@ -17,13 +17,13 @@ def roles(no_change):
     return t.leader, t.hedge, field[0], field[1]
 
 
-def hold(leader: int, hedge: int, explore: int = 2) -> list[int]:
+def hold(leader: int, hedge: int, explore: int = hedge_rule.explore) -> list[int]:
     bets = [0] * 10
     bets[leader], bets[hedge] = 100 - explore, explore
     return bets
 
 
-def scout_split(hedge: int, explore: int = 2) -> list[int]:
+def scout_split(hedge: int, explore: int = hedge_rule.explore) -> list[int]:
     """`explore` on the hedge, the rest evenly over the other nine, leftovers to the lowest index."""
     others = [c for c in range(10) if c != hedge]
     bets = [0] * 10
@@ -66,9 +66,10 @@ def test_br1_scouts_then_moves_never_to_the_hedge(no_change, roles, row, view_of
     rows = hedge_rows(row, roles, FALL, [24] * 6)
     assert hedge_rule(view_of(no_change, rows)) == tuple(scout_split(hedge))
     scouted = scout_split(hedge)
-    for r in (7, 8):
+    last = 6 + hedge_rule.scout_rounds
+    for r in range(7, last + 1):
         rows.append(row(r, scouted, readings(scouted, {hedge: 90, best: 70, runner: 66, leader: 50})))
-        if r == 7:
+        if r < last:
             assert hedge_rule(view_of(no_change, rows)) == tuple(scout_split(hedge))
     assert hedge_rule(view_of(no_change, rows)) == tuple(hold(best, hedge))
 
@@ -77,7 +78,7 @@ def test_br1_a_false_alarm_returns_to_the_pick(no_change, roles, row, view_of):
     leader, hedge, best, _ = roles
     rows = hedge_rows(row, roles, FALL, [24] * 6)
     scouted = scout_split(hedge)
-    rows += [row(r, scouted, readings(scouted, {leader: 62, best: 50})) for r in (7, 8)]
+    rows += [row(r, scouted, readings(scouted, {leader: 62, best: 50})) for r in range(7, 7 + hedge_rule.scout_rounds)]
     assert hedge_rule(view_of(no_change, rows)) == tuple(hold(leader, hedge))
 
 

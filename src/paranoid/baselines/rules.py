@@ -47,11 +47,11 @@ class HedgeRule:
     """`explore` on the hedge, the rest on its pick. Scouts when the pick falls and the hedge does not rise."""
 
     peeks: ClassVar[bool] = False
-    explore: int = 2
+    explore: int = 1
     window: int = 3
     fall_points: float = 8.0
     tell_points: float = 4.0
-    scout_rounds: int = 2
+    scout_rounds: int = 1
 
     def __post_init__(self) -> None:
         require_at_least_1(self.explore, "explore")
