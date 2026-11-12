@@ -1,0 +1,65 @@
+scenario,baseline,seeds,score,output
+down_switch,bayesian,1000,0.9405059186173076,3651072.242
+down_switch,complacent,1000,0.401951048870327,3198047.7
+down_switch,discerning,1000,1.0,3701117.8
+down_switch,hedge_rule,1000,0.8842946910555958,3603788.173
+down_switch,perfect,1000,1.0173278072117007,3715693.7
+down_switch,scout_rule,1000,0.8272948799913322,3555840.759
+down_switch,uniform,1000,0.0,2859932.31
+no_change,bayesian,1000,0.9724771501034977,3771333.788
+no_change,complacent,1000,1.0,3796800.7
+no_change,discerning,1000,1.0,3796800.7
+no_change,hedge_rule,1000,0.9720211783263666,3770911.877
+no_change,perfect,1000,1.0029389365309995,3799520.1
+no_change,scout_rule,1000,0.8938599408155634,3698589.23
+no_change,uniform,1000,0.0,2871500.01
+one_shock,bayesian,1000,0.9613909115997379,3690343.835
+one_shock,complacent,1000,1.0,3725589.5
+one_shock,discerning,1000,1.0,3725589.5
+one_shock,hedge_rule,1000,0.9541857163878408,3683766.319
+one_shock,perfect,1000,1.0043640756183154,3729573.4
+one_shock,scout_rule,1000,0.893414905767066,3628289.546
+one_shock,uniform,1000,0.0,2812704.31
+shock_then_switch,bayesian,1000,0.9323286456522056,3595588.695
+shock_then_switch,complacent,1000,0.6113478033159743,3323069.2
+shock_then_switch,discerning,1000,1.0,3653043.1
+shock_then_switch,hedge_rule,1000,0.8716297237668049,3544054.032
+shock_then_switch,perfect,1000,1.0150360227813429,3665809.0
+shock_then_switch,scout_rule,1000,0.8353471785493753,3513249.387
+shock_then_switch,uniform,1000,0.0,2804022.04
+slow_drift,bayesian,1000,0.9350601514012945,3446557.665
+slow_drift,complacent,1000,0.6880981250402987,3281055.7
+slow_drift,discerning,1000,1.0,3490077.2
+slow_drift,hedge_rule,1000,0.8827230745311951,3411483.896
+slow_drift,perfect,1000,1.0386730480498685,3515994.0
+slow_drift,scout_rule,1000,0.8511082173706191,3390297.153
+slow_drift,uniform,1000,0.0,2819925.73
+switch_then_shock,bayesian,1000,0.9331631534770506,3580179.855
+switch_then_shock,complacent,1000,0.39247237131002355,3131045.2
+switch_then_shock,discerning,1000,1.0,3635699.1
+switch_then_shock,hedge_rule,1000,0.8806645536449612,3536570.936
+switch_then_shock,perfect,1000,1.0197356771427264,3652092.9
+switch_then_shock,scout_rule,1000,0.8249659819059171,3490303.9020000002
+switch_then_shock,uniform,1000,0.0,2805030.87
+up_switch,bayesian,775,0.9248427513122742,3269702.505
+up_switch,complacent,775,0.6022676571635269,2940634.7
+up_switch,discerning,775,1.0,3346372.5
+up_switch,hedge_rule,775,0.6374173950272404,2976491.923
+up_switch,perfect,775,1.0013203248318654,3347719.4
+up_switch,scout_rule,775,0.8568175436850922,3200308.103
+up_switch,uniform,775,0.0,2326244.75
+up_switch (rise_short),bayesian,225,0.9738564680817108,851006.123
+up_switch (rise_short),complacent,225,1.0,856166.0
+up_switch (rise_short),discerning,225,1.0,856166.0
+up_switch (rise_short),hedge_rule,225,0.9708986166651257,850422.34
+up_switch (rise_short),perfect,225,1.0189783259380674,859911.7
+up_switch (rise_short),scout_rule,225,0.8888892204760415,834236.371
+up_switch (rise_short),uniform,225,0.0,658798.75
+up_switch_then_down_switch,bayesian,1000,0.9023193424236445,3846912.746
+up_switch_then_down_switch,complacent,1000,0.8538223603786214,3796800.7
+up_switch_then_down_switch,discerning,1000,1.0,3947846.4
+up_switch_then_down_switch,hedge_rule,1000,0.8289343624454706,3771083.873
+up_switch_then_down_switch,perfect,1000,1.0041541567755636,3952138.9
+up_switch_then_down_switch,scout_rule,1000,0.7767707934006848,3717183.134
+up_switch_then_down_switch,stayer,1000,0.5201709400915333,3452037.9
+up_switch_then_down_switch,uniform,1000,0.0,2914544.04

@@ -1,0 +1,8 @@
+scenario,order
+down_switch,"Down switch: Perfect > Discerning > hedge rule > Complacent > Uniform, holds"
+up_switch,"Up switch: Perfect > Discerning > Scout rule > Complacent ≈ hedge rule > Uniform, holds"
+up_switch (rise_short),"Up switch, rise_short seeds: Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, holds"
+no_change,"No change: Complacent ≈ Discerning ≈ hedge rule, holds"
+switch_then_shock,"Switch then shock: Perfect > Discerning > hedge rule > Complacent > Uniform, holds"
+up_switch_then_down_switch,"Up switch then down switch: Perfect > Discerning > Scout rule > Stayer > Uniform, holds"
+up_switch_then_down_switch,"Up switch then down switch: Complacent ≥ hedge rule, holds"

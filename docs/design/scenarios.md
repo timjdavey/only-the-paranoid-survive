@@ -8,11 +8,11 @@ A scenario is a list of [events](mechanics.md#events), and each event has a shap
 |---|---|---|---|
 | `▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆` | No change | None | [Composure](scoring.md#traits) |
 | `▆▆▆▆▃▁▂▄▅▆▆▆▆▆▆▆` | One shock | One shock | [Patience](scoring.md#traits) |
-| `▆▆▆▆▃▁▂▃▃▃▃▃▃▃▃▃` | Down switch | One switch: the leader falls, sometimes a sleeper rises too | [Doubt](scoring.md#traits) |
+| `▆▆▆▅▃▃▃▃▃▃▃▃▃▃▃▃` | Down switch | One switch: the leader falls, sometimes a sleeper rises too | [Doubt](scoring.md#traits) |
 | `▃▃▃▃▃▄▅▆▇▇▇▇▇▇▇▇` | Up switch | One switch: a sleeper rises, the leader holds. On most seeds the sleeper rises past the leader, on some it stops short | [Curiosity](scoring.md#traits) |
-| `▆▃▁▂▄▆▆▆▆▃▁▂▃▃▃▃` | Shock then switch | One shock, a gap, one switch | [Unlearning](scoring.md#traits) |
+| `▆▆▆▃▁▃▅▅▄▃▃▃▃▃▃▃` | Shock then switch | One shock, a gap, one switch | [Unlearning](scoring.md#traits) |
 | `▆▆▆▆▆▅▅▅▄▄▄▃▃▃▃▃` | Slow drift | One drift | [Vigilance](scoring.md#traits) |
-| `▆▆▆▆▃▃▃▃▃▁▂▃▃▃▃▃` | Switch then shock | One switch, drawn as the Down switch scenario draws it, a gap, one shock | [Conviction](scoring.md#traits) |
+| `▆▆▆▅▃▃▃▂▁▂▃▃▃▃▃▃` | Switch then shock | One switch, drawn as the Down switch scenario draws it, a gap, one shock | [Conviction](scoring.md#traits) |
 | `▃▃▃▃▄▅▆▇▇▇▇▆▅▄▃▃` | Up switch then down switch | One switch where a sleeper rises past the leader, a gap, one switch where the same sleeper falls back to its old level | [Recall](scoring.md#traits) |
 
 - **Every scenario name ends in "scenario"**, as in the One shock scenario, so it never reads as the events inside it. In code the name is lower case with underscores, such as `one_shock`.

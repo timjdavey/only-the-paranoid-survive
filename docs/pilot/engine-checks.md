@@ -141,7 +141,7 @@ Picks the Bayesian baseline's prior and rule, and says how much of the gap to th
 
 ## Reachable gain
 
-Says whether moving is worth enough for a score to tell a player that reads a change from one that never moves. At the first defaults it is not: never moving scored 0.84 on the headline and the Bayesian baseline 0.93, see [TODO](../../TODO.md). The words are in the [glossary](../glossary.md#scoring).
+Says whether moving is worth enough for a score to tell a player that reads a change from one that never moves. At the first defaults it was not: never moving scored 0.84 on the headline and the Bayesian baseline 0.93. The pilot moved the onset, the rise and the drift's size to clear it, see [decisions](decisions.md). The words are in the [glossary](../glossary.md#scoring).
 
 - **Question.** In every scenario with a switch or drift, is moving worth enough points, and can a [blind baseline](../glossary.md#the-study) earn most of them.
 - **Run.** Nothing of its own. It reads the [baseline order](#baseline-order) run, which plays every fixed baseline in every scenario, and the Stayer in Up switch then down switch.
