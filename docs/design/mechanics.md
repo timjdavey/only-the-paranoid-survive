@@ -71,6 +71,20 @@ Off by default. Each one closes a tell a model could learn.
 | Hedge may overtake | In a deep shock the hedge's level passes the leader's for a few rounds, so holding costs real output |
 | One-channel shock | A shock that hits the leader only, as an impulse on its level that leaves its base level alone, so the climate does not move and an explore bet on the field says nothing about scope |
 
+### Shape knobs
+
+Off by default, and off until the next pilot. They make a shock and a switch hard to tell apart without changing a rule of play. `shapes/` draws and scores the world with them on beside today's, see [shapes](../../shapes/README.md#today-and-new) and the [storm spec](../specs/engine/timeline.md#storm).
+
+| Knob | What it does |
+|---|---|
+| Uneven recovery | Each channel comes back from a shock at its own speed, `recovery` |
+| Leader last | Sometimes the leader is the slowest to come back, `leader_last_share` |
+| Pop | Sometimes one field channel pops to just under the leader at the trough, then fades, `pop_share` |
+| Leader stays ahead | Before weather, nothing passes the leader during a shock, `leader_stays_ahead` |
+| Storm | A switch's fall arrives in a shock, so its first rounds match the shock's on the same seed. The leader's base falls as the storm lifts, and a popped channel can stay up as the sleeper, `SwitchSpec.storm` |
+
+With them on, the line above about why a shock and a switch look different stops holding: a field that comes back in both says little, and what tells them apart is whether the leader comes back.
+
 ## What the agent sees
 
 - **Only the channels it funded.** A share of 0 shows a blank in the record, not a 0.
