@@ -176,7 +176,7 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `SwitchSpec.ramp` | 1 to 5 | [events](../../design/mechanics.md#events) | Fixed by design |
 | `DriftSpec.size_sigmas`, `length` | 2 to 4, 15 to 25 | The Down switch stretched and a sigma deeper, so the slow fall is worth leaving: with the gap, about 0.6 to 2.1 points a round | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `gap` | 8 to 12 | Room for a habit to re-form after a shock | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
-| `ShockSpec.recovery` | 1 to 1, off | Off until a pilot runs it. `shapes/` tries 0.5 to 2 | The next pilot |
+| `ShockSpec.recovery` | 1 to 1, off | Off until a pilot runs it. `shapes/` tries 0.5 to 1.5 | The next pilot |
 | `ShockSpec.leader_last_share` | 0, off | Off until a pilot runs it. `shapes/` tries 0.5 | The next pilot |
 | `ShockSpec.pop_share` | 0, off | Off until a pilot runs it. `shapes/` tries 0.5 | The next pilot |
 | `ShockSpec.leader_stays_ahead` | false, off | Off until a pilot runs it. `shapes/` tries it on | The next pilot |

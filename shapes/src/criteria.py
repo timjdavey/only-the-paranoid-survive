@@ -1,148 +1,48 @@
-"""The test: one function per purpose, each over the public seeds. See shapes/README.md.
+"""The test: one function per purpose, each run in both worlds. See shapes/README.md#the-test.
 
-Every measure of an event reads twin timelines: one seed's event timeline minus its No change timeline is the
-event's effect alone, with the weather taken out. Levels are read with no read noise.
+Each purpose gives the same rows in either world, so criteria.md sets them side by side. The tools are in measures.py.
 """
 
-from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from collections.abc import Sequence
 
 import numpy as np
+from measures import (
+    SEATS,
+    SEEN,
+    WINDOW,
+    Row,
+    Twins,
+    before_weather,
+    chase_against_hold,
+    counts,
+    features,
+    first_change,
+    longest_run,
+    moved_at,
+    moves,
+    onset_row,
+    others_max,
+    pop_channel,
+    readings,
+    seat_bets,
+    share,
+    sigma,
+    spread,
+    storm_of,
+    swaps,
+    switch_kind,
+    tell_apart,
+    trough_row,
+    worst_fall,
+)
 
-from paranoid.engine import SCENARIOS, Timeline, make_timeline
-
-WINDOW = 8  # rounds from onset in which holding is a real question
-SEEN = 3  # rounds from onset an agent has to tell a switch from a shock
-
-
-@dataclass(frozen=True)
-class Row:
-    measure: str
-    value: str
-
-
-@dataclass(frozen=True)
-class Section:
-    purpose: str
-    rows: tuple[Row, ...]
-
-
-class Twins:
-    """Every timeline the criteria read, made once per seed."""
-
-    NAMES = ("no_change", "one_shock", "down_switch", "up_switch", "slow_drift")
-
-    def __init__(self, seeds: Sequence[int]):
-        self.seeds = list(seeds)
-        self.by_name = {name: [make_timeline(SCENARIOS[name], s) for s in self.seeds] for name in self.NAMES}
-
-    def pairs(self, name: str):
-        return zip(self.by_name["no_change"], self.by_name[name])
-
-
-# --- helpers ---------------------------------------------------------------
+from paranoid.engine import Timeline
 
 
-def others_max(levels: np.ndarray, channel: int) -> np.ndarray:
-    return np.delete(levels, channel, axis=1).max(axis=1)
-
-
-def longest_run(flags: np.ndarray) -> int:
-    best = run = 0
-    for flag in flags:
-        run = run + 1 if flag else 0
-        best = max(best, run)
-    return best
-
-
-def share(flags) -> str:
-    return f"{np.mean(flags):.2f}"
-
-
-def spread(values, digits: int = 1) -> str:
-    """The median, then the 10th to 90th percentile."""
-    low, mid, high = np.percentile(values, [10, 50, 90])
-    return f"{mid:.{digits}f} ({low:.{digits}f} to {high:.{digits}f})"
-
-
-def counts(values) -> str:
-    """The mean, then the 10th to 90th percentile, for a count of rounds or channels."""
-    low, high = (f"{x:g}" if float(x).is_integer() else f"{x:.1f}" for x in np.percentile(values, [10, 90]))
-    return f"{np.mean(values):.1f} ({low} to {high})"
-
-
-def swaps(before: np.ndarray, after: np.ndarray) -> int:
-    """Pairs of channels whose order flips."""
-    above_before = before[:, None] > before[None, :]
-    above_after = after[:, None] > after[None, :]
-    return int(np.triu(above_before != above_after, k=1).sum())
-
-
-def sigma(timeline: Timeline) -> float:
-    return timeline.config.own_scale
-
-
-def onset_row(timeline: Timeline) -> int:
-    return timeline.events[0].onset - 1
-
-
-def switch_kind(timeline: Timeline) -> str:
-    numbers = timeline.events[0].numbers
-    if numbers["kind"] == "rise" and numbers["short"]:
-        return "rise_short"
-    return str(numbers["kind"])
-
-
-def auc(scores: np.ndarray, labels: np.ndarray) -> float:
-    """The chance a random switch scores above a random shock, ties counted half."""
-    positive, negative = scores[labels == 1], scores[labels == 0]
-    above = (positive[:, None] > negative[None, :]).mean()
-    tied = (positive[:, None] == negative[None, :]).mean()
-    return float(above + 0.5 * tied)
-
-
-def fisher_auc(features: np.ndarray, labels: np.ndarray, train: np.ndarray) -> float:
-    """Fit Fisher's linear discriminant on the train rows and read its AUC on the rest."""
-    x, y = features[train], labels[train]
-    mean_0, mean_1 = x[y == 0].mean(axis=0), x[y == 1].mean(axis=0)
-    pooled = np.cov(x[y == 0], rowvar=False) + np.cov(x[y == 1], rowvar=False)
-    pooled = np.atleast_2d(pooled) + 1e-6 * np.eye(features.shape[1])
-    weights = np.linalg.solve(pooled, mean_1 - mean_0)
-    return auc(features[~train] @ weights, labels[~train])
-
-
-def first_rounds(timeline: Timeline) -> np.ndarray:
-    """Each channel's level in the SEEN rounds from onset, less its mean over the three rounds before."""
-    row = onset_row(timeline)
-    before = timeline.levels[row - 3 : row].mean(axis=0)
-    return timeline.levels[row : row + SEEN] - before
-
-
-def leader_seat(timeline: Timeline) -> np.ndarray:
-    return first_rounds(timeline)[:, timeline.leader]
-
-
-def field_view(timeline: Timeline) -> np.ndarray:
-    """The leader's move, and the median and largest move of the other nine, in each round."""
-    moves = first_rounds(timeline)
-    rest = np.delete(moves, timeline.leader, axis=1)
-    return np.concatenate([moves[:, timeline.leader], np.median(rest, axis=1), rest.max(axis=1)])
-
-
-def moved_at(calm: Timeline, event: Timeline, offset: int) -> int:
-    """Channels the event alone moves by more than one sigma, `offset` rounds after onset."""
-    row = onset_row(event) + offset
-    if row >= event.config.rounds:
-        return 0
-    return int((np.abs(event.levels[row] - calm.levels[row]) > sigma(event)).sum())
-
-
-# --- one function per purpose ----------------------------------------------
-
-
-def weather_moves_the_leader(twins: Twins) -> Section:
-    sds, gaps, off_rounds, off_any, off_three, below_three = [], [], [], [], [], []
-    for calm in twins.by_name["no_change"]:
+def weather(twins: Twins) -> list[Row]:
+    sds, gaps, off_rounds, off_any, off_three, below_three, as_deep, chase = [], [], [], [], [], [], [], []
+    k = twins.world["no_change"].read_noise_k
+    for calm, shocked in twins.pairs("one_shock"):
         levels, leader = calm.levels, calm.leader
         off = levels[:, leader] < others_max(levels, leader)
         below = levels[:, leader] < levels[:, calm.runner_up]
@@ -152,241 +52,239 @@ def weather_moves_the_leader(twins: Twins) -> Section:
         off_any.append(off.any())
         off_three.append(longest_run(off) >= 3)
         below_three.append(longest_run(below) >= 3)
-    rows = (
+        row = onset_row(shocked)
+        storm_three = shocked.levels[row - 1, leader] - shocked.levels[row + 2, leader]
+        as_deep.append(worst_fall(levels[:, leader], 3) >= storm_three)
+        chase.append(chase_against_hold(calm, k))
+    return [
         Row("Leader's SD over the run, in points", spread(sds)),
         Row("Leader's gap to the runner-up at round 1, in points", spread(gaps)),
         Row("Share of rounds the leader is off the top spot", share(off_rounds)),
         Row("Share of seeds where the leader is off the top spot at all", share(off_any)),
         Row("Share of seeds where it is off for three rounds running", share(off_three)),
         Row("Share of seeds where it is below the runner-up for three rounds running", share(below_three)),
-    )
-    return Section("Weather moves the leader", rows)
+        Row("Share of seeds where calm weather gives the leader a three round fall as deep as the storm's first three",
+            share(as_deep)),
+        Row("Points a round chasing last round's best reading earns over holding, one point looks, the world's k",
+            spread(chase, 2)),
+    ]  # fmt: skip
 
 
-def shock_numbers(calm: Timeline, shocked: Timeline) -> dict:
-    """The shock alone on one seed: its impulse into the shared factor and where it bottoms out."""
-    impulse = shocked.factor - calm.factor
-    trough = int(np.argmin(impulse))
-    effect = shocked.levels - calm.levels
-    leader = shocked.leader
-    weather_falls = -np.diff(calm.levels[:, leader])
-    return {
-        "trough": trough,
-        "impulse": impulse,
-        "effect": effect[trough],
-        "leader_fall": -effect[trough, leader],
-        "shock_round_fall": float((-np.diff(effect[:, leader])).max()),
-        "worst_weather_fall": float(weather_falls.max()),
-    }
-
-
-def shock_is_a_storm(twins: Twins) -> Section:
-    ratios, smaller, round_ratios = [], [], []
+def shock(twins: Twins) -> list[Row]:
+    m = {key: [] for key in ("ratio", "round", "smaller", "fall", "depth", "ahead", "beats", "leave", "to_pop")}
+    shake = {key: [] for key in ("fall_1", "rise_1", "fall_3", "rise_3", "climbs", "pairs", "any", "overtaken")}
+    hold = {key: [] for key in ("off_shock", "off_calm", "cost_shock", "cost_calm", "beaten_shock", "beaten_calm")}
+    k = twins.world["one_shock"].read_noise_k
     for calm, shocked in twins.pairs("one_shock"):
-        n = shock_numbers(calm, shocked)
-        ratios.append(n["leader_fall"] / n["worst_weather_fall"])
-        smaller.append(n["leader_fall"] < n["worst_weather_fall"])
-        round_ratios.append(n["shock_round_fall"] / n["worst_weather_fall"])
-    rows = (
-        Row("Leader's fall at the trough over the worst one round fall weather gives it", spread(ratios, 2)),
-        Row("The shock's largest one round fall over that same weather fall", spread(round_ratios, 2)),
-        Row("Share of shocks whose whole fall is smaller than that weather fall", share(smaller)),
-    )
-    return Section("A shock is a storm", rows)
-
-
-def shock_falls_the_leader(twins: Twins) -> Section:
-    falls, depths = [], []
-    for calm, shocked in twins.pairs("one_shock"):
-        falls.append(shock_numbers(calm, shocked)["leader_fall"])
-        depths.append(shocked.events[0].numbers["depth"])
-    rows = (
-        Row("Leader's fall at the trough, in points", spread(falls)),
-        Row("The shock's depth after the cap, in points", spread(depths)),
-    )
-    return Section("A shock falls the leader", rows)
-
-
-def shock_shakes_up_the_system(twins: Twins) -> Section:
-    fall_1, rise_1, fall_3, rise_3, any_swap, pair_swaps, hedge_climbs, overtaken = [], [], [], [], [], [], [], []
-    for calm, shocked in twins.pairs("one_shock"):
-        n = shock_numbers(calm, shocked)
+        row, trough, leader, hedge = onset_row(shocked), trough_row(shocked), shocked.leader, shocked.hedge
+        effect = shocked.levels - calm.levels
+        weather_fall = float((-np.diff(calm.levels[:, leader])).max())
+        leader_fall = -effect[trough, leader]
+        m["ratio"].append(leader_fall / weather_fall)
+        m["round"].append(float((-np.diff(effect[:, leader])).max()) / weather_fall)
+        m["smaller"].append(leader_fall < weather_fall)
+        m["fall"].append(leader_fall)
+        m["depth"].append(shocked.events[0].numbers["depth"])
+        calm_view = before_weather(calm, shocked)
+        window = calm_view[row : row + WINDOW]
+        ahead = window[:, [leader]] - np.delete(window, leader, axis=1)
+        m["ahead"].append((ahead >= shocked.config.hedge_margin_points - 1e-9).all(axis=1).mean())
+        seen = readings(shocked, seat_bets(shocked, 1), k)[row : row + WINDOW]
+        m["beats"].append((others_max(seen, leader) > seen[:, leader]).mean())
+        best = int(np.argmax(np.where(np.arange(shocked.config.channels) == leader, -np.inf, shocked.levels[trough])))
+        after = shocked.levels[trough + 1 : trough + 1 + WINDOW]
+        m["leave"].append(float((after[:, leader] - after[:, best]).mean()))
+        m["to_pop"].append(best == pop_channel(shocked))
+        at_trough, before = calm_view[trough], shocked.base[row - 1]
         step = sigma(shocked)
-        effect = n["effect"]
-        fall_1.append((effect < -step).sum())
-        rise_1.append((effect > step).sum())
-        fall_3.append((effect < -3 * step).sum())
-        rise_3.append((effect > 3 * step).sum())
-        row, hedge = n["trough"], shocked.hedge
-        before = shocked.base[onset_row(shocked) - 1]
-        at_trough = shocked.base[row] + shocked.loadings[row] * n["impulse"][row]
+        shake["fall_1"].append((effect[trough] < -step).sum())
+        shake["rise_1"].append((effect[trough] > step).sum())
+        shake["fall_3"].append((effect[trough] < -3 * step).sum())
+        shake["rise_3"].append((effect[trough] > 3 * step).sum())
+        shake["climbs"].append(int((before > before[hedge]).sum() - (at_trough > at_trough[hedge]).sum()))
         flips = swaps(np.delete(before, hedge), np.delete(at_trough, hedge))
-        any_swap.append(flips > 0)
-        pair_swaps.append(flips)
-        hedge_climbs.append(int((before > before[hedge]).sum() - (at_trough > at_trough[hedge]).sum()))
-        overtaken.append(int(np.argmax(at_trough)) != shocked.leader)
-    rows = (
-        Row("Channels that fall by more than one sigma at the trough", counts(fall_1)),
-        Row("Channels that rise by more than one sigma", counts(rise_1)),
-        Row("Channels that fall by more than three sigmas", counts(fall_3)),
-        Row("Channels that rise by more than three sigmas", counts(rise_3)),
-        Row("Places the hedge climbs at the trough, before weather", counts(hedge_climbs)),
-        Row("Pairs of channels, hedge aside, that swap places at the trough, of 36", counts(pair_swaps)),
-        Row("Share of shocks where any such pair swaps", share(any_swap)),
-        Row("Share of shocks where the leader is overtaken at the trough, before weather", share(overtaken)),
-    )
-    return Section("A shock shakes up the system", rows)
-
-
-def give_up(levels: np.ndarray, leader: int, start: int) -> tuple[float, bool]:
-    """Points a round a holder of the leader gives up to the window's best channel, and whether that is not the leader."""
-    window = levels[start : start + WINDOW]
-    totals = window.sum(axis=0)
-    best = int(np.argmax(totals))
-    return float((totals[best] - totals[leader]) / len(window)), best != leader
-
-
-def shock_makes_holding_a_question(twins: Twins) -> Section:
-    off_shock, off_calm, cost_shock, cost_calm, beaten_shock, beaten_calm = [], [], [], [], [], []
-    for calm, shocked in twins.pairs("one_shock"):
-        start, leader = onset_row(shocked), shocked.leader
-        for timeline, off, cost, beaten in (
-            (shocked, off_shock, cost_shock, beaten_shock),
-            (calm, off_calm, cost_calm, beaten_calm),
-        ):
-            window = timeline.levels[start : start + WINDOW]
-            off.append((window[:, leader] < others_max(window, leader)).sum())
-            points, lost = give_up(timeline.levels, leader, start)
-            cost.append(points)
-            beaten.append(lost)
-    rows = (
-        Row(f"Rounds the leader is off the top spot in the {WINDOW} from onset, One shock", counts(off_shock)),
-        Row("The same rounds on the No change twin", counts(off_calm)),
-        Row("Points a round a holder gives up to the window's best channel, One shock", counts(cost_shock)),
-        Row("The same on the No change twin", counts(cost_calm)),
-        Row("Share of seeds where another channel beats the leader over the window, One shock", share(beaten_shock)),
-        Row("The same on the No change twin", share(beaten_calm)),
-    )
-    return Section("A shock makes holding a real question", rows)
-
-
-def switch_looks_like_a_shock(twins: Twins) -> Section:
-    rows = []
-    for name, words in (
-        ("one_shock", "One shock"),
-        ("down_switch", "Down switch"),
-        ("up_switch", "Up switch"),
-        ("slow_drift", "Slow drift"),
-    ):
-        at_onset = [moved_at(calm, event, 0) for calm, event in twins.pairs(name)]
-        two_on = [moved_at(calm, event, 2) for calm, event in twins.pairs(name)]
-        rows.append(Row(f"{words}: channels moved by more than one sigma at onset", counts(at_onset)))
-        rows.append(Row(f"{words}: the same, two rounds on", counts(two_on)))
-    shocks, switches = twins.by_name["one_shock"], twins.by_name["down_switch"]
-    labels = np.array([0] * len(shocks) + [1] * len(switches))
-    train = np.array([i % 2 == 0 for i in range(len(shocks))] * 2)
-    for view, words in ((leader_seat, "the leader's seat"), (field_view, "the field")):
-        features = np.array([view(t) for t in [*shocks, *switches]])
-        rows.append(
-            Row(
-                f"How well {SEEN} rounds of levels tell Down switch from One shock, from {words} (AUC)",
-                f"{fisher_auc(features, labels, train):.2f}",
-            )
-        )
-    return Section("A switch looks like a shock", tuple(rows))
+        shake["pairs"].append(flips)
+        shake["any"].append(flips > 0)
+        shake["overtaken"].append(int(np.argmax(at_trough)) != leader)
+        for t, words in ((shocked, "shock"), (calm, "calm")):
+            levels = t.levels[row : row + WINDOW]
+            hold[f"off_{words}"].append((levels[:, leader] < others_max(levels, leader)).sum())
+            totals = levels.sum(axis=0)
+            hold[f"cost_{words}"].append(float((totals.max() - totals[leader]) / len(levels)))
+            hold[f"beaten_{words}"].append(int(np.argmax(totals)) != leader)
+    return [
+        Row("Leader's fall at the trough over the worst one round fall weather gives it", spread(m["ratio"], 2)),
+        Row("The shock's largest one round fall over that same weather fall", spread(m["round"], 2)),
+        Row("Share of shocks whose whole fall is smaller than that weather fall", share(m["smaller"])),
+        Row("Leader's fall at the trough, in points", spread(m["fall"])),
+        Row("The shock's depth after the cap, in points", spread(m["depth"])),
+        Row("Channels that fall by more than one sigma at the trough", counts(shake["fall_1"])),
+        Row("Channels that rise by more than one sigma", counts(shake["rise_1"])),
+        Row("Channels that fall by more than three sigmas", counts(shake["fall_3"])),
+        Row("Channels that rise by more than three sigmas", counts(shake["rise_3"])),
+        Row("Places the hedge climbs at the trough, before weather", counts(shake["climbs"])),
+        Row("Pairs of channels, hedge aside, that swap places at the trough, of 36", counts(shake["pairs"])),
+        Row("Share of shocks where any such pair swaps", share(shake["any"])),
+        Row("Share of shocks where the leader is overtaken at the trough, before weather", share(shake["overtaken"])),
+        Row(f"Share of the {WINDOW} storm rounds the leader is at least the margin ahead, before weather",
+            share(m["ahead"])),
+        Row(f"Share of the {WINDOW} storm rounds a one point reading of another channel beats the leader's, "
+            "the world's k", share(m["beats"])),
+        Row("Points a round leaving at the trough for the best other channel costs, over the next "
+            f"{WINDOW} rounds", spread(m["leave"])),
+        Row("Share of those moves that go to the pop", share(m["to_pop"])),
+        Row(f"Rounds the leader is off the top spot in the {WINDOW} from onset, One shock", counts(hold["off_shock"])),
+        Row("The same rounds on the No change twin", counts(hold["off_calm"])),
+        Row("Points a round a holder gives up to the window's best channel, One shock", counts(hold["cost_shock"])),
+        Row("The same on the No change twin", counts(hold["cost_calm"])),
+        Row("Share of seeds where another channel beats the leader over the window, One shock",
+            share(hold["beaten_shock"])),
+        Row("The same on the No change twin", share(hold["beaten_calm"])),
+    ]  # fmt: skip
 
 
 def end_of_change(timeline: Timeline) -> int:
-    """The row at which the event has finished moving the climate."""
+    """The row at which the event has finished moving the climate. A storm switch has no end, so its first change."""
     event = timeline.events[0]
-    length = event.numbers["length"] if event.shape == "drift" else event.numbers["ramp"]
+    if event.shape == "drift":
+        length = event.numbers["length"]
+    elif storm_of(event) is not None:
+        length = (first_change(timeline) or 0) + 1
+    else:
+        length = event.numbers["ramp"]
     return min(event.onset - 1 + length - 1, timeline.config.rounds - 1)
 
 
-def new_state(timelines: Sequence[Timeline]) -> tuple[str, str, str, int]:
+def new_state(timelines: Sequence[Timeline], kind: str) -> Row:
     rounds = timelines[0].config.rounds
     changed, stays, runner_up = [], [], []
     for t in timelines:
         first, last = t.climate_leader(1), t.climate_leader(rounds)
         changed.append(last != first)
-        after = range(end_of_change(t) + 1, rounds + 1)
-        stays.append(all(t.climate_leader(r) != first for r in after))
+        stays.append(all(t.climate_leader(r) != first for r in range(end_of_change(t) + 1, rounds + 1)))
         runner_up.append(last == t.runner_up)
-    return share(changed), share(stays), share(runner_up), len(timelines)
+    value = f"{share(changed)}, {share(stays)}, {share(runner_up)} of {len(timelines)}" if timelines else "none"
+    return Row(f"`{kind}`: climate leader changed by the last round, stayed changed, and is the runner-up", value)
 
 
-def switch_leaves_a_new_state(twins: Twins) -> Section:
+def by_kind(twins: Twins) -> dict[str, list[Timeline]]:
     groups: dict[str, list[Timeline]] = {}
     for name in ("down_switch", "up_switch"):
         for t in twins.by_name[name]:
             groups.setdefault(switch_kind(t), []).append(t)
     groups["drift"] = list(twins.by_name["slow_drift"])
+    return groups
+
+
+def switch(twins: Twins) -> list[Row]:
+    rows, groups = [], by_kind(twins)
+    for name, words in (("one_shock", "One shock"), ("down_switch", "Down switch"),
+                        ("up_switch", "Up switch"), ("slow_drift", "Slow drift")):  # fmt: skip
+        rows.append(Row(f"{words}: channels moved by more than one sigma at onset",
+                        counts([moved_at(calm, event, 0) for calm, event in twins.pairs(name)])))  # fmt: skip
+        rows.append(Row(f"{words}: the same, two rounds on",
+                        counts([moved_at(calm, event, 2) for calm, event in twins.pairs(name)])))  # fmt: skip
+    match, part, change, popped = [], [], [], []
+    lose = {2: [], 4: [], 8: []}
+    for shocked, switched in zip(twins.by_name["one_shock"], twins.by_name["down_switch"]):
+        row, rounds = onset_row(switched), switched.config.rounds
+        apart = np.abs(shocked.levels[row:] - switched.levels[row:])
+        match.append(int(np.argmax(apart.max(axis=1) > 0)))
+        part.append(int(np.argmax(apart.max(axis=1) > sigma(switched))))
+        change.append(first_change(switched))
+        popped.append(pop_channel(switched) is not None and switched.climate_leader(rounds) == pop_channel(switched))
+        for after in lose:
+            r = min(trough_row(switched) + after, rounds - 1)
+            lose[after].append(float(switched.base[r].max() - switched.base[r, switched.leader]))
+    rows += [
+        Row("Rounds from onset One shock and Down switch match exactly on every channel", counts(match)),
+        Row("Rounds from onset until they part by more than a sigma on some channel", counts(part)),
+        Row("Rounds from onset until the climate leader changes, Down switch", counts([c for c in change if c is not None])),
+        *[Row(f"Points a holder gives up {after} rounds after the trough, in base level", spread(lose[after]))
+          for after in lose],
+        Row("Share of Down switch seeds where the channel that popped is the climate leader at the last round",
+            share(popped)),
+        new_state(groups.get("fall", []), "fall"),
+        new_state(groups.get("fall_and_rise", []), "fall_and_rise"),
+    ]  # fmt: skip
+    return rows
+
+
+def largest_base_fall(timeline: Timeline, rounds: int = 1) -> float:
+    return worst_fall(timeline.base[:, timeline.leader], rounds)
+
+
+def drift(twins: Twins) -> list[Row]:
+    drifts = twins.by_name["slow_drift"]
+    weather_one = [worst_fall(t.levels[:, t.leader], 1) for t in twins.by_name["no_change"]]
+    weather_three = [worst_fall(t.levels[:, t.leader], 3) for t in twins.by_name["no_change"]]
+    between = []
+    for t in drifts:
+        row, cost = onset_row(t), first_change(t)
+        fallen = t.base[row - 1, t.leader] - t.base[row:, t.leader]
+        tell = int(np.argmax(fallen >= 2 * sigma(t)))
+        if cost is not None and fallen.max() >= 2 * sigma(t):
+            between.append(cost - tell)
+    return [
+        Row("Slow drift: the leader's whole fall in base level, in points", spread([t.events[0].numbers["fall"] for t in drifts])),
+        Row("Slow drift: its largest one round fall in base level", spread([largest_base_fall(t) for t in drifts])),
+        Row("Down switch: the same largest one round fall", spread([largest_base_fall(t) for t in twins.by_name["down_switch"]])),
+        Row("No change: the leader's worst one round fall in level, from weather", spread(weather_one)),
+        Row("Slow drift: its largest three round fall in base level", spread([largest_base_fall(t, 3) for t in drifts])),
+        Row("No change: the leader's worst three round fall in level, from weather", spread(weather_three)),
+        Row("Rounds from a two sigma fall in base level to the climate leader changing", counts(between)),
+        new_state(by_kind(twins)["drift"], "drift"),
+    ]  # fmt: skip
+
+
+def rise(twins: Twins) -> list[Row]:
+    groups, moved, short, worse = by_kind(twins), [], [], []
+    for calm, up in twins.pairs("up_switch"):
+        moved.append(not np.array_equal(calm.levels[:, calm.leader], up.levels[:, up.leader]))
+        short.append(switch_kind(up) == "rise_short")
+        start = onset_row(up) + up.events[0].numbers["ramp"]
+        later = up.levels[start:]
+        worse.append(later[:, up.sleeper].sum() < later[:, up.leader].sum())
+    return [
+        Row("Share of Up switch seeds where the leader's levels differ from No change", share(moved)),
+        Row("Share of Up switch seeds that stop short", share(short)),
+        Row("Share of Up switch seeds where moving to the sleeper when its ramp ends earns less than holding",
+            share(worse)),
+        new_state(groups.get("rise", []), "rise"),
+        new_state(groups.get("rise_short", []), "rise_short"),
+    ]  # fmt: skip
+
+
+def looking(twins: Twins) -> list[Row]:
+    shocks, switches = twins.by_name["one_shock"], twins.by_name["down_switch"]
     rows = []
-    for kind in ("fall", "fall_and_rise", "rise", "rise_short", "drift"):
-        if kind not in groups:
-            continue
-        changed, stays, runner_up, count = new_state(groups[kind])
-        rows.append(
-            Row(
-                f"`{kind}` ({count} seeds): climate leader changed by the last round, "
-                "stayed changed after the ramp, and is the runner-up",
-                f"{changed}, {stays}, {runner_up}",
-            )
-        )
-    return Section("A switch leaves a new state", tuple(rows))
+    for field, words in ((False, "the leader's seat"), (True, "the field")):
+        auc = tell_apart(shocks, switches, lambda t: features(moves(t.levels, t, SEEN), t.leader, field))
+        rows.append(Row(f"How well {SEEN} rounds of levels tell Down switch from One shock, from {words} (AUC)",
+                        f"{auc:.2f}"))  # fmt: skip
+    for k in (8.0, 12.0):
+        for seat, each in SEATS.items():
+            for rounds in (1, 3, 6):
+
+                def view(t, each=each, rounds=rounds, k=k):
+                    seen = readings(t, seat_bets(t, each), k)
+                    return features(moves(seen, t, rounds), t.leader, field=each > 0)
+
+                auc = tell_apart(shocks, switches, view)
+                rows.append(Row(f"Readings at k {k:g}, {seat}, after {rounds} round{'s' * (rounds > 1)} (AUC)",
+                                f"{auc:.2f}"))  # fmt: skip
+    return rows
 
 
-def largest_base_fall(timeline: Timeline) -> float:
-    return float((-np.diff(timeline.base[:, timeline.leader])).max())
+PURPOSES = {"Weather": weather, "Shock": shock, "Switch": switch, "Drift": drift, "Rise": rise, "Looking": looking}
 
 
-def drift(twins: Twins) -> Section:
-    drift_falls = [largest_base_fall(t) for t in twins.by_name["slow_drift"]]
-    totals = [t.events[0].numbers["fall"] for t in twins.by_name["slow_drift"]]
-    switch_falls = [largest_base_fall(t) for t in twins.by_name["down_switch"]]
-    weather = [float((-np.diff(t.levels[:, t.leader])).max()) for t in twins.by_name["no_change"]]
-    rows = (
-        Row("Slow drift: the leader's whole fall in base level, in points", spread(totals)),
-        Row("Slow drift: its largest one round fall in base level", spread(drift_falls)),
-        Row("Down switch: the same largest one round fall", spread(switch_falls)),
-        Row("No change: the leader's worst one round fall in level, from weather", spread(weather)),
-    )
-    return Section("A drift", rows)
-
-
-PURPOSES: tuple[Callable[[Twins], Section], ...] = (
-    weather_moves_the_leader,
-    shock_is_a_storm,
-    shock_falls_the_leader,
-    shock_shakes_up_the_system,
-    shock_makes_holding_a_question,
-    switch_looks_like_a_shock,
-    switch_leaves_a_new_state,
-    drift,
-)
-
-
-def criteria(seeds: Sequence[int]) -> list[Section]:
-    twins = Twins(seeds)
-    return [purpose(twins) for purpose in PURPOSES]
-
-
-def markdown(sections: Sequence[Section], seeds: Sequence[int]) -> str:
-    config = SCENARIOS["no_change"]
-    lines = [
-        "# Shape criteria",
-        "",
-        "Written by `shapes/src/make.py`. Do not edit by hand. What each measure is for is in [the README](README.md#the-test).",
-        "",
-        f"- **Seeds.** The first {len(seeds)} public seeds, {seeds[0]} to {seeds[-1]}.",
-        f"- **Levels, not readings.** No read noise. One sigma is {config.own_scale:g} points.",
-        "- **An event's effect** is its timeline minus the No change twin on the same seed.",
-        "- **A size** in points is the median, then the 10th to 90th percentile in brackets.",
-        "- **A count** of rounds or channels, and the points a holder gives up, is the mean, then the 10th to 90th percentile.",
-        "",
-    ]
-    for section in sections:
-        lines += [f"## {section.purpose}", "", "| Measure | Value |", "|---|---|"]
-        lines += [f"| {row.measure} | {row.value} |" for row in section.rows]
-        lines.append("")
-    return "\n".join(lines)
+def criteria(worlds: dict, seeds: Sequence[int]) -> dict[str, list[tuple[str, str, str]]]:
+    """Each purpose's rows as (measure, today, new)."""
+    twins = {name: Twins(world, seeds) for name, world in worlds.items()}
+    out = {}
+    for purpose, measure in PURPOSES.items():
+        today, new = measure(twins["today"]), measure(twins["new"])
+        assert [r.measure for r in today] == [r.measure for r in new], purpose
+        out[purpose] = [(a.measure, a.value, b.value) for a, b in zip(today, new)]
+    return out

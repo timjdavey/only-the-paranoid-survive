@@ -13,15 +13,24 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+from measures import storm_of
+
 from paranoid.engine import Event, Timeline
 
 matplotlib.use("Agg")
 
 # Okabe and Ito, copied from src/paranoid/analysis/plots.py, as importing the analysis layer pulls in inspect.
-COLOURS = {"leader": "#0072B2", "runner-up": "#E69F00", "hedge": "#009E73", "sleeper": "#CC79A7", "field": "#9a9a9a"}
+COLOURS = {
+    "leader": "#0072B2",
+    "runner-up": "#E69F00",
+    "hedge": "#009E73",
+    "sleeper": "#CC79A7",
+    "pop": "#000000",
+    "field": "#9a9a9a",
+}
 ONSET = "#D55E00"  # Okabe and Ito's vermilion, used by no role
 RC = {"font.family": "DejaVu Sans", "font.size": 8}
-DPI = 100
+DPI = 80  # keeps the 70 pictures near 10 MB
 Levels = tuple[float, float]
 
 
@@ -32,24 +41,44 @@ def scenario_words(name: str) -> str:
 def roles(timeline: Timeline) -> list[str]:
     """Each channel's role, by index."""
     named = {timeline.leader: "leader", timeline.runner_up: "runner-up", timeline.hedge: "hedge"}
+    for event in timeline.events:
+        storm = storm_of(event)
+        if storm and storm["pop"]:
+            named[storm["pop_channel"]] = "pop"
     if timeline.sleeper is not None:
         named[timeline.sleeper] = "sleeper"
     return [named.get(channel, "field") for channel in range(timeline.config.channels)]
 
 
+def storm_words(n: dict) -> str:
+    """A storm's depth and form, and which shape knobs it drew."""
+    words = f"depth {n['depth']:.0f}, half life {n['half_life']}, {n['profile']}"
+    if len(set(n["recovery"])) > 1:
+        words += ", uneven"
+    if n["leader_last"]:
+        words += ", leader last"
+    if n["pop"]:
+        words += f", pop {n['pop_rise']:+.0f}"
+    return words
+
+
 def event_words(event: Event, rounds: int) -> str:
     n = event.numbers
+    storm = storm_of(event)
     if event.shape == "shock":
-        words = f"shock, onset {event.onset}, depth {n['depth']:.0f}, half life {n['half_life']}, {n['profile']}"
+        words = f"shock, onset {event.onset}, {storm_words(storm)}"
     elif event.shape == "drift":
         words = f"drift, {n['profile']}, onset {event.onset}, length {n['length']}, fall {n['fall']:.0f}"
     else:
         kind = "rise, short" if n["kind"] == "rise" and n["short"] else n["kind"]
-        words = f"switch, {kind}, onset {event.onset}, ramp {n['ramp']}"
+        ramp = "" if storm is not None else f", ramp {n['ramp']}"  # a storm switch follows its storm, not a ramp
+        words = f"switch, {kind}, onset {event.onset}{ramp}"
         if n["fall"] is not None:
             words += f", {'back' if n['kind'] == 'undo' else 'fall'} {n['fall']:.0f}"
         if event.sleeper is not None:
             words += f", sleeper to {n['target']:.0f}"
+        if storm is not None:
+            words = f"{words},\nin a storm of {storm_words(storm)}"
     return words + (" (after the last round)" if event.onset > rounds else "")
 
 
@@ -157,10 +186,10 @@ def timeline_figure(timeline: Timeline, levels: Levels, out: Path) -> Path:
         return save(figure, out)
 
 
-def twins_figure(timelines: Sequence[Timeline], levels: Levels, out: Path) -> Path:
+def twins_figure(timelines: Sequence[Timeline], levels: Levels, out: Path, match: str) -> Path:
     with matplotlib.rc_context(RC):
         figure = Figure(figsize=(19, 6))
-        figure.suptitle(f"Twin timelines, seed {timelines[0].seed}: they match until onset", fontsize=11, y=0.98)
+        figure.suptitle(f"Twin timelines, seed {timelines[0].seed}: they match {match}", fontsize=11, y=0.98)
         for index, timeline in enumerate(timelines):
             axis = figure.add_subplot(1, len(timelines), index + 1, projection="3d")
             draw_3d(axis, timeline, levels)

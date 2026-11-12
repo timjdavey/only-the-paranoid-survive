@@ -72,7 +72,7 @@ def hand_built():
     return build
 
 
-# Every shape knob on, at the values shapes/src/worlds.py tries, see docs/specs/engine/timeline.md#storm.
+# Every shape knob on, near the values shapes/src/worlds.py tries, see docs/specs/engine/timeline.md#storm.
 KNOBS = dict(recovery=(0.5, 2.0), leader_last_share=0.5, pop_share=0.5, leader_stays_ahead=True)
 
 
