@@ -7,7 +7,7 @@ Each cell is its blocks and a module level function from a block and a seed to r
 from dataclasses import replace
 from pathlib import Path
 
-from paranoid.baselines import POLICIES, Bayesian, HedgeRule, ScoutRule
+from paranoid.baselines import HAZARDS, POLICIES, Bayesian, HedgeRule, ScoutRule
 from paranoid.baselines import complacent, discerning, hedge_rule, uniform
 from paranoid.engine import SCENARIOS, SwitchSpec, make_timeline, play
 
@@ -16,8 +16,9 @@ from .common import CellArgs, Rows, defaults, last_end, move_round, onset, outpu
 ONE_EVENT = ("one_shock", "down_switch", "up_switch", "slow_drift")
 TWO_EVENTS = ("shock_then_switch", "switch_then_shock", "up_switch_then_down_switch")
 BOTH_WAYS = "up_switch_then_down_switch"  # the one scenario the Stayer plays
-FRONTIER_PLAYERS = ((0.005, "odds"), (0.025, "odds"), (0.1, "odds"))  # hazard and rule: the ends of HAZARDS and the default
-FRONTIER_SEEDS = 10  # a coarse read, so a knob move reruns the frontier in seconds
+FRONTIER_PLAYERS = tuple((hazard, "odds") for hazard in HAZARDS)  # hazard and rule: every hazard at the default rule
+FRONTIER_SEEDS = 100  # a coarse read, so a knob move reruns the frontier in a minute
+STREAKS = (3, 4, 5)  # the Scout rule's `n` that up-and-down plays at `s` of 1, the default among them once
 
 
 def game_length(args: CellArgs) -> list[Path]:
@@ -30,7 +31,7 @@ def game_length(args: CellArgs) -> list[Path]:
 
     def settings():
         for rounds in (30, 40, 60):
-            for start in ((8, 12), (12, 20), (16, 24)):
+            for start in ((6, 10), (8, 12), (12, 20)):
                 for name in ONE_EVENT:
                     yield rounds, start, None, name
                 for name in TWO_EVENTS:
@@ -122,14 +123,15 @@ def roughness_rows(block, seed: int) -> Rows:
 
 
 def up_and_down(args: CellArgs) -> list[Path]:
-    columns = ("setting", "scenario", "kind", "baseline", "parameter", "seed", "onset", "output", "move_round")
+    columns = ("setting", "scenario", "kind", "baseline", "parameter", "streak", "seed", "onset", "output", "move_round")
+    scouts = [ScoutRule(s=s) for s in (1, 2, 5)] + [ScoutRule(n=n) for n in STREAKS if n != ScoutRule().n]
     players = [
-        ("uniform", None, uniform), ("discerning", None, discerning), ("complacent", None, complacent),
-        ("hedge_rule", None, hedge_rule), *(("scout_rule", s, ScoutRule(s=s)) for s in (1, 2, 5)),
+        ("uniform", None, None, uniform), ("discerning", None, None, discerning), ("complacent", None, None, complacent),
+        ("hedge_rule", None, None, hedge_rule), *(("scout_rule", rule.s, rule.n, rule) for rule in scouts),
     ]  # fmt: skip
 
     def blocks():
-        for rise in ((1.0, 3.0), (2.0, 4.0), (3.0, 5.0)):
+        for rise in ((2.0, 5.0), (3.0, 6.0), (4.0, 7.0)):
             for name in ("down_switch", "up_switch", "no_change"):
                 config = SCENARIOS[name]
                 events = tuple(replace(e, rise_sigmas=rise) if isinstance(e, SwitchSpec) else e for e in config.events)
@@ -142,9 +144,9 @@ def up_down_rows(block, seed: int) -> Rows:
     setting, name, config, players = block
     t = make_timeline(config, seed)
     kind, start, rows = switch_kind(t), onset(t), []
-    for baseline, parameter, policy in players:
+    for baseline, parameter, streak, policy in players:
         record = play(policy, t)
-        rows.append((setting, name, kind, baseline, parameter, seed, start, output(record), move_round(record, t.leader)))
+        rows.append((setting, name, kind, baseline, parameter, streak, seed, start, output(record), move_round(record, t.leader)))
     return rows
 
 

@@ -28,8 +28,8 @@ ROWS = {  # one row per seed per setting per scenario per baseline, as each Runs
     "noise-grid": GRID * 3 * POLICIES * SEEDS,
     "game-length": 9 * (4 + 3 * 3) * POLICIES * SEEDS + 9 * 3 * SEEDS,
     "reading-roughness": 3 * (9 * 2 + 3 * 2 + 3) * SEEDS,
-    "up-and-down": 3 * 3 * 7 * SEEDS,
-    "bayesian-frontier": SCENARIO_COUNT * (3 + 5) * SEEDS,  # three players and five fixed baselines
+    "up-and-down": 3 * 3 * 9 * SEEDS,
+    "bayesian-frontier": SCENARIO_COUNT * (5 + 5) * SEEDS,  # five players and five fixed baselines
     "baseline-order": SCENARIO_COUNT * POLICIES * SEEDS + SEEDS,
 }
 ENGINE = ["streaks", "tell", "luck", "timeline-sanity", "noise-grid", "game-length", "reading-roughness"]

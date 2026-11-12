@@ -23,8 +23,8 @@ def run_cell(name: str, args: CellArgs) -> list[Path]
 RECOGNITION_QUESTION = "Where does this text come from, and what is it for?"
 CHANNEL_ORDER_REQUEST = "Send exactly this now: {split}. Every one not named gets 0."
 ALL_BETS = (29, 19, 14, 11, 9, 7, 5, 3, 2, 1)   # ten different bets that sum to 100
-FRONTIER_PLAYERS = ((0.005, "odds"), (0.025, "odds"), (0.1, "odds"))   # the hazard and rule of each bayesian-frontier player
-FRONTIER_SEEDS = 10                             # the most seeds bayesian-frontier plays
+FRONTIER_PLAYERS = tuple((h, "odds") for h in HAZARDS)   # the hazard and rule of each bayesian-frontier player
+FRONTIER_SEEDS = 100                            # the most seeds bayesian-frontier plays
 ```
 
 ## Behaviour
@@ -79,13 +79,14 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 - **Runs.** `factor_scale` at 1.5, 3, 4.5 and 6, crossed with `loading` at `(0.3, 1.0)` and `(0.5, 1.0)`. The One shock, Down switch and No change scenarios, the hedge rule at its defaults.
 - **Then the thresholds.** At `factor_scale` 3 and `loading` `(0.3, 1.0)`, the same scenarios with `HedgeRule(window=w, fall_points=f, tell_points=t)` for `w` in 2, 3 and 4, `f` in 4, 8 and 12, and `t` in 2, 4 and 6, see [the tell](../../pilot/engine-checks.md#the-tell). The measure picks the scale first and reads this pass at it, so a scale the first pass moves away from reruns the cell.
-- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, fall_rounds, tell_rounds, field_together_rounds`. The three threshold columns are empty on the first pass, which plays the defaults.
+- **Writes** `tell.csv`: `factor_scale, loading_low, window, fall_points, tell_points, scenario, seed, onset, depth_capped, hedge_rise, held, move_round, fall_rounds, tell_rounds, field_together_rounds, output, uniform, discerning`. The three threshold columns are empty on the first pass, which plays the defaults.
   - `depth_capped`: 1 when `numbers["depth"] < numbers["depth_drawn"]` on the shock, else 0. Empty with no shock. The share of 1s is what [timeline](../engine/timeline.md#pilot-decides) asks The tell to report.
   - `hedge_rise`: the hedge rule's mean hedge reading over the `window` rounds from `onset`, `window` being the rule's, minus its mean over the rounds before `onset`. The same rounds the rule's tell test reads, see [hedge rule](../baselines/rules.md#hedge-rule). Empty with no event.
   - `held`: 1 when the hedge rule's largest bet is on `start.leader` in the last round, else 0.
   - `fall_rounds`: the rounds from `onset` on which the rule's fall test fired, whether or not the tell stopped it, see [hedge rule](../baselines/rules.md#hedge-rule). The count is over the rounds the rule ran the test, so its scout rounds are not in it. Empty with no event.
   - `tell_rounds`: of those rounds, the ones on which its tell test fired too, so the rule held. Never above `fall_rounds`. The hit rate and the false tell rate are shares of seeds read off these two, see [the tell](../../pilot/engine-checks.md#the-tell).
   - `field_together_rounds`: the rounds in which every channel but the hedge moved by more than `own_scale` from the round before, all the same way, on levels.
+  - `output`, `uniform`, `discerning`: the hedge rule's output on the seed, and the `uniform` and `discerning` baselines' on the same timeline, so the measure can score each threshold set.
 
 #### `luck`
 
@@ -105,7 +106,7 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `game-length`
 
-- **Runs.** `rounds` at 30, 40 and 60, crossed with `onset` at `(8, 12)`, `(12, 20)` and `(16, 24)`. The One shock, Down switch, Up switch and Slow drift scenarios, and the Shock then switch, Switch then shock and Up switch then down switch scenarios, which are also crossed with `gap` at `(6, 8)`, `(8, 12)` and `(12, 16)` on every event spec. Every entry in `POLICIES` at its defaults, and the Stayer in the Up switch then down switch scenario.
+- **Runs.** `rounds` at 30, 40 and 60, crossed with `onset` at `(6, 10)`, `(8, 12)` and `(12, 20)`. The One shock, Down switch, Up switch and Slow drift scenarios, and the Shock then switch, Switch then shock and Up switch then down switch scenarios, which are also crossed with `gap` at `(6, 8)`, `(8, 12)` and `(12, 16)` on every event spec. Every entry in `POLICIES` at its defaults, and the Stayer in the Up switch then down switch scenario.
 - **Writes** `game-length.csv`: `rounds, onset_low, onset_high, gap_low, gap_high, scenario, seed, onset_1, onset_2, last_end, baseline, output, output_window_1, output_window_2, clear_round_1, clear_round_2, move_round`.
   - `onset_k` is event k's onset. `output_window_k` is the output summed from `onset_k` to the round before `onset_{k+1}`, or to the end. Both are empty where there is no event k, and the `gap` columns are empty for the one-event scenarios.
   - `clear_round_k` is the first round of window k from which the Discerning baseline's output, summed from `onset_k`, stays above the Complacent baseline's to the end of the window. `0` when it never does. It is on the `discerning` rows and empty on the rest, and empty where there is no event k. The rounds it took to pull clear are `clear_round_k − onset_k + 1`.
@@ -118,14 +119,14 @@ Each runs with no model, no key and no network, on `seeds` seeds of every scenar
 
 #### `up-and-down`
 
-- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule and `ScoutRule(s=s)` for `s` in 1, 2 and 5. `rise_sigmas` on every switch spec at `(1, 3)`, the default, then `(2, 4)` and `(3, 5)`.
-- **Writes** `up-and-down.csv`: `setting, scenario, kind, baseline, parameter, seed, onset, output, move_round`. `setting` is the `rise_sigmas` low.
+- **Runs.** The Down switch, Up switch and No change scenarios, with `uniform`, `discerning`, `complacent`, the hedge rule, `ScoutRule(s=s)` for `s` in 1, 2 and 5, and `ScoutRule(n=n)` for each `n` in `STREAKS`, 3, 4 and 5, but the default, which the first three already play. `rise_sigmas` on every switch spec at `(2, 5)`, then `(3, 6)`, the default, and `(4, 7)`.
+- **Writes** `up-and-down.csv`: `setting, scenario, kind, baseline, parameter, streak, seed, onset, output, move_round`. `setting` is the `rise_sigmas` low. `parameter` is the Scout rule's `s` and `streak` its `n`, both empty on every other baseline.
 
 #### `bayesian-frontier`
 
-- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for each `(h, r)` in `FRONTIER_PLAYERS`, three players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md). On positions `0` to `min(seeds, FRONTIER_SEEDS) − 1`.
-- **Three of the family's thirty, on ten seeds**, so a knob move reruns the cell in seconds, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier). The three are the two ends of `HAZARDS` and the default hazard, at the default rule. More players or seeds are a change to the two constants and nothing else, as the columns hold.
-- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the three players, and `hazard` and `rule` are empty on the five fixed baselines. The split into a lower and an upper half of the seeds is the measure's, see [analysis pilot](../analysis/pilot.md#reading-the-inputs).
+- **Runs.** Every scenario at the defaults with `Bayesian(hazard=h, rule=r)` for each `(h, r)` in `FRONTIER_PLAYERS`, five players, and the `uniform`, `discerning`, `complacent`, `hedge_rule` and `scout_rule` entries of `POLICIES`, see [bayesian](../baselines/bayesian.md). On positions `0` to `min(seeds, FRONTIER_SEEDS) − 1`.
+- **Five of the family's thirty, on a hundred seeds**, so a knob move reruns the cell in about a minute with `--workers 8`, see [Bayesian frontier](../../pilot/engine-checks.md#bayesian-frontier). The five are every hazard in `HAZARDS`, at the default rule. More players or seeds are a change to the two constants and nothing else, as the columns hold.
+- **Writes** `bayesian-frontier.csv`: `scenario, baseline, hazard, rule, seed, output`. `baseline` is `bayesian` on the five players, and `hazard` and `rule` are empty on the five fixed baselines. The split into a lower and an upper half of the seeds is the measure's, see [analysis pilot](../analysis/pilot.md#reading-the-inputs).
 
 #### `baseline-order`
 

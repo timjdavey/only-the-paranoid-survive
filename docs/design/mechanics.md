@@ -5,6 +5,7 @@ How the game engine pays out, where each channel's level comes from, and what th
 ## Payout
 
 - **Linear.** Output is the sum over channels of share times [reading](#what-the-agent-sees). A channel's level does not fall as the bet on it grows, so point 70 on a channel pays the same as point 1.
+- **The agent is told.** Every skin says a channel pays the same for each point however many it gets, see [what every skin must say](../harness/prompts.md#what-every-skin-must-say). Left unsaid, a model assumes the price falls as more is sent and spreads its points.
 - **So the Discerning baseline goes all in** on the channel with the highest base level. A split across channels only ever means doubt or an explore bet. See [scoring](scoring.md).
 - **Readings are reported to one decimal place.** Output is never shown, see [what the agent sees](#what-the-agent-sees).
 
@@ -70,6 +71,21 @@ Off by default. Each one closes a tell a model could learn.
 |---|---|
 | Hedge may overtake | In a deep shock the hedge's level passes the leader's for a few rounds, so holding costs real output |
 | One-channel shock | A shock that hits the leader only, as an impulse on its level that leaves its base level alone, so the climate does not move and an explore bet on the field says nothing about scope |
+
+### Shape knobs
+
+Off by default, and off until the next pilot. They make a shock and a switch hard to tell apart without changing a rule of play. `shapes/` draws and scores the world with them on beside today's, see [shapes](../../shapes/README.md#today-and-new) and the [storm spec](../specs/engine/timeline.md#storm).
+
+| Knob | What it does |
+|---|---|
+| Uneven recovery | Each channel comes back from a shock at its own speed, `recovery` |
+| Leader last | Sometimes the leader is the slowest to come back, `leader_last_share` |
+| Leader loading | The leader falls about as far as the storm is deep, so a shock always shows on it. Off, it falls by its own loading, which is often less than the field does, `leader_loading` |
+| Pop | Sometimes one field channel pops to just under the leader at the trough, then fades, `pop_share` |
+| Leader stays ahead | Before weather, nothing passes the leader during a shock, `leader_stays_ahead` |
+| Storm | A switch's fall arrives in a shock, so its first rounds match the shock's on the same seed. The leader's base falls as the storm lifts, and a popped channel can stay up as the sleeper, `SwitchSpec.storm` |
+
+With them on, the line above about why a shock and a switch look different stops holding: a field that comes back in both says little, and what tells them apart is whether the leader comes back.
 
 ## What the agent sees
 

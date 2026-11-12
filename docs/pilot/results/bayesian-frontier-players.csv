@@ -1,0 +1,91 @@
+scenario,player,seeds,score
+down_switch,bayesian 0.005 odds,100,0.9452518228730096
+down_switch,bayesian 0.01 odds,100,0.9404502698661363
+down_switch,bayesian 0.025 odds,100,0.917168390302932
+down_switch,bayesian 0.05 odds,100,0.8891041788303937
+down_switch,bayesian 0.1 odds,100,0.8404018317368739
+down_switch,complacent,100,0.435765645202626
+down_switch,discerning,100,1.0
+down_switch,hedge_rule,100,0.9125681289152748
+down_switch,scout_rule,100,0.8355181555068684
+down_switch,uniform,100,0.0
+no_change,bayesian 0.005 odds,100,0.9809784755946124
+no_change,bayesian 0.01 odds,100,0.973741559976505
+no_change,bayesian 0.025 odds,100,0.9515094744573992
+no_change,bayesian 0.05 odds,100,0.9270185850234463
+no_change,bayesian 0.1 odds,100,0.8781915759362825
+no_change,complacent,100,1.0
+no_change,discerning,100,1.0
+no_change,hedge_rule,100,0.9616006707744646
+no_change,scout_rule,100,0.8922719259297677
+no_change,uniform,100,0.0
+one_shock,bayesian 0.005 odds,100,0.9720339629539078
+one_shock,bayesian 0.01 odds,100,0.9632424641709416
+one_shock,bayesian 0.025 odds,100,0.9382514909444051
+one_shock,bayesian 0.05 odds,100,0.9085215634350211
+one_shock,bayesian 0.1 odds,100,0.8551485072984544
+one_shock,complacent,100,1.0
+one_shock,discerning,100,1.0
+one_shock,hedge_rule,100,0.9537879341449466
+one_shock,scout_rule,100,0.8912548404398595
+one_shock,uniform,100,0.0
+shock_then_switch,bayesian 0.005 odds,100,0.9338572421701028
+shock_then_switch,bayesian 0.01 odds,100,0.931094470694895
+shock_then_switch,bayesian 0.025 odds,100,0.9091812144326393
+shock_then_switch,bayesian 0.05 odds,100,0.8808524695427067
+shock_then_switch,bayesian 0.1 odds,100,0.828770428728641
+shock_then_switch,complacent,100,0.6359111706900944
+shock_then_switch,discerning,100,1.0
+shock_then_switch,hedge_rule,100,0.8749541963484483
+shock_then_switch,scout_rule,100,0.8424218787506139
+shock_then_switch,uniform,100,0.0
+slow_drift,bayesian 0.005 odds,100,0.9441210054126196
+slow_drift,bayesian 0.01 odds,100,0.9352423902756032
+slow_drift,bayesian 0.025 odds,100,0.9048343139435651
+slow_drift,bayesian 0.05 odds,100,0.865675385302041
+slow_drift,bayesian 0.1 odds,100,0.8036385364555848
+slow_drift,complacent,100,0.6992761366428384
+slow_drift,discerning,100,1.0
+slow_drift,hedge_rule,100,0.8805636800579206
+slow_drift,scout_rule,100,0.8544611586756747
+slow_drift,uniform,100,0.0
+switch_then_shock,bayesian 0.005 odds,100,0.9415002586929263
+switch_then_shock,bayesian 0.01 odds,100,0.9346710082880092
+switch_then_shock,bayesian 0.025 odds,100,0.9096114044907053
+switch_then_shock,bayesian 0.05 odds,100,0.8784918657740092
+switch_then_shock,bayesian 0.1 odds,100,0.8269195701168325
+switch_then_shock,complacent,100,0.42199707053483326
+switch_then_shock,discerning,100,1.0
+switch_then_shock,hedge_rule,100,0.9037757267717007
+switch_then_shock,scout_rule,100,0.8338905339759557
+switch_then_shock,uniform,100,0.0
+up_switch,bayesian 0.005 odds,100,0.8980247219963029
+up_switch,bayesian 0.01 odds,100,0.9399848804647578
+up_switch,bayesian 0.025 odds,100,0.9466228724332215
+up_switch,bayesian 0.05 odds,100,0.9449507140827087
+up_switch,bayesian 0.1 odds,100,0.9170054228842276
+up_switch,complacent,100,0.6830712805001405
+up_switch,discerning,100,1.0
+up_switch,hedge_rule,100,0.701090228242735
+up_switch,scout_rule,100,0.8645351643860414
+up_switch,uniform,100,0.0
+up_switch_then_down_switch,bayesian 0.005 odds,100,0.8908275666550198
+up_switch_then_down_switch,bayesian 0.01 odds,100,0.9075084052484587
+up_switch_then_down_switch,bayesian 0.025 odds,100,0.9124641347728264
+up_switch_then_down_switch,bayesian 0.05 odds,100,0.9064898222895783
+up_switch_then_down_switch,bayesian 0.1 odds,100,0.8739058944580858
+up_switch_then_down_switch,complacent,100,0.8637813884616509
+up_switch_then_down_switch,discerning,100,1.0
+up_switch_then_down_switch,hedge_rule,100,0.8327834874096549
+up_switch_then_down_switch,scout_rule,100,0.7795059610925685
+up_switch_then_down_switch,uniform,100,0.0
+headline,bayesian 0.005 odds,100,0.9383243820435626
+headline,bayesian 0.01 odds,100,0.9407419311231634
+headline,bayesian 0.025 odds,100,0.9237054119722117
+headline,bayesian 0.05 odds,100,0.9001380730349882
+headline,bayesian 0.1 odds,100,0.8529977209518728
+headline,complacent,100,0.717475336504023
+headline,discerning,100,1.0
+headline,hedge_rule,100,0.8776405065831432
+headline,scout_rule,100,0.8492324523446687
+headline,uniform,100,0.0

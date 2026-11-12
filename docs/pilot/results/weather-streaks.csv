@@ -1,0 +1,5 @@
+setting,leader_below_3_share,separate_median,field_beats_2_share,field_beats_3_share,field_beats_4_share,field_beats_5_share
+0.0,0.001,22.0,0.437,0.084,0.012,0.003
+0.5,0.05,18.0,0.548,0.161,0.039,0.007
+0.8,0.103,8.0,0.57,0.221,0.084,0.025
+0.9,0.105,2.0,0.529,0.22,0.099,0.044

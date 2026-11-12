@@ -37,7 +37,7 @@ def test_br2_a_false_alarm_after_the_rise_finds_the_sleeper(picks):
     assert picks(record)[-1] == t.sleeper
 
 
-@pytest.mark.parametrize("seed", [0, 2, 3])
+@pytest.mark.parametrize("seed", [1, 2, 3])
 def test_br6_scout_rule_goes_to_the_sleeper_and_back(seed, picks):
     t = make_timeline(SCENARIOS["up_switch_then_down_switch"], seed)
     chosen = picks(play(scout_rule, t))

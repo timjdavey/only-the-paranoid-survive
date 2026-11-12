@@ -10,7 +10,7 @@ Use these words in prose and in code. Add a word here before using it on any oth
 |---|---|
 | Game engine | The simple cybernetics game at the core of the study: the rules and numbers, with no story |
 | Narrative skin | A story dressed over the game engine, so the model treats it as a real situation. It also lets us publish the engine while hiding which skin it wears |
-| Frame | The facts every prompt states whatever the skin: a budget split in whole percentages that add up to 100, ten channels, the record below, a tool to place the split, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
+| Frame | The facts every prompt states whatever the skin: a budget split in whole percentages that add up to 100, ten channels, that a channel pays the same for each point however many it gets, the record below, a tool to place the split, a notes file and a compute tool. Each skin words the frame itself. See [prompts](harness/prompts.md) |
 | Model | The system we test: classic LLMs, plus Jev, Timestral etc |
 | Agent | A model while it plays the game |
 | Run | One playthrough of the game |
@@ -81,6 +81,8 @@ Use these words in prose and in code. Add a word here before using it on any oth
 | Shock | A dip in every channel through the shared factor, which passes |
 | Impulse | The decaying dip a shock adds. Into the shared factor by default, so every channel feels it by its loading. Onto the leader's level alone with the one-channel shock knob, so its base level never moves |
 | Trough | The deepest point of a shock's impulse. The hedge sits highest there and most channels lowest |
+| Storm | A shock into the shared factor, seen as weather the whole field feels. With the shape knobs on, the leader falls about as far as the storm is deep, each channel comes back from it at its own speed, and a switch can arrive in one. Off by default. See [storm](specs/engine/timeline.md#storm) |
+| Pop | A field channel a storm lifts to just under the leader at the trough, which then fades. It is never a sleeper unless a switch in the storm keeps it up. `pop` in code |
 | Switch | A lasting change in base levels that changes which channel pays best. The leader falls, a sleeper rises past it, or both |
 | Ramp | The rounds a switch spreads its move over, in a straight line. 1 to 5, drawn per seed. `ramp` in code |
 | Drift | A switch stretched over many more rounds |

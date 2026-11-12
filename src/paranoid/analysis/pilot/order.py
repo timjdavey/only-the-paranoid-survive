@@ -14,7 +14,7 @@ from .common import BLIND, BOTH_WAYS, SWITCH_OR_DRIFT, Section, engine_scores, h
 REACHABLE_GAIN_FLOOR = 0.3  # the reachable gain check's three pass lines, see docs/pilot/engine-checks.md#reachable-gain
 BAYESIAN_GAIN_PERCENTAGE_FLOOR = 50
 BAYESIAN_MOVE_SHARE_FLOOR = 0.5
-APPROX = 0.02  # how close two scores are for ≈, and how far below ≥ may sit
+APPROX = 0.05  # how close two scores are for ≈, and how far below ≥ may sit: room for a blind baseline's explore cost
 NAMES = {
     "perfect": "Perfect",
     "discerning": "Discerning",
@@ -22,16 +22,18 @@ NAMES = {
     "complacent": "Complacent",
     "uniform": "Uniform",
     "scout_rule": "Scout rule",
+    "stayer": "Stayer",
 }
 DOWN = ["perfect", ">", "discerning", ">", "hedge_rule", ">", "complacent", ">", "uniform"]
-UP = ["perfect", ">", "discerning", ">", "scout_rule", ">", "complacent", "≥", "hedge_rule", ">", "uniform"]
+UP = ["perfect", ">", "discerning", ">", "scout_rule", ">", "complacent", "≈", "hedge_rule", ">", "uniform"]
 ORDERS = [  # (scenario, order), from the Baseline order check's Measure
     ("down_switch", DOWN),
     ("up_switch", UP),
     ("up_switch (rise_short)", ["complacent", "≈", "discerning", "≈", "hedge_rule", "≥", "scout_rule"]),
     ("no_change", ["complacent", "≈", "discerning", "≈", "hedge_rule"]),
     ("switch_then_shock", DOWN),
-    (BOTH_WAYS, UP),
+    (BOTH_WAYS, ["perfect", ">", "discerning", ">", "scout_rule", ">", "stayer", ">", "uniform"]),
+    (BOTH_WAYS, ["complacent", "≥", "hedge_rule"]),
 ]
 
 

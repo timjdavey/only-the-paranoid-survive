@@ -49,6 +49,7 @@ How the code is arranged. The [design](../README.md#design) pages say why the ga
       specs/       what each layer must do, written before its code. See docs/specs/README.md
         engine/  baselines/  skins/  forecasters/  harness/  analysis/
       glossary.md
+    shapes/        pictures of every shape and a test of each against its purpose, outside the package. See shapes/README.md
     src/paranoid/
       engine/  baselines/  skins/  forecasters/  harness/  analysis/
     tests/         one folder per layer

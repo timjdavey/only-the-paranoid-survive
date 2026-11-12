@@ -52,6 +52,7 @@ The short run before the full study that settles the knobs.
 | [Engine checks](pilot/engine-checks.md) | The first half of the pilot: checks that need timelines and baselines but no model |
 | [Provider checks](pilot/provider-checks.md) | The second half of the pilot: checks that need a model |
 | [Decisions](pilot/decisions.md) | One row per check and per knob, filled once and then frozen |
+| [Findings](pilot/findings.md) | What the pilot has taught us so far, why it matters and what changed |
 | [Results](pilot/results.md) | The pilot's tables and plots. Written by `paranoid analyse`, never by hand |
 
 ## Results

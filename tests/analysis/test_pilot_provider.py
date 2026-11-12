@@ -106,7 +106,7 @@ def test_ai6_channel_order(tmp_path):
 
 def test_ai9_seeds_and_repeats(logs, epochs_log, tmp_path, helpers):
     folder, out = tmp_path / "logs", tmp_path / "out"
-    spread = {0: 0.5 - 0.2 * 2**0.5, 1: 0.5 + 0.2 * 2**0.5, 2: 0.5, 3: 0.5, 4: 0.5}  # an SD of 0.2 on Down switch
+    spread = {0: 0.5 - 0.4 * 2**0.5, 1: 0.5 + 0.4 * 2**0.5, 2: 0.5, 3: 0.5, 4: 0.5}  # an SD of 0.4 on Down switch
 
     def widen(log):
         for sample in log.samples:
@@ -117,7 +117,7 @@ def test_ai9_seeds_and_repeats(logs, epochs_log, tmp_path, helpers):
     helpers.edit(epochs_log, folder / "repeats" / "a.eval")
     write_pilot(folder, out)
     needed = table(out, "seeds-and-repeats", "seeds-needed").set_index("target")
-    assert needed.loc[0.05, "scenario"] == "down_switch" and needed.loc[0.05, "seeds_needed"] == 24
+    assert needed.loc[0.05, "scenario"] == "down_switch" and needed.loc[0.05, "seeds_needed"] == 96
     assert len(table(out, "seeds-and-repeats", "sampling-share"))
 
 

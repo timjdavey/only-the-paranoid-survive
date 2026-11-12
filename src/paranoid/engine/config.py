@@ -10,6 +10,7 @@ from .specs import (
     EventSpec,
     IntRange,
     Range,
+    ShockSpec,
     SwitchSpec,
     as_int,
     cast_fields,
@@ -44,7 +45,7 @@ class ScenarioConfig:
     read_noise_k: float = 8.0
     # events
     events: tuple[EventSpec, ...] = ()
-    onset: IntRange = (12, 20)
+    onset: IntRange = (8, 12)
     pin_in_level_points: bool = False
     hedge_margin_points: float = 4.0
     # hard-variant knobs
@@ -108,6 +109,8 @@ class ScenarioConfig:
     def _check_events(self) -> None:
         last_switch: SwitchSpec | None = None
         for index, spec in enumerate(self.events):
+            if shape_knob_on(spec) and (self.one_channel_shock or self.hedge_may_overtake):
+                raise ValueError("a shape knob cannot be on with one_channel_shock or hedge_may_overtake")
             if isinstance(spec, SwitchSpec):
                 if spec.kind == "undo":
                     require(index > 0, "an undo cannot be the first event")
@@ -116,6 +119,13 @@ class ScenarioConfig:
                         "an undo needs a 'rise' or 'fall_and_rise' switch before it",
                     )
                 last_switch = spec
+
+
+def shape_knob_on(spec: EventSpec) -> bool:
+    """A storm on a switch, or any shape knob on a shock."""
+    if isinstance(spec, SwitchSpec):
+        return spec.storm is not None
+    return isinstance(spec, ShockSpec) and spec.knobs_on
 
 
 def canonical_json(config: ScenarioConfig) -> str:

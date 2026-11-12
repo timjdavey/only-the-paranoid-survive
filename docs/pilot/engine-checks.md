@@ -15,7 +15,7 @@ The three weather dials are set per release, see [difficulty](../design/mechanic
 
 ### Streaks
 
-Picks persistence, and the Scout rule's streak `n`.
+Picks persistence, and says how rare each of the Scout rule's streaks `n` is.
 
 - **Question.** How long a bad stretch lasts by chance, against how fast a real switch shows.
 - **Run.** A thousand No change and Down switch timelines at persistence 0, 0.5, 0.8 and 0.9.
@@ -23,7 +23,7 @@ Picks persistence, and the Scout rule's streak `n`.
   - On the No change timelines, the longest run of rounds where the leader's level sits below the runner-up's.
   - On the Down switch timelines, the rounds from onset until the leader sits below the runner-up and stays there.
   - On the No change timelines, the longest run of rounds where some field channel's one-point reading beats the leader's, which is what the [Scout rule baseline](../design/baselines.md#fixed-baselines) acts on.
-- **Decide.** A value where a three round streak of the leader below the runner-up is ordinary on No change, say in one timeline in five, but the switch still separates within a handful of rounds. Then `n`: a streak of a field reading above the leader's that is rare on No change, say in one timeline in twenty.
+- **Decide.** A value where a three round streak of the leader below the runner-up is ordinary on No change, say in one timeline in five, but the switch still separates within a handful of rounds. Then how rare each `n` is: the share of No change timelines with a streak of a field reading above the leader's, for `n` from 2 to 5. [Up and down](#up-and-down) picks `n`, from this beside what each `n` scores.
 
 ### The tell
 
@@ -36,8 +36,10 @@ Picks the shared-factor scale. The tell is the hedge rising while the field fall
   - **False tell rate.** On Down switch, the same share: the fall was real, the hedge reading rose anyway, and the tell stopped the rule every time, so it holds when it should move.
   - **Never fired.** The share of seeds where the fall test never fires after onset, on each. A shock too shallow to see is no test of the tell, and a switch the rule never sees is a miss of another kind.
   - **Field moving together.** On No change, how often every channel but the hedge moves more than one weather SD the same way in one round. Too often and calm weeks look like shocks.
-- **Decide.** A scale where the tell is right on about nine shocks in ten and false on under one switch in ten. If no scale does both, the [loading range](../design/mechanics.md#each-round) is wrong, not the weather, and the range is redrawn and this check run again. That is where the loading range is decided.
-- **Then the hedge rule's thresholds.** At the chosen scale, the hedge rule again over a small grid of `window`, `fall_points` and `tell_points`, see [rules](../specs/baselines/rules.md#defaults). Keep the set with the highest hit rate whose false tell rate stays under one in ten.
+  - **Score.** The hedge rule's scenario score on One shock, Down switch and No change, and their plain mean. It says what a missed tell costs. A miss sends the rule to scout for a round or two, and it nearly always comes back to the leader.
+- **Decide.** A scale where calm weeks do not look like shocks and a switch is not read as one: the field moves together on under one No change seed in a hundred, and the tell is false on under one switch in ten. Of the scales that pass, the one nearest the default. If none passes, the [loading range](../design/mechanics.md#each-round) is wrong, not the weather, and the range is redrawn and this check run again. That is where the loading range is decided.
+- **The hit rate is reported, not a pass line.** It does not move with the scale, as a shock's depth is drawn in own-weather SDs and not from the shared factor. It is also strict: a seed counts only when the tell stops every alarm from onset to the last round, the weather alarms after the shock has faded included. What the misses cost is the score.
+- **Then the hedge rule's thresholds.** At the chosen scale, the hedge rule again over a small grid of `window`, `fall_points` and `tell_points`, see [rules](../specs/baselines/rules.md#defaults). Keep the set with the highest score whose false tell rate stays under one in ten. A set within 0.005 of the best is a tie, and a tie keeps the default. The hit rate does not pick the set, as a higher `fall_points` lifts it by not seeing shallow shocks, and small switches with them. An earlier `onset` leaves the fall test fewer calm rounds, so the set is read again once [game length](#game-length-and-switch-round) has moved it.
 
 ### Luck on offer
 
@@ -101,21 +103,21 @@ A small bet gives a rough reading and a large bet a clean one, see [what the age
 A switch comes in three kinds, see [events](../design/mechanics.md#events): the leader falls, the leader falls and a sleeper rises, or only a sleeper rises. The first two are drawn per seed in the Down switch scenario, the third is the Up switch scenario.
 
 - **Question.** How a rise compares with a fall for the baselines, how often the Down switch scenario draws a sleeper, and whether an explore bet can read a rise.
-- **Run.** A thousand Down switch and Up switch timelines, plus No change timelines, at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines. The Scout rule plays at `s` of 1, 2 and 5. The rise size is swept at three ranges, as it sets the Up switch scenario's reachable gain.
+- **Run.** A thousand Down switch and Up switch timelines, plus No change timelines, at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines. The Scout rule plays at `s` of 1, 2 and 5, and at `n` of 3, 4 and 5. The rise size is swept at three ranges, as it sets the Up switch scenario's reachable gain.
 - **Measure.**
   - **Sleeper share.** How many Down switch timelines draw a sleeper.
   - **Reachable gain.** The Discerning baseline's output minus the Complacent baseline's in level points, and as a share of the gap to the Uniform baseline, on fall-only, fall-with-riser and rise-only timelines at each rise size.
-  - **Reading a rise.** The Scout rule's scenario score on Up switch at each `s`, and the round it moves. Its false moves and its cost in output on No change.
+  - **Reading a rise.** The Scout rule's scenario score on Up switch at each `s` and each `n`, and the round it moves. Its false moves and its cost in output on No change.
   - **Short seeds.** The Scout rule's moves on the Up switch seeds where the sleeper stops short, which is the price of moving on a near tie.
-- **Decide.** The sleeper share and the rise size in level points, so the three kinds offer a comparable reachable gain, and the Up switch scenario clears the [reachable gain](#reachable-gain) floor. And whether a one-point explore bet reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited. And the Scout rule's `s`, from its Up switch score and its No change cost at each. And the short share of Up switch seeds, and the sleeper's end level on them, as a band between the runner-up and the leader, so that an explore bet sees a real move and the Scout rule does not move on a near tie.
+- **Decide.** The sleeper share and the rise size in level points, so the three kinds offer a comparable reachable gain, and the Up switch scenario clears the [reachable gain](#reachable-gain) floor. And whether a one-point explore bet reads the rise at the read noise [reading roughness](#reading-roughness) chose. If the Scout rule at `s` of 1 cannot find the sleeper by the end of the run, read noise is too high for the Up switch scenario to be fair, and reading roughness is revisited. And the Scout rule's `s`, from its Up switch score and its No change cost at each. And its `n`: the one with the best mean score over Down switch, Up switch and No change. A longer streak false alarms less on No change, which [Streaks](#streaks) counts, and moves later everywhere else. And the short share of Up switch seeds, and the sleeper's end level on them, as a band between the runner-up and the leader, so that an explore bet sees a real move and the Scout rule does not move on a near tie.
 
 ## Bayesian frontier
 
 Picks the Bayesian baseline's prior and rule, and says how much of the gap to the Discerning baseline no reader can close. The design is in [the Bayesian frontier](../design/baselines.md#the-bayesian-frontier) and the player in the [bayesian spec](../specs/baselines/bayesian.md).
 
 - **Question.** Which hazard and forecast rule make the best reader of the engine's family, and how far below the Discerning baseline the best one sits.
-- **Run.** Three players of the family's thirty: `Bayesian(hazard, rule)` at the two ends of `HAZARDS` and at the default, all three at the `odds` rule. Ten public seeds of every scenario at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines on the same seeds.
-- **A coarse read, on purpose.** Thirty players on a thousand seeds is 240,000 runs and hours of one core, and every knob the pilot moves would run them again. Three players on ten seeds take seconds, so the frontier is read after every knob move. Five seeds pick and five report, so trust a pick only when the players sit well apart. Which three and how many seeds are two constants in the cell, see the [pilot spec](../specs/harness/pilot.md#bayesian-frontier).
+- **Run.** Five players of the family's thirty: `Bayesian(hazard, rule)` at every hazard in `HAZARDS`, all five at the `odds` rule. A hundred public seeds of every scenario at the proof of concept setting, with the Uniform, Discerning, Complacent, hedge rule and Scout rule baselines on the same seeds.
+- **A coarse read, on purpose.** Thirty players on a thousand seeds is 240,000 runs and hours of one core, and every knob the pilot moves would run them again. Five players on a hundred seeds take about a minute on eight cores, so the frontier is read after every knob move. Fifty seeds pick and fifty report, so trust a pick only when the players sit well apart. Three players on ten seeds, the first size, could not tell the low hazards apart. Which players and how many seeds are two constants in the cell, see the [pilot spec](../specs/harness/pilot.md#bayesian-frontier).
 - **Measure.**
   - Pooled scenario score per player and scenario, and each player's headline.
   - The two planes: No change against Down switch, and No change against Up switch, one point per player, the hedge rule, Scout rule and Complacent baselines drawn in them, and the upper envelope.
@@ -129,16 +131,17 @@ Picks the Bayesian baseline's prior and rule, and says how much of the gap to th
 - **Run.** Every [fixed baseline](../design/baselines.md#fixed-baselines) in every scenario.
 - **Measure.** Their scores, against these orders:
   - **Down switch scenario:** Perfect > Discerning > hedge rule > Complacent > Uniform.
-  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≥ hedge rule > Uniform. The order is of pooled scores. The leader never falls here, so the hedge rule sits with the Complacent baseline minus its explore bet, less any false alarm on weather. On a seed where a false alarm finds the sleeper it lands above, see [rules](../specs/baselines/rules.md#hedge-rule). On the seeds where the sleeper stops short, Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, and report how far the Scout rule falls below.
+  - **Up switch scenario:** Perfect > Discerning > Scout rule > Complacent ≈ hedge rule > Uniform. The order is of pooled scores. The leader never falls here, so the hedge rule sits with the Complacent baseline minus its explore bet, less any false alarm on weather. On a seed where a false alarm finds the sleeper it lands above, see [rules](../specs/baselines/rules.md#hedge-rule), so its pooled score can sit on either side. On the seeds where the sleeper stops short, Complacent ≈ Discerning ≈ hedge rule ≥ Scout rule, and report how far the Scout rule falls below.
   - **No change scenario:** Complacent ≈ Discerning ≈ hedge rule, and report any player that lands above the Discerning baseline, which means it chased weather and won.
   - **Switch then shock scenario:** as Down switch. The hedge rises in the shock, so the hedge rule holds the new best.
-  - **Up switch then down switch scenario:** as Up switch. The Scout rule keeps scouting after a move, so it sees the sleeper fall and the leader hold.
+  - **Up switch then down switch scenario:** Perfect > Discerning > Scout rule > Stayer > Uniform, and Complacent ≥ hedge rule. The Scout rule keeps scouting after a move, so it sees the sleeper fall and goes back to the leader, which the [Stayer](../glossary.md#scoring) never does. The Complacent baseline is no yardstick here, see [reachable gain](#reachable-gain): never moving is the right call once the change undoes itself, so it can sit above the Scout rule, which pays for every round it is late in both directions.
+  - **≈ and ≥ allow 0.05 of a scenario score.** A blind baseline pays for its explore bet where nothing changes. One point on the hedge costs about 0.02 on its own, and false alarms on weather add to it, so no blind baseline sits closer than that to one that never explores. The [explore cost](#reachable-gain) says how far below each one lands.
   - **The Bayesian baseline at its defaults:** report where it lands in every order above. On Down switch it should sit between the Discerning baseline and the hedge rule, as it reads the same evidence with a calibrated prior, and on No change at or near the Complacent baseline.
 - **Decide.** If the order breaks, the [noise](#noise-grid) is likely too high or a baseline is wrong. Fix it before any model runs. Where Timestral lands is a [provider check](provider-checks.md#timestral-checks).
 
 ## Reachable gain
 
-Says whether moving is worth enough for a score to tell a player that reads a change from one that never moves. At the first defaults it is not: never moving scored 0.84 on the headline and the Bayesian baseline 0.93, see [TODO](../../TODO.md). The words are in the [glossary](../glossary.md#scoring).
+Says whether moving is worth enough for a score to tell a player that reads a change from one that never moves. At the first defaults it was not: never moving scored 0.84 on the headline and the Bayesian baseline 0.93. The pilot moved the onset, the rise and the drift's size to clear it, see [decisions](decisions.md). The words are in the [glossary](../glossary.md#scoring).
 
 - **Question.** In every scenario with a switch or drift, is moving worth enough points, and can a [blind baseline](../glossary.md#the-study) earn most of them.
 - **Run.** Nothing of its own. It reads the [baseline order](#baseline-order) run, which plays every fixed baseline in every scenario, and the Stayer in Up switch then down switch.

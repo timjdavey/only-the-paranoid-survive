@@ -19,7 +19,7 @@ def horizon(config: ScenarioConfig) -> int:
     longest = 1
     for spec in config.events:
         if isinstance(spec, SwitchSpec):
-            longest = max(longest, spec.ramp[1])
+            longest = max(longest, spec.ramp[1], 1 if spec.storm is None else spec.storm.half_life[1] + 1)
         elif isinstance(spec, DriftSpec):
             longest = max(longest, spec.length[1])
         elif isinstance(spec, ShockSpec):

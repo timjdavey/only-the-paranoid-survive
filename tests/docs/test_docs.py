@@ -15,6 +15,7 @@ DOCS = ROOT / "docs"
 PAGES = sorted([*DOCS.rglob("*.md"), *ROOT.glob("*.md")])
 CODE = sorted([*(ROOT / "src").rglob("*.py"), *(ROOT / "tests").rglob("*.py"), ROOT / "pyproject.toml"])
 MAX_LINES = 300
+WRITTEN = {DOCS / "pilot" / "results.md", *(DOCS / "results").glob("*.md")}  # pages `paranoid analyse` writes
 SPECS = [p.parent.name for p in (DOCS / "specs").glob("*/tests.md")]
 BUILT_LAYERS = sorted(layer for layer in SPECS if (ROOT / "tests" / layer).is_dir())
 
@@ -89,7 +90,9 @@ def test_every_spec_test_id_has_a_test_and_the_reverse(layer):
 
 
 def test_no_file_is_over_the_line_limit():
-    over = {name(p): n for p in [*PAGES, *CODE] if (n := len(p.read_text().splitlines())) >= MAX_LINES}
+    """Every page and file but the ones `paranoid analyse` writes, see CONTRIBUTING.md."""
+    files = [p for p in [*PAGES, *CODE] if p not in WRITTEN]
+    over = {name(p): n for p in files if (n := len(p.read_text().splitlines())) >= MAX_LINES}
     assert not over
 
 

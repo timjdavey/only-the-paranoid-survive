@@ -9,7 +9,17 @@ from typing import ClassVar
 import numpy as np
 import pytest
 
-from paranoid.engine import SCENARIOS, Bets, Timeline, View, make_timeline, split_budget
+from paranoid.engine import (
+    SCENARIOS,
+    Bets,
+    ScenarioConfig,
+    ShockSpec,
+    SwitchSpec,
+    Timeline,
+    View,
+    make_timeline,
+    split_budget,
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -58,5 +68,30 @@ def hand_built():
             array.setflags(write=False)
             frozen[name] = array
         return dataclasses.replace(timeline, **frozen)
+
+    return build
+
+
+# Every shape knob on, near the values shapes/src/worlds.py tries, see docs/specs/engine/timeline.md#storm.
+KNOBS = dict(
+    recovery=(0.5, 2.0), leader_last_share=0.5, pop_share=0.5, leader_stays_ahead=True, leader_loading=(0.8, 1.2)
+)
+
+
+@pytest.fixture(scope="session")
+def stormy():
+    """A config with every shape knob on: on each shock, and a storm on each switch that falls."""
+
+    def build(config: ScenarioConfig, **knobs) -> ScenarioConfig:
+        on = {**KNOBS, **knobs}
+
+        def turn_on(spec):
+            if isinstance(spec, ShockSpec):
+                return dataclasses.replace(spec, **on)
+            if isinstance(spec, SwitchSpec) and spec.kind in ("fall", "fall_and_rise", "draw"):
+                return dataclasses.replace(spec, storm=ShockSpec(**on))
+            return spec
+
+        return dataclasses.replace(config, events=tuple(turn_on(spec) for spec in config.events))
 
     return build

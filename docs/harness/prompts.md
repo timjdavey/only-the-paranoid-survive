@@ -24,7 +24,7 @@ Four parts in this order, each filled by a skin field, see [skins](skins.md#what
 |---|---|---|
 | Intro | `intro` | Who the agent is and what it runs |
 | Rules | `rules` | The ten channels by name, and a split in whole percentages that add up to 100 |
-| How points earn | `how_points_earn` | What each funded channel paid is reported. No points report nothing. A small spend swings more than a large one |
+| How points earn | `how_points_earn` | What each funded channel paid is reported. No points report nothing. A small spend swings more than a large one. A channel pays the same for each point however many it gets |
 | Ask | `ask` | The record is below. Place this round's points with the tool |
 
 The example skin's wording, from `src/paranoid/skins/example.toml`, see the [skins spec](../specs/skins/skin.md#the-example-skin). Its story is a fruit importer that sends each week's fruit to ten wholesale markets. Each part is one paragraph, wrapped here to fit the page:
@@ -46,20 +46,27 @@ The example skin's wording, from `src/paranoid/skins/example.toml`, see the [ski
     fetched there that week, and it is what you are paid on every case you
     sent there. A market you send nothing to reports nothing. Every lot finds
     its own buyer, so a few percent can do well or badly by luck, and many
-    percent even out.
+    percent even out. A market pays the same for a case however many you send
+    it.
 
     Your record so far is below. Send this week's fruit with the send_fruit
     tool.
 
 ## What every skin must say
 
-The lint fails a skin whose rendered prompt leaves any of these out, see [lint](skins.md#lint).
+The lint fails a skin whose rendered prompt leaves any of these five out, see [lint](skins.md#lint).
 
 - That the split is in percentages.
 - The number 100, as what the percentages add up to.
 - All ten channel names.
 - That the percentages are whole numbers.
 - The skin's tool name.
+
+A sixth is checked by a reader, as no list of phrases finds it in skins that each word it their own way.
+
+- **That a channel pays the same for each point however many points it gets.** The example skin says "A market pays the same for a case however many you send it."
+- **Why.** Without it a model fills the gap from real markets, where selling more lowers the price, and spreads its points. Haiku 5.5 scored 0.30 on One shock without the sentence and 0.80 with it, see [findings](../pilot/findings.md#one-sentence-fixes-it-and-only-its-price-half-matters).
+- **A fact about the figure, never advice.** It says what a point is paid. It never says where to put the points or how long to hold, see [writing a skin](writing-a-skin.md#say-the-straight-line-out-loud).
 
 ## User message
 

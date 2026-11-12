@@ -2,8 +2,12 @@
 
 import numpy as np
 
+from .shock import storm_numbers
 from .specs import SwitchSpec
+from .storm import apply_storm
 from .world import World
+
+STORM_KEYS = ("profile", "depth_drawn", "half_life", "recovery", "leader_last", "pop", "pop_channel", "leader_loading")
 
 
 def ramp_steps(ramp: int, rows: int) -> np.ndarray:
@@ -41,8 +45,38 @@ def undo(world: World, draws: dict, row: int, earlier) -> tuple:
     return sleeper, None, {"fall": start - end, "target": end}
 
 
+def storm_switch(world: World, spec: SwitchSpec, draws: dict, row: int) -> tuple:
+    """A fall that arrives in a storm. The leader's base falls, and any sleeper's rises, as the storm lifts off each."""
+    leader = world.leader_at(row)
+    storm_draws = {key: draws[f"storm_{key}"] for key in STORM_KEYS}
+    storm = apply_storm(world, spec.storm, storm_draws, row, leader)
+    derived = {f"storm_{key}": value for key, value in storm_numbers(storm).items()}
+    second = world.highest_at(row, {leader})
+    ends = world.base[row].copy()
+    fall = float(ends[leader] - ends[second] + draws["size"])
+    world.base[row:, leader] -= fall * storm.lift(leader)
+    ends[leader] -= fall
+    if ends[leader] <= 0:
+        raise ValueError("the event would leave the leader's base at or below 0, so the config is wrong")
+    sleeper = target = None
+    if draws["kind"] == "fall_and_rise":
+        sleeper = draws["storm_pop_channel"] if draws["storm_pop"] else draws["sleeper"]
+        target = float(np.delete(ends, sleeper).max() + draws["rise"])
+        world.base[row:, sleeper] += (target - ends[sleeper]) * storm.lift(sleeper)
+    return leader, sleeper, {"fall": fall, "target": target, **derived}
+
+
 def apply_switch(world: World, spec: SwitchSpec, draws: dict, onset: int, earlier) -> tuple:
-    row, kind, ramp = onset - 1, draws["kind"], draws["ramp"]
+    row = onset - 1
+    if spec.storm is not None:
+        return storm_switch(world, spec, draws, row)
+    channel, sleeper, derived = quiet_switch(world, draws, row, earlier)
+    return channel, sleeper, {**derived, "storm_depth": None, "storm_pop_rise": None}
+
+
+def quiet_switch(world: World, draws: dict, row: int, earlier) -> tuple:
+    """A switch with no storm: a straight ramp, or an undo."""
+    kind, ramp = draws["kind"], draws["ramp"]
     if kind == "undo":
         return undo(world, draws, row, earlier)
     end_row = row + ramp - 1

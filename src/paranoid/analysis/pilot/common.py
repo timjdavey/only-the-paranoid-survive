@@ -33,6 +33,9 @@ CELL_COLUMNS: dict[str, tuple[str, ...]] = {
         "fall_rounds",
         "tell_rounds",
         "field_together_rounds",
+        "output",
+        "uniform",
+        "discerning",
     ),
     "luck": ("setting", "seed", "perfect", "discerning", "uniform"),
     "timeline-sanity": ("setting", "scenario", "seed", "below_zero_rounds", "below_zero_readings", "discerning", "complacent"),
@@ -58,7 +61,7 @@ CELL_COLUMNS: dict[str, tuple[str, ...]] = {
         "move_round",
     ),
     "reading-roughness": ("setting", "scenario", "baseline", "parameter", "scout_rounds", "seed", "output", "move_round"),
-    "up-and-down": ("setting", "scenario", "kind", "baseline", "parameter", "seed", "onset", "output", "move_round"),
+    "up-and-down": ("setting", "scenario", "kind", "baseline", "parameter", "streak", "seed", "onset", "output", "move_round"),
     "bayesian-frontier": ("scenario", "baseline", "hazard", "rule", "seed", "output"),
     "baseline-order": ("scenario", "kind", "baseline", "seed", "output", "move_round"),
     "seeds-tokens": (

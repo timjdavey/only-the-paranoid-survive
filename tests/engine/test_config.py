@@ -32,7 +32,7 @@ SCENARIO_ORDER = [
 ]
 
 # Pinned. Changing it is a reviewed change, see EC3.
-NO_CHANGE_HASH = "63fe6cf8d3d0"
+NO_CHANGE_HASH = "6d5d2ec96713"
 
 
 def config(**fields) -> ScenarioConfig:
@@ -89,6 +89,22 @@ BAD_CONFIGS = {
     "undo first": lambda: dict(events=(SwitchSpec(kind="undo"),)),
     "undo after a fall": lambda: dict(events=(SwitchSpec(kind="fall"), SwitchSpec(kind="undo"))),
     "undo after a draw": lambda: dict(events=(SwitchSpec(kind="draw"), SwitchSpec(kind="undo"))),
+    "recovery low of 0": lambda: dict(events=(ShockSpec(recovery=(0.0, 2.0)),)),
+    "leader_last_share above 1": lambda: dict(events=(ShockSpec(leader_last_share=1.5),)),
+    "pop_share below 0": lambda: dict(events=(ShockSpec(pop_share=-0.1),)),
+    "leader_loading low of 0": lambda: dict(events=(ShockSpec(leader_loading=(0.0, 1.0)),)),
+    "storm on a rise": lambda: dict(events=(SwitchSpec(kind="rise", storm=ShockSpec()),)),
+    "storm on an undo": lambda: dict(
+        events=(SwitchSpec(kind="rise"), SwitchSpec(kind="undo", storm=ShockSpec()))
+    ),
+    "one_channel_shock with a shape knob": lambda: dict(one_channel_shock=True, events=(ShockSpec(pop_share=0.5),)),
+    "hedge_may_overtake with a shape knob": lambda: dict(
+        hedge_may_overtake=True, events=(ShockSpec(leader_stays_ahead=True),)
+    ),
+    "one_channel_shock with a storm": lambda: dict(one_channel_shock=True, events=(SwitchSpec(storm=ShockSpec()),)),
+    "one_channel_shock with a leader loading": lambda: dict(
+        one_channel_shock=True, events=(ShockSpec(leader_loading=(0.8, 1.2)),)
+    ),
 }
 
 
@@ -152,7 +168,13 @@ def test_ec4_every_event_field_changes_the_hash():
         base = config(events=(spec,))
         for field in dataclasses.fields(spec):
             value = getattr(spec, field.name)
-            if isinstance(value, tuple):
+            if field.name == "storm":
+                continue  # a storm needs a kind that falls, see the test below
+            if isinstance(value, bool):
+                other = not value
+            elif field.name == "leader_loading":
+                other = (0.8, 1.2)
+            elif isinstance(value, tuple):
                 other = (value[0], value[1] + (1 if isinstance(value[1], int) else 0.1))
             elif field.name == "kind":
                 other = "draw"
@@ -162,6 +184,13 @@ def test_ec4_every_event_field_changes_the_hash():
                 other = value / 2 if value else 0.5
             changed = config(events=(dataclasses.replace(spec, **{field.name: other}),))
             assert engine_hash(changed) != engine_hash(base), field.name
+
+
+def test_ec4_a_storm_changes_the_hash():
+    quiet, storm = SwitchSpec(kind="fall"), SwitchSpec(kind="fall", storm=ShockSpec())
+    assert engine_hash(config(events=(quiet,))) != engine_hash(config(events=(storm,)))
+    stormier = SwitchSpec(kind="fall", storm=ShockSpec(pop_share=0.5))
+    assert engine_hash(config(events=(storm,))) != engine_hash(config(events=(stormier,)))
 
 
 def test_ec5_points_defaults_agree_with_sigmas():
@@ -231,6 +260,10 @@ BAD_TYPES = {
     "a range of three": dict(leader_base=(90.0, 95.0, 100.0)),
     "not an event spec": lambda: dict(events=("shock",)),
     "float in an event int range": lambda: dict(events=(ShockSpec(gap=(8.5, 12)),)),
+    "bool in recovery": lambda: dict(events=(ShockSpec(recovery=(True, 2.0)),)),
+    "int for leader_stays_ahead": lambda: dict(events=(ShockSpec(leader_stays_ahead=1),)),
+    "a leader_loading that is not a range": lambda: dict(events=(ShockSpec(leader_loading=1.0),)),
+    "a storm that is not a ShockSpec": lambda: dict(events=(SwitchSpec(storm=SwitchSpec()),)),
 }
 
 

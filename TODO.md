@@ -1,39 +1,49 @@
 Keep a running list of TODOs in here.
 
 ## Pilot
-The [generator](docs/design/mechanics.md#generator) leaves these to the pilot:
-- Run length, how many events a run holds, and the minimum gap between them.
-- Persistence, own-weather scale and shared-factor scale, per release.
-- The loading range and the base ladder ranges.
-- Whether any reading falls below 0 on the default ladder, from [timeline sanity](docs/pilot/engine-checks.md#timeline-sanity). A bet is paid its reading, so that would be a real loss, and it moves the ladder up.
-- The Bayesian baseline's `hazard` and `rule`, from the [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
+The engine checks are run, see [results](docs/pilot/results.md). Their rows in [decisions](docs/pilot/decisions.md) are accepted as they stand, with the shape knobs off, agreed on 2026-11-12. The [provider checks](docs/pilot/provider-checks.md) are next.
 
-First numbers from the baselines layer at its defaults, on seeds 0 to 49, for the checks that set them:
-- **[The tell](docs/pilot/engine-checks.md#the-tell).** The hedge rule false alarms a lot. Weather alone made it scout on 14 of 50 No change seeds. On One shock it never scouted on only 16 of 50, though it ended on the leader on 43. The fall test fired in 87 hold rounds there and the tell stopped 52. Look at `fall_points`, `window` and `tell_points`.
-- **[Up and down](docs/pilot/engine-checks.md#up-and-down).** The hedge rule ended off the leader on 6 of 50 Up switch seeds, 5 of them on the sleeper. The Scout rule went to the sleeper and back on 41 of 50 Up switch then down switch seeds.
-- **[Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).** At the defaults it beat the Complacent baseline on 46 of 50 Down switch seeds and ended on the leader on 49 of 50 One shock seeds. A near zero hazard top pick played No change as the Complacent baseline on 47 of 50.
-- **[Reachable gain](docs/pilot/engine-checks.md#reachable-gain).** On 200 seeds per scenario at the defaults, three of six scenarios fail. Against the Stayer in Up switch then down switch, against the Complacent baseline elsewhere:
+What each step has taught us is in [findings](docs/pilot/findings.md). This list is what to do next.
 
-  | Scenario | Reachable gain | Bayesian gain | Bayesian gain percentage | Passes |
-  |---|---|---|---|---|
-  | Down switch | 0.38 | 0.29 | 76% | Yes |
-  | Up switch | 0.14 | 0.08 | 62% | No |
-  | Shock then switch | 0.20 | 0.10 | 53% | No |
-  | Slow drift | 0.12 | 0.05 | 40% | No |
-  | Switch then shock | 0.39 | 0.29 | 74% | Yes |
-  | Up switch then down switch | 0.36 | 0.29 | 80% | Yes |
+The provider checks have started, on the two Claude rows and the example skin only, see [first results](docs/pilot/findings.md#the-provider-checks-first-results):
+- **Two keys are needed to go on.** The `.env` holds one model credential, an Anthropic plan token, which may not play a held-out skin. An Anthropic API key under zero data retention opens the held-out skins, and a Google key opens the Gemini row.
+- **Finish channel order before any other LLM cell.** Haiku matched 30 of 30 on the example skin. Sonnet put a bet one place early on 1 of 30, the same probe every time, which is over the 1 in 50 line on one skin. Pooled over six skins `submit` keeps its list only if Sonnet slips on 3 of 180 or fewer. Run `paranoid pilot channel-order` with the held-out skins loaded, then decide.
+- **Then `seeds`,** 120 runs on three rows, about $10 to $15 at list prices, and `repeats` after it.
+- **Finish recognition on the held-out skins.** On the example skin neither Claude row finished the canary.
+- **Price a Jev call before the `jev` cell.** It makes 1600 calls to Typesafe, and no page says what one costs.
 
-  Never moving scored 0.84 on the headline and the Bayesian baseline 0.93. The explore cost was 0.05 for the Bayesian baseline, 0.05 for the hedge rule and 0.11 for the Scout rule. The Bayesian baseline moved off the leader on 191 of 200 Up switch then down switch seeds, so that line holds. A rough sweep: an onset of 8 to 12 with switch sizes of 2 to 4 sigmas clears every scenario but Up switch, which needed a rise of 3 to 5 sigmas.
-- **Bayesian run time.** About 46 ms a run, down from 103, now the filter's states are cached by the record's rows, and 204 ms with `lookahead`, down from 265, see [the cache](docs/specs/baselines/bayesian.md#the-cache). Every engine cell wrote the same bytes before and after. Measured on eight cores:
-  - `baseline-order` on 1000 seeds takes about 8 minutes on one core and 97 seconds with `--workers 8`.
-  - `game-length` on 50 seeds takes 83 seconds with `--workers 8`, so about 27 minutes on 1000. Pass `--seeds 200` while a knob is still moving.
-  - `bayesian-frontier` takes 15 seconds, as it now plays three players on ten seeds, see [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier).
+The first model numbers, scratch probes of Haiku 5.5 and Sonnet 5.5, see [the first model](docs/pilot/findings.md#the-first-model-haiku-55) and [a stronger model](docs/pilot/findings.md#a-stronger-model-sonnet-55):
+- **Merge the frame fact into the held-out skins.** Every skin now says a channel pays the same for each point however many it gets, see [what every skin must say](docs/harness/prompts.md#what-every-skin-must-say). The five held-out skins carry it in pull request 6 of the private repo, not yet merged.
+- **Check each held-out wording lands.** Only the example's sentence has been played, and it lifted Haiku's top bet on No change from 29 to 95. In the provider checks, read each skin's top bet beside its score on No change, and rework the sentence of any skin that sits well under the example.
+- **Hold the looking band.** Both models lose on a switch because they never look again at a channel they wrote off, so don't accept the failing band and reword it until we talk.
+- **Report Down switch by where the new best started**, in the analysis. Sonnet scores 0.74 when it started in the top seven and 0.40 when it started in the bottom three, which is 0.15 of public seeds.
+- **Add "all in on its top bet" beside the run score** in the analysis, so a model's reading and its bet size can be told apart. Sonnet loses about 0.2 to bet size even once it has found the new best.
+
+Questions the engine checks raised that no knob settles:
+- **The shape knobs stay off for this pilot.** Neither Haiku nor Sonnet gives a reason to turn them on, see [findings](docs/pilot/findings.md#the-new-worlds-gain-on-a-switch-was-the-luck-of-ten-seeds). The engine has them built, see [shape knobs](docs/design/mechanics.md#shape-knobs): a shock that falls on the leader about as far as it is deep, that each channel comes back from at its own speed, sometimes the leader last, a pop to just under the leader, a leader that stays ahead before weather, and a switch that arrives in a storm. `shapes/` scores the world with them on beside today's, and 16 of 18 bands are met, see [the test](shapes/README.md#the-test). If a later pilot takes them up:
+  - Talk through the bands, and the two that fail. An explore bet barely helps tell a shock from a switch, as the field comes back in both. And with `leader_loading` on, calm weather matches a storm's first three rounds on 0.16 of seeds, under the band's 0.2.
+  - Decide whether a storm should ever put a channel above the leader before weather. `leader_stays_ahead` says no, so weather alone takes the top spot off the leader, on 1.3 of a storm's 8 rounds. Yes would make leaving pay for a few rounds, so a player could beat the Discerning baseline there, as with [hedge may overtake](docs/design/mechanics.md#hard-variant-knobs).
+  - Talk through the readers' result: with the knobs on a shock still costs the Bayesian baseline 0.02 to 0.04, and its best hazard is 0.005 on both One shock and Down switch, see [two readers](shapes/README.md#two-readers). The new shapes beat the hedge rule, not a patient reader.
+  - Turn the knobs on in `SCENARIOS` at the values in `shapes/src/worlds.py`, and move `read_noise_k` to 12. That moves the pinned hashes in EC3 and ET39, a reviewed change.
+  - Rework the hedge rule's and the Scout rule's tell, which a storm switch defeats by design, then rerun the engine pilot and write new rows in [decisions](docs/pilot/decisions.md).
+  - Known risks: the shock cap bites on 0.41 of shocks with `leader_loading` on, against 0.14 today. A storm switch's fall lands 3 to 8 rounds after onset, so the reachable gain on Down switch falls. The pilot's `last_end` reads `ramp`, which a storm switch does not use.
+- **The tell is a weak clue.** The hedge rule's tell stops every alarm on 0.37 of One shock seeds, and no shared-factor scale or threshold set changes that much. A miss is cheap: the rule scouts for a round and nearly always comes back, so it scores 0.95 on One shock beside 0.97 on No change. A scratch sweep on 400 seeds found a hedge loading of −1.0 to −0.6 lifts the hit rate to about 0.6, but the shock cap then bites on 0.41 of shocks against 0.14 today. Decide whether the hedge should load harder once the [provider checks](docs/pilot/provider-checks.md) show whether a model reads it at all.
+- **The noise grid does not span a full curve.** The hedge rule's Down switch score falls from 0.91 at setting 2 to 0.82 at setting 8, and half way to the Complacent baseline is 0.70. The Bayesian baseline stays at 0.94 across the grid. The leader falls by the runner-up gap plus the switch size, 12 to 28 points, which shows through any weather the luck check allows: a scratch sweep found luck at 0.28 at setting 12 and 0.5 at 16, where the rules' scores turn up again. So a good reader may sit "off the noisy end" at every setting. Decide before the full study whether the grid pins a smaller runner-up gap, see [noise threshold](docs/design/scoring.md#noise-threshold).
+- **Two reachable gains sit just over the floor.** Up switch is at 0.33 and Slow drift at 0.31, against 0.3, on 1000 seeds. A different seed list could put either under it.
+- **Streaks' separation measure reads the run's length.** Rounds until the leader stays below the runner-up went from a median of 3 to 8 when onset moved earlier, as more rounds follow the switch. The Discerning baseline's rounds to pull clear, in game length, may be the better measure.
+- **The Bayesian baseline joins the scorer's marks.** Decided yes and not built, see the [scorer](docs/specs/harness/scorer.md#not-decided).
+- **The hedge rule's thresholds are in level points.** Whether they should scale with read noise is still open, see [rules](docs/specs/baselines/rules.md#not-decided). At a k of 16 its explore cost is a third higher than at 8.
+
+Run times on eight cores, with `--workers 8`:
+- `baseline-order` on 1000 seeds takes about 95 seconds, `tell` about 3 minutes and `noise-grid` about 3 minutes.
+- `game-length` takes about 5 minutes on 200 seeds and 33 minutes on 1000. Pass `--seeds 200` while a knob is still moving.
+- `bayesian-frontier` takes about 45 seconds, as it plays five players on a hundred seeds, see [Bayesian frontier](docs/pilot/engine-checks.md#bayesian-frontier). A Bayesian run takes about 46 ms, and 204 ms with `lookahead`, see [the cache](docs/specs/baselines/bayesian.md#the-cache).
 
 First numbers from the forecasters layer, on the real Timestral at its [pins](docs/specs/forecasters/timestral.md#pinned), for the [Timestral checks](docs/pilot/provider-checks.md#timestral-checks):
 - **Gap test.** Ten readings then blanks, on seed 0 of One shock. After thirty blanks the spread is wider on every channel: 2.1 to 3.0 times with the channels joint, 2.0 to 6.9 times with each alone. It does not widen round by round. Joint, the mean spread falls from 44 to 40 points over the first ten blanks, then grows to 107. Alone it grows from 43 to 198. Decide whether that is widening enough for Timestral odds.
 - **Determinism.** The same input twice is equal, on one thread or four, so the cache keys on the inputs alone.
 - **Rounding.** `rounded_out` was true on every round of every Timestral odds run, 468 of 468, so a yes or no measured nothing. `rounded_out` is now a count of channels, see [rounded out](docs/specs/forecasters/policy.md#rounded-out). Its mean a round was 6.4 for odds and 6.8 for odds alone and bet aware. Odds kept a bet on 3.6 of the ten channels a round, with 79 points on its top one.
-- **On the grid.** Seeds 0 to 3 only, at the defaults, so a smoke test and not a measure. Mean score over One shock, Down switch and Up switch: top pick 0.85, explore 1 0.84, odds 0.80, odds alone 0.80, bet aware 0.79, explore 2 0.76, explore 5 0.48, beside the hedge rule's 0.88 and the Complacent baseline's 0.84. Top pick never moved on Up switch. Explore 1, 2 and 5 ended where the Discerning baseline did on 12 of 12. Odds alone moved no scenario by more than 0.03 from odds, and bet aware none by more than 0.01 from odds alone, so on four seeds neither the shape nor the bets shows.
+- **On the grid.** Seeds 0 to 3 only, at the defaults before the engine pilot, so a smoke test and not a measure. Mean score over One shock, Down switch and Up switch: top pick 0.85, explore 1 0.84, odds 0.80, odds alone 0.80, bet aware 0.79, explore 2 0.76, explore 5 0.48, beside the hedge rule's 0.88 and the Complacent baseline's 0.84. Top pick never moved on Up switch. Explore 1, 2 and 5 ended where the Discerning baseline did on 12 of 12. Odds alone moved no scenario by more than 0.03 from odds, and bet aware none by more than 0.01 from odds alone, so on four seeds neither the shape nor the bets shows.
 - **Run time.** About 115 ms a forecast on CPU, so 5 seconds a run and half an hour a grid setting for the `timestral` cell. The thread count makes no difference.
 
 ## Code
@@ -67,8 +77,8 @@ First numbers from the forecasters layer, on the real Timestral at its [pins](do
 
 ## Needs a key
 Every other "Verify before code" item on a harness or analysis page is closed, see its "Checked" section, bar equal plot bytes across machines, see [code](#code). These call a provider, so they wait for a workspace with a `.env`. Each spec bullet says the exact call. The `.env` lives outside any workspace and is linked in, see [keys](docs/harness/running.md#keys).
-- **Each provider takes what inspect sends.** One small call per `llm` row and reasoning setting in `configs/models/`, see the [command spec](docs/specs/harness/command.md#verify-before-code). It checks every model id and every setting marked "to verify" in `full.toml` on the way.
-- **`off` is off.** No reasoning tokens on any `off` row, same page. `poc.toml` has no `off` row today, so run the check at `off` on all three of its `llm` rows. Anthropic's docs say Haiku 5.5 can turn thinking off, inspect sends `between_tools` for Sonnet 5.5, and Google's docs list no off for `gemini-3.5-flash-lite`. A row that passes moves to `off`, as the proof of concept runs minimal, see [reasoning](docs/harness/models.md#reasoning).
+- **Each provider takes what inspect sends.** Done for the two Claude rows of `poc.toml`, at `low` and at `off`. Gemini and every row of `full.toml` still wait. One small call per `llm` row and reasoning setting in `configs/models/`, see the [command spec](docs/specs/harness/command.md#verify-before-code). It checks every model id and every setting marked "to verify" in `full.toml` on the way.
+- **`off` is off.** Done for Claude. Haiku 5.5 sent no reasoning token in two 12 round runs, so its row plays at `off`. Sonnet 5.5 still thought at `off`, about 50 reasoning tokens a round, so it stays at `low`. Gemini waits on its key, and Google's docs list no off for `gemini-3.5-flash-lite`. The `off` rows of `full.toml` still wait, see the [command spec](docs/specs/harness/command.md#verify-before-code).
 - **Which OpenRouter models refuse a required tool call while thinking**, see the [solver spec](docs/specs/harness/solver.md#verify-before-code). DeepSeek and Kimi are the likely ones.
 - **Cutting the record into content blocks changes the bill and not the prompt.** Two checks left of three, on one Anthropic model, same page. Run them before the pilot, as the prompt structure freezes after it. Once both pass, set `BLOCK_CACHE_APIS = ("anthropic",)` in `src/paranoid/harness/solver.py`, which ships empty. Anthropic's docs put the cache minimum at 512 tokens on Claude 5.5 models, so a `uniform` warm up of thirty rounds clears it.
 - **One live Jev reply holds a probability for every option**, see the [providers spec](docs/specs/harness/providers.md#verify-before-code).
