@@ -54,3 +54,69 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
   - **The lint hit Sonnet on 10 of 12 round probes and Haiku on 1 of 10,** on everyday words: `shift` on 8, and `chang`, `check` and `stabl`. Every canary reply hit, as the canary line itself holds `benchmark` and `canar`.
 - **Means.** The skins hide the study, but a model still sees a bandit task, which is a fair read of any game where bets are paid by what a channel earns. The lint share measures how a model talks, not what it recognised. At today's `RECOGNITION_FLAG` of 0.25 it would put `§` on every Sonnet score.
 - **Open.** The share that flags a bar, see [decisions](decisions.md#provider-checks). The report proposes a hit be a reply that names the study or what it tests, not a banned word.
+
+## Seeds: the widest spread is Haiku on One shock
+
+- **Saw.** 80 runs, both rows on One shock and Up switch, public seeds 0 to 19, see [seeds](provider-checks.md#seeds). Every run finished bar one:
+
+  | Model | Scenario | Score | SD of run score | Lowest | Highest |
+  |---|---|---|---|---|---|
+  | Haiku 5.5 | One shock | 0.44 | 0.163 | 0.00 | 0.71 |
+  | Haiku 5.5 | Up switch | 0.40 | 0.119 | 0.24 | 0.75 |
+  | Sonnet 5.5 | One shock | 0.85 | 0.057 | 0.72 | 0.93 |
+  | Sonnet 5.5 | Up switch | 0.74 | 0.145 | 0.46 | 0.94 |
+
+- **One run gave up.** Haiku on One shock seed 14 sent ten replies with no valid call in round 6 and scored 0. Without it Haiku's One shock SD is 0.128, and Sonnet's Up switch is the widest.
+- **The seed count follows from the target error bar**, at 1.5 × (0.163 ÷ target)²:
+
+  | Target | 0.05 | 0.04 | 0.03 | 0.02 |
+  |---|---|---|---|---|
+  | Seeds | 16 | 25 | 45 | 100 |
+
+- **Means.** The check measures what it should. A weaker model spreads wider, and the run that gave up widens it more.
+- **Open.** The target, which [seeds](provider-checks.md#seeds) sets at a fraction of the smallest baseline gap worth reading. The hedge rule sits 0.05 under the Complacent baseline on One shock here, so a fifth of that is 0.01, which would take 400 seeds.
+
+## Repeats: two thirds of the spread is Haiku's own dice
+
+- **Saw.** `repeats` picked Haiku on One shock, ten seeds across its range, each played four times, see [repeats](provider-checks.md#repeats). All 40 runs finished.
+  - Within a seed the run score's SD is 0.092. Across seeds the SD of the four run means is 0.083.
+  - So the sampling share, within variance over total, is 0.66.
+  - Seed 14, which gave up in `seeds`, finished all four repeats, at 0.31 to 0.49.
+- **Means.** For Haiku a per-seed dot says more about the roll than the world. Pairing by seed buys less than hoped, so a paired gap on Haiku has a wider bar than its seed count suggests. The headline still plays each seed once, as more seeds beat repeats.
+
+## Cost: the cut cache makes a run cheap
+
+- **Saw.** `paranoid analyse cost logs/pilot/seeds`, per run, priced from `configs/prices.toml`:
+
+  | Model | Input | Cache read | Cache write | Output | Cached share | Wall time, 40 runs | Cost a run |
+  |---|---|---|---|---|---|---|---|
+  | Haiku 5.5 at `off` | 1,106 | 198,034 | 25,737 | 15,264 | 0.88 | 27 minutes | $0.013 |
+  | Sonnet 5.5 at `low` | 160 | 82,383 | 4,318 | 6,231 | 0.95 | 17 minutes | $0.082 |
+
+- **No reply was cut off by max tokens.** Sonnet used about 1,700 reasoning tokens a run.
+- **Haiku reads more than twice Sonnet's tokens,** as it runs code on 95% of rounds and every tool turn sends the prompt again.
+- **Means.** The `seeds` cell cost about $3.80 at list prices, against the $10 to $15 planned for three rows. Output is most of the bill now that the record is cached: 59% of Haiku's and 76% of Sonnet's.
+
+## The retry share flags Haiku for running code
+
+- **Saw.** Haiku's retry share was 0.95 on both scenarios, Sonnet's under 0.01. Haiku ran code on 95% of rounds, and a reply that runs code before it sends a split counts as a retry. Its replies with no call to `submit` averaged 38 a run, and bad calls 2.
+- **Means.** At today's `RETRY_FLAG` of 0.1, `‡` would go on every Haiku score, though it plays the tool cleanly. As [model findings](model-findings.md#the-provider-checks-first-results) warned, the share measures tool use as well as trouble.
+- **Open.** The share that flags a bar, see [decisions](decisions.md#provider-checks). The report proposes counting only the tries that were bad calls or plain text, not a tool turn.
+
+## Jev and Decision Models: two decision models beat Sonnet on a switch
+
+- **Saw.** The `jev` cell, six rows on No change and Down switch, public seeds 0 to 19, 1600 calls a row. All 240 runs finished. Explore points are the points off the top channel a round:
+
+  | Row | No change | Down switch | Explore points, No change | Channels rounded out a round | Rounds with one |
+  |---|---|---|---|---|---|
+  | `jev-latest` | 0.74 | 0.59 | 19.7 | 0 | 0% |
+  | `s1-pro-5` | 0.83 | 0.64 | 18.2 | 3.7 | 93% |
+  | `s1-pro-3` | 0.91 | 0.72 | 10.2 | 5.1 | 97% |
+  | `s1-fast-2` | 0.66 | 0.59 | 27.1 | 1.4 | 56% |
+  | `reax-1-20261021` | 0.87 | 0.79 | 13.6 | 1.4 | 80% |
+  | `reax-1.3` | 0.94 | 0.83 | 8.3 | 6.0 | 98% |
+
+- **`jev-latest` played as it did in its first run,** 0.73 and 0.60 then. Its `rounded_out` is 0 again, as it sends whole percents, see [Jev](model-findings.md#jev-costs-nothing-and-plays-a-switch-as-well-as-sonnet).
+- **The Decision Models rows send fine probabilities,** so `rounded_out` reads here. `reax-1.3` rounds six channels out of view a round and still scores best.
+- **Means.** Two decision models, `reax-1.3` and `reax-1-20261021`, beat the Complacent baseline's 0.48 on Down switch by 0.3 and more, with no text, no tools and no story. On No change the order of the rows by explore points is the reverse of their order by score, so a sharp reader beats a curious one there.
+- **Open.** The Jev row in [decisions](decisions.md#provider-checks) still waits on whether the check counts channels at exactly 0, see [`TODO.md`](../../TODO.md#pilot).
