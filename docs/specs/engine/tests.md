@@ -57,6 +57,7 @@ Every test the engine suite runs, in `tests/engine/`. Ids start `E` for the engi
 | ET36 | No two alike, redraw: a config with two `ShockSpec()` events on 200 seeds. Consecutive shocks always differ in at least two draws, `gap` excluded. Every first event has `numbers["tries"] == 1`, and at least one second event has `tries > 1` | [timeline](timeline.md#no-two-alike) |
 | ET37 | `inertia_cap`: a config with it set has a different hash from one without, and the same arrays and events on 20 seeds | [config](config.md#fields) |
 | ET38 | `climate_leader(1)` is `leader` on a No change timeline, and `climate_leader(0)` and `climate_leader(rounds + 1)` raise `ValueError` | [timeline](timeline.md#interface) |
+| ET39 | Off draws today: a SHA-256 of `levels`, rounded to 9 places, on seeds 0 to 9 of every scenario equals a pinned string. It was pinned before the [shape knobs](config.md#fields) existed, so it shows their defaults draw the old timelines. Changing the pinned string is a reviewed change and bumps `GENERATOR_VERSION` | [timeline](timeline.md#invariants) |
 
 ## Game
 
