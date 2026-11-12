@@ -52,8 +52,9 @@ The engine is the bottom layer, so it takes nothing from another. What each laye
       weather.py     own weather, the shared factor, read noise
       world.py       the arrays events edit, on the longer horizon
       events.py      Event, each shape's draws, onsets, no two alike
-      shock.py       a shock's impulse and its cap
-      switch.py      a fall, a rise and an undo
+      storm.py       the impulse, its cap, and a storm's uneven recovery, pop and lead
+      shock.py       a shock: a storm, or the one-channel impulse
+      switch.py      a fall, a rise and an undo, on a ramp or in a storm
       drift.py       a drift
       timeline.py    make_timeline, Timeline
       game.py        Game, BetError, play

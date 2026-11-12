@@ -17,6 +17,11 @@ class ShockSpec:
     depth_points: Range = (16.0, 32.0)      # the same, in level points, used when pinned
     half_life: IntRange = (2, 4)            # rounds for the impulse to halve
     profile: Literal["sharp", "slide", "draw"] = "draw"
+    # shape knobs, all off by default, see timeline.md#storm
+    recovery: Range = (1.0, 1.0)            # each channel's multiplier on the rebound's half-life
+    leader_last_share: float = 0.0          # chance the leader gets the slowest multiplier
+    pop_share: float = 0.0                  # chance a field channel pops to the margin under the leader at the trough
+    leader_stays_ahead: bool = False        # before weather, the leader stays the margin above every channel in a storm
 
 @dataclass(frozen=True)
 class SwitchSpec:
@@ -30,6 +35,7 @@ class SwitchSpec:
     ramp: IntRange = (1, 5)                 # rounds the move is spread over, linear
     short_share: float = 0.0                # chance a "rise" stops short of the leader
     short_level: Range = (0.25, 0.75)       # where a short rise ends, as a share of the gap from runner-up to leader
+    storm: ShockSpec | None = None          # a shape knob: the fall arrives in this storm, see timeline.md#storm
 
 @dataclass(frozen=True)
 class DriftSpec:
@@ -93,6 +99,7 @@ def engine_hash(config: ScenarioConfig) -> str
 - **`persistence` never moves within a release**, see [difficulty](../../design/mechanics.md#difficulty). The engine does not enforce this, the release process does.
 - **A short rise and an undo** are the two switch moves the [Up switch](../../design/scenarios.md#scenarios-we-test) scenarios need, see [switch](timeline.md#switch). `short_level` is a share, not a size, so it has no sigmas or points pair and [pinning](timeline.md#pinning) leaves it alone.
 - **`hedge_margin_points`** is in level points, so it survives [pinning](timeline.md#pinning). It bounds the shock depth, see [shock](timeline.md#shock).
+- **The shape knobs** are the four storm fields on `ShockSpec` and `storm` on `SwitchSpec`. They are off by default, and off draws the timelines from before they existed, see [storm](timeline.md#storm). `recovery` is a multiplier, not a size, so it has no sigmas or points pair. `storm` is a `ShockSpec` or `None`, and anything else raises `TypeError`. The values tried with them on live in `shapes/src/worlds.py` until a pilot moves them into the scenarios.
 - **`inertia_cap`** is off by default. When set, no bet may move more than this many points from the round before, see [game](game.md#bets) and [inertia](../../design/scoring.md#extension-inertia). `make_timeline` never reads it, so a config with the cap cleared draws the same arrays, which the [scorer](../harness/scorer.md) relies on. It lives on the config and not on the harness task, as it changes what a valid bet is, which is an engine rule. The task's `inertia` arg sets it, see the [task spec](../harness/task.md#scenarios-and-config).
 - **Validation on construction.** `__post_init__` raises `ValueError` if any of these hold:
   - `channels < 4`, `rounds < 1`, `budget < channels`.
@@ -107,6 +114,9 @@ def engine_hash(config: ScenarioConfig) -> str
   - In any event spec: `riser_share` or `short_share` is outside `[0, 1]`, `gap`, `ramp`, `half_life` or `length` has a low below 1, any `*_sigmas` or `*_points` range has a low at or below 0, or `kind` or `profile` is not one of its words.
   - A `SwitchSpec` has `short_share` above 0 and a `kind` other than `"rise"`, or a `short_level` low at or below 0 or high at or above 1.
   - A `SwitchSpec` with `kind="undo"` is the first event, or the most recent `SwitchSpec` before it does not have `kind` `"rise"` or `"fall_and_rise"`.
+  - A `ShockSpec` has a `recovery` low at or below 0, or `leader_last_share` or `pop_share` outside `[0, 1]`.
+  - A `SwitchSpec` has a `storm` and a `kind` of `"rise"` or `"undo"`. A storm comes with a fall.
+  - Any shape knob is on, a storm included, with `one_channel_shock` or `hedge_may_overtake` on. Their rules for the impulse and the cap do not combine.
 
 ### Scenarios
 
@@ -166,6 +176,11 @@ Proposed starting values. Every one is **pilot to confirm**. The check column sa
 | `SwitchSpec.ramp` | 1 to 5 | [events](../../design/mechanics.md#events) | Fixed by design |
 | `DriftSpec.size_sigmas`, `length` | 2 to 4, 15 to 25 | The Down switch stretched and a sigma deeper, so the slow fall is worth leaving: with the gap, about 0.6 to 2.1 points a round | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
 | `gap` | 8 to 12 | Room for a habit to re-form after a shock | [Game length](../../pilot/engine-checks.md#game-length-and-switch-round) |
+| `ShockSpec.recovery` | 1 to 1, off | Off until a pilot runs it. `shapes/` tries 0.5 to 2 | The next pilot |
+| `ShockSpec.leader_last_share` | 0, off | Off until a pilot runs it. `shapes/` tries 0.5 | The next pilot |
+| `ShockSpec.pop_share` | 0, off | Off until a pilot runs it. `shapes/` tries 0.5 | The next pilot |
+| `ShockSpec.leader_stays_ahead` | false, off | Off until a pilot runs it. `shapes/` tries it on | The next pilot |
+| `SwitchSpec.storm` | `None`, off | Off until a pilot runs it. `shapes/` puts the scenario's shock on every fall | The next pilot |
 | `*_points` pairs | sigmas × 4 | Agree with the sigmas pair at `own_scale` 4 | [Noise grid](../../pilot/engine-checks.md#noise-grid) |
 
 ## Pilot decides

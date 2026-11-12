@@ -13,7 +13,7 @@ class Event:
     onset: int                              # first round it edits, from 1
     channel: int | None                     # the channel that moved down: the fallen leader, the undone sleeper, a one-channel shock's leader. Else None
     sleeper: int | None                     # the channel that rose, if one did
-    numbers: Mapping[str, float | int | str | None]  # every per-seed draw by name, see Draw order below
+    numbers: Mapping[str, float | int | str | tuple[float, ...] | None]  # every per-seed draw by name, see Draw order below
 
 @dataclass(frozen=True)
 class Timeline:
@@ -25,7 +25,7 @@ class Timeline:
     weather: np.ndarray       # (rounds, channels). Own weather
     factor: np.ndarray        # (rounds,). The shared factor, shock impulses included
     loadings: np.ndarray      # (rounds, channels). Per round, as a switch redraws the sleeper's
-    impulse: np.ndarray       # (rounds, channels). A one-channel shock. All zeros otherwise
+    impulse: np.ndarray       # (rounds, channels). A one-channel shock, or a storm's per-channel part. All zeros otherwise
     read_noise_z: np.ndarray  # (rounds, channels). Standard normals, see game.md
     leader: int
     runner_up: int
@@ -101,7 +101,7 @@ Events are applied in order. Each event has its own stream. The first event's on
 
 - **Events are built on a longer horizon.** `base`, `loadings`, `impulse` and the shock impulses are built on enough rows to hold the latest onset and ramp the config can draw, then cut to `rounds`. So every rule below reads its rows as written, wherever the onset lands, and an `Event` never depends on the cut.
 - **Every size in `Event.numbers` is in level points**, a sigmas draw already multiplied by `own_scale`.
-- **A derived key with no value is `None`**: `fall` on a rise, `target` on a fall.
+- **A derived key with no value is `None`**: `fall` on a rise, `target` on a fall, `pop_rise` with no pop.
 
 The channel that falls is the **climate leader at onset**, `climate_leader(onset)`, so a second switch after a first lands on the new leader. An [undo](#switch) is the one exception: it moves the earlier sleeper back, wherever that sleeper ranks.
 
@@ -111,23 +111,36 @@ The draws each shape makes from its own stream, in order, and the key each gets 
 
 | Shape | Draws, in order | Derived keys, not draws |
 |---|---|---|
-| Shock | `gap`, `profile` (if `"draw"`, sharp or slide at even odds), `depth_drawn` (from `depth_sigmas` × `own_scale`, or `depth_points`), `half_life` | `depth`, after the [cap](#shock). `tries`, see [no two alike](#no-two-alike) |
-| Switch | `gap`, `kind` (if `"draw"`, fall and rise with chance `riser_share`, else fall), `size`, `rise`, `ramp`, `sleeper` (uniform over the field minus the hedge, minus the climate leader at onset, minus any channel an earlier event moved), `sleeper_loading` (uniform from `loading`), `short` (1 with chance `short_share`, else 0), `short_level` (uniform from `short_level`) | `fall`, the points the leader's base moves, or the earlier sleeper's in an undo. `target`, the sleeper's end base, or the base an undo restores. `tries` |
+| Shock | `gap`, `profile` (if `"draw"`, sharp or slide at even odds), `depth_drawn` (from `depth_sigmas` × `own_scale`, or `depth_points`), `half_life`. Then the [storm](#storm) draws: `recovery` (one uniform from `recovery` per channel, in index order), `leader_last` (1 with chance `leader_last_share`, else 0), `pop` (1 with chance `pop_share`, else 0), and one `u` for `pop_channel` | `depth`, after the [cap](#shock). `pop_rise`. `recovery` is replaced by each channel's multiplier after any `leader_last` swap. `tries`, see [no two alike](#no-two-alike) |
+| Switch | With a `storm`, first every shock draw above, from the storm's spec. Then `gap`, `kind` (if `"draw"`, fall and rise with chance `riser_share`, else fall), `size`, `rise`, `ramp`, `sleeper` (uniform over the field minus the hedge, minus the climate leader at onset, minus any channel an earlier event moved), `sleeper_loading` (uniform from `loading`), `short` (1 with chance `short_share`, else 0), `short_level` (uniform from `short_level`) | `fall`, the points the leader's base moves, or the earlier sleeper's in an undo. `target`, the sleeper's end base, or the base an undo restores. `tries`. Every shock key but `tries` with a `storm_` prefix, `None` with no storm |
 | Drift | `gap`, `profile` (if `"draw"`, linear or logistic at even odds), `size`, `length` | `fall`, as a switch. `tries` |
 
 - **`Event.numbers` holds exactly the keys in both columns**, nothing else, so a log's columns are stable.
 - **`kind` and `profile` hold the resolved word**, never `"draw"`. An undo's `kind` is `"undo"`.
 - **A channel an earlier event moved** is the `channel` or `sleeper` of any earlier event.
 - **An empty sleeper set raises `ValueError`.** With four channels and two switches the second has no channel to raise. The config is wrong, not the seed.
+- **`pop_channel` is uniform over the sleeper set**, from the `u` drawn with the storm, so a storm switch can draw it before its own `gap`. It is `None`, and the set is never read, when `pop` is 0.
 
 #### Shock
 
-An impulse `s` that decays. By default it goes into the shared factor, `factor[t] += s[t]`, so every channel moves by its loading, most fall and the hedge rises.
+An impulse `s` that decays. By default it goes into the shared factor, `factor[t] += s[t]`, so every channel moves by its loading, most fall and the hedge rises. The shape knobs make it a [storm](#storm) that each channel comes back from at its own speed.
 
 - **Sharp.** `s[onset] = −depth`, then `s[t] = s[t−1] × 2^(−1 / half_life)`.
 - **Slide.** Falls in a straight line over `half_life + 1` rounds, `s[onset + j] = −depth × (j + 1) / (half_life + 1)` for `j` from 0 to `half_life`, then rebounds from the trough with half-life `ceil(half_life / 2)`, `s[t] = s[t−1] × 2^(−1 / ceil(half_life / 2))`.
 - **Hedge and leader at the trough.** Let the trough be `−depth`, `h` the hedge and `l` the climate leader at onset, with `base` and `loadings` read from row `onset − 1`. After a switch, `l` is the new leader, and may be a sleeper with a redrawn loading, as in the Switch then shock scenario. The hedge at the trough is `base[h] + loadings[h] × trough` and the leader is `base[l] + loadings[l] × trough`. With `hedge_may_overtake` off, `depth` is the smaller of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` below the leader. With it on, `depth` is the larger of `depth_drawn` and the depth at which the hedge sits exactly `hedge_margin_points` above the leader. If that depth is above the high of the depth range the engine reads, `depth_points` when pinned and `depth_sigmas` × `own_scale` when not, `make_timeline` raises `ValueError`, as the ladder and loadings do not allow the knob, see [config](config.md#not-decided). With the knob off, a cap at or below 0 raises `ValueError`, as the hedge already sits within the margin. Either way, a hedge that is the leader, or that loads no lower than it, raises `ValueError`, as no depth could then hold the margin. No valid config reaches it today.
 - **`one_channel_shock`.** The impulse goes into `impulse[t, l]` instead of the factor, with no loading. `base` and `factor` are untouched, so the climate does not move and the Discerning baseline holds. The cap above does not apply. `Event.channel` is `l`.
+
+#### Storm
+
+A storm is a shock into the shared factor, as above, with four shape knobs on `ShockSpec`. Each is off by default, and off draws the timelines from before the knobs existed, which [ET39](tests.md#timeline) pins. Let `s` be the shock's impulse, `l` the climate leader at onset, `r0` the onset row and `tr` the trough row, `r0` for a sharp storm and `r0 + half_life` for a slide.
+
+- **The share left.** On each channel `c`, `left[t, c]` is `s_c[t] / −depth`, where `s_c` is the impulse with the rebound's half-life multiplied by `recovery_c`. So it climbs to 1 at the trough and decays at the channel's own speed after. Every channel shares it up to the trough.
+- **`recovery`.** Each channel's `s_c` replaces `s` on that channel: `impulse[t, c] += loadings[r0, c] × (s_c[t] − s[t])`, from the onset row on, with the loading at onset. `factor` still carries `s`, so `levels` keeps its sum. With `(1.0, 1.0)` every multiplier is 1 and nothing is added.
+- **`leader_last_share`.** When `leader_last` is 1, the leader swaps multipliers with the channel that drew the largest, so it comes back last.
+- **`pop_share`.** When `pop` is 1, the pop channel ends exactly `hedge_margin_points` under the leader at the trough, before weather. Before weather means `base + loadings × the shock impulses + impulse`, as the [cap](#shock) reads it. `pop_rise` is what that takes at `tr`, and `impulse[t, pop] += pop_rise × left[t, pop]`, so it rises with the storm and fades with it. It is negative on the rare seed where the channel already sits closer. It is never `Event.sleeper` on a shock.
+- **`leader_stays_ahead`.** Last, from the onset row on, any channel closer than `hedge_margin_points` to the leader before weather is pushed down to exactly that, through `impulse`. So the leader is never overtaken in a storm before weather. Off, the leader is overtaken at the trough on about 5% of One shock seeds.
+- **Twins.** A storm switch draws the storm first, so on one seed the Down switch's storm is the One shock's shock, and `storm_` keys equal the shock's keys, see [switch](#switch).
+- **Not with the hard-variant knobs.** A shape knob or a storm with `one_channel_shock` or `hedge_may_overtake` on raises `ValueError`, see [config](config.md#fields).
 
 #### Switch
 
@@ -138,6 +151,7 @@ Edits `base`, and the sleeper's `loadings`. Let `l` be the climate leader at ons
 - **Short.** When `short` is 1, `target` is instead `base[e, q] + short_level × (base[e, l] − base[e, q])`, where `e` is the row at the end of the ramp and `q` the channel with the highest base at `e` other than `l` and the sleeper. So the sleeper ends above the runner-up and below the leader, and the climate leader never changes. Validation lets `short` be 1 only when `kind` is `"rise"`, see [config](config.md#fields).
 - **`fall_and_rise`** does both. **`rise`** leaves the leader alone. **`fall`** leaves every other channel alone, and `sleeper` on the event is `None`.
 - **Undo.** Let `s` be the sleeper of the most recent earlier switch. Its base moves in a straight line over this event's ramp, from `base[onset−1, s]` back to `base[0, s]`, then holds. Once the ramp is done its base is set to `base[0, s]` exactly, so `levels` match the No change timeline's bit for bit. From `onset` on, `loadings[t, s] = loadings[0, s]`. Row 0 holds its values from before it rose, as no event moves a channel before it is a sleeper. No other channel moves. `Event.channel` is `s`, `Event.sleeper` is `None`, `fall` is the points `s` moved and `target` is `base[0, s]`. It ignores the `kind`, `size`, `rise`, `sleeper`, `sleeper_loading`, `short` and `short_level` draws.
+- **Storm switch.** With `storm` set, the switch applies its [storm](#storm) first, exactly as a shock on the same seed would. Then the fall and any rise follow the storm's lift instead of the ramp. `lift[t, c]` is 0 up to the trough row and `1 − left[t, c]` after, so it climbs towards 1 as the storm passes each channel. `fall` is as above, and `base[t, l] −= fall × lift[t, l]`. So at the trough the leader is where the shock has it, the field comes back, and the leader does not. A `fall_and_rise` raises the pop channel when `storm_pop` is 1, else the `sleeper` draw. `target` is the highest end base of every other channel, with the leader's whole fall taken, plus `rise`, and `base[t, s] += (target − base[r0, s]) × lift[t, s]`, so a pop stays up. The sleeper's loading does not change, so the storm passes over it as over its twin. `ramp` and `sleeper_loading` are drawn and unused. A storm needs a kind that falls: `fall`, `fall_and_rise` or `draw`.
 - `Timeline.sleeper` is the last sleeper any event made, or `None`.
 
 #### Drift
@@ -149,7 +163,7 @@ Edits the leader's `base` over `length` rounds, with `fall` defined as for a [sw
 
 #### No two alike
 
-Each event must differ from the previous event of the same shape in at least two of the shape's draws, `gap` excluded. Events of other shapes in between do not matter. The resolved draws in `numbers` are compared, so `depth_drawn` and not `depth`. An int or string draw differs when not equal. A float draw differs when the two are at least a tenth of the later event's range width apart, in level points, so a fixed range never differs. An undo always passes, as its `kind` and its `sleeper` draw differ from the rise before it. If they do not, the later event redraws every one of its draws, `gap` included, from where its stream left off. `numbers["tries"]` is how many times the event was drawn, 1 when the first draw was kept, so a log says how often the rule bit. After 100 tries `make_timeline` raises `ValueError`. See [stringing events](../../design/mechanics.md#stringing-events).
+Each event must differ from the previous event of the same shape in at least two of the shape's draws, `gap` excluded. Events of other shapes in between do not matter. The resolved draws in `numbers` are compared, so `depth_drawn` and not `depth`. The [storm](#storm) draws, `recovery`, `leader_last`, `pop` and `pop_channel`, and every `storm_` key are left out, as `recovery` would differ on every seed and the rule would stop biting. An int or string draw differs when not equal. A float draw differs when the two are at least a tenth of the later event's range width apart, in level points, so a fixed range never differs. An undo always passes, as its `kind` and its `sleeper` draw differ from the rise before it. If they do not, the later event redraws every one of its draws, `gap` included, from where its stream left off. `numbers["tries"]` is how many times the event was drawn, 1 when the first draw was kept, so a log says how often the rule bit. After 100 tries `make_timeline` raises `ValueError`. See [stringing events](../../design/mechanics.md#stringing-events).
 
 ### Pinning
 
@@ -160,7 +174,7 @@ With `pin_in_level_points` true, every size that has a points range uses it and 
 What one seed guarantees across scenarios whose configs differ only in `events`.
 
 - The order, ladder, loadings, weather, factor before impulses, onset draw and `read_noise_z` are identical.
-- One shock and Down switch `levels` are identical before the onset round.
+- One shock and Down switch `levels` are identical before the onset round. With every shape knob on, and a storm on the switch, they are identical through the trough round.
 - Shock then switch and One shock `levels` are identical before the switch's onset.
 - Up switch and No change `levels` are identical on every channel but the sleeper.
 - Switch then shock and Down switch `levels` are identical before the shock's onset.
@@ -171,7 +185,7 @@ What one seed guarantees across scenarios whose configs differ only in `events`.
 
 - `levels == base + weather + loadings × factor[:, None] + impulse`, to floating point.
 - `levels`, `base`, `weather`, `loadings`, `impulse`, `read_noise_z` have shape `(rounds, channels)`. `factor` has shape `(rounds,)`. All are read only.
-- `impulse` is all zeros unless `one_channel_shock` is on.
+- `impulse` is all zeros unless `one_channel_shock` or a [shape knob](#storm) is on.
 - No array is clipped. A level can be below 0 on a low ladder. The default ladder sits high enough that none realistically is, see [defaults](config.md#defaults).
 - Exactly one leader, runner-up and hedge, all different, and `field` has `channels − 2` entries including the hedge.
 - At round 1, `base[0, leader] > base[0, runner_up] > base[0, c]` for every other channel, and the hedge's base is the lowest.
@@ -180,6 +194,7 @@ What one seed guarantees across scenarios whose configs differ only in `events`.
 - After an undo completes, the undone sleeper's base and loading equal their row 0 values. In the Up switch then down switch scenario that makes `base` and `loadings` equal the No change timeline's.
 - A switch or drift leaves the leader's base above 0 on every seed. If a draw would not, `make_timeline` raises `ValueError`, as the config is wrong.
 - With `hedge_may_overtake` off, the hedge's `base + loading × trough` is at least `hedge_margin_points` below the leader's. Weather is not counted, see [shock](#shock).
+- With `leader_stays_ahead` on, every channel's level before weather is at least `hedge_margin_points` below the leader's in every round from a storm's onset, see [storm](#storm).
 - Same config and seed give equal arrays and equal `engine_hash` on every call within one environment. Across numpy versions or CPUs, `allclose` at `1e-9`, see [config](config.md#engine-hash).
 
 ## Pilot decides
