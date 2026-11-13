@@ -204,3 +204,50 @@ The [`jev` cell](provider-checks.md#jev-checks), run in full on 2026-11-12: `jev
 - **Means.** The key's project has no billing, so the full study's Google rows cannot run. Google may also use free tier prompts to improve its products, so no held-out skin may go through this key. Both runs above played the example skin on a public seed.
 - **Changed.** `gemini-3.5-flash-lite` is out of the pilot, with `pilot = false` in `poc.toml`, and stays in the proof of concept, decided on 2026-11-12.
 - **`minimal` may be the off Flash Lite lacks.** It sent no reasoning token on a one word reply. A 12 round run at `minimal`, as Haiku's off check was, would say whether it holds on a real round.
+
+## The proof of concept on `amber`
+
+The first scored runs on a held-out skin. `uv run paranoid run --skins amber --seeds 0-15` for each row of [`poc.toml`](../../configs/models/poc.toml) but two, all eight scenarios, public seeds 0 to 15, 40 rounds, notes and compute on, every other task arg at its default. That is 128 runs a row, played on 2026-11-13 from 13:05 to 16:10. Haiku plays at `off` and Sonnet at `low`, as their rows say. The tables are in [results](../results/poc.md). The logs stay on the machine, see [contamination](../harness/contamination.md).
+
+### Sonnet scores below the best forecasters and decision models
+
+- **Saw.** 14 rows, 1792 runs, every one scored, with no errored sample and no duplicate. The six baselines are the marks every run's score holds:
+
+  | Row | No change | Down switch | Headline | Weakest trait |
+  |---|---|---|---|---|
+  | `timestral/explore-1` | 0.87 | 0.83 | 0.84 | Conviction 0.83 |
+  | `timestral/top-pick` | 0.97 | 0.63 | 0.80 | Doubt 0.63 |
+  | `decisionmodels/s1-pro-3` | 0.88 | 0.77 | 0.79 | Curiosity 0.75 |
+  | `timestral/odds` | 0.93 | 0.66 | 0.79 | Doubt 0.66 |
+  | `timestral/odds-alone` | 0.93 | 0.67 | 0.79 | Conviction 0.66 |
+  | `timestral/odds-bet-aware` | 0.93 | 0.67 | 0.78 | Conviction 0.66 |
+  | `decisionmodels/reax-1-20261021` | 0.86 | 0.75 | 0.77 | Recall 0.66 |
+  | `timestral/explore-2` | 0.78 | 0.76 | 0.76 | Recall 0.75 |
+  | Sonnet 5.5, `low` | 0.90 | 0.59 | 0.75 | Doubt 0.59 |
+  | `decisionmodels/s1-pro-5` | 0.88 | 0.63 | 0.73 | Doubt 0.63 |
+  | `jev-latest` | 0.84 | 0.52 | 0.67 | Doubt 0.52 |
+  | Haiku 5.5, `off` | 0.75 | 0.31 | 0.53 | Doubt 0.31 |
+  | `decisionmodels/s1-fast-2` | 0.52 | 0.48 | 0.50 | Recall 0.44 |
+  | `timestral/explore-5` | 0.49 | 0.48 | 0.48 | Recall 0.47 |
+
+- **Sonnet plays `amber` as it played the example.** Down switch is 0.59 here and 0.60 on the example skin, see [a stronger model](#a-stronger-model-sonnet-55). Doubt is the weakest trait of both Claude rows, and of `top-pick`, `odds`, `s1-pro-5` and Jev.
+- **A forecaster with one explore point beats every model.** `explore-1` leads at 0.84, as it did in the [Timestral cell](provider-findings.md#timestral-one-explore-point-pays-and-joint-forecasting-adds-nothing). `odds-alone` and `odds-bet-aware` match `odds`, so forecasting each channel on its own still adds nothing.
+- **The wording lands.** On No change Haiku's mean top bet is 84 of 100 and Sonnet's is 85, against 95 for Haiku on the example skin. So `amber` states the price fact nearly as well, see [one sentence fixes it](#one-sentence-fixes-it-and-only-its-price-half-matters).
+- **The flags are the two the pilot already knew.** Haiku's ‡ is the retry share counting its code turns, 0.28 here, see [the retry share](provider-findings.md#the-retry-share-flags-haiku-for-running-code). Sonnet's § comes from the recognition lint in the pilot's logs, not from these runs, see [recognition](provider-findings.md#recognition-no-reply-named-the-study).
+- **Means.** On a held-out skin, the best plain reader of the numbers beats the best Claude by 0.09, and two decision models with no text and no tools beat it too. The gap is on the switches, where Doubt is Sonnet's weakest trait.
+
+### Haiku gives up on one run in eight
+
+- **Saw.** 15 of Haiku's 128 runs gave up, 12%, against one to three in a hundred in the pilot's cells on the example skin. Each one called the bet tool on all ten tries, with bets that summed to 105, 110 or 120, not 100. Most gave up early, by round 7 in 11 of the 15.
+- **It is not only the runs that gave up.** 260 of Haiku's 4898 bet calls, 5%, missed 100. Sonnet's 5120 calls never did.
+- **It costs the headline.** A run that gives up scores as the Uniform baseline, see the [retry rule](../harness/prompts.md#retry-rule). Haiku's mean run score is 0.54 with them and 0.61 without.
+- **Means.** At `off`, Haiku cannot always make ten whole numbers add to 100, and once a sum is wrong, the refusal rarely fixes it. That is arithmetic, not reading, so it lowers Haiku's score for a reason the study does not measure.
+- **Open.** The refusal already says the numbers must add up to 100. Whether it should also say what they added up to is open. That changes the [tool text](../harness/prompts.md#tool-text), so it needs a new pilot, see [`TODO.md`](../../TODO.md#pilot).
+
+### Two rows missing, and what it cost
+
+- **`reax-1.3` is not played.** Decision Models answered 402, credit too low, at 15:33, after 58 of its runs, 14 of them errored. Its partial log is in `logs/poc-failed`. It was the best decision row in the [`jev` cell](provider-findings.md#jev-and-decision-models-two-decision-models-beat-sonnet-on-a-switch), at 0.94 on No change and 0.83 on Down switch.
+- **`gemini-3.5-flash-lite` is not played.** Its key is on Google's free tier and Google's terms are unread, so `amber` must not go to it, see [the Google key](#the-google-key-works-on-the-free-tier).
+- **The Timestral lane was killed once,** at 15:05 in `explore-5`, by the two hour limit on the session's background shell. Its partial log is in `logs/poc-failed` too, and its last three rows played again whole, detached from the session.
+- **Claude cost $10.93 of the $25 allowed:** $0.70 for Haiku, $10.09 for Sonnet and about $0.13 for the two run probes. The probes projected $0.34 and $8.13, but both played only No change seeds 0 and 1. Haiku ran at twice its probe and Sonnet at 1.24 times.
+- **Changed.** Nothing in the code or the prompt.
