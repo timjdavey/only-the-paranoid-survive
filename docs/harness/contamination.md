@@ -49,6 +49,33 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 - **Decision Models only through its EU tier.** Its default tier can pass a request to a peer-to-peer network of anonymous GPU owners who may store it. Every call sends `S1-Region: eu`, which its terms say stays in the EU, is not logged and is not trained on, see [providers](../specs/harness/providers.md#jev). Keep peer-to-peer and worldwide processing off on the key as well.
 - **Fresh held-out seeds each release.** Readings a provider kept from one release are no use on the next. Old models are rerun on the new set, not carried over. Every log names its release, so two releases' runs are never pooled, see the [task spec](../specs/harness/task.md#release).
 
+## Provider checks
+
+Whether each provider's terms let a held-out skin go to it, against the rule in [who can see them](#who-can-see-them). Until its row says yes, a provider plays the example skin only.
+
+| Provider | Trains on no prompt | Keeps a prompt 30 days at most | Held-out skin | Read on |
+|---|---|---|---|---|
+| Anthropic, plan token | Yes, the account collects no data | Yes | Yes | 2026-11-12, see [keys](models.md#keys) |
+| Jev, through Typesafe | Yes, the [customer agreement](https://typesafe.ai/legal/mca) §4.1 | Not shown, see [Jev](#jev) | Not yet | 2026-11-13 |
+| Decision Models, EU tier | Yes, the EU tier's terms | Yes, the EU tier logs no call | Yes | The terms only, see [Decision Models](#decision-models) |
+| Timestral | Runs locally | Runs locally | Yes | No terms to read |
+| OpenAI, Google, OpenRouter | Not checked | Not checked | Not yet | |
+
+### Jev
+
+- **Training passes.** §4.1 of the agreement, updated 23 Sep 2026, says Typesafe "will not include Customer Data in a dataset used to train ... without Customer's prior consent". Customer Data is both what we send and what Jev replies.
+- **Retention fails.** No document gives a period. The [data processing terms](https://typesafe.ai/legal/data-processing) say "as long as necessary", and §10.3 of the agreement says they "may delete Customer Data at any time".
+- **The telemetry clause is the weak spot.** §4.3 lets Typesafe use "logs, hashes, summary statistics ... and learnings" from our use "without restriction", and §4.1(c) licenses it "in perpetuity" to derive them from our data. The terms don't say whether "learnings" could take anything from a skin's text.
+- **Zero data retention is on offer** "for enterprise customers", through a support form, with no terms given, see their [legal page](https://docs.typesafe.ai/legal.md).
+- **Their list of subprocessors is unread.** The trust centre page loads empty when fetched, so it needs a browser.
+- **Two ways to clear it.** Typesafe grants zero data retention, or we accept the training clause alone. The second loosens the 30 day rule decided on 2026-11-12, so it is a decision, not a check.
+
+### Decision Models
+
+- **Every call sends `S1-Region: eu`,** see [who can see them](#who-can-see-them). The EU tier's terms say a call stays in the EU, is not logged and is not trained on.
+- **The key's settings are unchecked.** Whether peer-to-peer and worldwide processing are off on the key was skipped on 2026-11-13. The header alone picks the EU tier.
+- **Two rows are Decision Models' own models.** `reax-1-20261021` and `reax-1.3` are its own fine tunes, not hosted copies of another lab's. The EU tier's promise covers them as it covers the rest.
+
 ## The public gap
 
 - **A check that the public seeds have not been tuned on.** Each model plays one held-out skin on both seed sets, so only the seeds differ.
