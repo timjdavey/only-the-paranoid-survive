@@ -177,3 +177,24 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
   - **One explore point is worth its cost for a forecaster too.** It lifts top pick from 0.77 to 0.85, level with the hedge rule. Two points give the gain back, and five cost over a third of the score.
   - **Forecasting the channels together adds nothing,** and nor does showing the bets. Odds, odds alone and bet aware sit within 0.01 of each other in every scenario.
 - **Open.** Whether the joint shape's late widening is enough, see [`TODO.md`](../../TODO.md#pilot), and the Timestral row in [decisions](decisions.md#provider-checks).
+
+## Bare harness: Haiku at `off` reads the record through code
+
+- **Saw.** 320 runs, both rows on One shock and Down switch at four tool settings, public seeds 0 to 19, see [bare harness](provider-checks.md#bare-harness). All finished but five Haiku runs, which gave up:
+
+  | Model | Tools | One shock | Down switch | Paired gap to `notes,compute` | Notes share | Compute share | Explore points |
+  |---|---|---|---|---|---|---|---|
+  | Haiku 5.5 | `notes,compute` | 0.45 | 0.33 | | 0.08 | 0.96 | 71 |
+  | Haiku 5.5 | `compute` | 0.42 | 0.22 | −0.05, se 0.03 | | 0.95 | 71 |
+  | Haiku 5.5 | `notes` | 0.05 | 0.11 | −0.18, se 0.02 | 0.76 | | 83 |
+  | Haiku 5.5 | `none` | 0.04 | −0.10 | −0.35, se 0.03 | | | 88 |
+  | Sonnet 5.5 | `notes,compute` | 0.84 | 0.61 | | 0.21 | 0.003 | 42 |
+  | Sonnet 5.5 | `compute` | 0.88 | 0.61 | +0.02, se 0.01 | | 0.008 | 41 |
+  | Sonnet 5.5 | `notes` | 0.84 | 0.65 | +0.02, se 0.02 | 0.86 | | 42 |
+  | Sonnet 5.5 | `none` | 0.79 | 0.58 | −0.05, se 0.02 | | | 53 |
+
+- **Without code Haiku spreads almost evenly.** 88 explore points is a top bet of 12, where an even split is 10, and its Down switch score falls under the Uniform baseline's.
+- **Sonnet barely uses the tools.** It ran code on under 1% of rounds, so taking compute away changes nothing, and taking both costs 0.05.
+- **No note came near the cap.** The longest of about 3,000 was 730 characters, against `notes_cap` of 2,000.
+- **Means.** Haiku's bare gap of −0.35 is the tools doing its reading: at `off` it thinks in code, as [the first results](model-findings.md#the-provider-checks-first-results) found, and with no code it cannot pick a leader. Sonnet reads the record itself. So a Haiku score at `notes,compute` is partly a score of its code, which the page has to say, see [bare harness](provider-checks.md#bare-harness).
+- **Changed.** Nothing. The headline stays at `notes,compute` by design, and `notes_cap` keeps its default, as no note reached it.
