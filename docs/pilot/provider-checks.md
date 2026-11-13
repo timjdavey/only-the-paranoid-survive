@@ -11,7 +11,7 @@ The second half of the pilot, a short run before the full study to settle the kn
 Sizes the [error bar](../design/scoring.md#error-bars).
 
 - **Question.** How many seeds a scenario needs, so that the model whose runs land furthest apart still gets a bar we can read.
-- **Run.** Every LLM row in the [proof of concept list](../harness/models.md#two-lists), at the reasoning setting it plays there, in the One shock and Up switch scenarios. Twenty public seeds played once, as pilot logs are published, see [contamination](../harness/contamination.md#two-seed-sets). 120 runs on three rows.
+- **Run.** Every LLM row in the [proof of concept list](../harness/models.md#two-lists), at the reasoning setting it plays there, in the One shock and Up switch scenarios. Twenty public seeds played once, as pilot logs are published, see [contamination](../harness/contamination.md#two-seed-sets). 80 runs on two rows.
   - **Why every row.** A weak model whipsaws more, so its runs land further apart and it needs more seeds. We cannot say which row that is before they play, so we measure them all.
   - **Why the Up switch scenario.** Its run scores may split into found and not found, so it is where we expect the widest spread.
 - **Measure.** The SD of the run score across seeds, per row and scenario. This is the [spread](../design/scoring.md#spread).

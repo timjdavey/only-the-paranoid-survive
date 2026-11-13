@@ -118,7 +118,7 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 
 - **`jev-latest` played as it did in its first run,** 0.73 and 0.60 then. Its `rounded_out` is 0 again, as it sends whole percents, see [Jev](model-findings.md#jev-costs-nothing-and-plays-a-switch-as-well-as-sonnet).
 - **The Decision Models rows send fine probabilities,** so `rounded_out` reads here. `reax-1.3` rounds six channels out of view a round and still scores best.
-- **Means.** Two decision models, `reax-1.3` and `reax-1-20261021`, beat the Complacent baseline's 0.48 on Down switch by 0.3 and more, with no text, no tools and no story. On No change the order of the rows by explore points is the reverse of their order by score, so a sharp reader beats a curious one there.
+- **Means.** Two decision models, `reax-1.3` and `reax-1-20261021`, beat the Complacent baseline's 0.48 on Down switch by 0.3 and more, and Sonnet's 0.61 at the headline setting in [`bare`](#bare-harness-haiku-at-off-reads-the-record-through-code), with no text, no tools and no story. On No change the order of the rows by explore points is the reverse of their order by score, so a sharp reader beats a curious one there.
 - **Open.** The Jev row in [decisions](decisions.md#provider-checks) still waits on whether the check counts channels at exactly 0, see [`TODO.md`](../../TODO.md#pilot).
 
 ## Up against down: Haiku finds the riser and pays to look
