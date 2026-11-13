@@ -142,3 +142,38 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 - **Paired by seed,** Up switch scores 0.18 under No change, bar −0.30 to −0.06, and Up switch then down switch 0.17 over Up switch, bar 0.07 to 0.28.
 - **Means.** Haiku is not paranoid in the study's sense, as it never commits. Its wide spread finds nearly every riser, and costs it half the gain on offer on No change. A fall with a riser scores half what a fall alone does, so it finds the riser and does not move enough onto it.
 - **Read beside its bet size.** As in [the first model](model-findings.md#it-picks-the-right-channel-and-bets-small-on-it), a score near 0.5 on No change says more about bet size than reading.
+
+## Timestral: one explore point pays, and joint forecasting adds nothing
+
+- **Saw.** The `timestral` cell, run locally on CPU in about three hours: the two probes, then seven rows at every grid setting on One shock, Down switch and Up switch, public seeds 0 to 19, see [Timestral checks](provider-checks.md#timestral-checks).
+- **Gap test.** The spread, last quantile less first, averaged over channels:
+
+  | Blanks | 1 | 5 | 10 | 15 | 20 | 30 |
+  |---|---|---|---|---|---|---|
+  | Joint | 44 | 40 | 40 | 56 | 74 | 121 |
+  | Alone | 43 | 59 | 82 | 109 | 130 | 219 |
+
+- **Determinism.** The same input twice gave equal output, on both shapes.
+- **Rounding.** The three odds rows rounded 6.5 to 6.6 channels out of view a round, on 98% of rounds. Top pick and the explore rows never did, as they bet no probability.
+- **On the grid,** scored as gain over the Discerning baseline's, pooled over seeds:
+
+  | Player | Down switch | One shock | Up switch | Mean |
+  |---|---|---|---|---|
+  | Bayesian baseline | 0.94 | 0.96 | 0.93 | 0.95 |
+  | Hedge rule | 0.90 | 0.95 | 0.72 | 0.86 |
+  | Timestral explore 1 | 0.84 | 0.87 | 0.86 | 0.85 |
+  | Timestral top pick | 0.67 | 0.96 | 0.69 | 0.77 |
+  | Timestral explore 2 | 0.76 | 0.78 | 0.77 | 0.77 |
+  | Timestral odds alone | 0.69 | 0.89 | 0.70 | 0.76 |
+  | Timestral odds | 0.68 | 0.89 | 0.70 | 0.76 |
+  | Timestral odds, bet aware | 0.69 | 0.89 | 0.70 | 0.76 |
+  | Complacent baseline | 0.43 | 1.00 | 0.72 | 0.72 |
+  | Timestral explore 5 | 0.48 | 0.49 | 0.49 | 0.49 |
+
+- **The grid barely moves them.** Explore 1 stays level with the hedge rule at every setting, both at 0.85 to 0.87 from setting 2 to 8, and no row moves by more than 0.05 across the grid.
+- **Means.**
+  - **The joint shape barely widens.** Its spread holds flat for ten blanks and grows 2.7 times by thirty. Alone it grows 5 times and from the first blank. Odds can still explore, so it stays, but through the joint shape it explores late.
+  - **Top pick and odds land between the hedge rule and the Complacent baseline,** as the [baseline order](engine-checks.md#baseline-order) asks.
+  - **One explore point is worth its cost for a forecaster too.** It lifts top pick from 0.77 to 0.85, level with the hedge rule. Two points give the gain back, and five cost over a third of the score.
+  - **Forecasting the channels together adds nothing,** and nor does showing the bets. Odds, odds alone and bet aware sit within 0.01 of each other in every scenario.
+- **Open.** Whether the joint shape's late widening is enough, see [`TODO.md`](../../TODO.md#pilot), and the Timestral row in [decisions](decisions.md#provider-checks).
