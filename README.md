@@ -14,6 +14,16 @@ As agents take on longer jobs and interact with long running complex systems, th
 
 People react to the signals in front of them and too little to the system that makes them. So they overreact when the world is stable and the signals are noisy, and underreact when the world is changing and the signals are precise. This is called [system neglect](docs/prior/people.md#massey-and-wu-2005-system-neglect). Whether agents share the bias, and which way they lean, is the question.
 
+## Contribution
+
+What this study adds to [prior work](docs/prior/README.md).
+
+- **Placing three kinds of model on one benchmark.** This is primarily an experiment in whether we can (and whether it is useful to) benchmark classic LLMs, decision models such as [Jev](https://docs.typesafe.ai/introduction) and forecast models such as [Timestral](https://github.com/mistralai/timestral) on a single unified benchmark. Each model type has its own limitations in this context, so comparing overall performance will be interesting. See [models that cannot place bets](docs/design/interface.md#models-that-cannot-place-bets).
+- **Measuring paranoia balanced against complacency.** Most studies only count reaction speed in response to a change. Here holding on too long and jumping too soon are scored together. See [scoring](docs/design/scoring.md#how-we-score).
+- **Introducing true noise.** Nearly every previous study draws each result fresh with no memory (like a k-armed bandit), meaning three bad rounds in a row is clear evidence the model should move. Here we introduce "weather", which hides changes in dynamics in a [realistic way](docs/design/mechanics.md#each-round).
+- **The old plan still works, but isn't optimal.** In most studies of dynamics a previous plan fails outright once the change hits. This doesn't happen in the real world, as Intel's memory business shows. See [events](docs/design/mechanics.md#events).
+- **We never tell the agent that the dynamics might change.** No prompt, story or tool mentions it. It's crucial we see when they assume static vs dynamic rules. See [interface](docs/design/interface.md#how-the-agent-plays).
+- **We baseline against the best of a family of Bayesian players.** The closest studies use a yardstick that reads the agent's own view, or one that knows everything. They never give anything to judge what is practically feasible. See [why these baselines](docs/design/scoring.md#why-these-two-baselines) and the [Bayesian frontier](docs/design/baselines.md#the-bayesian-frontier).
 
 ## Design
 
