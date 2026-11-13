@@ -155,7 +155,7 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 
 - **Determinism.** The same input twice gave equal output, on both shapes.
 - **Rounding.** The three odds rows rounded 6.5 to 6.6 channels out of view a round, on 98% of rounds. Top pick and the explore rows never did, as they bet no probability.
-- **On the grid,** scored as gain over the Discerning baseline's, pooled over seeds:
+- **On the grid,** scored as gain over the Discerning baseline's, pooled over seeds and averaged over the five settings. The baselines here are on the same 20 seeds. The [noise table](results.md#noise) shows them on 1000, where the hedge rule's mean is 0.84 and the Complacent baseline's 0.69:
 
   | Player | Down switch | One shock | Up switch | Mean |
   |---|---|---|---|---|
