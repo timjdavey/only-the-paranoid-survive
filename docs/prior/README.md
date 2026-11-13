@@ -11,6 +11,7 @@ These pages collect what others have found on that question, in LLMs, in people 
 | [A past in the prompt](past-in-the-prompt.md) | What a record, notes or a plan in the prompt does to a model |
 | [People, and ideal observers](people.md) | Studies of people and rats, and the maths of spotting a change |
 | [Measuring agents](measuring-agents.md) | METR's time horizon, and studies of models that suspect a test |
+| [Forecasters and decision models](forecasters-and-decision-models.md) | Jev and Timestral beside LLMs, and whether anyone has played all three |
 | [Themes](themes.md) | Bigger open questions about agents that this game speaks to |
 
 ## What the literature says
@@ -30,6 +31,7 @@ If you know the field, our game may look like a drifting bandit: an agent picks 
 - **An explore bet costs, and an explore bet tells a shock from a switch.** The agent sees only the channels it bets on, and a small bet gives a rough reading. A shock moves every channel and lifts the hedge. A switch moves one. So a small bet on the field, or the hedge, settles which it is ([what the agent sees](../design/mechanics.md#what-the-agent-sees), [events](../design/mechanics.md#events)).
 - **The old plan keeps paying.** After a switch the leader is still well above zero. Staying put costs a little every round, not everything at once. That is Grove's case, not Blockbuster's.
 - **Nothing tells the agent the world might change.** No prompt, story or tool mentions it ([interface](../design/interface.md#how-the-agent-plays)).
+- **LLMs, a decision model and a forecaster on the same seeds.** Decision models have been scored beside LLMs on one-shot questions, and forecasters beside LLMs on one-shot plans. We found no study that plays all three, or any of them through a change ([is ours the first?](forecasters-and-decision-models.md#is-ours-the-first)).
 - **A right lesson can go wrong.** In the Shock then switch scenario, an agent that rightly held through the shock has learnt "dips recover", and is primed to miss the real change ([scenarios](../design/scenarios.md#scenarios-we-test)).
 
 ## Studies where the world changes
@@ -100,6 +102,8 @@ People research offers a way to predict the direction. Massey and Wu find people
 | [Bare harness](../pilot/provider-checks.md#bare-harness) | Liu, ACE, Fork-and-Flush, Bazaar, Krishnamurthy |
 | [Warm-up record](../pilot/provider-checks.md#warm-up) | BanditBench (example runs), Coda-Forno, Schmied (frequency bias), Fork-and-Flush |
 | [Reasoning setting](../harness/models.md#reasoning) | Mazaheri, Ge, Schmied, Zhang 2025 |
+| [Jev provider](../harness/providers.md#jev) | Artificial Analysis Decision Index, JevBench, Yang 2026 |
+| [Timestral baselines](../design/baselines.md#timestral) | Forecast Workflow Bench, Timestral |
 | [Skins and contamination](../harness/contamination.md) | Allen and McDonald (masking), Needham, Schoen, Heidari |
 
 ## Ideas we parked
@@ -123,6 +127,6 @@ Some studies mattered most to ideas the design has since dropped or parked. They
 - **Noise with persistence.** Apart from STOCKTAKE's one week-long false alarm, every study here draws each result fresh. Whether models tell a bad stretch from a change, when the noise itself has stretches, looks open.
 - **A shared factor.** No LLM study we found has a market-wide bad week, where an explore bet on other options tells you the dip is everyone's.
 - **A record from someone else.** BanditBench's example runs are the only test we found of a past that shows how to play. Whether a model copies the habits of a record it reads is untested. The [warm-up check](../pilot/provider-checks.md#warm-up) is a first look.
-- **Forecasters as agents.** We read nothing on time-series models like Timestral, or on Jev, making decisions. Their [providers](../design/interface.md#models-that-cannot-place-bets) rest on the design alone.
+- **Forecasters and decision models in a changing world.** Jev and forecasters have been scored beside LLMs on one-shot tasks ([forecasters and decision models](forecasters-and-decision-models.md)), but we found none played through a change. So their [providers](../design/interface.md#models-that-cannot-place-bets) still rest on the design. The Timestral technical report is not out yet.
 - **Base rates.** No study here measures how often a dip turns out to be a switch in any real setting. Equal weights across scenarios are a prior, see [limits](../design/limits.md).
 - **Business strategy.** The motivation leans on Grove and on famous company stories. Apart from Allen and McDonald, we haven't reviewed the strategy research behind it.
