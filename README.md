@@ -37,10 +37,6 @@ People react to the signals in front of them and too little to the system that m
 - The engine, the public seeds and this repo are public. The held-out skins and held-out seeds are private. See [contamination](docs/harness/contamination.md).
 - Every docs page is listed in the [docs directory](docs/README.md).
 
-## Contribution
-
-See [CONTRIBUTING](CONTRIBUTING.md).
-
 ## Results
 
 To come.
