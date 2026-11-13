@@ -212,3 +212,29 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 - **The no call share is the same,** because a call to compute counts as no call to `submit`. Haiku ran code on 94% to 95% of rounds either way, so `any` is met by a compute call and never forces a split.
 - **The `any` runs replay the headline setting.** On One shock they scored 0.50, against 0.44 in `seeds`, with a paired SD of 0.18, which is the sampling spread [repeats](#repeats-half-the-spread-is-haikus-own-dice) found.
 - **Means.** For Haiku the choice moves the score by about the width of its own dice, a little in favour of `any`. Sonnet's rows are named `auto` in the table heading, so a reader can tell the two apart.
+
+## Rolling: a kept conversation costs Haiku 0.16, and the cut cache breaks on it
+
+- **Saw.** 240 runs, both rows on No change, One shock and Down switch, fresh and with the conversation kept, public seeds 0 to 19, see [rolling conversation](provider-checks.md#rolling-conversation). All 240 finished and none gave up:
+
+  | Model | Conversation | No change | One shock | Down switch | Paired gap, kept less fresh | Notes share | Compute share |
+  |---|---|---|---|---|---|---|---|
+  | Haiku 5.5 | Fresh | 0.52 | 0.51 | 0.34 | | 0.11 | 0.95 |
+  | Haiku 5.5 | Kept | 0.29 | 0.32 | 0.27 | −0.16, se 0.02 | 0.98 | 0.56 |
+  | Sonnet 5.5 | Fresh | 0.88 | 0.85 | 0.62 | | 0.17 | 0.002 |
+  | Sonnet 5.5 | Kept | 0.86 | 0.85 | 0.67 | +0.01, se 0.02 | 0.24 | 0 |
+
+- **Haiku loses most where nothing changes,** −0.22 on No change and −0.19 on One shock, against −0.08 on Down switch. Kept, it leaves a note on 98% of rounds and runs code on 56%.
+- **Sonnet plays the same either way.** Its Down switch gap is +0.06, standard error 0.05.
+- **The cache stops working at round 20.** Cache reads grew every round to round 19, then fell back:
+
+  | Round | 10 | 19 | 20 | 30 | 40 |
+  |---|---|---|---|---|---|
+  | Sonnet, cache read | 7,948 | 17,923 | 12,014 | 1,607 | 1,002 |
+  | Sonnet, cache write | 975 | 1,311 | 8,558 | 35,087 | 54,246 |
+
+  - Round 20's record is a header and 20 rows, so its message has 21 blocks. Anthropic's cache looks back at most 20 blocks from a mark for an earlier hit, so from then on the last round's mark is out of reach and the whole conversation is written again.
+  - Fresh calls are not hit, as each round adds one row to a prompt that starts again.
+- **So a kept run cost far more.** At list prices about $0.27 a Haiku run and $1.98 a Sonnet run, against $0.014 and $0.083 fresh. The cell came to about $140, more than every other cell together, drawn on the plan.
+- **Means.** For Haiku the fresh call is not a kindness: a kept conversation makes it worse, most of all where its own early guesses were wrong, as the [Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role) predicts. Sonnet shows no gap.
+- **Open.** Send the record as one block when `rolling` is on, so a kept conversation caches by turns, see [`TODO.md`](../../TODO.md#code). It moves the bill, never the prompt, but it is a solver and spec change, so it waits for you.
