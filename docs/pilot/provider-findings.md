@@ -66,7 +66,7 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
   | Sonnet 5.5 | One shock | 0.85 | 0.057 | 0.72 | 0.93 |
   | Sonnet 5.5 | Up switch | 0.74 | 0.145 | 0.46 | 0.94 |
 
-- **One run gave up.** Haiku on One shock seed 14 sent ten replies with no valid call in round 6 and scored 0. Without it Haiku's One shock SD is 0.128, and Sonnet's Up switch is the widest.
+- **One run gave up.** Haiku on One shock seed 14 ran out of its ten tries in round 6 with no valid call, and scored 0. Without it Haiku's One shock SD is 0.128, and Sonnet's Up switch is the widest.
 - **The seed count follows from the target error bar**, at 1.5 × (0.163 ÷ target)²:
 
   | Target | 0.05 | 0.04 | 0.03 | 0.02 |
@@ -76,13 +76,13 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 - **Means.** The check measures what it should. A weaker model spreads wider, and the run that gave up widens it more.
 - **Open.** The target, which [seeds](provider-checks.md#seeds) sets at a fraction of the smallest baseline gap worth reading. The hedge rule sits 0.05 under the Complacent baseline on One shock here, so a fifth of that is 0.01, which would take 400 seeds.
 
-## Repeats: two thirds of the spread is Haiku's own dice
+## Repeats: half the spread is Haiku's own dice
 
 - **Saw.** `repeats` picked Haiku on One shock, ten seeds across its range, each played four times, see [repeats](provider-checks.md#repeats). All 40 runs finished.
-  - Within a seed the run score's SD is 0.092. Across seeds the SD of the four run means is 0.083.
-  - So the sampling share, within variance over total, is 0.66.
+  - Within a seed the run score's SD is 0.080, against 0.112 over all 40 runs.
+  - So the sampling share, within variance over total, is 0.51.
   - Seed 14, which gave up in `seeds`, finished all four repeats, at 0.31 to 0.49.
-- **Means.** For Haiku a per-seed dot says more about the roll than the world. Pairing by seed buys less than hoped, so a paired gap on Haiku has a wider bar than its seed count suggests. The headline still plays each seed once, as more seeds beat repeats.
+- **Means.** For Haiku a per-seed dot says as much about the roll as about the world. Pairing by seed buys less than hoped, so a paired gap on Haiku has a wider bar than its seed count suggests. The headline still plays each seed once, as more seeds beat repeats.
 
 ## Cost: the cut cache makes a run cheap
 
@@ -120,3 +120,25 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 - **The Decision Models rows send fine probabilities,** so `rounded_out` reads here. `reax-1.3` rounds six channels out of view a round and still scores best.
 - **Means.** Two decision models, `reax-1.3` and `reax-1-20261021`, beat the Complacent baseline's 0.48 on Down switch by 0.3 and more, with no text, no tools and no story. On No change the order of the rows by explore points is the reverse of their order by score, so a sharp reader beats a curious one there.
 - **Open.** The Jev row in [decisions](decisions.md#provider-checks) still waits on whether the check counts channels at exactly 0, see [`TODO.md`](../../TODO.md#pilot).
+
+## Up against down: Haiku finds the riser and pays to look
+
+- **Saw.** 100 Haiku runs on five scenarios, public seeds 0 to 19, with the One shock rows from `seeds`, see [up against down](provider-checks.md#up-against-down). All finished but two Up switch runs, which gave up.
+
+  | Scenario | Switch kind | Seeds | Haiku |
+  |---|---|---|---|
+  | No change | | 20 | 0.50 |
+  | One shock | | 20 | 0.44 |
+  | Down switch | Fall alone | 10 | 0.51 |
+  | Down switch | Fall with a riser | 10 | 0.26 |
+  | Up switch | Rise past the leader | 14 | 0.28 |
+  | Up switch | Rise that stops short | 6 | 0.45 |
+  | Up switch then down switch | Rise | 20 | 0.43 |
+  | Switch then shock | Fall alone | 10 | 0.47 |
+  | Switch then shock | Fall with a riser | 10 | 0.25 |
+
+- **It reached the sleeper on 85% to 90% of runs,** in a median round of 9 to 11, so at or just after onset, which falls on 8 to 12.
+- **It explores whether or not anything is wrong.** It held 58 points off its top bet a round on No change and 69 to 73 before onset on the rest.
+- **Paired by seed,** Up switch scores 0.18 under No change, bar −0.30 to −0.06, and Up switch then down switch 0.17 over Up switch, bar 0.07 to 0.28.
+- **Means.** Haiku is not paranoid in the study's sense, as it never commits. Its wide spread finds nearly every riser, and costs it half the gain on offer on No change. A fall with a riser scores half what a fall alone does, so it finds the riser and does not move enough onto it.
+- **Read beside its bet size.** As in [the first model](model-findings.md#it-picks-the-right-channel-and-bets-small-on-it), a score near 0.5 on No change says more about bet size than reading.
