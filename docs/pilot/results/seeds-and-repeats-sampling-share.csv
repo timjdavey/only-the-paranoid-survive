@@ -1,0 +1,2 @@
+model,reasoning,skin,seed_set,own_scale,game_rounds,tools,warm_up,rolling,tool_choice,inertia,prompt_hash,generator_version,harness_version,release,scenario,within_sd,total_sd,share,seeds,epochs
+anthropic/claude-haiku-5-5,off,example,public,,40,"notes,compute",,0,any,,0b793094625c,1,0.1.0+2de59c1,dev,one_shock,0.07978591319159546,0.11205928504707602,0.5069402161797972,10,4

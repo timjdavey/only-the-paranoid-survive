@@ -1,0 +1,7 @@
+model,scenario,reached_share,median_round,explore_points
+anthropic/claude-haiku-5-5 (off),no_change,,,57.91125000000001
+anthropic/claude-haiku-5-5 (off),one_shock,,,72.53306998556998
+anthropic/claude-haiku-5-5 (off),down_switch,0.9,9.0,71.58070526695526
+anthropic/claude-haiku-5-5 (off),up_switch,0.85,10.0,72.5190331890332
+anthropic/claude-haiku-5-5 (off),switch_then_shock,0.9,9.0,68.93568722943722
+anthropic/claude-haiku-5-5 (off),up_switch_then_down_switch,0.9,11.0,68.99109126984128

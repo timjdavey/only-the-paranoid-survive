@@ -1,0 +1,8 @@
+model,mean_rounded_out,rounded_share
+timestral/explore-1,0.0,0.0
+timestral/explore-2,0.0,0.0
+timestral/explore-5,0.0,0.0
+timestral/odds,6.499916666666667,0.975
+timestral/odds-alone,6.631666666666667,0.975
+timestral/odds-bet-aware,6.607333333333333,0.975
+timestral/top-pick,0.0,0.0

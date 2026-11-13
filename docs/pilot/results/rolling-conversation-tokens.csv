@@ -1,0 +1,5 @@
+model,rolling,tokens_per_run,input_per_round
+anthropic/claude-haiku-5-5,0,224658.33333333334,5616.458333333333
+anthropic/claude-haiku-5-5,1,4603844.45,113605.84541666666
+anthropic/claude-sonnet-5-5,0,87846.0,2196.15
+anthropic/claude-sonnet-5-5,1,957023.05,23705.039583333335

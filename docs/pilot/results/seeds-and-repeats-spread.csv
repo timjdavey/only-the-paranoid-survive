@@ -1,0 +1,5 @@
+model,reasoning,skin,seed_set,own_scale,game_rounds,tools,warm_up,rolling,tool_choice,inertia,prompt_hash,generator_version,harness_version,release,scenario,sd,p10,n
+anthropic/claude-haiku-5-5,off,example,public,,40,"notes,compute",,0,any,,0b793094625c,1,0.1.0+535073c,dev,one_shock,0.16254699465735342,0.29494911096640875,20
+anthropic/claude-haiku-5-5,off,example,public,,40,"notes,compute",,0,any,,0b793094625c,1,0.1.0+535073c,dev,up_switch,0.11913140647670718,0.28945606512141003,20
+anthropic/claude-sonnet-5-5,low,example,public,,40,"notes,compute",,0,auto,,0b793094625c,1,0.1.0+535073c,dev,one_shock,0.056982938922663824,0.76776769790809,20
+anthropic/claude-sonnet-5-5,low,example,public,,40,"notes,compute",,0,auto,,0b793094625c,1,0.1.0+535073c,dev,up_switch,0.14539031428336516,0.5469730398969681,20

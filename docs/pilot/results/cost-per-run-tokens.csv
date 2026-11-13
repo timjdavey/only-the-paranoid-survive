@@ -1,0 +1,3 @@
+model,uncached_per_round,cached_per_round
+anthropic/claude-haiku-5-5,28.25925925925926,5058.3473818646235
+anthropic/claude-sonnet-5-5,4.00875,2059.574375

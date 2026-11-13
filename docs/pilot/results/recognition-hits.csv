@@ -1,0 +1,13 @@
+model,skin,probes,hits,hit_share,canary_finished
+anthropic/claude-haiku-5-5,amber,2,0,0.0,0
+anthropic/claude-haiku-5-5,example,2,0,0.0,0
+anthropic/claude-haiku-5-5,indigo,2,0,0.0,0
+anthropic/claude-haiku-5-5,ochre,2,0,0.0,0
+anthropic/claude-haiku-5-5,umber,2,0,0.0,0
+anthropic/claude-haiku-5-5,viridian,2,1,0.5,0
+anthropic/claude-sonnet-5-5,amber,2,2,1.0,0
+anthropic/claude-sonnet-5-5,example,2,1,0.5,0
+anthropic/claude-sonnet-5-5,indigo,2,1,0.5,0
+anthropic/claude-sonnet-5-5,ochre,2,1,0.5,0
+anthropic/claude-sonnet-5-5,umber,2,2,1.0,0
+anthropic/claude-sonnet-5-5,viridian,2,2,1.0,0

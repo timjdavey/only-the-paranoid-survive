@@ -1,0 +1,5 @@
+model,pair,diff,lo,hi,n_shared
+anthropic/claude-haiku-5-5 (off),one_shock − down_switch,0.09268325451729675,-0.007293434259584654,0.18961814634316743,20
+anthropic/claude-haiku-5-5 (off),up_switch − no_change,-0.17964850928689613,-0.2970786281645562,-0.06436712473933934,20
+anthropic/claude-haiku-5-5 (off),up_switch_then_down_switch − up_switch,0.1674649710332467,0.0667432282922488,0.28014697327889326,14
+anthropic/claude-haiku-5-5 (off),switch_then_shock − down_switch,-0.016365487823748304,-0.048543773395505,0.015185686534141372,20

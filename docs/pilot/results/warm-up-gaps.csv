@@ -1,0 +1,2 @@
+model,warm_up,diff,lo,hi,n_shared
+anthropic/claude-haiku-5-5 (off),complacent:5,0.2601025077636939,0.2078824289447628,0.3147552540909098,20.0

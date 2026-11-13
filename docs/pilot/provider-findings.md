@@ -182,21 +182,21 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 
 - **Saw.** 320 runs, both rows on One shock and Down switch at four tool settings, public seeds 0 to 19, see [bare harness](provider-checks.md#bare-harness). All finished but five Haiku runs, which gave up:
 
-  | Model | Tools | One shock | Down switch | Paired gap to `notes,compute` | Notes share | Compute share | Explore points |
+  | Model | Tools | One shock | Down switch | Paired gap to `notes,compute`, with its bar | Notes share | Compute share | Explore points |
   |---|---|---|---|---|---|---|---|
   | Haiku 5.5 | `notes,compute` | 0.45 | 0.33 | | 0.08 | 0.96 | 71 |
-  | Haiku 5.5 | `compute` | 0.42 | 0.22 | −0.05, se 0.03 | | 0.95 | 71 |
-  | Haiku 5.5 | `notes` | 0.05 | 0.11 | −0.18, se 0.02 | 0.76 | | 83 |
-  | Haiku 5.5 | `none` | 0.04 | −0.10 | −0.35, se 0.03 | | | 88 |
+  | Haiku 5.5 | `compute` | 0.42 | 0.26 | −0.05, −0.11 to 0.01 | | 0.95 | 71 |
+  | Haiku 5.5 | `notes` | 0.26 | 0.18 | −0.17, −0.21 to −0.13 | 0.76 | | 83 |
+  | Haiku 5.5 | `none` | 0.04 | 0.06 | −0.34, −0.39 to −0.29 | | | 88 |
   | Sonnet 5.5 | `notes,compute` | 0.84 | 0.61 | | 0.21 | 0.003 | 42 |
-  | Sonnet 5.5 | `compute` | 0.88 | 0.61 | +0.02, se 0.01 | | 0.008 | 41 |
-  | Sonnet 5.5 | `notes` | 0.84 | 0.65 | +0.02, se 0.02 | 0.86 | | 42 |
-  | Sonnet 5.5 | `none` | 0.79 | 0.58 | −0.05, se 0.02 | | | 53 |
+  | Sonnet 5.5 | `compute` | 0.88 | 0.61 | +0.01, −0.01 to 0.03 | | 0.008 | 41 |
+  | Sonnet 5.5 | `notes` | 0.84 | 0.65 | +0.02, −0.02 to 0.07 | 0.86 | | 42 |
+  | Sonnet 5.5 | `none` | 0.79 | 0.58 | −0.05, −0.09 to 0.00 | | | 53 |
 
-- **Without code Haiku spreads almost evenly.** 88 explore points is a top bet of 12, where an even split is 10, and its Down switch score falls under the Uniform baseline's.
-- **Sonnet barely uses the tools.** It ran code on under 1% of rounds, so taking compute away changes nothing, and taking both costs 0.05.
+- **Without code Haiku spreads almost evenly.** 88 explore points is a top bet of 12, where an even split is 10, so it scores barely above the Uniform baseline. A run that gave up scores a gain of 0, as the [retry rule](../harness/prompts.md#retry-rule) says.
+- **Sonnet barely uses the tools.** It ran code on under 1% of rounds, so taking compute away changes nothing, and taking both costs 0.05, a bar that just reaches zero.
 - **No note came near the cap.** The longest of about 3,000 was 730 characters, against `notes_cap` of 2,000.
-- **Means.** Haiku's bare gap of −0.35 is the tools doing its reading: at `off` it thinks in code, as [the first results](model-findings.md#the-provider-checks-first-results) found, and with no code it cannot pick a leader. Sonnet reads the record itself. So a Haiku score at `notes,compute` is partly a score of its code, which the page has to say, see [bare harness](provider-checks.md#bare-harness).
+- **Means.** Haiku's bare gap of −0.34 is the tools doing its reading: at `off` it thinks in code, as [the first results](model-findings.md#the-provider-checks-first-results) found, and with no code it cannot pick a leader. Sonnet reads the record itself. So a Haiku score at `notes,compute` is partly a score of its code, which the page has to say, see [bare harness](provider-checks.md#bare-harness).
 - **Changed.** Nothing. The headline stays at `notes,compute` by design, and `notes_cap` keeps its default, as no note reached it.
 
 ## Tool choice: `auto` costs Haiku a little, and `any` does not force a split
@@ -238,3 +238,19 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 - **So a kept run cost far more.** At list prices about $0.27 a Haiku run and $1.98 a Sonnet run, against $0.014 and $0.083 fresh. The cell came to about $140, more than every other cell together, drawn on the plan.
 - **Means.** For Haiku the fresh call is not a kindness: a kept conversation makes it worse, most of all where its own early guesses were wrong, as the [Self-Correction Illusion](../prior/past-in-the-prompt.md#the-self-correction-illusion-2026-the-same-claim-under-a-different-role) predicts. Sonnet shows no gap.
 - **Open.** Send the record as one block when `rolling` is on, so a kept conversation caches by turns, see [`TODO.md`](../../TODO.md#code). It moves the bill, never the prompt, but it is a solver and spec change, so it waits for you.
+
+## Warm up: five rounds of all in teach Haiku to commit
+
+- **Saw.** 160 runs were planned, both rows on No change and Down switch, with `warm_up` unset and at `complacent:5`, public seeds 0 to 19, see [warm up](provider-checks.md#warm-up). The plan token ran out of credit part way, so Sonnet is not compared:
+
+  | Model | Warm up | Runs | No change | Down switch | Explore points | First round keeps the warm up's bets |
+  |---|---|---|---|---|---|---|
+  | Haiku 5.5 | Unset | 40 | 0.48 | 0.33 | 65 | |
+  | Haiku 5.5 | `complacent:5` | 40 | 0.86 | 0.47 | 19 | 0.40 |
+  | Sonnet 5.5 | Unset | 39 | 0.87 | 0.63 | 31 | |
+  | Sonnet 5.5 | `complacent:5` | 0 | | | | |
+
+- **Paired by seed,** Haiku's warm up gain is +0.26, standard error 0.03: +0.38 on No change and +0.14 on Down switch.
+- **Sonnet's unset eval lost one run,** Down switch seed 19, to the credit error, and its `complacent:5` eval failed on its first call. Neither gave up as a game.
+- **Means.** Haiku copies the habit of a past it only read. Five rounds of someone else putting everything on the leader cut its explore points from 65 to 19, and it scores near Sonnet on No change. So its wide spread is a default, not a reading of the world, which the [one sentence fix](model-findings.md#one-sentence-fixes-it-and-only-its-price-half-matters) found too. It still gains on Down switch, so the habit did not stop it moving.
+- **Open.** Sonnet's 40 `complacent:5` runs, and its one lost unset run, once the plan has credit, see [`TODO.md`](../../TODO.md#pilot).

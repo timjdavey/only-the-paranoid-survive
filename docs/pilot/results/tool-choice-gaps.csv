@@ -1,0 +1,2 @@
+model,tool_choice,against,diff,lo,hi,n_shared,clears_zero
+anthropic/claude-haiku-5-5 (off),auto,any,-0.05442255721460659,-0.095800423178026,-0.013639442926413678,20.0,1

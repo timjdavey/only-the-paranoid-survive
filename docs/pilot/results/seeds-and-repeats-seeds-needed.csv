@@ -1,0 +1,4 @@
+model,reasoning,scenario,sd,target,seeds_needed
+anthropic/claude-haiku-5-5,off,one_shock,0.16254699465735342,0.02,100
+anthropic/claude-haiku-5-5,off,one_shock,0.16254699465735342,0.05,16
+anthropic/claude-haiku-5-5,off,one_shock,0.16254699465735342,0.1,4
