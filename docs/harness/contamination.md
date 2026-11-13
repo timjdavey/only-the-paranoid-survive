@@ -45,7 +45,7 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 
 - **The maintainers only.** No lab sees held-out seeds, timelines or logs, funders included.
 - **Results publish one score per run.** Never a held-out seed, a timeline, or a round-by-round log.
-- **Providers see what they serve.** A run through an API shows the provider that run's readings. So a held-out skin goes only to a provider whose terms train on no prompt and keep it no more than 30 days. Zero data retention is not needed, decided on 2026-11-12, see [keys](models.md#keys).
+- **Providers see what they serve.** A run through an API shows the provider that run's readings. So a held-out skin goes only to a provider whose terms train on no prompt. How long it keeps the prompt does not count: a kept prompt reaches no model, and fresh held-out seeds each release make old readings useless. Decided on 2026-11-13, dropping the 30 day cap set the day before, see [keys](models.md#keys).
 - **Decision Models only through its EU tier.** Its default tier can pass a request to a peer-to-peer network of anonymous GPU owners who may store it. Every call sends `S1-Region: eu`, which its terms say stays in the EU, is not logged and is not trained on, see [providers](../specs/harness/providers.md#jev). Keep peer-to-peer and worldwide processing off on the key as well.
 - **Fresh held-out seeds each release.** Readings a provider kept from one release are no use on the next. Old models are rerun on the new set, not carried over. Every log names its release, so two releases' runs are never pooled, see the [task spec](../specs/harness/task.md#release).
 
@@ -53,22 +53,24 @@ Epoch's FrontierMath lesson was that a holdout matters, and so does who can see 
 
 Whether each provider's terms let a held-out skin go to it, against the rule in [who can see them](#who-can-see-them). Until its row says yes, a provider plays the example skin only.
 
-| Provider | Trains on no prompt | Keeps a prompt 30 days at most | Held-out skin | Read on |
+How long each keeps a prompt is noted for the record only.
+
+| Provider | Trains on no prompt | Keeps a prompt | Held-out skin | Read on |
 |---|---|---|---|---|
-| Anthropic, plan token | Yes, the account collects no data | Yes | Yes | 2026-11-12, see [keys](models.md#keys) |
-| Jev, through Typesafe | Yes, the [customer agreement](https://typesafe.ai/legal/mca) §4.1 | Not shown, see [Jev](#jev) | Not yet | 2026-11-13 |
-| Decision Models, EU tier | Yes, the EU tier's terms | Yes, the EU tier logs no call | Yes | The terms only, see [Decision Models](#decision-models) |
+| Anthropic, plan token | Yes, the account collects no data | 30 days at most | Yes | 2026-11-12, see [keys](models.md#keys) |
+| Jev, through Typesafe | Yes, the [customer agreement](https://typesafe.ai/legal/mca) §4.1 | No period given, see [Jev](#jev) | Yes | 2026-11-13 |
+| Decision Models, EU tier | Yes, the EU tier's terms | Logs no call | Yes | The terms only, see [Decision Models](#decision-models) |
 | Timestral | Runs locally | Runs locally | Yes | No terms to read |
 | OpenAI, Google, OpenRouter | Not checked | Not checked | Not yet | |
 
 ### Jev
 
-- **Training passes.** §4.1 of the agreement, updated 23 Sep 2026, says Typesafe "will not include Customer Data in a dataset used to train ... without Customer's prior consent". Customer Data is both what we send and what Jev replies.
-- **Retention fails.** No document gives a period. The [data processing terms](https://typesafe.ai/legal/data-processing) say "as long as necessary", and §10.3 of the agreement says they "may delete Customer Data at any time".
+- **Training passes, so Jev plays held-out skins.** §4.1 of the agreement, updated 23 Sep 2026, says Typesafe "will not include Customer Data in a dataset used to train ... without Customer's prior consent". Customer Data is both what we send and what Jev replies.
+- **Retention is unknown, which no longer counts.** No document gives a period. The [data processing terms](https://typesafe.ai/legal/data-processing) say "as long as necessary", and §10.3 of the agreement says they "may delete Customer Data at any time".
 - **The telemetry clause is the weak spot.** §4.3 lets Typesafe use "logs, hashes, summary statistics ... and learnings" from our use "without restriction", and §4.1(c) licenses it "in perpetuity" to derive them from our data. The terms don't say whether "learnings" could take anything from a skin's text.
 - **Zero data retention is on offer** "for enterprise customers", through a support form, with no terms given, see their [legal page](https://docs.typesafe.ai/legal.md).
 - **Their list of subprocessors is unread.** The trust centre page loads empty when fetched, so it needs a browser.
-- **Two ways to clear it.** Typesafe grants zero data retention, or we accept the training clause alone. The second loosens the 30 day rule decided on 2026-11-12, so it is a decision, not a check.
+- **Cleared on the training clause alone,** decided on 2026-11-13, when the 30 day cap was dropped.
 
 ### Decision Models
 

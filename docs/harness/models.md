@@ -85,7 +85,7 @@ inspect reads keys from the environment. Copy `.env.example` to `.env` and fill 
 | Baselines | None |
 
 - **A Claude subscription works only if the plan gives API access.** inspect calls the Anthropic API with a console key, or with an OAuth token in `ANTHROPIC_AUTH_TOKEN`, which wins when both are set. A chat-only plan has neither.
-- **A held-out skin needs commercial terms, not zero data retention.** Decided on 2026-11-12: a provider that keeps a prompt 30 days and trains on none is enough, see [who can see them](contamination.md#who-can-see-them). An Anthropic console key is under those terms. Anthropic's [data retention page](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), read on 2026-11-11, puts the Free, Pro and Max plans outside them.
+- **A held-out skin needs commercial terms that train on no prompt.** How long the provider keeps a prompt does not count. Decided on 2026-11-13, dropping the 30 day cap set the day before, see [who can see them](contamination.md#who-can-see-them). An Anthropic console key is under those terms. Anthropic's [data retention page](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention), read on 2026-11-11, puts the Free, Pro and Max plans outside them.
 - **Check a subscription before a held-out skin goes through it.** Three things:
   - That the plan collects no data. A held-out skin a provider trains on is no longer held out. Confirmed on 2026-11-12 for the plan token in use.
   - That its rate limit covers the run. At twenty seeds and two skins a Claude row is 320 runs of at least forty calls each, so about 13,000 calls.
