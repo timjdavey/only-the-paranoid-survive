@@ -198,3 +198,17 @@ What the full run of the [provider checks](provider-checks.md) taught us, on 202
 - **No note came near the cap.** The longest of about 3,000 was 730 characters, against `notes_cap` of 2,000.
 - **Means.** Haiku's bare gap of −0.35 is the tools doing its reading: at `off` it thinks in code, as [the first results](model-findings.md#the-provider-checks-first-results) found, and with no code it cannot pick a leader. Sonnet reads the record itself. So a Haiku score at `notes,compute` is partly a score of its code, which the page has to say, see [bare harness](provider-checks.md#bare-harness).
 - **Changed.** Nothing. The headline stays at `notes,compute` by design, and `notes_cap` keeps its default, as no note reached it.
+
+## Tool choice: `auto` costs Haiku a little, and `any` does not force a split
+
+- **Saw.** 80 Haiku runs on One shock and Down switch, at `any` and at `auto`, public seeds 0 to 19, see [tool choice](provider-checks.md#tool-choice). Sonnet resolves to `auto`, so it has no `any` to compare, as the dry run said. All 80 finished and none gave up:
+
+  | Tool choice | One shock | Down switch | No call share | Bad calls a run | Explore points |
+  |---|---|---|---|---|---|
+  | `any` | 0.50 | 0.33 | 0.96 | 1.8 | 70 |
+  | `auto` | 0.41 | 0.31 | 0.96 | 4.4 | 74 |
+
+- **Paired by seed,** `auto` less `any` is −0.05, standard error 0.02.
+- **The no call share is the same,** because a call to compute counts as no call to `submit`. Haiku ran code on 94% to 95% of rounds either way, so `any` is met by a compute call and never forces a split.
+- **The `any` runs replay the headline setting.** On One shock they scored 0.50, against 0.44 in `seeds`, with a paired SD of 0.18, which is the sampling spread [repeats](#repeats-half-the-spread-is-haikus-own-dice) found.
+- **Means.** For Haiku the choice moves the score by about the width of its own dice, a little in favour of `any`. Sonnet's rows are named `auto` in the table heading, so a reader can tell the two apart.
