@@ -1,0 +1,4 @@
+model,reasoning,kind,skin,runs,input,cache_read,cache_write,output,reasoning_tokens,cached_share,cut_off_share,projected,cell,retry_share
+anthropic/claude-haiku-5-5,off,llm,example,40,1106.35,198034.3,25736.55,15263.925,0.0,0.8806330744068318,0.0,,seeds,0.9450830140485313
+anthropic/claude-sonnet-5-5,low,llm,example,40,160.35,82382.975,4318.225,6231.375,1691.9,0.9484400750389557,0.0,,seeds,0.003125
+anthropic/claude-haiku-5-5,off,llm,example,40,1139.4,204247.875,26239.85,15723.85,0.0,0.8817960115854306,0.0,,repeats,0.959375

@@ -1,0 +1,7 @@
+model,tools,against,diff,lo,hi,n_shared,clears_zero
+anthropic/claude-haiku-5-5 (off),notes,"notes,compute",-0.16972216470757734,-0.21230531662119617,-0.12935479041619571,20.0,1
+anthropic/claude-haiku-5-5 (off),compute,"notes,compute",-0.05196297393913374,-0.11016779636560461,0.009521769347865977,20.0,0
+anthropic/claude-haiku-5-5 (off),none,"notes,compute",-0.33722727824326115,-0.38549147447128346,-0.28898489480999673,20.0,1
+anthropic/claude-sonnet-5-5 (low),notes,"notes,compute",0.021182239499355715,-0.019315086940531884,0.06547659108146134,20.0,0
+anthropic/claude-sonnet-5-5 (low),compute,"notes,compute",0.013539250442930806,-0.006916345840385909,0.0336296128496088,20.0,0
+anthropic/claude-sonnet-5-5 (low),none,"notes,compute",-0.045680614297336164,-0.09243180787791201,0.0028708330594518004,20.0,0

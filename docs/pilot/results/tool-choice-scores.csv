@@ -1,0 +1,5 @@
+model,reasoning,tool_choice,scenario,score,lo,hi,n,no_call_share
+anthropic/claude-haiku-5-5,off,any,one_shock,0.5012899026859029,0.41872316844976154,0.5882272202835747,20,0.93375
+anthropic/claude-haiku-5-5,off,any,down_switch,0.32562887752375236,0.2846428770612506,0.3733682019335982,20,0.9875
+anthropic/claude-haiku-5-5,off,auto,one_shock,0.41140516362239,0.3771146653833443,0.4474673325299014,20,0.9575
+anthropic/claude-haiku-5-5,off,auto,down_switch,0.3066685021580521,0.267876952743071,0.3523359368937435,20,0.97

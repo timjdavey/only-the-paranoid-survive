@@ -19,7 +19,7 @@ def round_loop(
 
 def tool_choice_for(api: str, config: GenerateConfig) -> Literal["any", "auto"]   # api as ModelName(model).api
 
-BLOCK_CACHE_APIS: tuple[str, ...] = ()   # apis whose prompt cache matches by content block. Off until checked
+BLOCK_CACHE_APIS: tuple[str, ...] = ("anthropic",)   # apis whose prompt cache matches by content block
 def record_blocks(text: str) -> list[str]   # the record cut after every \n
 
 def submit(skin: Skin) -> Tool                     # one parameter, named skin.bets_name, a list of ints. Returns str
@@ -45,7 +45,7 @@ How the record is cut into content blocks, and nothing else. The text is the sam
 
 - **`record_blocks(text)`** cuts the record after every `\n`, and nowhere else, and returns the pieces in order: the header line, then one piece per row. Nothing is added, dropped or stripped. Python's `splitlines` would also cut at `\x0b`, U+2028 and other breaks, so it is never used on a record. The submit tool's [result](#submit) takes the header and last line from the same cut.
 - **Used when `ModelName(get_model()).api` is in `BLOCK_CACHE_APIS`.** Each piece is one text block of the user message. Any other api gets the record as one block.
-- **`BLOCK_CACHE_APIS` ships empty**, so every api gets one block until both Anthropic checks in [verify before code](#verify-before-code) pass. Then it becomes `("anthropic",)`, and nothing else changes.
+- **`BLOCK_CACHE_APIS` is `("anthropic",)`**, since both Anthropic checks passed on 2026-11-12, see [checked](#checked). Every other api gets one block.
 - **Why.** Anthropic's cache matches by content block, and a record sent as one growing block never matches, see [prompt caching](../../harness/models.md#prompt-caching).
 - **The notes block stays last**, after every record block, so a changed note leaves the rows above it cached.
 - **inspect places the cache marks.** The solver sets none, and `cache_prompt` stays at inspect's default, see [reasoning](command.md#reasoning). Where the marks fall is in [checked](#checked).
@@ -150,7 +150,7 @@ Pilot only, see [rolling conversation](../../pilot/provider-checks.md#rolling-co
 
 ## Checked
 
-Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source. No key was used, so no provider was called.
+Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source, with no key, bar the record cut below, which called Anthropic on 2026-11-12.
 
 | Question | Answer |
 |---|---|
@@ -175,6 +175,10 @@ Run on 2026-11-11 against inspect_ai 0.3.289, and read from its provider source.
 | Can the model's code make a tool error that is not `parsing` | Not by its output. Bytes that are not UTF-8 come back with replacement characters, on the `local` sandbox and on Docker, run on 2026-11-11. A null byte in the code is refused as `parsing` |
 | What a memory bomb returns under `mem_limit` alone | Nothing. The kernel kills Python with exit code 137 and no output. With `ulimits` `data` below `mem_limit` it returns a `MemoryError` traceback |
 
+- **Cutting the record changes the bill and nothing else.** Checked on 2026-11-12 on `claude-haiku-5-5` at `off`, the example skin, through the plan token, so `BLOCK_CACHE_APIS` is `("anthropic",)`:
+  - **Same tokens cut or whole.** `count_tokens` on a forty row record of public seed 0, with the system prompt, gave 1,969 as one block, as 41 blocks and as a plain string. So no separator reaches the model.
+  - **Cache reads grow.** A three round run, `rounds=33`, `warm_up=uniform:30`, `tools=none`. Cut, the cache read tokens were 754, 2,902 and 2,964 on a fresh seed, so by round 3 they covered the system prompt and all but the newest row. As one block they stayed at 754 every round, the system prompt alone, and the record was written to the cache again each round.
+  - **The cache matches by token prefix.** A one block run played straight after a cut run on the same seed read the cut run's entries, 2,963 then 3,025 then 3,087. The blocks only decide where a read can land.
 - **So the rule above stands for Claude**, for a wider reason than a refused call: `auto` is the only choice that leaves thinking on.
 - **A Claude that thinks with nothing set** still gets `any`, as the rule reads the config and not the model. Every Anthropic row in `configs/models/` sets its reasoning, so no row of the study plays that way.
 
@@ -184,7 +188,4 @@ Each needs a key, so none was run.
 
 - **Which OpenRouter models refuse `any` while thinking.** For every `openrouter/` row in `configs/models/` at a setting above `off`, one `generate` with the [`submit`](#submit) tool and `tool_choice="any"`. A 400, or a reply with no reasoning, means `tool_choice_for` returns `auto` for that model, and it then takes the model name as well as the api. DeepSeek and Kimi are the likely ones, see [checked](#checked). The same call on one OpenAI and one Google row. `tool_choice_for` waits on it.
 - **That `any` with adaptive thinking skips the thinking.** One call on `claude-haiku-5-5` at `low` with `any` and one with `auto`. If the `any` reply thinks as much, the rule could send `any` there. Nothing waits on it.
-- **That cutting the record changes the bill and nothing else.** Two checks left of three, on one Anthropic model. `BLOCK_CACHE_APIS` ships empty, so `record_blocks` is used only once both pass and the constant becomes `("anthropic",)`. If one fails, it stays empty and the record stays one block.
-  - Anthropic's token count for the prompt is the same cut or whole, so no separator reaches the model. `count_tokens` on a forty row record both ways.
-  - In a three round run the log's cache read tokens grow each round, and by round 3 cover the system prompt and the first rows. A prompt under the model's cache minimum reads nothing, so use a record long enough to clear it. Anthropic's docs put the minimum at 512 tokens on Claude 5.5 models, read on 2026-11-11.
 - **Which models read their own earlier reasoning on a later turn**, and which get it summarised or empty. From each provider's docs, noted in the row's `notes`. Done for the three `llm` rows of `poc.toml` on 2026-11-11: all three read it when the blocks are sent back as they came. The rows of `full.toml` are left. The per-model reading of the rolling cell waits on it, see [rolling](#rolling).

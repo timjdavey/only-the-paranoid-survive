@@ -27,9 +27,9 @@ from .config import check_tool_choice, parse_tools
 from .store import RunStore, StoredRow, timeline_for, uncapped
 from .tools import NOTES_CAP, compute, notes, record_blocks, reset_sandbox, submit, write_record
 
-# apis whose prompt cache matches by content block. Empty until the two Anthropic checks pass,
-# see docs/specs/harness/solver.md#verify-before-code. Then ("anthropic",).
-BLOCK_CACHE_APIS: tuple[str, ...] = ()
+# apis whose prompt cache matches by content block. Anthropic's, since both checks passed on 2026-11-12,
+# see docs/specs/harness/solver.md#checked.
+BLOCK_CACHE_APIS: tuple[str, ...] = ("anthropic",)
 STORE_KEYS = ("scenario", "seed_set", "seed_index", "skin", "rounds", "inertia", "own_scale")
 CUT_OFFS = ("max_tokens", "model_length")  # the stop reasons inspect gives a reply the token limit cut
 

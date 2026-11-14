@@ -53,7 +53,8 @@ The short run before the full study that settles the knobs.
 | [Provider checks](pilot/provider-checks.md) | The second half of the pilot: checks that need a model |
 | [Decisions](pilot/decisions.md) | One row per check and per knob, filled once and then frozen |
 | [Findings](pilot/findings.md) | What the pilot has taught us so far, why it matters and what changed |
-| [Model findings](pilot/model-findings.md) | The same for models behind a provider: the first probes and the provider checks |
+| [Model findings](pilot/model-findings.md) | The same for models behind a provider: the first probes and the first provider checks |
+| [Provider findings](pilot/provider-findings.md) | What the full run of the provider checks taught us, one finding per check |
 | [Results](pilot/results.md) | The pilot's tables and plots. Written by `paranoid analyse`, never by hand |
 
 ## Results
