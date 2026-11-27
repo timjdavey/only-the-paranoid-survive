@@ -14,6 +14,14 @@ As agents take on longer jobs and interact with long running complex systems, th
 
 People react to the signals in front of them and too little to the system that makes them. So they overreact when the world is stable and the signals are noisy, and underreact when the world is changing and the signals are precise. This is called [system neglect](docs/prior/people.md#massey-and-wu-2005-system-neglect). Whether agents share the bias, and which way they lean, is the question.
 
+## Safety motivation
+
+- **Legible oversight.** Simply how much can we trust models to have an accurate understanding of an opaque system [events](docs/design/mechanics.md#events).
+- **Crying wolf.** An agent that drops its plan at every [wobble](docs/prior/README.md#which-way-do-models-fail) teaches people to ignore its [alarms](docs/design/scoring.md#traits).
+- **Deployed behaviour differences.** For this specific case, do models change their behaviour during a test vs the real world via [skin sensitivity](docs/design/scoring.md#spread).
+- **Ensemble models.** Understanding how frontier LLM models map against decision and forecaster models adds an extra check, when divergence happens quickly.
+
+
 ## Contribution
 
 What this study adds to [prior work](docs/prior/README.md).
